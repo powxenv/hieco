@@ -1,3 +1,15 @@
+---
+title: Hedera Apex Hackathon 2026 - Comprehensive Bounty Research
+description: Complete analysis of all 5 sponsored bounty tracks with 15 unique project ideas
+category: overview
+created: 2026-02-22
+status: complete
+tags: [hackathon, overview, research, bounties]
+related:
+  - ../02-bounty-research/all-bounties-analysis.md
+  - ../02-bounty-research/hiero-deep-dive.md
+---
+
 # Hedera Hello Future Apex Hackathon 2026: Comprehensive Bounty Research
 
 **Hackathon Dates:** February 17 - March 23, 2026

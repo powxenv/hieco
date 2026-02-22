@@ -12,11 +12,11 @@ This directory contains comprehensive research, analysis, and proposals for the 
 
 ### Quick Navigation
 
-| Section | Description | Status |
-|---------|-------------|--------|
-| [01 - Hackathon Overview](./01-overview/) | Comprehensive analysis of all 5 bounty tracks | ✅ Complete |
-| [02 - Bounty Research](./02-bounty-research/) | Deep-dive research on Hiero ecosystem | ✅ Complete |
-| [03 - Proposals](./03-proposals/) | Novel DX proposals and unified ecosystem | ✅ Complete |
+| Section                                       | Description                                   | Status      |
+| --------------------------------------------- | --------------------------------------------- | ----------- |
+| [01 - Hackathon Overview](./01-overview/)     | Comprehensive analysis of all 5 bounty tracks | ✅ Complete |
+| [02 - Bounty Research](./02-bounty-research/) | Deep-dive research on Hiero ecosystem         | ✅ Complete |
+| [03 - Proposals](./03-proposals/)             | Novel DX proposals and unified ecosystem      | ✅ Complete |
 
 ---
 
@@ -44,6 +44,7 @@ brainstorming/
 **File:** [`hackathon-overview.md`](./01-overview/hackathon-overview.md)
 
 Comprehensive research covering all 5 sponsored bounty tracks:
+
 - **Neuron ($8K):** MLAT aviation surveillance using Mode-S data
 - **AWS ($8K):** Enterprise key management with AWS KMS
 - **Bonzo ($8K):** Intelligent keeper agents for DeFi vaults
@@ -51,6 +52,7 @@ Comprehensive research covering all 5 sponsored bounty tracks:
 - **Hiero ($8K):** Developer tooling libraries
 
 **Key Insights:**
+
 - All bounties emphasize solving tangible real-world problems
 - Deep integration with Hedera core services required
 - Production readiness and adoption potential heavily weighted
@@ -66,6 +68,7 @@ Comprehensive research covering all 5 sponsored bounty tracks:
 **File:** [`all-bounties-analysis.md`](./02-bounty-research/all-bounties-analysis.md)
 
 Cross-bounty synthesis identifying:
+
 - Common themes (decentralization, security, AI integration)
 - Bounty selection strategies based on interest/skills
 - Hedera service utilization patterns
@@ -76,6 +79,7 @@ Cross-bounty synthesis identifying:
 **File:** [`hiero-deep-dive.md`](./02-bounty-research/hiero-deep-dive.md)
 
 Exhaustive ecosystem mapping including:
+
 - **15+ official SDKs/tools** inventory
 - **Enterprise integration patterns** (hiero-enterprise-java reference)
 - **Community libraries** landscape analysis
@@ -84,6 +88,7 @@ Exhaustive ecosystem mapping including:
 - **3 initial proposals** (later superseded by novel DX ideas)
 
 **Key Findings:**
+
 - No active TypeScript Mirror Node client
 - Zero comprehensive scheduled transaction utilities
 - No official React/frontend framework integrations
@@ -100,22 +105,22 @@ Exhaustive ecosystem mapping including:
 **Novel Developer Experience Proposals** (avoiding official hackathon examples):
 
 1. **`@hiero/devtools` - Visual Transaction Debugger**
-   - Inspect transaction bytes in human-readable format
-   - Dry-run simulation without network submission
-   - Fee prediction and validation
-   - Implementation: 12-15 days
+    - Inspect transaction bytes in human-readable format
+    - Dry-run simulation without network submission
+    - Fee prediction and validation
+    - Implementation: 12-15 days
 
 2. **`@hiero/hotswap` - Hot Reload Development Server**
-   - Instant contract redeployment without address changes
-   - Virtual faucet for unlimited test accounts
-   - State snapshots and time travel
-   - Implementation: 18-22 days
+    - Instant contract redeployment without address changes
+    - Virtual faucet for unlimited test accounts
+    - State snapshots and time travel
+    - Implementation: 18-22 days
 
 3. **`@hiero/observability` - Profiler & Monitoring Dashboard**
-   - Transaction tracing and visualization
-   - Smart contract profiling
-   - Error tracking and alerting
-   - Implementation: 20-25 days
+    - Transaction tracing and visualization
+    - Smart contract profiling
+    - Error tracking and alerting
+    - Implementation: 20-25 days
 
 **Differentiation:** All three address genuine pain points with zero existing solutions in the Hiero ecosystem.
 
@@ -128,12 +133,14 @@ Exhaustive ecosystem mapping including:
 A unified, community-driven frontend integration ecosystem covering **React, Svelte, Vue, Solid, and Qwik** frameworks.
 
 **Architecture:**
+
 - Shared core utilities (`@hiecom/core`)
 - Framework-specific packages (`@hiecom/react`, `@hiecom/svelte`, etc.)
 - Monorepo structure with Turborepo + pnpm
 - 13,000+ lines of code across 7 packages
 
 **Key Innovations:**
+
 - Multi-framework coverage (first for Hiero)
 - 70% code reuse via shared core
 - Type-safe Mirror Node API
@@ -159,12 +166,12 @@ All research was conducted using:
 
 ## Decision Log
 
-| Date | Decision | Rationale |
-|------|----------|-----------|
-| Feb 22, 2026 | Chose Hiero bounty track | Strongest fit for frontend/TypeScript expertise |
-| Feb 22, 2026 | Pivoted from official examples | Avoid duplication; focus on DX innovation |
+| Date         | Decision                              | Rationale                                        |
+| ------------ | ------------------------------------- | ------------------------------------------------ |
+| Feb 22, 2026 | Chose Hiero bounty track              | Strongest fit for frontend/TypeScript expertise  |
+| Feb 22, 2026 | Pivoted from official examples        | Avoid duplication; focus on DX innovation        |
 | Feb 22, 2026 | Expanded to multi-framework ecosystem | Higher impact; addresses ecosystem fragmentation |
-| Feb 22, 2026 | Selected @hiecom namespace | Community-driven; not vendor-controlled |
+| Feb 22, 2026 | Selected @hiecom namespace            | Community-driven; not vendor-controlled          |
 
 ---
 
@@ -173,18 +180,18 @@ All research was conducted using:
 ### Immediate (Pre-Implementation)
 
 1. **Finalize Proposal Choice**
-   - Evaluate: `@hiero/devtools` vs. `@hiecom` ecosystem
-   - Consider: Scope, timeline, community impact
+    - Evaluate: `@hiero/devtools` vs. `@hiecom` ecosystem
+    - Consider: Scope, timeline, community impact
 
 2. **Validate Feasibility**
-   - Test Hiero SDK capabilities locally
-   - Verify Mirror Node API availability
-   - Confirm framework integration patterns
+    - Test Hiero SDK capabilities locally
+    - Verify Mirror Node API availability
+    - Confirm framework integration patterns
 
 3. **Stakeholder Feedback**
-   - Present to Hedera/Hiero community
-   - Gather feedback on pain points
-   - Refine proposals based on responses
+    - Present to Hedera/Hiero community
+    - Gather feedback on pain points
+    - Refine proposals based on responses
 
 ### Implementation Phase
 
@@ -198,12 +205,14 @@ All research was conducted using:
 ## Contributing
 
 This research directory is organized for:
+
 - Easy navigation between related documents
 - Progressive refinement of ideas
 - Clear decision trail
 - Reuse in future hackathons/projects
 
 When adding new research:
+
 1. Use semantic filenames (kebab-case)
 2. Add frontmatter with metadata (date, status, related documents)
 3. Update this README with new entries
@@ -215,9 +224,9 @@ When adding new research:
 
 **Created:** February 22, 2026
 **Last Updated:** February 22, 2026
-**Authors:** @abinovalfauzi
+**Authors:** @pow
 **License:** MIT (for documentation structure)
 
 ---
 
-*This research directory supports the Hedera Hello Future Apex Hackathon 2026 participation.*
+_This research directory supports the Hedera Hello Future Apex Hackathon 2026 participation._

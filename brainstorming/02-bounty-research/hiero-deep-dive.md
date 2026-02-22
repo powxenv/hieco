@@ -1,3 +1,15 @@
+---
+title: Hiero Bounty Deep-Dive Analysis
+description: Exhaustive ecosystem mapping, gap analysis, and opportunity identification
+category: bounty-research
+created: 2026-02-22
+status: complete
+tags: [hiero, ecosystem, gaps, research]
+related:
+  - ../01-overview/hackathon-overview.md
+  - all-bounties-analysis.md
+---
+
 # Hiero Bounty Deep-Dive Analysis: Ecosystem Mapping & Novel Opportunities
 
 **Hackathon:** Hedera Hello Future Apex Hackathon 2026

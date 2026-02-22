@@ -1,1114 +1,1299 @@
+---
+title: @hiecom Unified Frontend Ecosystem
+description: React-first multi-framework unified frontend integration ecosystem for Hiero blockchain
+category: proposals
+created: 2026-02-22
+status: complete
+tags: [hiecom, ecosystem, react, multi-framework, monorepo]
+related:
+  - ../02-bounty-research/hiero-deep-dive.md
+  - hiero-dx-proposals.md
+---
+
 # @hiecom: Unified Hiero Community Frontend Ecosystem
 
 **Hackathon:** Hedera Hello Future Apex Hackathon 2026
 **Bounty Pool:** $8,000 (Hiero Developer Tooling Track)
 **Project:** Community-driven unified frontend integration ecosystem
 **Namespace:** `@hiecom/*` (Hiero Community)
+**Reference Implementation:** React
 **Timeline:** 5 weeks (February - March 2026)
 
 ---
 
 ## Executive Summary
 
-The `@hiecom` ecosystem consolidates all Hiero frontend integration efforts under a unified community namespace, providing consistent, well-tested, and framework-idiomatic SDKs for **React, Svelte, Vue, Solid, and Qwik**. This comprehensive monorepo eliminates duplication, establishes best practices, and accelerates Hiero dApp development across the entire frontend ecosystem.
+The `@hiecom` ecosystem provides a **unified, community-driven frontend integration layer** for Hiero blockchain, built with React as the reference implementation and replicated across Svelte, Vue, Solid, and Qwik. This comprehensive monorepo eliminates duplication, establishes best practices, and accelerates Hiero dApp development with genuine utility and intuitive developer experience.
 
 ### Vision
 
-A single, cohesive ecosystem where every frontend developer can integrate Hiero blockchain functionality using their preferred framework's idioms and patterns, backed by shared core utilities, comprehensive testing, and unified documentation.
+A single, cohesive ecosystem where frontend developers can integrate Hiero using their preferred framework's idioms and patterns, with **70% code reuse** via shared core utilities, comprehensive testing, and unified documentation—all starting with React as the production-ready reference implementation.
 
-### Differentiation from Official Examples
+### Alignment with Official Hiero Bounty Requirements
 
-The official hackathon examples focus on:
-1. ❌ TypeScript Mirror Node client
-2. ❌ Scheduled transactions helper
-3. ❌ React/Next.js integration kit
+**Official Bounty Statement:**
+> "Build a Hiero-ready open-source library that makes it easier for developers to interact with Hiero networks—a reusable set of utilities (not an app) that improves developer experience and can realistically be adopted by the ecosystem."
 
-The `@hiecom` ecosystem **transcends** these by providing:
-- ✅ **Multi-framework coverage** (React, Svelte, Vue, Solid, Qwik) - not just React
-- ✅ **Monorepo architecture** with shared core utilities and testing infrastructure
-- ✅ **Framework-specific idioms** (hooks for React, stores for Svelte, composables for Vue, signals for Solid, loadables for Qwik)
-- ✅ **Unified type definitions** across all frameworks via shared TypeScript types package
-- ✅ **Zero-config setup** with sensible defaults for all frameworks
-- ✅ **Comprehensive documentation** with cross-framework examples
+**How @hiecom Exceeds Requirements:**
+
+| Requirement | Official Spec | @hiecom Delivery |
+|-------------|---------------|------------------|
+| **Open-source library** | ✅ Public repo + clear license | ✅ MIT license, 7 packages |
+| **Clean library API** | ✅ Basic structure | ✅ Production-ready, idiomatic per framework |
+| **Tests** | ✅ Basic tests | ✅ 90%+ coverage, unit + integration + E2E |
+| **CI** | ✅ CI/CD | ✅ GitHub Actions + automated releases |
+| **README + quickstart** | ✅ Install + examples | ✅ Full documentation site (VitePress) |
+| **Contribution hygiene** | ✅ CONTRIBUTING + DCO | ✅ Full monorepo standards + Changesets |
+| **Reference implementation** | hiero-enterprise-java | ✅ @hiecom/react as reference pattern |
+
+**Beyond Basic Examples:**
+
+The official examples mention:
+- ❌ TypeScript Mirror Node client
+- ❌ Scheduled transactions helper
+- ❌ React/Next.js integration kit
+
+**@hiecom transcends these by providing:**
+- ✅ **Multi-framework ecosystem** (React as reference → Svelte, Vue, Solid, Qwik replicate pattern)
+- ✅ **Type-safe Mirror Node client** with automatic pagination
+- ✅ **Scheduled transactions** as first-class feature across all frameworks
+- ✅ **Monorepo architecture** with shared core utilities
+- ✅ **Production-ready patterns** battle-tested by enterprise Java reference
 
 ---
 
 ## Table of Contents
 
-1. [Technical Analysis of Hiero API Capabilities](#technical-analysis-of-hiero-api-capabilities)
-2. [Current Ecosystem Gap Analysis](#current-ecosystem-gap-analysis)
-3. [Architecture Design](#architecture-design)
-4. [Package Hierarchy](#package-hierarchy)
-5. [Framework Implementation Specifications](#framework-implementation-specifications)
-6. [Monorepo Structure](#monorepo-structure)
-7. [Testing Strategy](#testing-strategy)
-8. [Deployment and Distribution](#deployment-and-distribution)
-9. [Implementation Roadmap](#implementation-roadmap)
-10. [Feasibility Validation](#feasibility-validation)
+1. [Official Bounty Requirements Integration](#official-bounty-requirements-integration)
+2. [React-First Reference Architecture](#react-first-reference-architecture)
+3. [Core Package: Shared Utilities](#core-package-shared-utilities)
+4. [React Implementation: Reference Pattern](#react-implementation-reference-pattern)
+5. [Framework Adapter Pattern](#framework-adapter-pattern)
+6. [Genuine Utility Demonstrations](#genuine-utility-demonstrations)
+7. [Implementation Roadmap](#implementation-roadmap)
+8. [Submission Deliverables](#submission-deliverables)
 
 ---
 
-## Technical Analysis of Hiero API Capabilities
+## Official Bounty Requirements Integration
 
-### Core SDK Transaction API
+### Bounty Problem Statement
 
-Based on Context7 queries and official Hiero SDK documentation, the following transaction APIs are available:
+> "Build a Hiero-ready open-source library that makes it easier for developers to interact with Hiero networks—a reusable set of utilities (not an app) that improves developer experience and can realistically be adopted by the ecosystem."
 
-#### Transaction Base Class
-```typescript
-class Transaction {
-  // Byte serialization
-  static fromBytes(bytes: Uint8Array): Transaction;
-  toBytes(): Uint8Array;
+### @hiecom Solution Approach
 
-  // Signing
-  signWithOperator(client: Client): Transaction;
-  signWith(keypair: PrivateKey): Transaction;
-  addSignature(publicKey: PublicKey, signature: Uint8Array): Transaction;
+**Core Philosophy:** Every feature must demonstrate **genuine utility** and **intuitive developer experience**.
 
-  // Execution
-  execute(client: Client): TransactionResponse;
-  setTransactionValidDuration(seconds: number): Transaction;
+**Utility Validation:**
+- ❌ "Would be nice to have" → Rejected
+- ✅ "Solves a daily pain point" → Accepted
+- ✅ "Reduces boilerplate by 80%" → Accepted
+- ✅ "Prevents common bugs" → Accepted
 
-  // State
-  freeze(): Transaction;
-  isFrozen(): boolean;
-  setMaxTransactionFee(fee: Hbar): Transaction;
-  setTransactionMemo(memo: string): Transaction;
-}
-```
+**DX Validation:**
+- ❌ Requires reading 50+ docs to use → Rejected
+- ✅ Works in 5 minutes with quickstart → Accepted
+- ✅ TypeScript autocomplete for everything → Accepted
+- ✅ Helpful error messages → Accepted
 
-#### TransferTransaction
-```typescript
-class TransferTransaction extends Transaction {
-  addHbarTransfer(accountId: AccountId, amount: Hbar): TransferTransaction;
-  addTokenTransfer(tokenId: TokenId, accountId: AccountId, amount: bigint): TransferTransaction;
-}
-```
+### Required Deliverables Mapping
 
-#### Contract Operations
-```typescript
-// Contract queries
-class ContractCallQuery extends Query<ContractFunctionResult> {
-  setContractId(contractId: ContractId): ContractCallQuery;
-  setGas(gas: bigint): ContractCallQuery;
-  setFunctionParameters(functionName: string, args: FunctionParameters): ContractCallQuery;
-}
+| Official Requirement | @hiecom Implementation |
+|---------------------|------------------------|
+| **Public repo + clear license** | `github.com/hiecom/ecosystem` with MIT license |
+| **Clean library API** | Idiomatic React hooks → replicated patterns |
+| **Basic tests** | Vitest with 90%+ coverage + Playwright E2E |
+| **CI** | GitHub Actions (lint, test, build, release) |
+| **README + quickstart** | Full VitePress docs + interactive examples |
+| **Contribution hygiene** | CONTRIBUTING.md, DCO sign-offs, Changesets |
+| **Reference implementation** | hiero-enterprise-java patterns adapted for frontend |
 
-// Contract execution
-class ContractExecuteTransaction extends Transaction {
-  setContractId(contractId: ContractId): ContractExecuteTransaction;
-  setGas(gas: bigint): ContractExecuteTransaction;
-  setFunctionParameters(functionName: string, args: FunctionParameters): ContractExecuteTransaction;
-  setPayableAmount(amount: Hbar): ContractExecuteTransaction;
-}
+### Judging Criteria Alignment
 
-// Contract creation
-class ContractCreateTransaction extends Transaction {
-  setBytecode(bytecode: Uint8Array): ContractCreateTransaction;
-  setGas(gas: bigint): ContractCreateTransaction;
-  setConstructorParameters(constructor: FunctionParameters): ContractCreateTransaction;
-  setAdminKey(key: Key): ContractCreateTransaction;
-}
-```
+**Integration (15%) - How integrated is it?**
+- Uses Mirror Node REST API (transactions, accounts, tokens, contracts)
+- Wraps Hiero SDK client operations
+- Leverages Hedera Consensus Service for agent/event coordination
+- Type-safe integration with all major Hiero services
 
-#### File Operations
-```typescript
-class FileCreateTransaction extends Transaction {
-  setContents(contents: Uint8Array): FileCreateTransaction;
-  setKeys(keys: Key[]): FileCreateTransaction;
-}
+**Innovation (10%) - New capabilities for ecosystem**
+- First multi-framework Hiero integration (React + 4 others)
+- Type-safe Mirror Node client (doesn't exist)
+- Unified type definitions across all frameworks
+- Shared testing infrastructure (doesn't exist)
 
-class FileUpdateTransaction extends Transaction {
-  setFileId(fileId: FileId): FileUpdateTransaction;
-  setContents(contents: Uint8Array): FileUpdateTransaction;
-}
+**Execution (20%) - MVP quality**
+- Working React implementation (reference)
+- Production-ready: error handling, caching, retries
+- Comprehensive tests (unit + integration + E2E)
+- Full documentation with live examples
 
-class FileDeleteTransaction extends Transaction {
-  setFileId(fileId: FileId): FileDeleteTransaction;
-}
-```
-
-#### Account Operations
-```typescript
-class AccountUpdateTransaction extends Transaction {
-  setAccountId(accountId: AccountId): AccountUpdateTransaction;
-  setKey(key: Key): AccountUpdateTransaction;
-}
-
-class AccountRecordsQuery extends Query<TransactionRecord[]> {
-  setAccountId(accountId: AccountId): AccountRecordsQuery;
-}
-
-class AccountStakersQuery extends Query<Staker[]> {
-  setAccountId(accountId: AccountId): AccountStakersQuery;
-}
-```
-
-#### Token Operations
-```typescript
-class TokenCreateTransaction extends Transaction {
-  setTokenName(name: string): TokenCreateTransaction;
-  setTokenSymbol(symbol: string): TokenCreateTransaction;
-  setDecimals(decimals: number): TokenCreateTransaction;
-  setInitialSupply(supply: bigint): TokenCreateTransaction;
-  setTreasuryAccountId(accountId: AccountId): TokenCreateTransaction;
-  setAdminKey(key: Key): TokenCreateTransaction;
-  setSupplyKey(key: Key): TokenCreateTransaction;
-  setFreezeKey(key: Key): TokenCreateTransaction;
-  setWipeKey(key: Key): TokenCreateTransaction;
-  setKycKey(key: Key): TokenCreateTransaction;
-}
-
-class TokenAssociateTransaction extends Transaction {
-  setAccountId(accountId: AccountId): TokenAssociateTransaction;
-  setTokenIds(tokenIds: TokenId[]): TokenAssociateTransaction;
-}
-
-class TokenDissociateTransaction extends Transaction {
-  setAccountId(accountId: AccountId): TokenDissociateTransaction;
-  setTokenIds(tokenIds: TokenId[]): TokenDissociateTransaction;
-}
-```
-
-### Mirror Node REST API Endpoints
-
-The Hiero Mirror Node provides REST endpoints for historical data:
-
-#### Accounts
-- `GET /api/v1/accounts/{accountId}` - Account information
-- `GET /api/v1/accounts/{accountId}/tokens` - Account token balances
-- `GET /api/v1/accounts/{accountId}/nfts` - Account NFTs
-
-#### Transactions
-- `GET /api/v1/transactions` - Transaction list with pagination
-- `GET /api/v1/transactions/{transactionId}` - Transaction details
-- `GET /api/v1/transactions/{transactionId}/statechanges` - State changes
-
-#### Contracts
-- `GET /api/v1/contracts/{contractId}` - Contract information
-- `GET /api/v1/contracts/{contractId}/results` - Contract execution results
-
-#### Tokens
-- `GET /api/v1/tokens` - Token list
-- `GET /api/v1/tokens/{tokenId}` - Token details
-- `GET /api/v1/tokens/{tokenId}/nfts` - Token NFTs
-
-#### Topics (HCS)
-- `GET /api/v1/topics/{topicId}/messages` - Topic messages
-
-#### Network
-- `GET /api/v1/network/exchangerate` - Hbar exchange rate
-- `GET /api/v1/accounts/{accountId}/balances` - Account balance at timestamp
-
-### Network Configuration
-
-Hiero supports multiple networks:
-
-```typescript
-interface NetworkConfig {
-  mainnet: {
-    '0.0.3': '35.237.200.180:50211',
-    '0.0.4': '35.186.191.247:50211',
-    // ... 20+ nodes
-  };
-  testnet: {
-    '0.0.3': '35.237.200.180:50211',
-    // ... testnet nodes
-  };
-  previewnet: {
-    '0.0.3': '35.237.200.180:50211',
-    // ... previewnet nodes
-  };
-  local: {
-    '0.0.3': '127.0.0.1:50211',
-    // ... local node
-  };
-}
-```
-
-### Key Constraints and Considerations
-
-1. **Transaction Fees:** All transactions require Hbar payment. Fee estimation is critical for UX.
-2. **Transaction Duration:** Default 120 seconds. Must be set before execution.
-3. **Consensus:** Transactions take 2-3 seconds for consensus confirmation.
-4. **Rate Limits:** Mirror Node has rate limits (varies by network).
-5. **Transaction Size:** Maximum transaction size is ~6KB.
-6. **Gas Limits:** Contract calls require explicit gas specification.
-7. **Key Management:** Multiple key types (ED25519, ECDSA secp256k1, ContractID, ThresholdKey).
+**Success (20%) - Impact on ecosystem**
+- Lowers barrier to entry: 5 min to first Hiero dApp
+- Enables rapid prototyping: 80% less boilerplate
+- Type safety prevents bugs: TypeScript throughout
+- Multi-framework: reaches 95% of frontend developers
 
 ---
 
-## Current Ecosystem Gap Analysis
+## React-First Reference Architecture
 
-### Existing Solutions
+### Design Philosophy
 
-#### Official Hiero SDKs
-- ✅ **@hashgraph/sdk** - Core JavaScript/TypeScript SDK
-- ✅ **hiero-enterprise-java** - Enterprise Java integration
-- ✅ **hiero-cli** - Command-line interface
-- ✅ **hiero-local-node** - Local development node
-- ✅ **hiero-mirror-node** - Mirror node implementation
+**React as Reference Pattern:**
 
-#### Community Projects (Identified via Research)
+All framework adapters follow the **React reference implementation**. This ensures:
+1. **Proven patterns**: React implementation is battle-tested first
+2. **Clear migration path**: Framework adapters copy established patterns
+3. **Shared mental model**: Developers switching frameworks recognize similar APIs
+4. **Reduced maintenance**: Core utilities tested via React, reused by others
 
-**React-Specific:**
-- ✅ `svelte-web3` - Svelte store wrappers for Web3.js (Ethereum-focused)
-- ✅ `ethers-svelte` - Ethers.js as Svelte stores (Ethereum-focused)
-- ✅ `sveeeth` - Wagmi wrapper for Svelte (Ethereum-focused)
-- ✅ `@thewuh/wallet-adapter-svelte` - Solana wallet adapter for Svelte
+### Framework Adapter Pattern
 
-**Vue-Specific:**
-- ✅ `@wagmi/vue` - Vue composables for Ethereum (via Wagmi)
-- ✅ `use-wagmi` - Vue Composition API for Ethereum (Wagmi-based)
-- ✅ `@web3auth/modal/vue` - Web3Auth Vue SDK
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   Framework Adapters                         │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  @hiecom/react (REFERENCE)  @hiecom/svelte  @hiecom/vue    │
+│       ↓                          ↓             ↓             │
+│  Proven patterns              Replicate     Replicate        │
+│  Tested first                 same          same             │
+│  Documented fully             patterns      patterns         │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│                      @hiecom/core                             │
+│  Shared utilities • Client wrappers • Types • Testing        │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│                    @hashgraph/sdk                             │
+│                   Official Hiero SDK                          │
+└─────────────────────────────────────────────────────────────┘
+```
 
-**SolidJS-Specific:**
-- ✅ `solid-algo-wallets` - Algorand wallet integration for SolidJS
-- ⚠️ Limited Web3/blockchain integration examples
+**Adapter Implementation Rules:**
 
-**Qwik-Specific:**
-- ✅ `qwik-web3auth` - Web3Auth integration for Qwik
-- ⚠️ Very limited Web3/blockchain integration patterns
-
-#### Critical Gaps
-
-1. **No Hiero-Specific Framework Integrations:** All existing projects focus on Ethereum or other chains.
-2. **No Unified Type System:** Each framework has its own type definitions.
-3. **No Shared Testing Infrastructure:** Each project has isolated test setups.
-4. **No Unified Documentation:** Framework-specific docs scattered across multiple repos.
-5. **No Multi-Framework Coverage:** Most projects support only one framework.
-6. **No Mirror Node Type Safety:** All Mirror Node queries are untyped `any` responses.
+1. **React defines the contract**: Hook names, parameters, return types
+2. **Other frameworks replicate**: Use idiomatic equivalents (stores, composables, etc.)
+3. **Core stays framework-agnostic**: All business logic in `@hiecom/core`
+4. **Testing cascades**: React tests validate core, others test adapter layer
 
 ---
 
-## Architecture Design
+## Core Package: Shared Utilities
 
-### Design Principles
+### `@hiecom/core` Architecture
 
-1. **Framework-Idiomatic API:** Each framework SDK uses its native patterns (hooks, stores, composables, signals, loadables)
-2. **Shared Core:** All frameworks share a common core package with types and utilities
-3. **Zero-Config Setup:** Sensible defaults with optional configuration
-4. **Type Safety:** Full TypeScript support with generated types for all APIs
-5. **Tree-Shakeable:** Minimum bundle size impact
-6. **Test-Driven:** Comprehensive test coverage with shared test utilities
-7. **Documentation-First:** Unified docs site with cross-framework examples
+The core package contains **framework-agnostic business logic** that all framework adapters consume.
 
-### Architectural Layers
+**Key Principles:**
+1. **No framework dependencies** (pure TypeScript)
+2. **Full type safety** (strict mode enabled)
+3. **Production-ready** (error handling, retries, caching)
+4. **Well-tested** (90%+ coverage, mocked framework calls)
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Framework Integrations                       │
-│  (@hiecom/react)  (@hiecom/svelte)  (@hiecom/vue)  (@hiecom/solid)  (@hiecom/qwik) │
-└─────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      @hiecom/core                                │
-│  - TypeScript types                                             │
-│  - Client wrappers                                              │
-│  - Query builders                                                │
-│  - Error handling                                                │
-│  - Utilities                                                     │
-└─────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     @hashgraph/sdk                               │
-│  (Official Hiero SDK)                                           │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Package Dependencies
-
-```
-@hiecom/react
-  └── @hiecom/core
-
-@hiecom/svelte
-  └── @hiecom/core
-
-@hiecom/vue
-  └── @hiecom/core
-
-@hiecom/solid
-  └── @hiecom/core
-
-@hiecom/qwik
-  └── @hiecom/core
-
-@hiecom/core
-  ├── @hashgraph/sdk (peer dependency)
-  └── @hiecom/types (optional, for Mirror Node types)
-```
-
----
-
-## Package Hierarchy
-
-### Core Packages
-
-#### `@hiecom/core`
-
-**Purpose:** Shared utilities, types, and client wrappers used by all framework packages.
-
-**Exports:**
+### Core Exports
 
 ```typescript
 // Client management
 export { createClient, ClientConfig } from './client';
 export { HieroClient } from './client/hiero-client';
 
+// Mirror Node integration (type-safe)
+export { MirrorNodeClient } from './mirror-node/client';
+
 // Transaction builders
 export { TransactionBuilder } from './builders/transaction';
 export { ContractCallBuilder } from './builders/contract';
-export { TransferBuilder } from './builders/transfer';
 
 // Type definitions
 export * from './types';
 
-// Error handling
-export { HieroError, HieroErrorCodes } from './errors';
-
 // Utilities
 export { formatHbar, parseHbar } from './utils/hbar';
-export { toAccountId, toTokenId, toContractId } from './utils/converters';
 export { estimateFee } from './utils/fees';
+export { retryWithBackoff } from './utils/retry';
 ```
 
-**Key Classes:**
+### Example: HieroClient (Framework-Agnostic)
 
 ```typescript
-// HieroClient - Wrapper around @hashgraph/sdk Client
-class HieroClient {
-  constructor(config: ClientConfig);
+// @hiecom/core/src/client/hiero-client.ts
+export class HieroClient {
+  constructor(private config: ClientConfig) {
+    this.client = Client.forName(config.network);
+    if (config.operator) {
+      this.client.setOperator(config.operator.accountId, config.operator.privateKey);
+    }
+  }
 
-  // Account management
-  getAccountBalance(accountId: AccountId): Promise<Hbar>;
-  getAccountInfo(accountId: AccountId): Promise<AccountInfo>;
+  // Account operations
+  async getAccountBalance(accountId: AccountId): Promise<Hbar> {
+    const query = new AccountBalanceQuery().setAccountId(accountId);
+    const balance = await query.execute(this.client);
+    return balance.hbars;
+  }
 
-  // Transactions
-  sendTransaction(tx: Transaction): Promise<TransactionResponse>;
-  simulateTransaction(tx: Transaction): Promise<SimulationResult>;
+  async getAccountInfo(accountId: AccountId): Promise<AccountInfo> {
+    const query = new AccountInfoQuery().setAccountId(accountId);
+    return await query.execute(this.client);
+  }
 
-  // Contracts
-  callContract(request: ContractCallRequest): Promise<ContractFunctionResult>;
-  deployContract(bytecode: Uint8Array, gas: bigint): Promise<ContractId>;
+  // Transaction execution
+  async sendTransaction(
+    transaction: Transaction,
+    options?: { timeout?: number }
+  ): Promise<TransactionReceipt> {
+    const tx = transaction.freezeWith(this.client);
+    const response = await tx.execute(this.client);
 
-  // Queries
-  getTransactionRecord(transactionId: TransactionId): Promise<TransactionRecord>;
-  getContractInfo(contractId: ContractId): Promise<ContractInfo>;
+    // Get receipt with timeout
+    const receipt = await response.getReceipt(this.client, {
+      timeout: options?.timeout || 60000
+    });
 
-  // Mirror Node
-  mirrorNode: MirrorNodeClient;
-}
+    return receipt;
+  }
 
-// MirrorNodeClient - Type-safe Mirror Node queries
-class MirrorNodeClient {
-  constructor(network: Network, apiKey?: string);
+  // Contract interactions
+  async callContract(
+    request: ContractCallRequest
+  ): Promise<ContractFunctionResult> {
+    const query = new ContractCallQuery()
+      .setContractId(request.contractId)
+      .setGas(request.gas)
+      .setFunction(request.functionName, request.params);
 
-  // Accounts
-  getAccount(accountId: AccountId): Promise<MirrorAccount>;
-  getAccountBalances(accountId: AccountId): Promise<TokenBalance[]>;
-  getAccountNfts(accountId: AccountId): Promise<Nft[]>;
+    return await query.execute(this.client);
+  }
 
-  // Transactions
-  getTransactions(filters: TransactionFilters): Promise<Paginated<Transaction>>;
-  getTransaction(transactionId: TransactionId): Promise<MirrorTransaction>;
-
-  // Contracts
-  getContract(contractId: ContractId): Promise<MirrorContract>;
-  getContractResults(contractId: ContractId): Promise<ContractResult[]>;
-
-  // Tokens
-  getTokens(filters?: TokenFilters): Promise<Paginated<Token>>;
-  getToken(tokenId: TokenId): Promise<MirrorToken>;
-
-  // Topics (HCS)
-  getTopicMessages(topicId: TopicId, filters?: MessageFilters): Promise<Paginated<TopicMessage>>;
-}
-
-// TransactionBuilder - Fluent transaction construction
-class TransactionBuilder {
-  transfer(): TransferBuilder;
-  tokenTransfer(): TokenTransferBuilder;
-  contractCall(): ContractCallBuilder;
-  contractCreate(): ContractCreateBuilder;
-  tokenCreate(): TokenCreateBuilder;
-  tokenAssociate(): TokenAssociateBuilder;
-}
-```
-
-#### `@hiecom/types`
-
-**Purpose:** TypeScript type definitions for Mirror Node API responses and common types.
-
-**Generated from:** OpenAPI spec (if available) or manually maintained.
-
-**Exports:**
-
-```typescript
-// Mirror Node types
-export interface MirrorAccount {
-  account: string;
-  balance: Hbar;
-  account_balance: TokenBalance[];
-  evm_address?: string;
-  key?: Key;
-  // ... full Mirror Node account schema
-}
-
-export interface MirrorTransaction {
-  transaction_id: string;
-  transaction_hash: string;
-  name: string;
-  valid_start_timestamp: string;
-  consensus_timestamp: string;
-  transfers: Transfer[];
-  token_transfers: TokenTransfer[];
-  // ... full schema
-}
-
-export interface Paginated<T> {
-  data: T[];
-  links: {
-    next?: string;
-    prev?: string;
-  };
-}
-
-// Common types
-export type Network = 'mainnet' | 'testnet' | 'previewnet' | 'local';
-
-export interface ClientConfig {
-  network: Network;
-  operator?: {
-    accountId: AccountId | string;
-    privateKey: PrivateKey | string;
-  };
-  mirrorNode?: {
-    url?: string;
-    apiKey?: string;
-  };
+  // Mirror Node client
+  get mirrorNode(): MirrorNodeClient {
+    if (!this._mirrorClient) {
+      this._mirrorClient = new MirrorNodeClient(
+        this.config.network,
+        this.config.mirrorNode
+      );
+    }
+    return this._mirrorClient;
+  }
 }
 ```
 
-### Framework Packages
-
-#### `@hiecom/react`
-
-**Framework Version:** React 16.8+ (hooks), React 18+ (concurrent features)
-
-**Primary Idiom:** React Hooks
-
-**Key Hooks:**
+### Example: MirrorNodeClient (Type-Safe)
 
 ```typescript
-// Client and connection
-export function useClient(config?: ClientConfig): HieroClient;
-export function useNetwork(): Network;
-export function useConnectionStatus(): ConnectionStatus;
+// @hiecom/core/src/mirror-node/client.ts
+export class MirrorNodeClient {
+  constructor(
+    private network: Network,
+    private config?: { apiKey?: string; baseUrl?: string }
+  ) {}
 
-// Account management
-export function useAccount(accountId?: AccountId): AccountInfo | null;
-export function useBalance(accountId: AccountId): Hbar | null;
-export function useMultiSigAccounts(): MultiSigAccount[];
+  private get baseUrl(): string {
+    if (this.config?.baseUrl) return this.config.baseUrl;
 
-// Transactions
-export function useSignTransaction(): (
-  transaction: Transaction
-) => Promise<TransactionResponse>;
-export function useSendTransaction(): (
-  transaction: Transaction
-) => Promise<TransactionResponse>;
+    const endpoints = {
+      mainnet: 'https://mainnet.mirrornode.hedera.com',
+      testnet: 'https://testnet.mirrornode.hedera.com',
+      previewnet: 'https://previewnet.mirrornode.hedera.com',
+    };
 
-// Contracts
-export function useContractCall(
-  contractId: ContractId,
-  functionName: string,
-  args?: unknown[]
-): ContractCallResult;
-export function useContractCallQuery(
-  contractId: ContractId,
-  functionName: string,
-  args?: unknown[]
-): QueryObserver<ContractFunctionResult>;
+    return endpoints[this.network];
+  }
 
-// Mirror Node
-export function useAccountMirror(accountId: AccountId): MirrorAccount | null;
-export function useTransactions(
-  filters?: TransactionFilters
-): Paginated<Transaction>;
-export function useTokenBalances(accountId: AccountId): TokenBalance[];
+  // Type-safe account queries
+  async getAccount(accountId: string): Promise<MirrorAccount> {
+    const response = await fetch(
+      `${this.baseUrl}/api/v1/accounts/${accountId}`
+    );
 
-// Utilities
-export function useFeeEstimator(transaction: Transaction): Hbar | null;
-export function useTransactionHistory(accountId: AccountId): TransactionRecord[];
+    if (!response.ok) {
+      throw new MirrorNodeError(`Failed to fetch account: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  async getAccountBalance(accountId: string): Promise<Hbar> {
+    const account = await this.getAccount(accountId);
+    return Hbar.from(account.balance.balance);
+  }
+
+  // Automatic pagination
+  async getTransactions(
+    filters: TransactionFilters
+  ): Promise<PaginatedResults<Transaction>> {
+    const results: Transaction[] = [];
+    let link = `${this.baseUrl}/api/v1/transactions?${this.buildQueryString(filters)}`;
+
+    while (link && results.length < (filters.limit || 100)) {
+      const response = await fetch(link);
+      const data = await response.json();
+
+      results.push(...data.transactions);
+      link = data.links?.next; // Mirror Node pagination
+    }
+
+    return {
+      data: results,
+      total: results.length,
+    };
+  }
+
+  // Contract queries
+  async getContract(contractId: string): Promise<MirrorContract> {
+    const response = await fetch(
+      `${this.baseUrl}/api/v1/contracts/${contractId}`
+    );
+
+    if (!response.ok) {
+      throw new MirrorNodeError(`Failed to fetch contract: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  async getContractResults(
+    contractId: string,
+    options?: { limit?: number; order?: 'asc' | 'desc' }
+  ): Promise<ContractResult[]> {
+    const params = new URLSearchParams({
+      limit: (options?.limit || 25).toString(),
+      order: options?.order || 'desc',
+    });
+
+    const response = await fetch(
+      `${this.baseUrl}/api/v1/contracts/${contractId}/results?${params}`
+    );
+
+    if (!response.ok) {
+      throw new MirrorNodeError(`Failed to fetch results: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.results || [];
+  }
+}
+```
+
+---
+
+## React Implementation: Reference Pattern
+
+### Core React Hooks
+
+**Reference Implementation Philosophy:**
+
+Every React hook must:
+1. **Handle all edge cases** (loading, errors, retries)
+2. **Provide TypeScript autocomplete** for all parameters
+3. **Return consistent shapes** (data, loading, error, actions)
+4. **Support SSR** (Next.js App Router compatible)
+5. **Include examples** in JSDoc comments
+
+### Client Provider Setup
+
+```typescript
+// @hiecom/react/src/components/ClientProvider.tsx
+import { createContext, useContext, ReactNode } from 'react';
+import { HieroClient, ClientConfig } from '@hiecom/core';
+
+interface ClientContextValue {
+  client: HieroClient | null;
+  isConnected: boolean;
+}
+
+const ClientContext = createContext<ClientContextValue>({
+  client: null,
+  isConnected: false,
+});
+
+interface ClientProviderProps {
+  config: ClientConfig;
+  children: ReactNode;
+}
+
+export function ClientProvider({ config, children }: ClientProviderProps) {
+  const [client] = useState(() => new HieroClient(config));
+  const isConnected = !!client;
+
+  return (
+    <ClientContext.Provider value={{ client, isConnected }}>
+      {children}
+    </ClientContext.Provider>
+  );
+}
+
+export function useClient(): HieroClient {
+  const { client } = useContext(ClientContext);
+
+  if (!client) {
+    throw new Error('useClient must be used within ClientProvider');
+  }
+
+  return client;
+}
+```
+
+### Hook: UseAccountBalance
+
+**Demonstrates Genuine Utility:**
+
+**Before @hiecom:**
+```typescript
+// 30+ lines of boilerplate every time
+const [balance, setBalance] = useState<Hbar | null>(null);
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState<Error | null>(null);
+
+useEffect(() => {
+  if (!account) return;
+  setLoading(true);
+
+  new AccountBalanceQuery()
+    .setAccountId(account)
+    .execute(client)
+    .then((result) => setBalance(result.hbars))
+    .catch(setError)
+    .finally(() => setLoading(false));
+}, [account]);
+```
+
+**After @hiecom:**
+```typescript
+// 2 lines, handles all edge cases
+const { balance, loading, error, refetch } = useAccountBalance(accountId);
+```
+
+**Implementation:**
+
+```typescript
+// @hiecom/react/src/hooks/useAccountBalance.ts
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useClient } from './useClient';
+import { AccountId, Hbar } from '@hashgraph/sdk';
+
+interface UseAccountBalanceOptions {
+  refetchInterval?: number;
+  enabled?: boolean;
+}
+
+interface UseAccountBalanceResult {
+  balance: Hbar | null;
+  loading: boolean;
+  error: Error | null;
+  refetch: () => void;
+}
+
+/**
+ * React hook for fetching and caching account balance.
+ *
+ * @example
+ * ```tsx
+ * function BalanceDisplay({ accountId }) {
+ *   const { balance, loading } = useAccountBalance(accountId);
+ *
+ *   if (loading) return <Spinner />;
+ *   return <div>{balance?.toString()} ℏ</div>;
+ * }
+ * ```
+ */
+export function useAccountBalance(
+  accountId: AccountId | string,
+  options: UseAccountBalanceOptions = {}
+): UseAccountBalanceResult {
+  const client = useClient();
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryKey: ['accountBalance', accountId.toString()],
+    queryFn: async () => {
+      return await client.getAccountBalance(
+        typeof accountId === 'string' ? AccountId.fromString(accountId) : accountId
+      );
+    },
+    refetchInterval: options.refetchInterval,
+    enabled: options.enabled ?? true,
+    staleTime: 10000, // 10 seconds
+  });
+
+  return {
+    balance: query.data ?? null,
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refetch: () => queryClient.refetchQueries(['accountBalance']),
+  };
+}
+```
+
+### Hook: UseContractRead
+
+**Demonstrates Intuitive DX:**
+
+**Features:**
+- Auto-infers return type from ABI
+- Caches results by contract + function + args
+- Handles loading/error states automatically
+- Supports manual refetch
+
+```typescript
+// @hiecom/react/src/hooks/useContractRead.ts
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useClient } from './useClient';
+import { ContractId, Hbar } from '@hashgraph/sdk';
+
+interface ContractCallOptions<TArgs extends unknown[]> {
+  contractId: ContractId | string;
+  functionName: string;
+  args?: TArgs;
+  gas?: number;
+  refetchInterval?: number;
+  enabled?: boolean;
+}
+
+interface UseContractReadResult<TData> {
+  data: TData | null;
+  loading: boolean;
+  error: Error | null;
+  refetch: () => void;
+}
+
+/**
+ * React hook for reading from smart contracts with caching.
+ *
+ * @example
+ * ```tsx
+ * function TokenBalance() {
+ *   const { data: balance, loading } = useContractRead({
+ *     contractId: '0.0.1234',
+ *     functionName: 'balanceOf',
+ *     args: [userAddress],
+ *   });
+ *
+ *   if (loading) return <Spinner />;
+ *   return <div>Balance: {balance?.toString()}</div>;
+ * }
+ * ```
+ */
+export function useContractRead<TArgs extends unknown[], TData = unknown>(
+  options: ContractCallOptions<TArgs>
+): UseContractReadResult<TData> {
+  const client = useClient();
+  const queryClient = useQueryClient();
+
+  const contractId = typeof options.contractId === 'string'
+    ? options.contractId
+    : options.contractId.toString();
+
+  const query = useQuery({
+    queryKey: ['contractRead', contractId, options.functionName, options.args],
+    queryFn: async () => {
+      const result = await client.callContract({
+        contractId: options.contractId,
+        functionName: options.functionName,
+        gas: options.gas || 300000,
+        params: options.args || [],
+      });
+
+      return result as TData;
+    },
+    refetchInterval: options.refetchInterval,
+    enabled: options.enabled ?? true,
+    staleTime: 5000, // 5 seconds
+  });
+
+  return {
+    data: query.data ?? null,
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refetch: () => queryClient.refetchQueries(['contractRead']),
+  };
+}
+```
+
+### Hook: UseTransferHbar
+
+**Demonstrates Real Production Value:**
+
+**Features:**
+- Automatic fee estimation
+- Transaction submission with loading states
+- Receipt polling until confirmation
+- Error handling with helpful messages
+- Optimistic updates (optional)
+
+```typescript
+// @hiecom/react/src/hooks/useTransferHbar.ts
+import { useState, useCallback } from 'react';
+import { useClient } from './useClient';
+import { AccountId, Hbar, TransferTransaction } from '@hashgraph/sdk';
+
+interface TransferHbarOptions {
+  onSuccess?: (receipt: TransactionReceipt) => void;
+  onError?: (error: Error) => void;
+}
+
+interface UseTransferHbarResult {
+  transfer: (to: AccountId | string, amount: number | Hbar) => Promise<void>;
+  status: 'idle' | 'pending' | 'success' | 'error';
+  error: Error | null;
+  reset: () => void;
+}
+
+/**
+ * React hook for transferring HBAR with automatic fee estimation and receipt polling.
+ *
+ * @example
+ * ```tsx
+ * function SendButton() {
+ *   const { transfer, status, error } = useTransferHbar({
+ *     onSuccess: (receipt) => toast.success('Sent!'),
+ *     onError: (error) => toast.error(error.message),
+ *   });
+ *
+ *   const handleClick = () => {
+ *     await transfer('0.0.1234', 100);
+ *   };
+ *
+ *   return (
+ *     <button onClick={handleClick} disabled={status === 'pending'}>
+ *       {status === 'pending' ? 'Sending...' : 'Send 100 ℏ'}
+ *     </button>
+ *   );
+ * }
+ * ```
+ */
+export function useTransferHbar(
+  options: TransferHbarOptions = {}
+): UseTransferHbarResult {
+  const client = useClient();
+  const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+  const [error, setError] = useState<Error | null>(null);
+
+  const transfer = useCallback(async (to: AccountId | string, amount: number | Hbar) => {
+    try {
+      setStatus('pending');
+      setError(null);
+
+      const toAccountId = typeof to === 'string' ? AccountId.fromString(to) : to;
+      const hbarAmount = typeof amount === 'number' ? Hbar.from(amount) : amount;
+
+      // Build transaction
+      const transaction = new TransferTransaction()
+        .addHbarTransfer(client.operatorAccountId!, hbarAmount.negate())
+        .addHbarTransfer(toAccountId, hbarAmount)
+        .freezeWith(client);
+
+      // Estimate fee
+      const estimatedFee = await transaction.getHbarFee(client);
+      console.log(`Estimated fee: ${estimatedFee.toString()}`);
+
+      // Execute
+      const receipt = await client.sendTransaction(transaction);
+
+      setStatus('success');
+      options.onSuccess?.(receipt);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Transfer failed');
+      setStatus('error');
+      setError(error);
+      options.onError?.(error);
+      throw error;
+    }
+  }, [client, options]);
+
+  const reset = useCallback(() => {
+    setStatus('idle');
+    setError(null);
+  }, []);
+
+  return { transfer, status, error, reset };
+}
+```
+
+### Hook: UseMirrorNodeAccount
+
+**Demonstrates Type-Safe Mirror Node Integration:**
+
+```typescript
+// @hiecom/react/src/hooks/useMirrorNodeAccount.ts
+import { useQuery } from '@tanstack/react-query';
+import { useClient } from './useClient';
+import type { MirrorAccount } from '@hiecom/types';
+
+interface UseMirrorNodeAccountResult {
+  account: MirrorAccount | null;
+  loading: boolean;
+  error: Error | null;
+  refetch: () => void;
+}
+
+/**
+ * React hook for fetching full account details from Mirror Node.
+ * Includes balance, tokens, NFTs, and staking info.
+ *
+ * @example
+ * ```tsx
+ * function AccountDetails({ accountId }) {
+ *   const { account, loading } = useMirrorNodeAccount(accountId);
+ *
+ *   if (loading) return <Spinner />;
+ *   if (!account) return null;
+ *
+ *   return (
+ *     <div>
+ *       <p>Balance: {account.balance.balance} ℏ</p>
+ *       <p>Tokens: {account.balance.tokens.length}</p>
+ *       <p>NFTs: {account.balance.nfts.length}</p>
+ *     </div>
+ *   );
+ * }
+ * ```
+ */
+export function useMirrorNodeAccount(
+  accountId: string
+): UseMirrorNodeAccountResult {
+  const client = useClient();
+
+  const query = useQuery({
+    queryKey: ['mirrorNodeAccount', accountId],
+    queryFn: async () => {
+      return await client.mirrorNode.getAccount(accountId);
+    },
+    staleTime: 30000, // 30 seconds
+  });
+
+  return {
+    account: query.data ?? null,
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refetch: () => query.refetch(),
+  };
+}
+```
+
+### Complete Real-World Example
+
+```typescript
+// Example dApp using @hiecom/react
+import { ClientProvider, useAccountBalance, useTransferHbar } from '@hiecom/react';
+
+function App() {
+  const config = {
+    network: 'testnet',
+    operator: {
+      accountId: '0.0.1000',
+      privateKey: process.env.HEDERA_PRIVATE_KEY!,
+    },
+  };
+
+  return (
+    <ClientProvider config={config}>
+      <WalletDashboard />
+    </ClientProvider>
+  );
+}
+
+function WalletDashboard() {
+  const accountId = '0.0.1000';
+  const { balance, loading: balanceLoading } = useAccountBalance(accountId);
+  const { transfer, status, error } = useTransferHbar({
+    onSuccess: () => alert('Transfer successful!'),
+    onError: (err) => alert(`Error: ${err.message}`),
+  });
+
+  const handleTransfer = async () => {
+    await transfer('0.0.2000', 10);
+  };
+
+  if (balanceLoading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <h1>Wallet Dashboard</h1>
+      <p>Balance: {balance?.toString()} ℏ</p>
+
+      <button
+        onClick={handleTransfer}
+        disabled={status === 'pending'}
+      >
+        {status === 'pending' ? 'Transferring...' : 'Send 10 ℏ'}
+      </button>
+
+      {error && <p style={{ color: 'red' }}>{error.message}</p>}
+    </div>
+  );
+}
+```
+
+---
+
+## Framework Adapter Pattern
+
+### How Other Frameworks Replicate React Patterns
+
+**Principle:** Framework adapters follow the **exact same API surface** as React, using their idiomatic patterns.
+
+### Svelte Adapter Pattern
+
+```typescript
+// @hiecom/svelte - Stores replicate React hooks
+
+// React: useAccountBalance(accountId)
+// Svelte: accountBalance(accountId) → store
+
+import { readable, derived } from 'svelte/store';
+import { HieroClient } from '@hiecom/core';
+
+export function createAccountBalanceStore(
+  client: HieroClient,
+  accountId: string
+) {
+  const { subscribe, set, update } = readable<Hbar | null>(null, (set) => {
+    let interval: ReturnType<typeof setInterval>;
+
+    async function fetch() {
+      const balance = await client.getAccountBalance(accountId);
+      set(balance);
+    }
+
+    fetch();
+    interval = setInterval(fetch, 10000); // Poll every 10s
+
+    return () => clearInterval(interval);
+  });
+
+  return {
+    subscribe,
+    refetch: () => fetch(),
+  };
+}
+
+// Usage in Svelte component:
+// <script>
+//   import { accountBalance } from '@hiecom/svelte';
+//   const balance = accountBalance(client, '0.0.1000');
+// </script>
+//
+// <p>{$balance?.toString()} ℏ</p>
+```
+
+### Vue Adapter Pattern
+
+```typescript
+// @hiecom/vue - Composables replicate React hooks
+
+// React: useAccountBalance(accountId)
+// Vue: useAccountBalance(accountId) → composable
+
+import { ref, onMounted, onUnmounted } from 'vue';
+import { HieroClient } from '@hiecom/core';
+
+export function useAccountBalance(accountId: string) {
+  const balance = ref<Hbar | null>(null);
+  const loading = ref(false);
+  const error = ref<Error | null>(null);
+  let interval: ReturnType<typeof setInterval>;
+
+  async function fetch() {
+    loading.value = true;
+    try {
+      // @ts-ignore - client injected by provider
+      const client = this.$hieroClient;
+      balance.value = await client.getAccountBalance(accountId);
+    } catch (err) {
+      error.value = err as Error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  onMounted(() => {
+    fetch();
+    interval = setInterval(fetch, 10000);
+  });
+
+  onUnmounted(() => {
+    clearInterval(interval);
+  });
+
+  return { balance, loading, error, refetch: fetch };
+}
+
+// Usage in Vue component:
+// <script setup>
+//   import { useAccountBalance } from '@hiecom/vue';
+//   const { balance, loading } = useAccountBalance('0.0.1000');
+// </script>
+//
+// <template>
+//   <p v-if="loading">Loading...</p>
+//   <p v-else>{{ balance?.toString() }} ℏ</p>
+// </template>
+```
+
+### Adapter Implementation Checklist
+
+For each framework adapter (`@hiecom/{svelte,vue,solid,qwik}`):
+
+- [ ] **Provider component**: Wraps framework with `HieroClient`
+- [ ] **useClient hook**: Access client in components
+- [ ] **useAccountBalance**: Replicate React hook pattern
+- [ ] **useContractRead**: Replicate React hook pattern
+- [ ] **useTransferHbar**: Replicate React hook pattern
+- [ ] **useMirrorNodeAccount**: Replicate React hook pattern
+- [ ] **Tests**: Validate adapter produces same results as React
+- [ ] **Examples**: Port React examples to framework idioms
+
+---
+
+## Genuine Utility Demonstrations
+
+### Utility 1: Eliminates Boilerplate
+
+**Before @hiecom (50+ lines per component):**
+
+```typescript
+// Manual implementation without @hiecom
+function BalanceDisplay() {
+  const [balance, setBalance] = useState<Hbar | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetch() {
+      setLoading(true);
+      try {
+        const client = Client.forName('testnet');
+        client.setOperator(myAccountId, myPrivateKey);
+
+        const query = new AccountBalanceQuery()
+          .setAccountId('0.0.1000');
+
+        const result = await query.execute(client);
+
+        if (!cancelled) {
+          setBalance(result.hbars);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err as Error);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetch();
+
+    return () => { cancelled = true; };
+  }, []);
+
+  if (loading) return <Spinner />;
+  if (error) return <Error message={error.message} />;
+  return <div>{balance?.toString()} ℏ</div>;
+}
+```
+
+**After @hiecom (3 lines):**
+
+```typescript
+// With @hiecom/react
+function BalanceDisplay() {
+  const { balance, loading, error } = useAccountBalance('0.0.1000');
+
+  if (loading) return <Spinner />;
+  if (error) return <Error message={error.message} />;
+  return <div>{balance?.toString()} ℏ</div>;
+}
+```
+
+**Value:** **94% less code**, handles all edge cases, auto-caching, retry logic
+
+### Utility 2: Type Safety Prevents Bugs
+
+**Problem:** Untyped Mirror Node responses cause runtime errors
+
+**Before @hiecom:**
+```typescript
+// Manual fetch - no type safety
+const response = await fetch('/api/v1/accounts/0.0.1000');
+const data = await response.json();
+
+// Runtime error: property name typo
+console.log(data.ballance.balance); // Oops! "ballance" not "balance"
+
+// Runtime error: wrong type assumption
+const balance = data.balance.balance; // Could be string or number
+```
+
+**After @hiecom:**
+```typescript
+// With @hiecom - full type safety
+const { account } = useMirrorNodeAccount('0.0.1000');
+
+// TypeScript catches typos at compile time
+console.log(account.ballance.balance); // ❌ Type error!
+
+// Correct types inferred
+const balance: Hbar = account.balance.balance; // ✅ Correct type
+```
+
+**Value:** **Catches bugs at compile time**, autocomplete prevents typos
+
+### Utility 3: Handles All Edge Cases
+
+**Problem:** Manual implementations miss edge cases
+
+**Before @hiecom:**
+```typescript
+// ❌ What if network request fails?
+// ❌ What if transaction times out?
+// ❌ What if account doesn't exist?
+// ❌ What if user switches accounts mid-query?
+// ❌ What to do about stale data?
+// ❌ How to retry failed requests?
+```
+
+**After @hiecom:**
+```typescript
+// ✅ All edge cases handled automatically
+const { balance, loading, error, refetch } = useAccountBalance(accountId);
+
+// - Network errors: caught, exposed in `error`
+// - Timeouts: configured with 60s default
+// - Missing accounts: throws helpful error
+// - Account switching: React Query handles key changes
+// - Stale data: 10s staleTime, auto-refetch
+// - Retries: built-in with exponential backoff
+```
+
+**Value:** **Production-ready**, no edge case bugs
+
+### Utility 4: Unified Across Frameworks
+
+**Problem:** Learning different APIs for each framework
+
+**Before @hiecom:**
+```typescript
+// React (some library)
+const { balance } = useBalance(accountId);
+
+// Svelte (different API)
+const balance = getBalance(accountId);
+
+// Vue (different API again)
+const { balance } = useBalance(accountId); // Different return shape!
+
+// Solid (yet another API)
+const [balance] = createBalance(accountId);
+```
+
+**After @hiecom:**
+```typescript
+// React - @hiecom/react
+const { balance, loading, error } = useAccountBalance(accountId);
+
+// Svelte - @hiecom/svelte (same return shape)
+const { balance, loading, error } = accountBalance(accountId);
+
+// Vue - @hiecom/vue (same return shape)
+const { balance, loading, error } = useAccountBalance(accountId);
+
+// Solid - @hiecom/solid (same return shape)
+const { balance, loading, error } = createAccountBalance(accountId);
+
+// Qwik - @hiecom/qwik (same return shape)
+const { balance, loading, error } = useAccountBalance(accountId);
+```
+
+**Value:** **Learn once, apply everywhere**, portable skills
+
+---
+
+## Implementation Roadmap
+
+### Phase 1: Foundation (Week 1-2)
+
+**Goal:** Set up monorepo and implement `@hiecom/core` + `@hiecom/react` (reference)
+
+**Tasks:**
+- [x] Initialize Turborepo + pnpm workspace
+- [ ] Configure TypeScript, ESLint, Prettier
+- [ ] Set up Vitest for testing
+- [ ] Implement `@hiecom/core`:
+  - [ ] `HieroClient` class
+  - [ ] `MirrorNodeClient` class (type-safe)
+  - [ ] Transaction builders
+  - [ ] Type definitions
+  - [ ] Utilities (retry, format, fee estimation)
+- [ ] Implement `@hiecom/react` reference:
+  - [ ] `ClientProvider` component
+  - [ ] `useClient` hook
+  - [ ] `useAccountBalance` hook
+  - [ ] `useContractRead` hook
+  - [ ] `useTransferHbar` hook
+  - [ ] `useMirrorNodeAccount` hook
+- [ ] Tests for core + React (90%+ coverage)
+- [ ] CI/CD pipeline (GitHub Actions)
+
+**Deliverable:** Working React SDK with comprehensive tests
+
+### Phase 2: Documentation & Examples (Week 2-3)
+
+**Goal:** Production-ready documentation site with live examples
+
+**Tasks:**
+- [ ] Set up VitePress documentation site
+- [ ] Write quickstart guide (<5 min to first use)
+- [ ] Create 5+ real-world examples:
+  - [ ] Wallet dashboard
+  - [ ] Token transfer
+  - [ ] Smart contract interaction
+  - [ ] NFT gallery
+  - [ ] Transaction history
+- [ ] API reference for all React hooks
+- [ ] Migration guide from vanilla SDK
+- [ ] Contributing guidelines
+
+**Deliverable:** Professional documentation site with live demos
+
+### Phase 3: Framework Adapters (Week 3-4)
+
+**Goal:** Implement Svelte, Vue adapters following React pattern
+
+**Tasks:**
+- [ ] `@hiecom/svelte`:
+  - [ ] Port all React hooks to Svelte stores
+  - [ ] Create 3 Svelte examples
+  - [ ] Write Svelte-specific docs
+- [ ] `@hiecom/vue`:
+  - [ ] Port all React hooks to Vue composables
+  - [ ] Create 3 Vue examples
+  - [ ] Write Vue-specific docs
+
+**Deliverable:** Svelte + Vue packages with examples
+
+### Phase 4: Advanced Frameworks (Week 4-5)
+
+**Goal:** Implement Solid, Qwik adapters
+
+**Tasks:**
+- [ ] `@hiecom/solid`:
+  - [ ] Port all React hooks to Solid signals
+  - [ ] Create 2 Solid examples
+  - [ ] Write Solid-specific docs
+- [ ] `@hiecom/qwik`:
+  - [ ] Port all React hooks to Qwik loadables
+  - [ ] Create 2 Qwik examples
+  - [ ] Write Qwik-specific docs
+
+**Deliverable:** Solid + Qwik packages with examples
+
+### Phase 5: Polish & Submission (Week 5)
+
+**Goal:** Finalize for hackathon submission
+
+**Tasks:**
+- [ ] Bundle size optimization
+- [ ] Performance benchmarking
+- [ ] Record demo video (5-10 min)
+- [ ] Create pitch deck
+- - [ ] Team & project introduction
+  - [ ] Architecture & tech decisions
+  - [ ] Demo walkthrough
+  - [ ] Future roadmap
+  - [ ] Live demo URL
+- [ ] Final test suite (100% coverage on core)
+- [ ] Update README with install instructions
+- [ ] Prepare submission materials
+
+**Deliverable:** Complete hackathon submission package
+
+---
+
+## Submission Deliverables
+
+### 1. Public Repository
+
+**Location:** `github.com/hiecom/ecosystem`
+
+**Structure:**
+```
+hiecom/ecosystem
+├── packages/
+│   ├── core/           # @hiecom/core
+│   ├── types/          # @hiecom/types
+│   ├── react/          # @hiecom/react (REFERENCE)
+│   ├── svelte/         # @hiecom/svelte
+│   ├── vue/            # @hiecom/vue
+│   ├── solid/          # @hiecom/solid
+│   └── qwik/           # @hiecom/qwik
+├── apps/
+│   ├── docs/           # VitePress documentation
+│   └── examples/       # Live example apps
+├── CONTRIBUTING.md     # DCO sign-offs, guidelines
+├── LICENSE             # MIT
+└── README.md           # Quickstart + install
+```
+
+### 2. Clean Library API
+
+**Example Installation:**
+```bash
+npm install @hiecom/react @hiecom/core
+# or
+pnpm add @hiecom/react @hiecom/core
+# or
+yarn add @hiecom/react @hiecom/core
 ```
 
 **Example Usage:**
+```typescript
+// Quickstart - < 5 minutes to working dApp
+import { ClientProvider } from '@hiecom/react';
+import { useAccountBalance, useTransferHbar } from '@hiecom/react';
 
-```tsx
-import { useClient, useAccount, useBalance, useContractCallQuery } from '@hiecom/react';
-
-function MyDapp() {
-  const client = useClient({ network: 'testnet' });
-  const account = useAccount();
-  const balance = useBalance(account?.accountId);
-  const { data: totalSupply, isLoading } = useContractCallQuery(
-    tokenContractId,
-    'totalSupply',
-    []
+function App() {
+  return (
+    <ClientProvider config={{ network: 'testnet', operator: {...}}>
+      <Wallet />
+    </ClientProvider>
   );
+}
+
+function Wallet() {
+  const { balance } = useAccountBalance('0.0.1000');
+  const { transfer, status } = useTransferHbar();
 
   return (
     <div>
       <p>Balance: {balance?.toString()} ℏ</p>
-      <p>Total Supply: {isLoading ? 'Loading...' : totalSupply?.toString()}</p>
+      <button onClick={() => transfer('0.0.2000', 10)}>
+        {status === 'pending' ? 'Sending...' : 'Send 10 ℏ'}
+      </button>
     </div>
   );
 }
 ```
 
-#### `@hiecom/svelte`
+### 3. Basic Tests
 
-**Framework Version:** Svelte 4+ (stores), Svelte 5+ (runes)
+**Coverage Target:** 90%+ for core, 80%+ for adapters
 
-**Primary Idioms:** Svelte Stores (+ Runes for Svelte 5)
-
-**Key Stores:**
-
-```typescript
-// Client and connection
-export const client: Readable<HieroClient>;
-export const network: Readable<Network>;
-export const connectionStatus: Readable<ConnectionStatus>;
-
-// Account management
-export const account: Readable<AccountInfo | null>;
-export const balance: Readable<Hbar | null>;
-
-// Derived stores
-export const isConnected: Readable<boolean>;
-
-// Actions
-export function connectWallet(): Promise<void>;
-export function disconnectWallet(): void;
-export function switchNetwork(network: Network): Promise<void>;
-
-// Contract stores
-export function createContractStore(
-  contractId: ContractId
-): {
-  subscribe: Readable<ContractState>;
-  call: (functionName: string, args: unknown[]) => Promise<ContractFunctionResult>;
-};
-
-// Mirror Node stores
-export function createAccountMirrorStore(accountId: AccountId): Readable<MirrorAccount>;
-export function createTransactionsStore(filters?: TransactionFilters): Readable<Paginated<Transaction>>;
-```
-
-**Example Usage (Svelte 4):**
-
-```svelte
-<script>
-  import { client, account, balance, createContractStore } from '@hiecom/svelte';
-  import { onMount } from 'svelte';
-
-  const tokenContract = createContractStore(tokenContractId);
-
-  onMount(async () => {
-    const result = await tokenContract.call('totalSupply', []);
-    console.log('Total supply:', result);
-  });
-</script>
-
-{#if $account}
-  <p>Account: {$account.accountId.toString()}</p>
-  <p>Balance: {$balance?.toString() || '0'} ℏ</p>
-{/if}
-```
-
-**Example Usage (Svelte 5 Runes):**
-
-```svelte
-<script>
-  import { client, account, balance } from '@hiecom/svelte';
-  import { onMount } from 'svelte';
-
-  let totalSupply = $state<bigint>();
-
-  onMount(async () => {
-    const result = await $client.callContract({
-      contractId: tokenContractId,
-      functionName: 'totalSupply',
-      args: []
-    });
-    totalSupply = result.asBigInt();
-  });
-</script>
-
-<p>Total Supply: {totalSupply?.toString() || 'Loading...'}</p>
-```
-
-#### `@hiecom/vue`
-
-**Framework Version:** Vue 3.2+ (Composition API)
-
-**Primary Idioms:** Vue Composables
-
-**Key Composables:**
-
-```typescript
-// Client and connection
-export function useClient(config?: ClientConfig): Ref<HieroClient>;
-export function useNetwork(): Ref<Network>;
-export function useConnectionStatus(): Ref<ConnectionStatus>;
-
-// Account management
-export function useAccount(): Ref<AccountInfo | null>;
-export function useBalance(accountId?: AccountId): Ref<Hbar | null>;
-
-// Actions
-export function useConnect(): { connect: () => Promise<void>; disconnect: () => void };
-export function useSwitchNetwork(): { switchNetwork: (network: Network) => Promise<void> };
-
-// Contract composables
-export function useContractCall(
-  contractId: ContractId,
-  functionName: string,
-  args?: Ref<unknown[]>
-): { data: Ref<ContractFunctionResult | null>, error: Ref<Error | null>, execute: () => Promise<void> };
-
-export function useContractState(
-  contractId: ContractId,
-  refreshInterval?: number
-): { state: Ref<ContractState>, refresh: () => Promise<void> };
-
-// Mirror Node composables
-export function useAccountMirror(accountId: AccountId): { data: Ref<MirrorAccount | null>, loading: Ref<boolean> };
-export function useTransactions(filters?: TransactionFilters): { data: Ref<Paginated<Transaction>>, loading: Ref<boolean> };
-```
-
-**Example Usage:**
-
-```vue
-<script setup lang="ts">
-import { useClient, useAccount, useBalance, useContractCall } from '@hiecom/vue';
-
-const client = useClient({ network: 'testnet' });
-const account = useAccount();
-const balance = useBalance(computed(() => account.value?.accountId));
-
-const { data: totalSupply, execute } = useContractCall(
-  tokenContractId,
-  'totalSupply',
-  []
-);
-
-onMounted(() => execute());
-</script>
-
-<template>
-  <div>
-    <p v-if="account">Balance: {{ balance?.toString() }} ℏ</p>
-    <p>Total Supply: {{ totalSupply?.toString() || 'Loading...' }}</p>
-  </div>
-</template>
-```
-
-#### `@hiecom/solid`
-
-**Framework Version:** SolidJS 1.8+
-
-**Primary Idioms:** Solid Signals and Reactive Primitives
-
-**Key Functions:**
-
-```typescript
-// Client and connection
-export function createClient(config?: ClientConfig): Accessor<HieroClient>;
-export function createNetwork(): Accessor<Network>;
-export function createConnectionStatus(): Accessor<ConnectionStatus>;
-
-// Account management
-export function createAccount(): Accessor<AccountInfo | null>;
-export function createBalance(accountId?: Accessor<AccountId>): Accessor<Hbar | null>;
-
-// Actions
-export function createConnect(): {
-  connect: () => Promise<void>;
-  disconnect: () => void;
-  connecting: Accessor<boolean>;
-};
-
-export function createSwitchNetwork(): {
-  switchNetwork: (network: Network) => Promise<void>;
-  switching: Accessor<boolean>;
-};
-
-// Contract functions
-export function createContractCall(
-  contractId: Accessor<ContractId>,
-  functionName: string,
-  args?: Accessor<unknown[]>
-): {
-  data: Accessor<ContractFunctionResult | null>;
-  call: () => Promise<void>;
-  loading: Accessor<boolean>;
-};
-
-// Mirror Node functions
-export function createAccountMirror(accountId: Accessor<AccountId>): {
-  data: Accessor<MirrorAccount | null>;
-  loading: Accessor<boolean>;
-  refetch: () => Promise<void>;
-};
-
-export function createTransactions(filters?: Accessor<TransactionFilters>): {
-  data: Accessor<Paginated<Transaction>>;
-  loading: Accessor<boolean>;
-};
-```
-
-**Example Usage:**
-
-```tsx
-import { createClient, createAccount, createBalance, createContractCall } from '@hiecom/solid';
-import { createMemo, onMount } from 'solid-js';
-
-function MyDapp() {
-  const client = createClient({ network: 'testnet' });
-  const account = createAccount();
-  const balance = createBalance(() => account()?.accountId);
-
-  const totalSupply = createContractCall(
-    () => tokenContractId,
-    'totalSupply',
-    () => []
-  );
-
-  onMount(() => {
-    totalSupply.call();
-  });
-
-  return (
-    <div>
-      <p>Balance: {balance()?.toString() || '0'} ℏ</p>
-      <p>Total Supply: {totalSupply.data()?.toString() || 'Loading...'}</p>
-    </div>
-  );
-}
-```
-
-#### `@hiecom/qwik`
-
-**Framework Version:** Qwik 1.0+
-
-**Primary Idioms:** Qwik Loadables and `$` suffix functions
-
-**Key Functions:**
-
-```typescript
-// Client and connection (server-side)
-export function useClient(config?: ClientConfig): HieroClient;
-export function useNetwork(): Signal<Network>;
-export function useConnectionStatus(): Signal<ConnectionStatus>;
-
-// Account management (loadables for SSR)
-export function useAccount(): Signal<AccountInfo | null>;
-export function useBalance(accountId?: Signal<AccountId>): Signal<Hbar | null>;
-
-// Actions ( `$` suffix for Qwik)
-export const useConnect$ = $(async () => Promise<void>);
-export const useDisconnect$ = $(async () => Promise<void>);
-export const useSwitchNetwork$ = $(async (network: Network) => Promise<void>);
-
-// Contract loadables
-export function useContractCall(
-  contractId: Signal<ContractId>,
-  functionName: string,
-  args?: Signal<unknown[]>
-): {
-  data: Signal<ContractFunctionResult | null>;
-  loading: Signal<boolean>;
-  call$: QRL<() => Promise<void>>;
-};
-
-// Mirror Node loadables
-export function useAccountMirror(accountId: Signal<AccountId>): {
-  data: Signal<MirrorAccount | null>;
-  loading: Signal<boolean>;
-};
-
-export function useTransactions(filters?: Signal<TransactionFilters>): {
-  data: Signal<Paginated<Transaction>>;
-  loading: Signal<boolean>;
-};
-```
-
-**Example Usage:**
-
-```tsx
-import { component$, useSignal } from '@builder.io/qwik';
-import { useClient, useAccount, useBalance, useContractCall } from '@hiecom/qwik';
-
-export const MyDapp = component$(() => {
-  const client = useClient({ network: 'testnet' });
-  const account = useAccount();
-  const balance = useBalance(account.value?.accountId);
-
-  const totalSupply = useContractCall(
-    tokenContractId,
-    'totalSupply',
-    []
-  );
-
-  return (
-    <div>
-      <p>Balance: {balance.value?.toString() || '0'} ℏ</p>
-      <p>Total Supply: {totalSupply.data.value?.toString() || 'Loading...'}</p>
-    </div>
-  );
-});
-```
-
----
-
-## Monorepo Structure
-
-### Tooling Selection
-
-Based on 2025-2026 best practices research:
-
-- **Package Manager:** `pnpm` (strict dependencies, efficient workspace linking)
-- **Build Orchestration:** `Turborepo` (simple, fast, excellent caching)
-- **Testing:** `Vitest` (fast, unified with Vite, great watch mode)
-- **Linting:** `ESLint` with TypeScript support
-- **Formatting:** `Prettier`
-- **Documentation:** `VitePress` (Vue-powered, excellent docs experience)
-
-### Directory Structure
-
-```
-@hiecom/
-├── apps/
-│   ├── docs/                    # VitePress documentation site
-│   │   ├── .vitepress/
-│   │   ├── guide/
-│   │   ├── reference/
-│   │   └── examples/
-│   │
-│   └── playground/              # Multi-framework demo app
-│       ├── react/
-│       ├── svelte/
-│       ├── vue/
-│       ├── solid/
-│       └── qwik/
-│
-├── packages/
-│   ├── core/                    # @hiecom/core
-│   │   ├── src/
-│   │   │   ├── client/
-│   │   │   ├── builders/
-│   │   │   ├── types/
-│   │   │   ├── errors/
-│   │   │   └── utils/
-│   │   ├── test/
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── types/                   # @hiecom/types
-│   │   ├── src/
-│   │   │   ├── mirror-node/
-│   │   │   ├── transactions/
-│   │   │   └── contracts/
-│   │   ├── test/
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── react/                   # @hiecom/react
-│   │   ├── src/
-│   │   │   ├── hooks/
-│   │   │   ├── components/
-│   │   │   └── utils/
-│   │   ├── test/
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── svelte/                  # @hiecom/svelte
-│   │   ├── src/
-│   │   │   ├── stores/
-│   │   │   ├── components/
-│   │   │   └── actions/
-│   │   ├── test/
-│   │   ├── package.json
-│   │   └── svelte.config.js
-│   │
-│   ├── vue/                     # @hiecom/vue
-│   │   ├── src/
-│   │   │   ├── composables/
-│   │   │   ├── components/
-│   │   │   └── utils/
-│   │   ├── test/
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── solid/                   # @hiecom/solid
-│   │   ├── src/
-│   │   │   ├── primitives/
-│   │   │   ├── components/
-│   │   │   └── utils/
-│   │   ├── test/
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   └── qwik/                    # @hiecom/qwik
-│       ├── src/
-│       │   ├── loadables/
-│       │   ├── components/
-│       │   └── utils/
-│       ├── test/
-│       ├── package.json
-│       └── tsconfig.json
-│
-├── tools/
-│   ├── eslint-config/           # Shared ESLint config
-│   ├── typescript-config/       # Shared TypeScript config
-│   └── test-utils/              # Shared testing utilities
-│
-├── pnpm-workspace.yaml
-├── turbo.json
-├── package.json
-├── tsconfig.base.json
-├── .prettierrc
-├── .eslintrc.js
-└── README.md
-```
-
-### Configuration Files
-
-#### `pnpm-workspace.yaml`
-
-```yaml
-packages:
-  - 'apps/*'
-  - 'packages/*'
-  - 'tools/*'
-```
-
-#### `turbo.json`
-
-```json
-{
-  "$schema": "https://turbo.build/schema.json",
-  "pipeline": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.vitepress/cache/**"]
-    },
-    "test": {
-      "dependsOn": ["build"],
-      "outputs": []
-    },
-    "lint": {
-      "outputs": []
-    },
-    "typecheck": {
-      "dependsOn": ["^build"],
-      "outputs": []
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    }
-  }
-}
-```
-
-#### Root `package.json`
-
-```json
-{
-  "name": "@hiecom/monorepo",
-  "private": true,
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "test": "turbo run test",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "clean": "turbo run clean && rm -rf node_modules"
-  },
-  "devDependencies": {
-    "@types/node": "^20.11.0",
-    "prettier": "^3.2.0",
-    "turbo": "^2.0.0",
-    "typescript": "^5.3.0",
-    "vite": "^5.0.0",
-    "vitest": "^1.2.0"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
-  }
-}
-```
-
-#### `tsconfig.base.json`
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "lib": ["ES2022"],
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "allowJs": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true
-  }
-}
-```
-
----
-
-## Testing Strategy
-
-### Testing Pyramid
-
-```
-                    ┌─────────────┐
-                    │   E2E       │  (Playwright, multi-framework)
-                    │   (5%)      │
-                    ├─────────────┤
-                    │ Integration │  (Framework-agnostic)
-                    │   (20%)     │
-                    ├─────────────┤
-                    │   Unit      │  (Vitest, fast)
-                    │   (75%)     │
-                    └─────────────┘
-```
-
-### Unit Testing
-
-**Tool:** Vitest (fast, native ESM, watch mode)
-
-**Coverage:** Target 90%+ for core packages
-
-**Example Test Structure:**
-
+**Test Structure:**
 ```typescript
 // packages/core/test/client/hiero-client.test.ts
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { HieroClient } from '../src/client/hiero-client';
 
 describe('HieroClient', () => {
@@ -1117,10 +1302,7 @@ describe('HieroClient', () => {
   beforeEach(() => {
     client = new HieroClient({
       network: 'testnet',
-      operator: {
-        accountId: '0.0.1000',
-        privateKey: '0x...'
-      }
+      operator: { accountId: '0.0.1000', privateKey: '0x...' }
     });
   });
 
@@ -1135,647 +1317,121 @@ describe('HieroClient', () => {
       await expect(client.getAccountBalance('invalid')).rejects.toThrow();
     });
   });
-
-  describe('sendTransaction', () => {
-    it('should send transaction and return receipt', async () => {
-      const tx = new TransferTransaction()
-        .addHbarTransfer('0.0.1000', -100)
-        .addHbarTransfer('0.0.1001', 100);
-
-      const receipt = await client.sendTransaction(tx);
-      expect(receipt.status).toBe('SUCCESS');
-    });
-  });
 });
 ```
 
-### Integration Testing
+### 4. CI/CD
 
-**Tool:** Vitest with `@hiero/sdk` mock server or local node
-
-**Scope:** Test framework packages with real SDK interactions (using local node)
-
-**Example Test Structure:**
-
-```typescript
-// packages/react/test/integration/hooks.test.tsx
-import { renderHook, waitFor } from '@testing-library/react';
-import { useClient, useAccount, useBalance } from '@hiecom/react';
-import { LocalNode } from '@hiero/local-node';
-
-describe('useAccount Integration', () => {
-  let localNode: LocalNode;
-
-  beforeAll(async () => {
-    localNode = new LocalNode();
-    await localNode.start();
-  });
-
-  afterAll(async () => {
-    await localNode.stop();
-  });
-
-  it('should fetch account balance', async () => {
-    const { result } = renderHook(() => {
-      const client = useClient({ network: 'local' });
-      const account = useAccount();
-      const balance = useBalance(account.current?.accountId);
-
-      return { account, balance };
-    });
-
-    await waitFor(() => {
-      expect(result.current.balance).toBeDefined();
-    });
-  });
-});
-```
-
-### E2E Testing
-
-**Tool:** Playwright (multi-browser, multi-framework)
-
-**Scope:** Test full user flows across all framework examples
-
-**Example Test Structure:**
-
-```typescript
-// apps/playground/tests/connect-wallet.spec.ts
-import { test, expect, Page } from '@playwright/test';
-
-test.describe('Connect Wallet Flow', () => {
-  ['react', 'svelte', 'vue', 'solid', 'qwik'].forEach((framework) => {
-    test.describe(`${framework}`, () => {
-      test.beforeEach(async ({ page }) => {
-        await page.goto(`/${framework}`);
-      });
-
-      test('should display connect button', async ({ page }) => {
-        await expect(page.locator('button:has-text("Connect")')).toBeVisible();
-      });
-
-      test('should connect wallet and show balance', async ({ page }) => {
-        await page.click('button:has-text("Connect")');
-
-        // Mock wallet connection
-        await page.evaluate(() => {
-          (window as any).ethereum = {
-            request: async () => ({ result: ['0x123'] }),
-            on: () => {}
-          };
-        });
-
-        await page.click('button:has-text("Connect")');
-
-        await expect(page.locator('text=/Balance:/')).toBeVisible();
-      });
-    });
-  });
-});
-```
-
-### Shared Test Utilities
-
-**Location:** `tools/test-utils`
-
-**Exports:**
-
-```typescript
-// Mock SDK client
-export function createMockClient(): HieroClient;
-
-// Mock account data
-export function mockAccount(overrides?: Partial<AccountInfo>): AccountInfo;
-
-// Mock transaction
-export function mockTransaction(overrides?: Partial<Transaction>): Transaction;
-
-// Test utilities
-export function waitForCondition(condition: () => boolean, timeout?: number): Promise<void>;
-
-// Framework-specific render helpers
-export function renderWithClient(component: ReactElement, client?: HieroClient);
-export function renderSvelteWithClient(component: Component, client?: HieroClient);
-```
-
----
-
-## Deployment and Distribution
-
-### Publishing Strategy
-
-#### Package Publishing
-
-**Registry:** npm (public)
-
-**Versioning:** Independent versioning per package using Changesets
-
-**CI/CD:** GitHub Actions
-
-**Workflow:**
-
-1. Developer creates PR with changes
-2. Automated tests run on all packages
-3. When PR is merged to `main`, Changeset bot prompts for version bump
-4. Developer adds changeset describing changes
-5. Version PR is created
-6. After merge, packages are published to npm
-
-#### GitHub Actions Workflow
-
+**GitHub Actions Workflow:**
 ```yaml
-# .github/workflows/publish.yml
-name: Publish Packages
-
-on:
-  push:
-    branches:
-      - main
-
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+# .github/workflows/test.yml
+name: Test
+on: [push, pull_request]
 
 jobs:
-  release:
-    name: Release
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
         with:
           version: 8
-
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build Packages
-        run: pnpm build
-
-      - name: Run Tests
-        run: pnpm test
-
-      - name: Create Release Pull Request or Publish
-        uses: changesets/action@v1
-        with:
-          publish: pnpm release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: pnpm install
+      - run: pnpm test
+      - run: pnpm lint
+      - run: pnpm typecheck
 ```
 
-#### Release Script
+### 5. README with Quickstart
 
-```json
-// Root package.json
-{
-  "scripts": {
-    "release": "changeset publish",
-    "version": "changeset version"
-  }
-}
-```
+**Sections:**
+- Project title + description
+- Installation instructions
+- Quickstart example (<5 min)
+- Link to full documentation
+- Contributing guidelines
+- License (MIT)
 
-#### Changesets Configuration
+### 6. Contribution Hygiene
 
-```json
-// .changeset/config.json
-{
-  "$schema": "https://unpkg.com/@changesets/config@2.0.0/schema.json",
-  "changelog": "@changesets/cli/changelog",
-  "commit": false,
-  "fixed": [],
-  "linked": [],
-  "access": "public",
-  "baseBranch": "main",
-  "updateInternalDependencies": "patch",
-  "ignore": []
-}
-```
-
-### Documentation Site
-
-**Framework:** VitePress
-
-**Deployment:** Vercel (automatic on push to `main`)
-
-**URL:** `https://hieco.dev`
-
-**Structure:**
-
-```
-apps/docs/
-├── .vitepress/
-│   ├── config.ts
-│   ├── theme/
-│   └── components/
-├── guide/
-│   ├── getting-started.md
-│   ├── installation.md
-│   ├── concepts.md
-│   └── framework-guides/
-│       ├── react.md
-│       ├── svelte.md
-│       ├── vue.md
-│       ├── solid.md
-│       └── qwik.md
-├── reference/
-│   ├── core.md
-│   ├── react-api.md
-│   ├── svelte-api.md
-│   ├── vue-api.md
-│   ├── solid-api.md
-│   └── qwik-api.md
-├── examples/
-│   ├── counter-dapp.md
-│   ├── token-sale.md
-│   ├── nft-marketplace.md
-│   └── voting-dapp.md
-└── index.md
-```
-
-### Example Applications
-
-**Location:** `apps/playground`
-
-**Purpose:** Live demos of each framework integration
-
-**Deployment:** Vercel (multi-framework app)
-
-**URL:** `https://playground.hieco.dev`
+**Files:**
+- `CONTRIBUTING.md`: PR guidelines, DCO sign-offs
+- `.github/PULL_REQUEST_TEMPLATE.md`: PR template
+- `.github/ISSUE_TEMPLATE/`: Bug report, feature request
+- `CODEOWNERS`: Review requirements
+- Changesets: For version management
 
 ---
 
-## Implementation Roadmap
+## Beyond Bounty Requirements
 
-### Phase 1: Foundation (Week 1-2)
+### What Makes @hiecom Special
 
-**Goal:** Set up monorepo infrastructure and core utilities
+**1. Multi-Framework First**
 
-**Tasks:**
+Most libraries pick one framework. We support **5** from day one.
 
-- [x] Initialize Turborepo + pnpm workspace
-- [ ] Create `@hiecom/types` package with Mirror Node types
-- [ ] Implement `@hiecom/core` client wrappers
-- [ ] Set up ESLint, Prettier, TypeScript configs
-- [ ] Configure Vitest for unit testing
-- [ ] Set up GitHub Actions CI pipeline
-- [ ] Create initial documentation structure
+**2. Production-Ready Patterns**
 
-**Deliverables:**
+Inspired by `hiero-enterprise-java`, but for frontend:
+- Error handling
+- Retry logic
+- Caching
+- TypeScript throughout
+- Comprehensive tests
 
-- Working monorepo with 3 packages: `@hiecom/types`, `@hiecom/core`, `@hiecom/react`
-- CI/CD pipeline passing all tests
-- Basic documentation site deployed
+**3. Zero Duplication**
 
-### Phase 2: React Integration (Week 2-3)
+70% code reuse via shared core:
+- Type definitions shared
+- Client logic shared
+- Testing utilities shared
+- Documentation shared
 
-**Goal:** Complete React SDK with comprehensive hooks
+**4. Developer Experience Obsession**
 
-**Tasks:**
+Every decision prioritizes DX:
+- 5-minute quickstart
+- Full TypeScript autocomplete
+- Helpful error messages
+- Clear examples
+- Migration guides
 
-- [ ] Implement `@hiecom/react` hooks
-  - [ ] `useClient`, `useAccount`, `useBalance`
-  - [ ] `useContractCall`, `useContractCallQuery`
-  - [ ] `useSendTransaction`, `useSignTransaction`
-  - [ ] `useAccountMirror`, `useTransactions`
-- [ ] Add React-specific error boundaries
-- [ ] Create example components (`ConnectButton`, `BalanceDisplay`)
-- [ ] Write comprehensive tests (unit + integration)
-- [ ] Create Counter DApp example
+**5. Community-Driven Namespace**
 
-**Deliverables:**
-
-- Full-featured `@hiecom/react` package published to npm
-- Example Counter DApp deployed
-- Documentation for all hooks
-
-### Phase 3: Multi-Framework Expansion (Week 3-4)
-
-**Goal:** Implement Svelte, Vue, Solid, and Qwik packages
-
-**Tasks:**
-
-- [ ] Implement `@hiecom/svelte` stores and actions
-- [ ] Implement `@hiecom/vue` composables
-- [ ] Implement `@hiecom/solid` reactive primitives
-- [ ] Implement `@hiecom/qwik` loadables
-- [ ] Create example components for each framework
-- [ ] Write tests for each framework
-- [ ] Create framework-specific documentation
-
-**Deliverables:**
-
-- All 5 framework packages published to npm
-- Cross-framework examples in playground app
-- Comprehensive documentation for each framework
-
-### Phase 4: Polish and Optimization (Week 4-5)
-
-**Goal:** Optimize bundle sizes, improve DX, finalize documentation
-
-**Tasks:**
-
-- [ ] Bundle size optimization and tree-shaking validation
-- [ ] Performance benchmarking
-- [ ] Add TypeScript strict mode support
-- [ ] Create migration guide from `@hashgraph/sdk`
-- [ ] Write "Getting Started" tutorial for each framework
-- [ ] Create advanced examples (NFT marketplace, token sale)
-- [ ] Add JSDoc comments for IDE autocomplete
-- [ ] Create contributing guidelines
-- [ ] Finalize demo videos
-
-**Deliverables:**
-
-- Optimized packages with minimal bundle impact
-- Complete documentation site
-- 3+ production-ready example apps
-- Migration guide from vanilla SDK
-- Demo video for hackathon submission
-
-### Phase 5: Hackathon Submission (Week 5)
-
-**Goal:** Finalize submission materials
-
-**Tasks:**
-
-- [ ] Record demo video (5-10 minutes)
-- [ ] Write README for all packages
-- [ ] Create submission description
-- [ ] Prepare live demo environment
-- [ ] Test all packages on testnet
-- [ ] Gather community feedback
-- [ ] Finalize pitch deck
-
-**Deliverables:**
-
-- Hackathon submission package
-- Live demo working flawlessly
-- Community engagement (Discord, Twitter)
-
----
-
-## Feasibility Validation
-
-### Technical Feasibility
-
-#### Hiero SDK Compatibility
-
-**Validated:** All required SDK functionality is available
-
-- ✅ Client creation and configuration
-- ✅ Transaction signing and execution
-- ✅ Contract calls and queries
-- ✅ Account and balance queries
-- ✅ Mirror Node REST API access
-
-**Potential Issues:**
-
-- ⚠️ Mirror Node rate limits may affect query performance → Mitigation: Implement request caching and batching
-- ⚠️ Transaction fee estimation requires network query → Mitigation: Use fee estimation with fallback to max fee
-- ⚠️ Local node setup requires Docker → Mitigation: Provide Docker Compose config for easy setup
-
-#### Framework Compatibility
-
-**Research Findings:**
-
-1. **React:** Extensive Web3 patterns exist (wagmi, viem). High confidence.
-2. **Svelte:** Existing Web3 libraries (svelte-web3, ethers-svelte). High confidence.
-3. **Vue:** Mature Vue 3 Web3 ecosystem (wagmi/vue). High confidence.
-4. **SolidJS:** Limited Web3 examples but reactive primitives align well with reactive state. Medium confidence.
-5. **Qwik:** Very limited Web3 examples (only qwik-web3auth). Medium-low confidence.
-
-**Mitigation for Low-Confidence Frameworks:**
-
-- Prioritize Solid and Qwik implementation after React/Svelte/Vue
-- Leverage Qwik's `$` suffix functions for resumability
-- Use Solid's signals directly mapped to reactive state
-- Community outreach for early testing
-
-### Implementation Timeline Validation
-
-**Estimated Effort:**
-
-| Package | Lines of Code | Implementation Days | Testing Days | Total |
-|---------|---------------|---------------------|--------------|-------|
-| @hiecom/types | ~1,500 | 3 | 1 | 4 |
-| @hiecom/core | ~3,000 | 6 | 2 | 8 |
-| @hiecom/react | ~2,000 | 5 | 2 | 7 |
-| @hiecom/svelte | ~1,800 | 4 | 2 | 6 |
-| @hiecom/vue | ~1,800 | 4 | 2 | 6 |
-| @hiecom/solid | ~1,500 | 4 | 2 | 6 |
-| @hiecom/qwik | ~1,500 | 5 | 2 | 7 |
-| Infrastructure | N/A | 3 | 1 | 4 |
-| Documentation | N/A | 4 | 0 | 4 |
-| **Total** | **~13,100** | **38** | **14** | **52** |
-
-**Timeline:** 52 days × 8 hours/day = 416 hours ≈ 10 weeks solo
-
-**Hackathon Timeline:** 5 weeks
-
-**Strategy:**
-
-1. **Prioritize MVP:** Start with React only (Week 1-2)
-2. **Parallelize:** Implement multiple frameworks in parallel after core is stable (Week 3-4)
-3. **Simplify:** Reduce scope of initial release to essential features
-4. **Community:** Recruit contributors for framework-specific implementation
-
-**Revised MVP Timeline (5 Weeks):**
-
-| Week | Focus | Deliverables |
-|------|-------|--------------|
-| 1 | Core + Types | `@hiecom/core`, `@hiecom/types` |
-| 2 | React | `@hiecom/react` with core hooks |
-| 3 | Svelte + Vue | `@hiecom/svelte`, `@hiecom/vue` |
-| 4 | Solid + Qwik | `@hiecom/solid`, `@hiecom/qwik` |
-| 5 | Polish + Docs | Documentation site, examples, submission |
-
-### Resource Requirements
-
-**Infrastructure:**
-
-- GitHub repository (free)
-- npm package publishing ($0 for public packages)
-- Vercel deployment for docs and playground (free tier)
-- Local Hiero node testing (Docker, free)
-
-**External Dependencies:**
-
-- `@hashgraph/sdk` (official, stable)
-- `@hiero/local-node` (for testing)
-- Framework SDKs (React, Svelte, Vue, Solid, Qwik)
-
-**Skills Required:**
-
-1. TypeScript (advanced)
-2. All 5 frameworks (intermediate understanding sufficient)
-3. Hiero SDK (documented, learnable)
-4. Monorepo tooling (Turborepo, pnpm)
-
-### Risk Assessment
-
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| SDK API changes during development | Low | High | Pin SDK version, create adapter layer |
-| Framework-specific bugs | Medium | Medium | Extensive testing, community review |
-| Insufficient time for all frameworks | High | High | Prioritize React/Svelte/Vue, defer Solid/Qwik |
-| Low adoption due to competition | Medium | Medium | Focus on unified DX, multi-framework advantage |
-| Mirror Node rate limits | Low | Medium | Implement caching, batch queries |
-| Local node setup complexity | Medium | Low | Provide Docker Compose, clear docs |
-
----
-
-## Submission Strategy
-
-### Unique Value Propositions
-
-1. **Multi-Fragmentation Solution:** First unified SDK covering 5 major frameworks
-2. **Community Namespace:** `@hiecom/*` signals community-driven, not vendor-controlled
-3. **Shared Infrastructure:** 70% code reuse across frameworks via `@hiecom/core`
-4. **Zero-Duplication:** No existing Hiero-specific framework integrations exist
-5. **Production Ready:** Comprehensive testing, documentation, examples
-
-### Competitive Advantages
-
-| Feature | @hiecom | Official Examples | Competitors (Ethereum) |
-|---------|---------|-------------------|------------------------|
-| Multi-framework | ✅ 5 frameworks | ❌ React only | ⚠️ 1-2 frameworks |
-| Type-safe Mirror Node | ✅ Full TypeScript | ❌ Untyped | ⚠️ Partial |
-| Shared core | ✅ `@hiecom/core` | ❌ No sharing | ❌ Isolated |
-| Monorepo | ✅ Turborepo + pnpm | ❌ N/A | ⚠️ Varies |
-| Documentation | ✅ Unified site | ❌ Scattered | ⚠️ Per-package |
-
-### Hackathon Pitch
-
-**Title:** `@hiecom`: The Unified Frontend Ecosystem for Hiero
-
-**Problem:**
-> "Hiero has excellent SDKs, but frontend developers are stuck reinventing the wheel for every framework. No type safety, no shared patterns, massive code duplication."
-
-**Solution:**
-> "A single, cohesive ecosystem providing idiomatic SDKs for React, Svelte, Vue, Solid, and Qwik—all built on shared core infrastructure with full TypeScript support."
-
-**Impact:**
-> "Accelerates dApp development 10x by eliminating boilerplate, providing type-safe APIs, and unifying best practices across the entire frontend ecosystem."
-
-**Demo:**
-1. Show Counter DApp built in 5 minutes with `@hiecom/react`
-2. Show same Dapp in Svelte with 90% code reuse
-3. Show type-safe Mirror Node queries preventing bugs
-4. Show unified documentation site
-
-### Success Metrics
-
-- **Quantitative:**
-  - 5 framework packages published to npm
-  - 90%+ test coverage
-  - 10,000+ total lines of code
-  - 50+ pages of documentation
-
-- **Qualitative:**
-  - Zero existing Hiero-specific framework integrations
-  - Idiomatic API for each framework (verified by community)
-  - Production-ready examples
-  - Clear migration path from vanilla SDK
+`@hiecom/*` signals:
+- Not vendor-controlled
+- Community-maintained
+- Open to contributions
+- Ecosystem-owned
 
 ---
 
 ## Conclusion
 
-The `@hiecom` unified ecosystem represents a **paradigm shift** in Hiero frontend development:
+The `@hiecom` unified ecosystem delivers on the Hiero bounty's vision while **exceeding expectations**:
 
-1. **From scattered efforts** to **cohesive ecosystem**
-2. **From boilerplate-heavy** to **zero-config**
-3. **From untyped APIs** to **full TypeScript safety**
-4. **From framework-specific** to **multi-framework coverage**
-5. **From duplicative work** to **shared infrastructure**
+- ✅ **Open-source library** (7 packages, MIT licensed)
+- ✅ **Clean API** (idiomatic per framework, React as reference)
+- ✅ **Production-ready** (error handling, retries, caching, logging)
+- ✅ **Well-tested** (90%+ coverage, unit + integration + E2E)
+- ✅ **CI/CD** (GitHub Actions, automated releases)
+- ✅ **Documentation** (VitePress site, quickstart, examples)
+- ✅ **Contribution hygiene** (CONTRIBUTING.md, DCO, Changesets)
 
-By consolidating all Hiero frontend integration patterns under a single namespace, this project delivers:
+**Unique Value:**
 
-- **Immediate value** for current developers (better DX, type safety, documentation)
-- **Long-term sustainability** (community-driven, not vendor-controlled)
-- **Scalability** (easy to add new frameworks or features)
-- **Adoption acceleration** (low barrier to entry, familiar patterns)
+1. **Multi-framework coverage** - First for Hiero
+2. **Type-safe Mirror Node client** - Doesn't exist elsewhere
+3. **React-first reference pattern** - Proven, replicated by others
+4. **Genuine utility** - Eliminates 94% of boilerplate
+5. **Intuitive DX** - 5-minute quickstart, full autocomplete
 
-The hackathon provides the perfect launchpad for this ecosystem, with potential to become the **de facto standard** for Hiero frontend development across all frameworks.
-
----
-
-## Appendix
-
-### A. Package Naming Convention
-
-All packages follow the `@hiecom/*` namespace:
-
-- `@hiecom/core` - Core utilities and client wrappers
-- `@hiecom/types` - TypeScript type definitions
-- `@hiecom/react` - React hooks and components
-- `@hiecom/svelte` - Svelte stores and actions
-- `@hiecom/vue` - Vue composables
-- `@hiecom/solid` - Solid reactive primitives
-- `@hiecom/qwik` - Qwik loadables
-
-### B. Import Examples
-
-```typescript
-// React
-import { useClient, useAccount, useBalance } from '@hiecom/react';
-
-// Svelte
-import { client, account, balance } from '@hiecom/svelte';
-
-// Vue
-import { useClient, useAccount, useBalance } from '@hiecom/vue';
-
-// Solid
-import { createClient, createAccount, createBalance } from '@hiecom/solid';
-
-// Qwik
-import { useClient, useAccount, useBalance } from '@hiecom/qwik';
-
-// Core (any framework)
-import { HieroClient, TransactionBuilder } from '@hiecom/core';
-```
-
-### C. Environment Variables
-
-```bash
-# .env.example
-HIERO_NETWORK=testnet
-HIERO_OPERATOR_ACCOUNT_ID=0.0.1000
-HIERO_OPERATOR_PRIVATE_KEY=0x...
-HIERO_MIRROR_NODE_URL=https://testnet.mirrornode.hedera.com
-HIERO_MIRROR_NODE_API_KEY=optional
-```
-
-### D. Contributing Guidelines
-
-```markdown
-# Contributing to @hiecom
-
-We welcome contributions! Here's how to get started:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Run `pnpm test` and `pnpm lint`
-6. Submit a pull request
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-```
+This isn't just a library—it's the **foundation for Hiero's frontend ecosystem**.
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-02-22
-**Author:** @abinovalfauzi
-**License:** MIT (planned for all packages)
+*Document Version: 2.0*
+*Last Updated: 2026-02-22*
+*Author: @abinovalfauzi*
+*License: MIT (for documentation structure)*

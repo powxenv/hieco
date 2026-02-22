@@ -1,3 +1,15 @@
+---
+title: All Bounties Cross-Analysis
+description: Cross-bounty synthesis, common themes, and selection strategies
+category: bounty-research
+created: 2026-02-22
+status: complete
+tags: [research, synthesis, strategy]
+related:
+  - ../01-overview/hackathon-overview.md
+  - hiero-deep-dive.md
+---
+
 # Hedera Hello Future Apex Hackathon 2026: Comprehensive Bounty Research
 
 **Hackathon Dates:** February 17 - March 23, 2026

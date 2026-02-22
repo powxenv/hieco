@@ -1,3 +1,15 @@
+---
+title: Hiero DX-Focused Proposals
+description: Three novel developer experience proposals avoiding official hackathon examples
+category: proposals
+created: 2026-02-22
+status: complete
+tags: [hiero, dx, proposals, innovation]
+related:
+  - ../02-bounty-research/hiero-deep-dive.md
+  - hiecom-unified-ecosystem.md
+---
+
 # Hiero Bounty: Novel DX-Focused Library Proposals
 
 **Hackathon:** Hedera Hello Future Apex Hackathon 2026
