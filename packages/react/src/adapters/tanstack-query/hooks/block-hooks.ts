@@ -22,10 +22,7 @@ export interface UseBlocksOptions extends Omit<
   };
 }
 
-export type UseBlocksResult = UseQueryResult<
-  BlockQueryFnData<BlocksResponse>,
-  BlockQueryError
->;
+export type UseBlocksResult = UseQueryResult<BlockQueryFnData<BlocksResponse>, BlockQueryError>;
 
 export interface UseBlockOptions extends Omit<
   UseQueryOptions<BlockQueryFnData<Block>, BlockQueryError>,
@@ -36,9 +33,7 @@ export interface UseBlockOptions extends Omit<
 
 export type UseBlockResult = UseQueryResult<BlockQueryFnData<Block>, BlockQueryError>;
 
-export function useBlocks(
-  options: UseBlocksOptions = {},
-): UseBlocksResult {
+export function useBlocks(options: UseBlocksOptions = {}): UseBlocksResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -50,9 +45,7 @@ export function useBlocks(
   });
 }
 
-export function useBlock(
-  options: UseBlockOptions,
-): UseBlockResult {
+export function useBlock(options: UseBlockOptions): UseBlockResult {
   const client = useMirrorNodeClient();
 
   return useQuery({

@@ -29,9 +29,7 @@ export type UseBalancesResult = UseQueryResult<
   BalanceQueryError
 >;
 
-export function useBalances(
-  options: UseBalancesOptions = {},
-): UseBalancesResult {
+export function useBalances(options: UseBalancesOptions = {}): UseBalancesResult {
   const client = useMirrorNodeClient();
 
   return useQuery({

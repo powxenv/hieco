@@ -136,7 +136,10 @@ export class AccountApi extends BaseApi {
       }
     }
 
-    return this.getList<CryptoAllowance>(`accounts/${accountId}/allowances/crypto`, builder.build());
+    return this.getList<CryptoAllowance>(
+      `accounts/${accountId}/allowances/crypto`,
+      builder.build(),
+    );
   }
 
   async getTokenAllowances(

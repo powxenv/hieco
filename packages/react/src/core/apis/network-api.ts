@@ -24,7 +24,9 @@ export class NetworkApi extends BaseApi {
     return this.getSingle<ExchangeRate>("network/exchangerate", builder.build());
   }
 
-  async getFees(params?: PaginationParams & { timestamp?: Timestamp }): Promise<ApiResult<NetworkFee>> {
+  async getFees(
+    params?: PaginationParams & { timestamp?: Timestamp },
+  ): Promise<ApiResult<NetworkFee>> {
     const builder = this.createQueryBuilder();
 
     if (params) {

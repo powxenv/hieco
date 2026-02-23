@@ -142,9 +142,7 @@ export type UseContractsInfiniteResult = UseInfiniteQueryResult<
   ContractQueryError
 >;
 
-export function useContractInfo(
-  options: UseContractInfoOptions,
-): UseContractInfoResult {
+export function useContractInfo(options: UseContractInfoOptions): UseContractInfoResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -156,9 +154,7 @@ export function useContractInfo(
   });
 }
 
-export function useContractCall(
-  options: UseContractCallOptions,
-): UseContractCallResult {
+export function useContractCall(options: UseContractCallOptions): UseContractCallResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -170,9 +166,7 @@ export function useContractCall(
   });
 }
 
-export function useContractResults(
-  options: UseContractResultsOptions,
-): UseContractResultsResult {
+export function useContractResults(options: UseContractResultsOptions): UseContractResultsResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -184,9 +178,7 @@ export function useContractResults(
   });
 }
 
-export function useContractResult(
-  options: UseContractResultOptions,
-): UseContractResultResult {
+export function useContractResult(options: UseContractResultOptions): UseContractResultResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -198,9 +190,7 @@ export function useContractResult(
   });
 }
 
-export function useContractState(
-  options: UseContractStateOptions,
-): UseContractStateResult {
+export function useContractState(options: UseContractStateOptions): UseContractStateResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -212,9 +202,7 @@ export function useContractState(
   });
 }
 
-export function useContractLogs(
-  options: UseContractLogsOptions,
-): UseContractLogsResult {
+export function useContractLogs(options: UseContractLogsOptions): UseContractLogsResult {
   const client = useMirrorNodeClient();
 
   return useQuery({

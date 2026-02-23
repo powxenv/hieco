@@ -9,7 +9,8 @@ export const mirrorNodeKeys = {
       ["mirror-node", "account", "allowances", "crypto", id] as const,
     tokenAllowances: (id: string) => ["mirror-node", "account", "allowances", "token", id] as const,
     nftAllowances: (id: string) => ["mirror-node", "account", "allowances", "nft", id] as const,
-    outstandingAirdrops: (id: string) => ["mirror-node", "account", "airdrops", "outstanding", id] as const,
+    outstandingAirdrops: (id: string) =>
+      ["mirror-node", "account", "airdrops", "outstanding", id] as const,
     pendingAirdrops: (id: string) => ["mirror-node", "account", "airdrops", "pending", id] as const,
     list: () => ["mirror-node", "accounts", "list"] as const,
   },
@@ -32,8 +33,10 @@ export const mirrorNodeKeys = {
     logs: (id: string) => ["mirror-node", "contract", "logs", id] as const,
     allResults: () => ["mirror-node", "contract", "results", "all"] as const,
     resultByTx: (txHash: string) => ["mirror-node", "contract", "results", "byTx", txHash] as const,
-    resultActions: (txHash: string) => ["mirror-node", "contract", "results", "actions", txHash] as const,
-    resultOpcodes: (txHash: string) => ["mirror-node", "contract", "results", "opcodes", txHash] as const,
+    resultActions: (txHash: string) =>
+      ["mirror-node", "contract", "results", "actions", txHash] as const,
+    resultOpcodes: (txHash: string) =>
+      ["mirror-node", "contract", "results", "opcodes", txHash] as const,
     allLogs: () => ["mirror-node", "contract", "results", "logs", "all"] as const,
     call: () => ["mirror-node", "contract", "call"] as const,
     list: () => ["mirror-node", "contracts", "list"] as const,
