@@ -1,4 +1,4 @@
-import type { EntityId, Timestamp, Key, AccountId, TokenId } from "../rest-api";
+import type { EntityId, Timestamp, Key } from "../rest-api";
 
 export interface AccountInfo {
   readonly account: EntityId;

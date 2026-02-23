@@ -22,13 +22,16 @@
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external react --external react-dom && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
     "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external react --external react-dom",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "tsc --noEmit",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check"
   },
-  "dependencies": {},
+  "dependencies": {
+    "ky": "^1.14.3",
+    "p-limit": "^7.3.0"
+  },
   "devDependencies": {
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
