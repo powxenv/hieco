@@ -75,15 +75,6 @@ export const ApiErrorFactory = {
 
 export type EntityId = `${number}.${number}.${number}`;
 
-export type AccountId = EntityId & { readonly __brand: unique symbol };
-export type TokenId = EntityId & { readonly __brand: unique symbol };
-export type ContractId = EntityId & { readonly __brand: unique symbol };
-export type TopicId = EntityId & { readonly __brand: unique symbol };
-export type ScheduleId = EntityId & { readonly __brand: unique symbol };
-export type TransactionId = string & { readonly __brand: unique symbol };
-export type NodeId = number & { readonly __brand: unique symbol };
-export type FileId = EntityId & { readonly __brand: unique symbol };
-
 export type Timestamp = string;
 
 export interface Key {

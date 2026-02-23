@@ -1,15 +1,5 @@
 export * from "./rest-api";
 
-export type {
-  AccountId,
-  TokenId,
-  ContractId,
-  TopicId,
-  ScheduleId,
-  TransactionId,
-  NodeId,
-  FileId,
-} from "./rest-api";
 export * from "./entities/account";
 export type {
   TokenInfo,
