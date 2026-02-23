@@ -1,4 +1,5 @@
 import type { EntityId, Timestamp, Key } from "../rest-api";
+import type { TokenBalance } from "./account";
 
 export interface ExchangeRate {
   current_rate: Rate;
@@ -92,11 +93,6 @@ export interface AccountBalance {
   account: EntityId;
   balance: number;
   tokens: TokenBalance[];
-}
-
-export interface TokenBalance {
-  token_id: EntityId;
-  balance: number;
 }
 
 export interface BalancesResponse {

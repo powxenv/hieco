@@ -1,5 +1,5 @@
 import type { ApiResult, PaginationParams, QueryOperator, Timestamp } from "../../types/rest-api";
-import type { BalancesResponse } from "../../types/entities/network";
+import type { BalancesResponse, AccountBalance } from "../../types/entities/network";
 import type { CursorPaginator } from "../builders";
 import { BaseApi } from "../base-api";
 
@@ -34,7 +34,7 @@ export class BalanceApi extends BaseApi {
     return this.getSingle<BalancesResponse>("balances", builder.build());
   }
 
-  createBalancesPaginator(params?: BalancesListParams): CursorPaginator<unknown> {
+  createBalancesPaginator(params?: BalancesListParams): CursorPaginator<AccountBalance> {
     const builder = this.createQueryBuilder();
 
     if (params) {

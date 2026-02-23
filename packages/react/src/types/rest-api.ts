@@ -46,7 +46,7 @@ export interface ApiError {
   code?: string;
 }
 
-export const ApiError = {
+export const ApiErrorFactory = {
   network: (message: string, status?: number): ApiError => ({
     _tag: "NetworkError",
     message,

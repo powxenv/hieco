@@ -16,6 +16,10 @@ export type {
   ContractState,
   ContractCallParams,
   ContractCallResult,
+  ContractResultDetails,
+  ContractResultsResponse,
+  ContractAction,
+  ContractOpcodesResponse,
 } from "./entities/contract";
 export type {
   Transaction,
@@ -24,6 +28,7 @@ export type {
   Transfer,
   TokenTransfer,
   NftTransfer,
+  StakingRewardTransfer,
   AssessedCustomFee,
 } from "./entities/transaction";
 export type {
@@ -43,4 +48,8 @@ export type {
   ServiceEndpoint,
   TimestampRange,
   TimestampRangeNullable,
+  AccountBalance,
+  BalancesResponse,
+  Block,
+  BlocksResponse,
 } from "./entities/network";
