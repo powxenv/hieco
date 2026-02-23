@@ -1,4 +1,4 @@
-export { MirrorNodeClient } from "./mirror-client";
+export { MirrorNodeClient, createMirrorNodeClient } from "./mirror-client";
 export type { MirrorNodeConfig } from "../types/rest-api";
 
 export { AccountApi, type AccountListParams, type AccountNftsParams } from "./apis/account-api";

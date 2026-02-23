@@ -1,143 +1,143 @@
 import type { EntityId, Timestamp, Key } from "../rest-api";
 
 export interface ContractInfo {
-  admin_key: Key | null;
-  auto_renew_account: EntityId | null;
-  auto_renew_period: number | null;
-  contract_id: EntityId;
-  created_timestamp: Timestamp;
-  deleted: boolean;
-  evm_address: string;
-  expiration_timestamp: Timestamp | null;
-  file_id: EntityId | null;
-  max_automatic_token_associations: number | null;
-  memo: string;
-  obtainer_id: EntityId | null;
-  permanent_removal: boolean | null;
-  proxy_account_id: EntityId | null;
-  timestamp: Timestamp | null;
+  readonly admin_key: Key | null;
+  readonly auto_renew_account: EntityId | null;
+  readonly auto_renew_period: number | null;
+  readonly contract_id: EntityId;
+  readonly created_timestamp: Timestamp;
+  readonly deleted: boolean;
+  readonly evm_address: string;
+  readonly expiration_timestamp: Timestamp | null;
+  readonly file_id: EntityId | null;
+  readonly max_automatic_token_associations: number | null;
+  readonly memo: string;
+  readonly obtainer_id: EntityId | null;
+  readonly permanent_removal: boolean | null;
+  readonly proxy_account_id: EntityId | null;
+  readonly timestamp: Timestamp | null;
 }
 
 export interface ContractResult {
-  access_list: string | null;
-  address: string;
-  amount: number | null;
-  block_gas_used: number | null;
-  block_hash: string | null;
-  block_number: number | null;
-  bloom: string | null;
-  call_result: string | null;
-  chain_id: string | null;
-  contract_id: EntityId;
-  created_contract_ids: EntityId[];
-  error_message: string | null;
-  from: string | null;
-  function_parameters: string;
-  gas: number | null;
-  gas_used: number;
-  max_gas_allowance: number | null;
-  nonce: number | null;
-  parent_hash: string | null;
-  result: string | null;
-  timestamp: Timestamp;
-  to: string;
-  value: string | null;
+  readonly access_list: string | null;
+  readonly address: string;
+  readonly amount: number | null;
+  readonly block_gas_used: number | null;
+  readonly block_hash: string | null;
+  readonly block_number: number | null;
+  readonly bloom: string | null;
+  readonly call_result: string | null;
+  readonly chain_id: string | null;
+  readonly contract_id: EntityId;
+  readonly created_contract_ids: readonly EntityId[];
+  readonly error_message: string | null;
+  readonly from: string | null;
+  readonly function_parameters: string;
+  readonly gas: number | null;
+  readonly gas_used: number;
+  readonly max_gas_allowance: number | null;
+  readonly nonce: number | null;
+  readonly parent_hash: string | null;
+  readonly result: string | null;
+  readonly timestamp: Timestamp;
+  readonly to: string;
+  readonly value: string | null;
 }
 
 export interface ContractLog {
-  address: string;
-  block_hash: string;
-  block_number: number;
-  contract_id: EntityId;
-  data: string;
-  index: number;
-  root_contract_id: EntityId;
-  timestamp: Timestamp;
-  topics: string[];
-  transaction_hash: string;
-  transaction_index: number | null;
+  readonly address: string;
+  readonly block_hash: string;
+  readonly block_number: number;
+  readonly contract_id: EntityId;
+  readonly data: string;
+  readonly index: number;
+  readonly root_contract_id: EntityId;
+  readonly timestamp: Timestamp;
+  readonly topics: readonly string[];
+  readonly transaction_hash: string;
+  readonly transaction_index: number | null;
 }
 
 export interface ContractState {
-  contract_id: EntityId;
-  address: string;
-  slot: string;
-  value: string;
-  timestamp: Timestamp;
+  readonly contract_id: EntityId;
+  readonly address: string;
+  readonly slot: string;
+  readonly value: string;
+  readonly timestamp: Timestamp;
 }
 
 export interface ContractCallParams {
-  contractId: EntityId | string;
-  from?: string;
-  gas?: number;
-  gasPrice?: number;
-  data?: string;
-  estimate?: boolean;
-  block?: string;
-  value?: number;
+  readonly contractId: EntityId | string;
+  readonly from?: string;
+  readonly gas?: number;
+  readonly gasPrice?: number;
+  readonly data?: string;
+  readonly estimate?: boolean;
+  readonly block?: string;
+  readonly value?: number;
 }
 
 export interface ContractCallResult {
-  result: string;
-  error?: string;
+  readonly result: string;
+  readonly error?: string;
 }
 
 export interface ContractResultDetails {
-  access_list: string | null;
-  amount: number | null;
-  block_gas_used: number | null;
-  block_hash: string | null;
-  block_number: number | null;
-  bloom: string | null;
-  call_result: string | null;
-  chain_id: string | null;
-  contract_id: EntityId;
-  created_contract_ids: EntityId[];
-  error_message: string | null;
-  from: string | null;
-  function_parameters: string;
-  gas: number | null;
-  gas_used: number;
-  hash: string;
-  max_gas_allowance: number | null;
-  nonce: number | null;
-  parent_hash: string | null;
-  result: string | null;
-  timestamp: Timestamp;
-  to: string;
-  transaction_id: string;
-  value: string | null;
+  readonly access_list: string | null;
+  readonly amount: number | null;
+  readonly block_gas_used: number | null;
+  readonly block_hash: string | null;
+  readonly block_number: number | null;
+  readonly bloom: string | null;
+  readonly call_result: string | null;
+  readonly chain_id: string | null;
+  readonly contract_id: EntityId;
+  readonly created_contract_ids: readonly EntityId[];
+  readonly error_message: string | null;
+  readonly from: string | null;
+  readonly function_parameters: string;
+  readonly gas: number | null;
+  readonly gas_used: number;
+  readonly hash: string;
+  readonly max_gas_allowance: number | null;
+  readonly nonce: number | null;
+  readonly parent_hash: string | null;
+  readonly result: string | null;
+  readonly timestamp: Timestamp;
+  readonly to: string;
+  readonly transaction_id: string;
+  readonly value: string | null;
 }
 
 export interface ContractResultsResponse {
-  results: ContractResult[];
-  links: {
-    next?: string;
+  readonly results: readonly ContractResult[];
+  readonly links: {
+    readonly next?: string;
   };
 }
 
 export interface ContractAction {
-  caller: string;
-  call_depth: number;
-  call_operation_type: string;
-  call_type: string;
-  destination_data: string;
-  function_parameters: string;
-  function_result_data: string;
-  gas: number;
-  index: number;
-  input: string;
-  recipient: string;
-  result_data: string;
-  type: string;
-  value: number;
+  readonly caller: string;
+  readonly call_depth: number;
+  readonly call_operation_type: string;
+  readonly call_type: string;
+  readonly destination_data: string;
+  readonly function_parameters: string;
+  readonly function_result_data: string;
+  readonly gas: number;
+  readonly index: number;
+  readonly input: string;
+  readonly recipient: string;
+  readonly result_data: string;
+  readonly type: string;
+  readonly value: number;
 }
 
 export interface ContractOpcodesResponse {
-  opcodes: {
-    address: string;
-    instruction: string;
-    opcode: number;
-    gas: number;
+  readonly opcodes: readonly {
+    readonly address: string;
+    readonly instruction: string;
+    readonly opcode: number;
+    readonly gas: number;
   }[];
 }

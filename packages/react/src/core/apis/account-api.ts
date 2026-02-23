@@ -14,42 +14,42 @@ import type { CursorPaginator } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface AccountListParams extends PaginationParams {
-  account?: EntityId | QueryOperator<EntityId>;
-  alias?: string;
-  balance?: QueryOperator<number>;
-  balance_gte?: number;
-  balance_lte?: number;
-  created_timestamp?: Timestamp | { from?: Timestamp; to?: Timestamp };
-  evm_address?: string;
-  key?: string;
-  memo?: string;
-  public_key?: string;
-  smart_contract?: boolean;
-  staked_account_id?: EntityId;
-  staked_node_id?: number;
+  readonly account?: EntityId | QueryOperator<EntityId>;
+  readonly alias?: string;
+  readonly balance?: QueryOperator<number>;
+  readonly balance_gte?: number;
+  readonly balance_lte?: number;
+  readonly created_timestamp?: Timestamp | { readonly from?: Timestamp; readonly to?: Timestamp };
+  readonly evm_address?: string;
+  readonly key?: string;
+  readonly memo?: string;
+  readonly public_key?: string;
+  readonly smart_contract?: boolean;
+  readonly staked_account_id?: EntityId;
+  readonly staked_node_id?: number;
 }
 
 export interface AccountNftsParams extends PaginationParams {
-  "spender.id"?: EntityId;
-  "token.id"?: EntityId;
-  serial_number?: number;
+  readonly "spender.id"?: EntityId;
+  readonly "token.id"?: EntityId;
+  readonly serial_number?: number;
 }
 
 export interface AccountTokenAllowancesParams extends PaginationParams {
-  "spender.id"?: EntityId;
-  "token.id"?: EntityId;
+  readonly "spender.id"?: EntityId;
+  readonly "token.id"?: EntityId;
 }
 
 export interface AccountNftAllowancesParams extends PaginationParams {
-  "account.id"?: EntityId;
-  owner?: boolean;
-  "token.id"?: EntityId;
+  readonly "account.id"?: EntityId;
+  readonly owner?: boolean;
+  readonly "token.id"?: EntityId;
 }
 
 export class AccountApi extends BaseApi {
   async getInfo(
     accountId: EntityId,
-    params?: { timestamp?: Timestamp; transactions?: boolean },
+    params?: { readonly timestamp?: Timestamp; readonly transactions?: boolean },
   ): Promise<ApiResult<AccountInfo>> {
     const builder = this.createQueryBuilder();
 

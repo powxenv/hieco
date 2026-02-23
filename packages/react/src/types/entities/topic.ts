@@ -1,46 +1,46 @@
 import type { EntityId, Timestamp, Key } from "../rest-api";
 
 export interface ChunkInfo {
-  initial_transaction_id: string;
-  nonce: number;
-  number: number;
-  total: number;
-  scheduled: boolean;
+  readonly initial_transaction_id: string;
+  readonly nonce: number;
+  readonly number: number;
+  readonly total: number;
+  readonly scheduled: boolean;
 }
 
 export interface FixedCustomFee {
-  amount: number;
-  collector_account_id: EntityId;
-  denominating_token_id: EntityId | null;
+  readonly amount: number;
+  readonly collector_account_id: EntityId;
+  readonly denominating_token_id: EntityId | null;
 }
 
 export interface ConsensusCustomFees {
-  created_timestamp: Timestamp;
-  fixed_fees: FixedCustomFee[];
+  readonly created_timestamp: Timestamp;
+  readonly fixed_fees: readonly FixedCustomFee[];
 }
 
 export interface Topic {
-  admin_key: Key | null;
-  auto_renew_account: EntityId | null;
-  auto_renew_period: number | null;
-  created_timestamp: Timestamp | null;
-  custom_fees: ConsensusCustomFees;
-  deleted: boolean | null;
-  fee_exempt_key_list: Key[];
-  fee_schedule_key: Key | null;
-  memo: string;
-  submit_key: Key | null;
-  timestamp: Timestamp;
-  topic_id: EntityId;
+  readonly admin_key: Key | null;
+  readonly auto_renew_account: EntityId | null;
+  readonly auto_renew_period: number | null;
+  readonly created_timestamp: Timestamp | null;
+  readonly custom_fees: ConsensusCustomFees;
+  readonly deleted: boolean | null;
+  readonly fee_exempt_key_list: readonly Key[];
+  readonly fee_schedule_key: Key | null;
+  readonly memo: string;
+  readonly submit_key: Key | null;
+  readonly timestamp: Timestamp;
+  readonly topic_id: EntityId;
 }
 
 export interface TopicMessage {
-  chunk_info: ChunkInfo | null;
-  consensus_timestamp: Timestamp;
-  message: string;
-  payer_account_id: EntityId;
-  running_hash: string;
-  running_hash_version: number;
-  sequence_number: number;
-  topic_id: EntityId;
+  readonly chunk_info: ChunkInfo | null;
+  readonly consensus_timestamp: Timestamp;
+  readonly message: string;
+  readonly payer_account_id: EntityId;
+  readonly running_hash: string;
+  readonly running_hash_version: number;
+  readonly sequence_number: number;
+  readonly topic_id: EntityId;
 }

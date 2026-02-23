@@ -28,8 +28,8 @@ import { mirrorNodeKeys } from "../query-keys";
 export type { AccountListParams, AccountNftsParams } from "../../../core/apis/account-api";
 
 export interface AccountTokenAllowancesParams {
-  spender?: EntityId;
-  "token.id"?: EntityId;
+  readonly spender?: EntityId;
+  readonly "token.id"?: EntityId;
 }
 
 type AccountQueryFnData<T> = ApiResult<T>;
@@ -39,7 +39,7 @@ export interface UseAccountInfoOptions extends Omit<
   UseQueryOptions<AccountQueryFnData<AccountInfo>, AccountQueryError>,
   "queryKey" | "queryFn"
 > {
-  accountId: EntityId;
+  readonly accountId: EntityId;
 }
 
 export type UseAccountInfoResult = UseQueryResult<
@@ -51,7 +51,7 @@ export interface UseAccountBalancesOptions extends Omit<
   UseQueryOptions<AccountQueryFnData<Balance>, AccountQueryError>,
   "queryKey" | "queryFn"
 > {
-  accountId: EntityId;
+  readonly accountId: EntityId;
 }
 
 export type UseAccountBalancesResult = UseQueryResult<
@@ -63,8 +63,8 @@ export interface UseAccountTokensOptions extends Omit<
   UseQueryOptions<AccountQueryFnData<TokenRelationship[]>, AccountQueryError>,
   "queryKey" | "queryFn"
 > {
-  accountId: EntityId;
-  params?: PaginationParams;
+  readonly accountId: EntityId;
+  readonly params?: PaginationParams & { readonly "token.id"?: EntityId };
 }
 
 export type UseAccountTokensResult = UseQueryResult<
@@ -76,12 +76,12 @@ export interface UseAccountNftsOptions extends Omit<
   UseQueryOptions<AccountQueryFnData<TokenRelationship[]>, AccountQueryError>,
   "queryKey" | "queryFn"
 > {
-  accountId: EntityId;
-  params?: {
-    limit?: number;
-    order?: "asc" | "desc";
-    "token.id"?: EntityId;
-    serial_number?: number;
+  readonly accountId: EntityId;
+  readonly params?: {
+    readonly limit?: number;
+    readonly order?: "asc" | "desc";
+    readonly "token.id"?: EntityId;
+    readonly serial_number?: number;
   };
 }
 
@@ -94,8 +94,8 @@ export interface UseAccountStakingRewardsOptions extends Omit<
   UseQueryOptions<AccountQueryFnData<StakingReward[]>, AccountQueryError>,
   "queryKey" | "queryFn"
 > {
-  accountId: EntityId;
-  params?: PaginationParams;
+  readonly accountId: EntityId;
+  readonly params?: PaginationParams & { readonly timestamp?: string };
 }
 
 export type UseAccountStakingRewardsResult = UseQueryResult<
@@ -107,7 +107,7 @@ export interface UseAccountCryptoAllowancesOptions extends Omit<
   UseQueryOptions<AccountQueryFnData<CryptoAllowance[]>, AccountQueryError>,
   "queryKey" | "queryFn"
 > {
-  accountId: EntityId;
+  readonly accountId: EntityId;
 }
 
 export type UseAccountCryptoAllowancesResult = UseQueryResult<
@@ -119,8 +119,8 @@ export interface UseAccountTokenAllowancesOptions extends Omit<
   UseQueryOptions<AccountQueryFnData<TokenAllowance[]>, AccountQueryError>,
   "queryKey" | "queryFn"
 > {
-  accountId: EntityId;
-  params?: AccountTokenAllowancesParams;
+  readonly accountId: EntityId;
+  readonly params?: AccountTokenAllowancesParams;
 }
 
 export type UseAccountTokenAllowancesResult = UseQueryResult<
@@ -132,8 +132,8 @@ export interface UseAccountNftAllowancesOptions extends Omit<
   UseQueryOptions<AccountQueryFnData<NftAllowance[]>, AccountQueryError>,
   "queryKey" | "queryFn"
 > {
-  accountId: EntityId;
-  params?: { "token.id"?: EntityId };
+  readonly accountId: EntityId;
+  readonly params?: { readonly "token.id"?: EntityId };
 }
 
 export type UseAccountNftAllowancesResult = UseQueryResult<
@@ -145,11 +145,11 @@ export interface UseAccountsOptions extends Omit<
   UseQueryOptions<AccountQueryFnData<AccountInfo[]>, AccountQueryError>,
   "queryKey" | "queryFn"
 > {
-  params?: {
-    limit?: number;
-    order?: "asc" | "desc";
-    account?: EntityId | QueryOperator<EntityId>;
-    alias?: string;
+  readonly params?: {
+    readonly limit?: number;
+    readonly order?: "asc" | "desc";
+    readonly account?: EntityId | QueryOperator<EntityId>;
+    readonly alias?: string;
   };
 }
 
@@ -162,7 +162,7 @@ export interface UseAccountsInfiniteOptions extends Omit<
   UseInfiniteQueryOptions<AccountQueryFnData<AccountInfo[]>, AccountQueryError>,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
-  params?: { limit?: number; order?: "asc" | "desc" };
+  readonly params?: { readonly limit?: number; readonly order?: "asc" | "desc" };
 }
 
 export type UseAccountsInfiniteResult = UseInfiniteQueryResult<
@@ -318,13 +318,13 @@ export interface UseAccountOutstandingAirdropsOptions extends Omit<
   UseQueryOptions<AccountQueryFnData<TokenAirdropsResponse>, AccountQueryError>,
   "queryKey" | "queryFn"
 > {
-  accountId: EntityId;
-  params?: {
-    limit?: number;
-    order?: "asc" | "desc";
-    receiver?: EntityId;
-    serial_number?: number;
-    "token.id"?: EntityId;
+  readonly accountId: EntityId;
+  readonly params?: {
+    readonly limit?: number;
+    readonly order?: "asc" | "desc";
+    readonly "receiver.id"?: EntityId;
+    readonly serial_number?: number;
+    readonly "token.id"?: EntityId;
   };
 }
 
@@ -337,13 +337,13 @@ export interface UseAccountPendingAirdropsOptions extends Omit<
   UseQueryOptions<AccountQueryFnData<TokenAirdropsResponse>, AccountQueryError>,
   "queryKey" | "queryFn"
 > {
-  accountId: EntityId;
-  params?: {
-    limit?: number;
-    order?: "asc" | "desc";
-    sender?: EntityId;
-    serial_number?: number;
-    "token.id"?: EntityId;
+  readonly accountId: EntityId;
+  readonly params?: {
+    readonly limit?: number;
+    readonly order?: "asc" | "desc";
+    readonly "sender.id"?: EntityId;
+    readonly serial_number?: number;
+    readonly "token.id"?: EntityId;
   };
 }
 

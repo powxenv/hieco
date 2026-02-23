@@ -2,7 +2,7 @@ import type { ApiResult, MirrorNodeConfig, NetworkType } from "../types/rest-api
 import { ApiErrorFactory, NETWORK_CONFIGS } from "../types/rest-api";
 
 interface RequestEntry {
-  timestamp: number;
+  readonly timestamp: number;
 }
 
 export class HttpClient {

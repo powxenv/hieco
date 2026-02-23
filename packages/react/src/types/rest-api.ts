@@ -1,7 +1,7 @@
 export type NetworkType = "mainnet" | "testnet" | "previewnet";
 
 export interface NetworkConfig {
-  mirrorNode: string;
+  readonly mirrorNode: string;
 }
 
 export const NETWORK_CONFIGS: Record<NetworkType, NetworkConfig> = {
@@ -17,13 +17,13 @@ export const NETWORK_CONFIGS: Record<NetworkType, NetworkConfig> = {
 };
 
 export interface MirrorNodeConfig {
-  network: NetworkType;
-  mirrorNodeUrl?: string;
+  readonly network: NetworkType;
+  readonly mirrorNodeUrl?: string;
 }
 
 export interface PaginationParams {
-  limit?: number;
-  order?: "asc" | "desc";
+  readonly limit?: number;
+  readonly order?: "asc" | "desc";
 }
 
 export type QueryOperator<T extends string | number | boolean> =
@@ -36,14 +36,14 @@ export type QueryOperator<T extends string | number | boolean> =
   | `lte:${T}`;
 
 export type ApiResult<T, E extends ApiError = ApiError> =
-  | { success: true; data: T }
-  | { success: false; error: E };
+  | { readonly success: true; readonly data: T }
+  | { readonly success: false; readonly error: E };
 
 export interface ApiError {
-  _tag: "NetworkError" | "ValidationError" | "NotFoundError" | "RateLimitError" | "UnknownError";
-  message: string;
-  status?: number;
-  code?: string;
+  readonly _tag: "NetworkError" | "ValidationError" | "NotFoundError" | "RateLimitError" | "UnknownError";
+  readonly message: string;
+  readonly status?: number;
+  readonly code?: string;
 }
 
 export const ApiErrorFactory = {
@@ -75,9 +75,18 @@ export const ApiErrorFactory = {
 
 export type EntityId = `${number}.${number}.${number}`;
 
+export type AccountId = EntityId & { readonly __brand: unique symbol };
+export type TokenId = EntityId & { readonly __brand: unique symbol };
+export type ContractId = EntityId & { readonly __brand: unique symbol };
+export type TopicId = EntityId & { readonly __brand: unique symbol };
+export type ScheduleId = EntityId & { readonly __brand: unique symbol };
+export type TransactionId = string & { readonly __brand: unique symbol };
+export type NodeId = number & { readonly __brand: unique symbol };
+export type FileId = EntityId & { readonly __brand: unique symbol };
+
 export type Timestamp = string;
 
 export interface Key {
-  _type: string;
-  key: string;
+  readonly _type: string;
+  readonly key: string;
 }

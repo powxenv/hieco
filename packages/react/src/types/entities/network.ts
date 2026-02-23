@@ -2,123 +2,123 @@ import type { EntityId, Timestamp, Key } from "../rest-api";
 import type { TokenBalance } from "./account";
 
 export interface ExchangeRate {
-  current_rate: Rate;
-  next_rate: Rate;
-  timestamp: Timestamp;
+  readonly current_rate: Rate;
+  readonly next_rate: Rate;
+  readonly timestamp: Timestamp;
 }
 
 export interface Rate {
-  cent_equality: number;
-  expiration_time: Timestamp;
-  hbar_equality: number;
+  readonly cent_equality: number;
+  readonly expiration_time: Timestamp;
+  readonly hbar_equality: number;
 }
 
 export interface NetworkFee {
-  data: FeeData[];
-  timestamp: Timestamp;
+  readonly data: readonly FeeData[];
+  readonly timestamp: Timestamp;
 }
 
 export interface FeeData {
-  denominator: number;
-  gas: number;
-  maximum: number;
-  minimum: number;
-  numerator: number;
-  operations: number[];
-  rate: number;
+  readonly denominator: number;
+  readonly gas: number;
+  readonly maximum: number;
+  readonly minimum: number;
+  readonly numerator: number;
+  readonly operations: readonly number[];
+  readonly rate: number;
 }
 
 export interface ServiceEndpoint {
-  domain_name?: string;
-  ip_address_v4: string;
-  port: number;
+  readonly domain_name?: string;
+  readonly ip_address_v4: string;
+  readonly port: number;
 }
 
 export interface TimestampRange {
-  from: Timestamp;
-  to: Timestamp | null;
+  readonly from: Timestamp;
+  readonly to: Timestamp | null;
 }
 
 export interface TimestampRangeNullable {
-  from: Timestamp | null;
-  to: Timestamp | null;
+  readonly from: Timestamp | null;
+  readonly to: Timestamp | null;
 }
 
 export interface NetworkNode {
-  admin_key: Key | null;
-  decline_reward: boolean | null;
-  description: string | null;
-  file_id: EntityId;
-  max_stake: number | null;
-  memo: string | null;
-  min_stake: number | null;
-  node_account_id: EntityId;
-  node_id: number;
-  node_cert_hash: string | null;
-  public_key: string | null;
-  reward_rate_start: number | null;
-  service_endpoints: ServiceEndpoint[];
-  stake: number | null;
-  stake_not_rewarded: number | null;
-  stake_rewarded: number | null;
-  staking_period: TimestampRangeNullable;
-  timestamp: TimestampRange;
+  readonly admin_key: Key | null;
+  readonly decline_reward: boolean | null;
+  readonly description: string | null;
+  readonly file_id: EntityId;
+  readonly max_stake: number | null;
+  readonly memo: string | null;
+  readonly min_stake: number | null;
+  readonly node_account_id: EntityId;
+  readonly node_id: number;
+  readonly node_cert_hash: string | null;
+  readonly public_key: string | null;
+  readonly reward_rate_start: number | null;
+  readonly service_endpoints: readonly ServiceEndpoint[];
+  readonly stake: number | null;
+  readonly stake_not_rewarded: number | null;
+  readonly stake_rewarded: number | null;
+  readonly staking_period: TimestampRangeNullable;
+  readonly timestamp: TimestampRange;
 }
 
 export interface NetworkStake {
-  max_stake_rewarded: number;
-  max_staking_reward_rate_per_hbar: number;
-  max_total_reward: number;
-  node_reward_fee_fraction: number;
-  reserved_staking_rewards: number;
-  reward_balance_threshold: number;
-  stake_total: number;
-  staking_period: TimestampRange;
-  staking_period_duration: number;
-  staking_periods_stored: number;
-  staking_reward_fee_fraction: number;
-  staking_reward_rate: number;
-  staking_start_threshold: number;
-  timestamp: TimestampRange;
-  unreserved_staking_reward_balance: number;
+  readonly max_stake_rewarded: number;
+  readonly max_staking_reward_rate_per_hbar: number;
+  readonly max_total_reward: number;
+  readonly node_reward_fee_fraction: number;
+  readonly reserved_staking_rewards: number;
+  readonly reward_balance_threshold: number;
+  readonly stake_total: number;
+  readonly staking_period: TimestampRange;
+  readonly staking_period_duration: number;
+  readonly staking_periods_stored: number;
+  readonly staking_reward_fee_fraction: number;
+  readonly staking_reward_rate: number;
+  readonly staking_start_threshold: number;
+  readonly timestamp: TimestampRange;
+  readonly unreserved_staking_reward_balance: number;
 }
 
 export interface NetworkSupply {
-  timestamp: Timestamp;
-  total_supply: number;
-  released_supply: number;
+  readonly timestamp: Timestamp;
+  readonly total_supply: number;
+  readonly released_supply: number;
 }
 
 export interface AccountBalance {
-  account: EntityId;
-  balance: number;
-  tokens: TokenBalance[];
+  readonly account: EntityId;
+  readonly balance: number;
+  readonly tokens: readonly TokenBalance[];
 }
 
 export interface BalancesResponse {
-  timestamp: Timestamp | null;
-  balances: AccountBalance[];
-  links: {
-    next?: string;
+  readonly timestamp: Timestamp | null;
+  readonly balances: readonly AccountBalance[];
+  readonly links: {
+    readonly next?: string;
   };
 }
 
 export interface Block {
-  hash: string;
-  number: number;
-  timestamp: {
-    from: string;
-    to: string;
+  readonly hash: string;
+  readonly number: number;
+  readonly timestamp: {
+    readonly from: string;
+    readonly to: string;
   };
-  gas_used: number;
-  record_file_hash: string;
-  state_hash: string;
-  previous_hash: string;
+  readonly gas_used: number;
+  readonly record_file_hash: string;
+  readonly state_hash: string;
+  readonly previous_hash: string;
 }
 
 export interface BlocksResponse {
-  blocks: Block[];
-  links: {
-    next?: string;
+  readonly blocks: readonly Block[];
+  readonly links: {
+    readonly next?: string;
   };
 }

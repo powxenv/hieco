@@ -40,3 +40,7 @@ export class MirrorNodeClient {
     this.block = new BlockApi(this.httpClient);
   }
 }
+
+export function createMirrorNodeClient(network: "mainnet" | "testnet" | "previewnet", mirrorNodeUrl?: string): MirrorNodeClient {
+  return new MirrorNodeClient({ network, mirrorNodeUrl });
+}
