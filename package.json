@@ -1,0 +1,8 @@
+{
+    "name": "hiecom",
+    "private": true,
+    "workspaces": [
+        "packages/*",
+        "apps/*"
+    ]
+}
