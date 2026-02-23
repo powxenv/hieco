@@ -98,7 +98,13 @@ export class HttpClient {
         };
       }
 
-      const data = (await response.json()) as T;
+      const data = await this.safeJson<T>(response);
+      if (data === null) {
+        return {
+          success: false,
+          error: ApiErrorFactory.network("Failed to parse JSON response", response.status),
+        };
+      }
       return { success: true, data };
     } catch (error) {
       if (attempt < this.maxRetries && this.isRetryableError(error as Error)) {
@@ -120,12 +126,16 @@ export class HttpClient {
     path: string,
     params?: Record<string, string | number | boolean | undefined>,
   ): string {
+    if (!path || path.trim() === "") {
+      throw new Error("Path cannot be empty");
+    }
+
     const cleanPath = path.replace(/^\//, "");
     const url = new URL(`${this.baseUrl}/api/v1/${cleanPath}`);
 
     if (params) {
       for (const [key, value] of Object.entries(params)) {
-        if (value !== undefined) {
+        if (value !== undefined && key.trim() !== "") {
           url.searchParams.set(key, String(value));
         }
       }
@@ -178,6 +188,14 @@ export class HttpClient {
       return await response.text();
     } catch {
       return "";
+    }
+  }
+
+  private async safeJson<T>(response: Response): Promise<T | null> {
+    try {
+      return await response.json();
+    } catch {
+      return null;
     }
   }
 }

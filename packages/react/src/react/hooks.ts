@@ -13,16 +13,11 @@ export function useMirrorNodeContext(): MirrorNodeContextValue {
 }
 
 export function useMirrorNodeClient(): MirrorNodeClient {
-  const { client, isInitialized } = useMirrorNodeContext();
-
-  if (!isInitialized || client === null) {
-    throw new Error("MirrorNodeClient is not initialized");
-  }
+  const { client } = useMirrorNodeContext();
 
   return client;
 }
 
 export interface MirrorNodeContextValue {
   client: MirrorNodeClient;
-  isInitialized: boolean;
 }

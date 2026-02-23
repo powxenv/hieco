@@ -25,7 +25,9 @@ export class BaseApi {
     params?: Record<string, string>,
   ): Promise<ApiResult<T[]>> {
     const result = await this.client.get<{ data: T[] }>(path, params);
-    if (!result.success) return result as ApiResult<T[]>;
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
     return { success: true, data: result.data.data };
   }
 
@@ -47,7 +49,9 @@ export class BaseApi {
       );
 
       if (!result.success) {
-        if (items.length === 0) return result as ApiResult<T[]>;
+        if (items.length === 0) {
+          return { success: false, error: result.error };
+        }
         return { success: true, data: items };
       }
 

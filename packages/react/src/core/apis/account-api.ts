@@ -242,7 +242,7 @@ export class AccountApi extends BaseApi {
     );
   }
 
-  async listPaginated(params?: AccountListParams): Promise<ApiResult<AccountInfo[]>> {
+  private buildAccountListParams(params?: AccountListParams): Record<string, string> {
     const builder = this.createQueryBuilder();
 
     if (params) {
@@ -286,53 +286,14 @@ export class AccountApi extends BaseApi {
       }
     }
 
-    return this.getAllPaginated<AccountInfo>("accounts", builder.build());
+    return builder.build();
+  }
+
+  async listPaginated(params?: AccountListParams): Promise<ApiResult<AccountInfo[]>> {
+    return this.getAllPaginated<AccountInfo>("accounts", this.buildAccountListParams(params));
   }
 
   createAccountPaginator(params?: AccountListParams): CursorPaginator<AccountInfo> {
-    const builder = this.createQueryBuilder();
-
-    if (params) {
-      builder.addPagination(params);
-
-      if (params.account) {
-        builder.add("account", params.account);
-      }
-      if (params.alias) {
-        builder.add("alias", params.alias);
-      }
-      if (params.balance) {
-        builder.add("balance", params.balance);
-      }
-      if (params.balance_gte !== undefined) {
-        builder.add("balance", `gte:${params.balance_gte}`);
-      }
-      if (params.balance_lte !== undefined) {
-        builder.add("balance", `lte:${params.balance_lte}`);
-      }
-      if (params.created_timestamp) {
-        builder.addTimestamp(params.created_timestamp);
-      }
-      if (params.evm_address) {
-        builder.add("evmaddress", params.evm_address);
-      }
-      if (params.key) {
-        builder.add("publickey", params.key);
-      }
-      if (params.memo) {
-        builder.add("memo", params.memo);
-      }
-      if (params.smart_contract !== undefined) {
-        builder.add("smartcontract", params.smart_contract);
-      }
-      if (params.staked_account_id) {
-        builder.add("stakedaccountid", params.staked_account_id);
-      }
-      if (params.staked_node_id !== undefined) {
-        builder.add("stakednodeid", params.staked_node_id);
-      }
-    }
-
-    return super.createPaginator<AccountInfo>("accounts", builder.build());
+    return super.createPaginator<AccountInfo>("accounts", this.buildAccountListParams(params));
   }
 }

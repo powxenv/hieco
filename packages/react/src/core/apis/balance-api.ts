@@ -11,7 +11,7 @@ export interface BalancesListParams extends PaginationParams {
 }
 
 export class BalanceApi extends BaseApi {
-  async getBalances(params?: BalancesListParams): Promise<ApiResult<BalancesResponse>> {
+  private buildBalancesParams(params?: BalancesListParams): Record<string, string> {
     const builder = this.createQueryBuilder();
 
     if (params) {
@@ -31,29 +31,14 @@ export class BalanceApi extends BaseApi {
       }
     }
 
-    return this.getSingle<BalancesResponse>("balances", builder.build());
+    return builder.build();
+  }
+
+  async getBalances(params?: BalancesListParams): Promise<ApiResult<BalancesResponse>> {
+    return this.getSingle<BalancesResponse>("balances", this.buildBalancesParams(params));
   }
 
   createBalancesPaginator(params?: BalancesListParams): CursorPaginator<AccountBalance> {
-    const builder = this.createQueryBuilder();
-
-    if (params) {
-      builder.addPagination(params);
-
-      if (params.account) {
-        builder.add("account.id", params.account);
-      }
-      if (params["account.balance"]) {
-        builder.add("account.balance", params["account.balance"]);
-      }
-      if (params.public_key) {
-        builder.add("publickey", params.public_key);
-      }
-      if (params.timestamp) {
-        builder.addTimestamp(params.timestamp);
-      }
-    }
-
-    return super.createPaginator("balances", builder.build());
+    return super.createPaginator("balances", this.buildBalancesParams(params));
   }
 }

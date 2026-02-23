@@ -13,7 +13,6 @@ export function MirrorNodeProvider({ client, children }: MirrorNodeProviderProps
   const value = useMemo<MirrorNodeContextValue>(
     () => ({
       client,
-      isInitialized: true,
     }),
     [client],
   );

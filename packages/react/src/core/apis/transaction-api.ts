@@ -81,7 +81,7 @@ export class TransactionApi extends BaseApi {
     return this.getList<Transaction>(`transactions?account.id=${accountId}`, builder.build());
   }
 
-  async listPaginated(params?: TransactionListParams): Promise<ApiResult<Transaction[]>> {
+  private buildTransactionListParams(params?: TransactionListParams): Record<string, string> {
     const builder = this.createQueryBuilder();
 
     if (params) {
@@ -127,49 +127,14 @@ export class TransactionApi extends BaseApi {
       }
     }
 
-    return this.getAllPaginated<Transaction>("transactions", builder.build());
+    return builder.build();
+  }
+
+  async listPaginated(params?: TransactionListParams): Promise<ApiResult<Transaction[]>> {
+    return this.getAllPaginated<Transaction>("transactions", this.buildTransactionListParams(params));
   }
 
   createTransactionPaginator(params?: TransactionListParams): CursorPaginator<Transaction> {
-    const builder = this.createQueryBuilder();
-
-    if (params) {
-      builder.addPagination(params);
-
-      if (params.account) {
-        builder.add("account.id", params.account);
-      }
-      if (params["account.id"]) {
-        if (Array.isArray(params["account.id"])) {
-          builder.addIn("account.id", params["account.id"]);
-        } else {
-          builder.add("account.id", params["account.id"]);
-        }
-      }
-      if (params.transaction_id) {
-        builder.add("transactionid", params.transaction_id);
-      }
-      if (params.transactionhash) {
-        builder.add("transactionhash", params.transactionhash);
-      }
-      if (params.result) {
-        builder.add("result", params.result);
-      }
-      if (params.scheduled !== undefined) {
-        builder.add("scheduled", params.scheduled);
-      }
-      if (params.timestamp) {
-        builder.addTimestamp(params.timestamp);
-      }
-      if (params["transfers.account"]) {
-        if (Array.isArray(params["transfers.account"])) {
-          builder.addIn("transfers.account", params["transfers.account"]);
-        } else {
-          builder.add("transfers.account", params["transfers.account"]);
-        }
-      }
-    }
-
-    return super.createPaginator<Transaction>("transactions", builder.build());
+    return super.createPaginator<Transaction>("transactions", this.buildTransactionListParams(params));
   }
 }

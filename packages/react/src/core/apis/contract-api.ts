@@ -304,7 +304,7 @@ export class ContractApi extends BaseApi {
     );
   }
 
-  async listPaginated(params?: ContractListParams): Promise<ApiResult<ContractInfo[]>> {
+  private buildContractListParams(params?: ContractListParams): Record<string, string> {
     const builder = this.createQueryBuilder();
 
     if (params) {
@@ -324,29 +324,14 @@ export class ContractApi extends BaseApi {
       }
     }
 
-    return this.getAllPaginated<ContractInfo>("contracts", builder.build());
+    return builder.build();
+  }
+
+  async listPaginated(params?: ContractListParams): Promise<ApiResult<ContractInfo[]>> {
+    return this.getAllPaginated<ContractInfo>("contracts", this.buildContractListParams(params));
   }
 
   createContractPaginator(params?: ContractListParams): CursorPaginator<ContractInfo> {
-    const builder = this.createQueryBuilder();
-
-    if (params) {
-      builder.addPagination(params);
-
-      if (params["contract.id"]) {
-        builder.add("contract.id", params["contract.id"]);
-      }
-      if (params.address) {
-        builder.add("address", params.address);
-      }
-      if (params.smart_contract_id) {
-        builder.add("smartcontractid", params.smart_contract_id);
-      }
-      if (params.created_timestamp) {
-        builder.addTimestamp(params.created_timestamp);
-      }
-    }
-
-    return super.createPaginator<ContractInfo>("contracts", builder.build());
+    return super.createPaginator<ContractInfo>("contracts", this.buildContractListParams(params));
   }
 }

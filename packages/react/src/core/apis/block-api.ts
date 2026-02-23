@@ -9,7 +9,7 @@ export interface BlocksListParams extends PaginationParams {
 }
 
 export class BlockApi extends BaseApi {
-  async getBlocks(params?: BlocksListParams): Promise<ApiResult<BlocksResponse>> {
+  private buildBlocksParams(params?: BlocksListParams): Record<string, string> {
     const builder = this.createQueryBuilder();
 
     if (params) {
@@ -23,7 +23,11 @@ export class BlockApi extends BaseApi {
       }
     }
 
-    return this.getSingle<BlocksResponse>("blocks", builder.build());
+    return builder.build();
+  }
+
+  async getBlocks(params?: BlocksListParams): Promise<ApiResult<BlocksResponse>> {
+    return this.getSingle<BlocksResponse>("blocks", this.buildBlocksParams(params));
   }
 
   async getBlock(hashOrNumber: string): Promise<ApiResult<Block>> {
@@ -31,19 +35,6 @@ export class BlockApi extends BaseApi {
   }
 
   createBlocksPaginator(params?: BlocksListParams): CursorPaginator<Block> {
-    const builder = this.createQueryBuilder();
-
-    if (params) {
-      builder.addPagination(params);
-
-      if (params.block_number !== undefined) {
-        builder.add("block.number", params.block_number);
-      }
-      if (params.timestamp) {
-        builder.addTimestamp(params.timestamp);
-      }
-    }
-
-    return super.createPaginator<Block>("blocks", builder.build());
+    return super.createPaginator<Block>("blocks", this.buildBlocksParams(params));
   }
 }

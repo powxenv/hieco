@@ -79,7 +79,9 @@ export class TokenApi extends BaseApi {
 
     const result = await this.client.get<NftsResponse>(`tokens/${tokenId}/nfts`, builder.build());
 
-    if (!result.success) return result as ApiResult<Nft[]>;
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
     return { success: true, data: result.data.nfts };
   }
 
@@ -107,7 +109,7 @@ export class TokenApi extends BaseApi {
     );
   }
 
-  async listPaginated(params?: TokenListParams): Promise<ApiResult<TokenInfo[]>> {
+  private buildTokenListParams(params?: TokenListParams): Record<string, string> {
     const builder = this.createQueryBuilder();
 
     if (params) {
@@ -133,36 +135,15 @@ export class TokenApi extends BaseApi {
       }
     }
 
-    return this.getAllPaginated<TokenInfo>("tokens", builder.build());
+    return builder.build();
+  }
+
+  async listPaginated(params?: TokenListParams): Promise<ApiResult<TokenInfo[]>> {
+    return this.getAllPaginated<TokenInfo>("tokens", this.buildTokenListParams(params));
   }
 
   createTokenPaginator(params?: TokenListParams): CursorPaginator<TokenInfo> {
-    const builder = this.createQueryBuilder();
-
-    if (params) {
-      builder.addPagination(params);
-
-      if (params["account.id"]) {
-        builder.add("account.id", params["account.id"]);
-      }
-      if (params["token.id"]) {
-        builder.add("token.id", params["token.id"]);
-      }
-      if (params.created_timestamp) {
-        builder.addTimestamp(params.created_timestamp);
-      }
-      if (params.name) {
-        builder.add("name", params.name);
-      }
-      if (params.public_key) {
-        builder.add("publickey", params.public_key);
-      }
-      if (params.type) {
-        builder.add("type", params.type);
-      }
-    }
-
-    return super.createPaginator<TokenInfo>("tokens", builder.build());
+    return super.createPaginator<TokenInfo>("tokens", this.buildTokenListParams(params));
   }
 }
 

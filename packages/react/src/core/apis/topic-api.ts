@@ -1,6 +1,7 @@
 import type { ApiResult, PaginationParams, Timestamp } from "../../types/rest-api";
 import type { Topic, TopicMessage } from "../../types/entities/topic";
 import type { EntityId } from "../../types/rest-api";
+import type { CursorPaginator } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface TopicMessagesParams extends PaginationParams {
@@ -63,7 +64,7 @@ export class TopicApi extends BaseApi {
     return this.getAllPaginated<Topic>("topics", builder.build());
   }
 
-  createTopicPaginator(params?: PaginationParams): ReturnType<typeof this.createPaginator<Topic>> {
+  createTopicPaginator(params?: PaginationParams): CursorPaginator<Topic> {
     const builder = this.createQueryBuilder();
 
     if (params) {
