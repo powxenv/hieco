@@ -19,9 +19,9 @@ const client = new MirrorNodeClient({ network: "mainnet" });
 
 function App() {
   return (
-    <MirrorNodeClient client={client}>
+    <MirrorNodeProvider client={client}>
       <YourApp />
-    </MirrorNodeClient>
+    </MirrorNodeProvider>
   );
 }
 
@@ -92,6 +92,16 @@ const accounts = await client.account.listPaginated({
   balance: "gte:1000",
   limit: 50,
   order: "desc",
+});
+
+// Get outstanding airdrops
+const airdrops = await client.account.getOutstandingAirdrops("0.0.123", {
+  limit: 25,
+});
+
+// Get pending airdrops
+const pending = await client.account.getPendingAirdrops("0.0.123", {
+  "token.id": "0.0.456",
 });
 ```
 
@@ -234,6 +244,49 @@ const stake = await client.network.getStake();
 const supply = await client.network.getSupply();
 ```
 
+### Balance API
+
+```tsx
+const client = useMirrorNodeClient();
+
+// Get balances for multiple accounts
+const balances = await client.balance.getBalances({
+  account: "0.0.123",
+  limit: 100,
+});
+
+if (balances.success) {
+  console.log(balances.data.balances); // Array of account balances
+  console.log(balances.data.timestamp); // Balance timestamp
+}
+```
+
+### Block API
+
+```tsx
+const client = useMirrorNodeClient();
+
+// Get blocks
+const blocks = await client.block.getBlocks({
+  limit: 25,
+  order: "desc",
+});
+
+if (blocks.success) {
+  console.log(blocks.data.blocks); // Array of blocks
+}
+
+// Get specific block by hash or number
+const block = await client.block.getBlock("0x123...");
+// or
+const block = await client.block.getBlock("12345");
+
+if (block.success) {
+  console.log(block.data.number);
+  console.log(block.data.timestamp);
+}
+```
+
 ## Type Safety
 
 All API methods return a typed `ApiResult<T>` that is a discriminated union:
@@ -255,52 +308,310 @@ if (!result.success) {
 }
 ```
 
-## TanStack Query Integration
+## Error Handling
 
-Use the query keys for cache management:
+The SDK provides comprehensive error handling through the `ApiError` discriminated union:
 
 ```tsx
-import { useQuery } from "@tanstack/react-query";
-import { MirrorNodeClient, mirrorNodeKeys } from "@hiecom/react";
+const result = await client.account.getInfo("0.0.123");
 
+if (!result.success) {
+  switch (result.error._tag) {
+    case "NetworkError":
+      // HTTP request failed or returned non-2xx status
+      console.error(`Network error: ${result.error.message}`);
+      console.log(`Status: ${result.error.status}`);
+      break;
+
+    case "NotFoundError":
+      // Resource not found (404)
+      console.error(`Not found: ${result.error.message}`);
+      break;
+
+    case "RateLimitError":
+      // Rate limited (429)
+      console.error(`Rate limited: ${result.error.message}`);
+      const retryAfter = result.error.code; // Retry-After header value
+      break;
+
+    case "ValidationError":
+      // Invalid request parameters
+      console.error(`Validation error: ${result.error.message}`);
+      console.log(`Code: ${result.error.code}`);
+      break;
+
+    case "UnknownError":
+      // Unexpected error
+      console.error(`Unknown error: ${result.error.message}`);
+      break;
+  }
+}
+```
+
+### Automatic Retry Behavior
+
+The HTTP client automatically retries failed requests with exponential backoff:
+
+- **Retry conditions**: 408, 413, 429, 500, 502, 503, 504 status codes
+- **Max retries**: 3 attempts
+- **Backoff delay**: 1000ms \* 2^(attempt-1) (1s, 2s, 4s)
+- **Max backoff**: 10 seconds
+- **Rate limiting**: 50 concurrent requests maximum
+
+### Error Utilities
+
+For creating consistent error responses in your own code:
+
+```tsx
+import { ApiErrorFactory } from "@hiecom/react";
+
+const error = ApiErrorFactory.network("Connection failed", 503);
+// { _tag: "NetworkError", message: "Connection failed", status: 503 }
+
+const notFound = ApiErrorFactory.notFound("Account not found");
+// { _tag: "NotFoundError", message: "Account not found" }
+
+const rateLimit = ApiErrorFactory.rateLimit("Too many requests", 60);
+// { _tag: "RateLimitError", message: "Too many requests", code: "60" }
+```
+
+## TanStack Query Integration
+
+The package provides pre-built hooks for TanStack Query (React Query). Install the optional peer dependency:
+
+```bash
+npm install @tanstack/react-query
+# or
+bun add @tanstack/react-query
+```
+
+### Using Pre-built Hooks
+
+Import hooks from the `@hiecom/react/tanstack-query` subpath:
+
+```tsx
+import { MirrorNodeProvider } from "@hiecom/react";
+import { useAccountInfo, useTokens, useTransactions } from "@hiecom/react/tanstack-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 const client = new MirrorNodeClient({ network: "mainnet" });
 
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <MirrorNodeProvider client={client}>
+        <YourApp />
+      </MirrorNodeProvider>
+    </QueryClientProvider>
+  );
+}
+
 function AccountBalance({ accountId }: { accountId: string }) {
-  const { data, isLoading, error } = useQuery({
-    queryKey: mirrorNodeKeys.account.info(accountId),
-    queryFn: () => client.account.getInfo(accountId),
-  });
+  const { data, isLoading, error } = useAccountInfo({ accountId });
 
   if (isLoading) return <div>Loading...</div>;
   if (!data?.success) return <div>Error: {data.error.message}</div>;
 
   return <div>Balance: {data.data.balance.balance}</div>;
 }
+
+function TokensList() {
+  const { data, isLoading } = useTokens({
+    params: { type: "FUNGIBLE_COMMON", limit: 50 },
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (!data?.success) return <div>Error loading tokens</div>;
+
+  return (
+    <ul>
+      {data.data.map((token) => (
+        <li key={token.token_id}>{token.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### Infinite Queries
+
+For paginated data, use the infinite query hooks:
+
+```tsx
+import { useAccountsInfinite } from "@hiecom/react/tanstack-query";
+
+function AccountsList() {
+  const { data, fetchNextPage, hasNextPage, isLoading } = useAccountsInfinite({
+    params: { limit: 25, order: "desc" },
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <>
+      {data?.pages.map((page) =>
+        page.success
+          ? page.data.map((account) => <div key={account.account}>{account.account}</div>)
+          : null,
+      )}
+      {hasNextPage && <button onClick={() => fetchNextPage()}>Load More</button>}
+    </>
+  );
+}
+```
+
+### Available Hooks
+
+All hooks return `UseQueryResult<ApiResult<T>>` or `UseInfiniteQueryResult<ApiResult<T>>`:
+
+#### Account Hooks
+
+- `useAccountInfo({ accountId })` - Get account information
+- `useAccountBalances({ accountId })` - Get account balances
+- `useAccountTokens({ accountId, params })` - Get account tokens
+- `useAccountNfts({ accountId, params })` - Get account NFTs
+- `useAccountStakingRewards({ accountId, params })` - Get staking rewards
+- `useAccountCryptoAllowances({ accountId })` - Get crypto allowances
+- `useAccountTokenAllowances({ accountId, params })` - Get token allowances
+- `useAccountNftAllowances({ accountId, params })` - Get NFT allowances
+- `useAccountOutstandingAirdrops({ accountId, params })` - Get outstanding airdrops
+- `useAccountPendingAirdrops({ accountId, params })` - Get pending airdrops
+- `useAccounts({ params })` - List accounts
+- `useAccountsInfinite({ params })` - Infinite scroll accounts
+
+#### Token Hooks
+
+- `useTokenInfo({ tokenId })` - Get token information
+- `useTokenBalances({ tokenId, params })` - Get token holders
+- `useTokenNfts({ tokenId, params })` - Get token NFTs
+- `useTokenNft({ tokenId, serialNumber })` - Get specific NFT
+- `useTokens({ params })` - List tokens
+- `useTokensInfinite({ params })` - Infinite scroll tokens
+
+#### Transaction Hooks
+
+- `useTransaction({ transactionId })` - Get transaction details
+- `useTransactionsByAccount({ accountId, params })` - Get account transactions
+- `useTransactions({ params })` - List all transactions
+- `useTransactionsInfinite({ params })` - Infinite scroll transactions
+
+#### Contract Hooks
+
+- `useContractInfo({ contractIdOrAddress })` - Get contract info
+- `useContractCall({ params })` - Call contract (read-only)
+- `useContractResults({ contractId, params })` - Get contract results
+- `useContractState({ contractId, params })` - Get contract state
+- `useContractLogs({ contractId, params })` - Get contract logs
+- `useContracts({ params })` - List contracts
+- `useContractsInfinite({ params })` - Infinite scroll contracts
+
+#### Topic Hooks
+
+- `useTopicInfo({ topicId })` - Get topic information
+- `useTopicMessages({ topicId, params })` - Get topic messages
+- `useTopicMessage({ topicId, sequenceNumber })` - Get specific message
+- `useTopics({ params })` - List topics
+- `useTopicsInfinite({ params })` - Infinite scroll topics
+
+#### Schedule Hooks
+
+- `useScheduleInfo({ scheduleId })` - Get schedule information
+- `useSchedules({ params })` - List schedules
+- `useSchedulesInfinite({ params })` - Infinite scroll schedules
+
+#### Network Hooks
+
+- `useNetworkExchangeRate()` - Get HBAR exchange rate
+- `useNetworkFees({ params })` - Get network fees
+- `useNetworkNodes()` - Get network nodes
+- `useNetworkStake()` - Get network stake information
+- `useNetworkSupply()` - Get total token supply
+
+#### Balance & Block Hooks
+
+- `useBalances({ params })` - Get account balances
+- `useBlocks({ params })` - Get blocks
+- `useBlock({ hashOrNumber })` - Get specific block
+
+### Advanced: Using Query Keys Directly
+
+For custom query implementations, use the exported query keys:
+
+```tsx
+import { useQuery } from "@tanstack/react-query";
+import { useMirrorNodeClient, mirrorNodeKeys } from "@hiecom/react";
+
+function CustomAccountQuery({ accountId }: { accountId: string }) {
+  const client = useMirrorNodeClient();
+
+  const { data } = useQuery({
+    queryKey: mirrorNodeKeys.account.info(accountId),
+    queryFn: () => client.account.getInfo(accountId),
+    staleTime: 30_000, // 30 seconds
+  });
+
+  if (!data?.success) return null;
+  return <div>{data.data.account}</div>;
+}
 ```
 
 ## Pagination
 
+The SDK supports two pagination patterns:
+
+### Automatic Pagination
+
+`listPaginated` automatically fetches all pages and returns a complete array:
+
 ```tsx
-// Simple pagination with listPaginated
 const result = await client.account.listPaginated({
   limit: 25,
   order: "desc",
 });
 
 if (result.success) {
-  console.log(result.data); // First page of results
-  console.log(result.links?.next); // Cursor for next page
+  console.log(result.data); // Array of ALL accounts (all pages fetched)
+  console.log(result.data.length); // Total count
 }
+```
 
-// Cursor-based pagination with paginator
+### Cursor-based Pagination
+
+For manual control over pagination, use the paginator:
+
+```tsx
+// Create a paginator
 const paginator = client.account.createAccountPaginator({
   limit: 25,
   order: "desc",
 });
 
-const page1 = await paginator.next();
-const page2 = await paginator.next();
-const allResults = await paginator.collect();
+// Iterate with for-await-of (async generator)
+for await (const account of paginator) {
+  console.log(account.account);
+}
+
+// Or manually control iteration
+const page1 = await paginator.fetchNext();
+// Returns: { success: true, data: PaginatedResponse<AccountInfo> }
+
+// Use as async iterable in React
+function useAccounts() {
+  const [accounts, setAccounts] = useState<AccountInfo[]>([]);
+
+  useEffect(() => {
+    const paginator = client.account.createAccountPaginator({ limit: 25 });
+    const load = async () => {
+      for await (const account of paginator) {
+        setAccounts((prev) => [...prev, account]);
+      }
+    };
+    load();
+  }, []);
+
+  return accounts;
+}
 ```
 
 ## Query Operators
