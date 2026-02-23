@@ -35,9 +35,34 @@ export interface AccountNftsParams extends PaginationParams {
   serial_number?: number;
 }
 
+export interface AccountTokenAllowancesParams extends PaginationParams {
+  "spender.id"?: EntityId;
+  "token.id"?: EntityId;
+}
+
+export interface AccountNftAllowancesParams extends PaginationParams {
+  "account.id"?: EntityId;
+  owner?: boolean;
+  "token.id"?: EntityId;
+}
+
 export class AccountApi extends BaseApi {
-  async getInfo(accountId: EntityId): Promise<ApiResult<AccountInfo>> {
-    return this.getSingle<AccountInfo>(`accounts/${accountId}`);
+  async getInfo(
+    accountId: EntityId,
+    params?: { timestamp?: Timestamp; transactions?: boolean },
+  ): Promise<ApiResult<AccountInfo>> {
+    const builder = this.createQueryBuilder();
+
+    if (params) {
+      if (params.timestamp) {
+        builder.addTimestamp(params.timestamp);
+      }
+      if (params.transactions !== undefined) {
+        builder.add("transactions", params.transactions);
+      }
+    }
+
+    return this.getSingle<AccountInfo>(`accounts/${accountId}`, builder.build());
   }
 
   async getBalances(accountId: EntityId): Promise<ApiResult<Balance>> {
@@ -46,12 +71,15 @@ export class AccountApi extends BaseApi {
 
   async getTokens(
     accountId: EntityId,
-    params?: PaginationParams,
+    params?: PaginationParams & { "token.id"?: EntityId },
   ): Promise<ApiResult<TokenRelationship[]>> {
     const builder = this.createQueryBuilder();
 
     if (params) {
       builder.addPagination(params);
+      if (params["token.id"]) {
+        builder.add("token.id", params["token.id"]);
+      }
     }
 
     return this.getList<TokenRelationship>(`accounts/${accountId}/tokens`, builder.build());
@@ -81,12 +109,15 @@ export class AccountApi extends BaseApi {
 
   async getStakingRewards(
     accountId: EntityId,
-    params?: PaginationParams,
+    params?: PaginationParams & { timestamp?: Timestamp },
   ): Promise<ApiResult<StakingReward[]>> {
     const builder = this.createQueryBuilder();
 
     if (params) {
       builder.addPagination(params);
+      if (params.timestamp) {
+        builder.addTimestamp(params.timestamp);
+      }
     }
 
     return this.getList<StakingReward>(`accounts/${accountId}/rewards`, builder.build());
@@ -110,15 +141,18 @@ export class AccountApi extends BaseApi {
 
   async getTokenAllowances(
     accountId: EntityId,
-    params?: { spender?: EntityId; "token.id"?: EntityId },
+    params?: AccountTokenAllowancesParams,
   ): Promise<ApiResult<TokenAllowance[]>> {
     const builder = this.createQueryBuilder();
 
-    if (params?.spender) {
-      builder.add("spender", params.spender);
-    }
-    if (params?.["token.id"]) {
-      builder.add("token.id", params["token.id"]);
+    if (params) {
+      builder.addPagination(params);
+      if (params["spender.id"]) {
+        builder.add("spender.id", params["spender.id"]);
+      }
+      if (params["token.id"]) {
+        builder.add("token.id", params["token.id"]);
+      }
     }
 
     return this.getList<TokenAllowance>(`accounts/${accountId}/allowances/token`, builder.build());
@@ -126,7 +160,7 @@ export class AccountApi extends BaseApi {
 
   async getNftAllowances(
     accountId: EntityId,
-    params?: PaginationParams & { "account.id"?: EntityId; owner?: EntityId; "token.id"?: EntityId },
+    params?: AccountNftAllowancesParams,
   ): Promise<ApiResult<NftAllowance[]>> {
     const builder = this.createQueryBuilder();
 
@@ -135,7 +169,7 @@ export class AccountApi extends BaseApi {
       if (params["account.id"]) {
         builder.add("account.id", params["account.id"]);
       }
-      if (params.owner) {
+      if (params.owner !== undefined) {
         builder.add("owner", params.owner);
       }
       if (params["token.id"]) {
@@ -151,7 +185,7 @@ export class AccountApi extends BaseApi {
     params?: {
       limit?: number;
       order?: "asc" | "desc";
-      receiver?: EntityId;
+      "receiver.id"?: EntityId;
       serial_number?: number;
       "token.id"?: EntityId;
     },
@@ -160,8 +194,8 @@ export class AccountApi extends BaseApi {
 
     if (params) {
       builder.addPagination(params);
-      if (params.receiver) {
-        builder.add("receiver", params.receiver);
+      if (params["receiver.id"]) {
+        builder.add("receiver.id", params["receiver.id"]);
       }
       if (params.serial_number !== undefined) {
         builder.add("serialNumber", params.serial_number);
@@ -182,7 +216,7 @@ export class AccountApi extends BaseApi {
     params?: {
       limit?: number;
       order?: "asc" | "desc";
-      sender?: EntityId;
+      "sender.id"?: EntityId;
       serial_number?: number;
       "token.id"?: EntityId;
     },
@@ -191,8 +225,8 @@ export class AccountApi extends BaseApi {
 
     if (params) {
       builder.addPagination(params);
-      if (params.sender) {
-        builder.add("sender", params.sender);
+      if (params["sender.id"]) {
+        builder.add("sender.id", params["sender.id"]);
       }
       if (params.serial_number !== undefined) {
         builder.add("serialNumber", params.serial_number);

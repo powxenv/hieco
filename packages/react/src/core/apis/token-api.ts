@@ -27,8 +27,14 @@ export interface TokenNftsParams extends PaginationParams {
 }
 
 export class TokenApi extends BaseApi {
-  async getInfo(tokenId: EntityId): Promise<ApiResult<TokenInfo>> {
-    return this.getSingle<TokenInfo>(`tokens/${tokenId}`);
+  async getInfo(tokenId: EntityId, params?: { timestamp?: Timestamp }): Promise<ApiResult<TokenInfo>> {
+    const builder = this.createQueryBuilder();
+
+    if (params?.timestamp) {
+      builder.addTimestamp(params.timestamp);
+    }
+
+    return this.getSingle<TokenInfo>(`tokens/${tokenId}`, builder.build());
   }
 
   async getBalances(
@@ -84,12 +90,15 @@ export class TokenApi extends BaseApi {
   async getNftTransactions(
     tokenId: EntityId,
     serialNumber: number,
-    params?: PaginationParams,
+    params?: PaginationParams & { timestamp?: Timestamp },
   ): Promise<ApiResult<Transaction[]>> {
     const builder = this.createQueryBuilder();
 
     if (params) {
       builder.addPagination(params);
+      if (params.timestamp) {
+        builder.addTimestamp(params.timestamp);
+      }
     }
 
     return this.getList<Transaction>(

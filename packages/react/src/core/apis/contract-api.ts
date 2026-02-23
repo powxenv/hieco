@@ -33,6 +33,7 @@ export interface ContractResultsParams extends PaginationParams {
 
 export interface ContractStateParams extends PaginationParams {
   slot?: string;
+  timestamp?: Timestamp;
 }
 
 export interface ContractLogsParams extends PaginationParams {
@@ -46,8 +47,17 @@ export interface ContractLogsParams extends PaginationParams {
 }
 
 export class ContractApi extends BaseApi {
-  async getInfo(contractIdOrAddress: EntityId | string): Promise<ApiResult<ContractInfo>> {
-    return this.getSingle<ContractInfo>(`contracts/${contractIdOrAddress}`);
+  async getInfo(
+    contractIdOrAddress: EntityId | string,
+    params?: { timestamp?: Timestamp },
+  ): Promise<ApiResult<ContractInfo>> {
+    const builder = this.createQueryBuilder();
+
+    if (params?.timestamp) {
+      builder.addTimestamp(params.timestamp);
+    }
+
+    return this.getSingle<ContractInfo>(`contracts/${contractIdOrAddress}`, builder.build());
   }
 
   async call(params: ContractCallParams): Promise<ApiResult<ContractCallResult>> {
@@ -110,6 +120,9 @@ export class ContractApi extends BaseApi {
 
       if (params.slot) {
         builder.add("slot", params.slot);
+      }
+      if (params.timestamp) {
+        builder.addTimestamp(params.timestamp);
       }
     }
 
@@ -207,12 +220,15 @@ export class ContractApi extends BaseApi {
 
   async getResultActions(
     transactionIdOrHash: string,
-    params?: PaginationParams,
+    params?: PaginationParams & { index?: number },
   ): Promise<ApiResult<{ actions: ContractAction[] }>> {
     const builder = this.createQueryBuilder();
 
     if (params) {
       builder.addPagination(params);
+      if (params.index !== undefined) {
+        builder.add("index", params.index);
+      }
     }
 
     return this.getSingle<{ actions: ContractAction[] }>(
@@ -221,9 +237,27 @@ export class ContractApi extends BaseApi {
     );
   }
 
-  async getResultOpcodes(transactionIdOrHash: string): Promise<ApiResult<ContractOpcodesResponse>> {
+  async getResultOpcodes(
+    transactionIdOrHash: string,
+    params?: { stack?: boolean; memory?: boolean; storage?: boolean },
+  ): Promise<ApiResult<ContractOpcodesResponse>> {
+    const builder = this.createQueryBuilder();
+
+    if (params) {
+      if (params.stack !== undefined) {
+        builder.add("stack", params.stack);
+      }
+      if (params.memory !== undefined) {
+        builder.add("memory", params.memory);
+      }
+      if (params.storage !== undefined) {
+        builder.add("storage", params.storage);
+      }
+    }
+
     return this.getSingle<ContractOpcodesResponse>(
       `contracts/results/${transactionIdOrHash}/opcodes`,
+      builder.build(),
     );
   }
 
