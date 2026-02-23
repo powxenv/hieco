@@ -15,10 +15,13 @@
     "dist"
   ],
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target browser --format esm --sourcemap && bun run build:types",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external @hiero-ledger/sdk --external react --external react-dom && bun run build:types",
     "build:types": "tsc --emitDeclarationOnly --declaration --outDir dist",
-    "dev": "bun build ./src/index.ts --outdir ./dist --target browser --format esm --watch",
+    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external @hiero-ledger/sdk --external react --external react-dom",
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hiero-ledger/sdk": "^2.79.0"
   },
   "peerDependencies": {
     "react": ">=18",

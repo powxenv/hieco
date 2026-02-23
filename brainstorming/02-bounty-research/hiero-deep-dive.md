@@ -46,7 +46,7 @@ This document provides an exhaustive analysis of the Hiero ecosystem to identify
 
 | SDK                | Language              | GitHub Stars | Status     | Last Updated |
 | ------------------ | --------------------- | ------------ | ---------- | ------------ |
-| `@hashgraph/sdk`   | JavaScript/TypeScript | Active       | Production | Feb 2026     |
+| `@hiero-ledger/sdk`   | JavaScript/TypeScript | Active       | Production | Feb 2026     |
 | `hiero-sdk-java`   | Java                  | Active       | Production | Feb 2026     |
 | `hiero-sdk-python` | Python                | Active       | Production | Oct 2024     |
 | `hiero-sdk-go`     | Go                    | Active       | Production | Ongoing      |
