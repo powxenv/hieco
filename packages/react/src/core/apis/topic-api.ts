@@ -1,10 +1,12 @@
-import type { ApiResult, PaginationParams } from "../../types/rest-api";
+import type { ApiResult, PaginationParams, Timestamp } from "../../types/rest-api";
 import type { Topic, TopicMessage } from "../../types/entities/topic";
 import type { EntityId } from "../../types/rest-api";
 import { BaseApi } from "../base-api";
 
 export interface TopicMessagesParams extends PaginationParams {
   encoding?: "base64" | "utf-8";
+  sequencenumber?: number;
+  timestamp?: Timestamp;
   transaction_id?: string;
   scheduled?: boolean;
 }
@@ -25,6 +27,12 @@ export class TopicApi extends BaseApi {
 
       if (params.encoding) {
         builder.add("encoding", params.encoding);
+      }
+      if (params.sequencenumber !== undefined) {
+        builder.add("sequencenumber", params.sequencenumber);
+      }
+      if (params.timestamp) {
+        builder.addTimestamp(params.timestamp);
       }
       if (params.transaction_id) {
         builder.add("transactionId", params.transaction_id);

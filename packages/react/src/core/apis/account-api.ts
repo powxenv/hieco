@@ -30,6 +30,7 @@ export interface AccountListParams extends PaginationParams {
 }
 
 export interface AccountNftsParams extends PaginationParams {
+  "spender.id"?: EntityId;
   "token.id"?: EntityId;
   serial_number?: number;
 }
@@ -63,11 +64,9 @@ export class AccountApi extends BaseApi {
     const builder = this.createQueryBuilder();
 
     if (params) {
-      if (params.limit !== undefined) {
-        builder.add("limit", params.limit);
-      }
-      if (params.order !== undefined) {
-        builder.add("order", params.order);
+      builder.addPagination(params);
+      if (params["spender.id"]) {
+        builder.add("spender.id", params["spender.id"]);
       }
       if (params["token.id"]) {
         builder.add("token.id", params["token.id"]);
@@ -93,8 +92,20 @@ export class AccountApi extends BaseApi {
     return this.getList<StakingReward>(`accounts/${accountId}/rewards`, builder.build());
   }
 
-  async getCryptoAllowances(accountId: EntityId): Promise<ApiResult<CryptoAllowance[]>> {
-    return this.getList<CryptoAllowance>(`accounts/${accountId}/allowances/crypto`);
+  async getCryptoAllowances(
+    accountId: EntityId,
+    params?: PaginationParams & { "spender.id"?: EntityId },
+  ): Promise<ApiResult<CryptoAllowance[]>> {
+    const builder = this.createQueryBuilder();
+
+    if (params) {
+      builder.addPagination(params);
+      if (params["spender.id"]) {
+        builder.add("spender.id", params["spender.id"]);
+      }
+    }
+
+    return this.getList<CryptoAllowance>(`accounts/${accountId}/allowances/crypto`, builder.build());
   }
 
   async getTokenAllowances(
@@ -115,12 +126,21 @@ export class AccountApi extends BaseApi {
 
   async getNftAllowances(
     accountId: EntityId,
-    params?: { "token.id"?: EntityId },
+    params?: PaginationParams & { "account.id"?: EntityId; owner?: EntityId; "token.id"?: EntityId },
   ): Promise<ApiResult<NftAllowance[]>> {
     const builder = this.createQueryBuilder();
 
-    if (params?.["token.id"]) {
-      builder.add("token.id", params["token.id"]);
+    if (params) {
+      builder.addPagination(params);
+      if (params["account.id"]) {
+        builder.add("account.id", params["account.id"]);
+      }
+      if (params.owner) {
+        builder.add("owner", params.owner);
+      }
+      if (params["token.id"]) {
+        builder.add("token.id", params["token.id"]);
+      }
     }
 
     return this.getList<NftAllowance>(`accounts/${accountId}/allowances/nft`, builder.build());

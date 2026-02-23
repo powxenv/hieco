@@ -5,6 +5,7 @@ import type { CursorPaginator } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface ScheduleListParams extends PaginationParams {
+  "account.id"?: EntityId | QueryOperator<EntityId>;
   "creator.account.id"?: EntityId | QueryOperator<EntityId>;
   "payer.account.id"?: EntityId | QueryOperator<EntityId>;
   schedule_id?: EntityId;
@@ -27,6 +28,9 @@ export class ScheduleApi extends BaseApi {
     if (params) {
       builder.addPagination(params);
 
+      if (params["account.id"]) {
+        builder.add("account.id", params["account.id"]);
+      }
       if (params["creator.account.id"]) {
         builder.add("creator.account.id", params["creator.account.id"]);
       }
@@ -65,6 +69,9 @@ export class ScheduleApi extends BaseApi {
     if (params) {
       builder.addPagination(params);
 
+      if (params["account.id"]) {
+        builder.add("account.id", params["account.id"]);
+      }
       if (params["creator.account.id"]) {
         builder.add("creator.account.id", params["creator.account.id"]);
       }

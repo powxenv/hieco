@@ -6,8 +6,10 @@ import type { CursorPaginator } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface TokenListParams extends PaginationParams {
+  "account.id"?: EntityId | QueryOperator<EntityId>;
   "token.id"?: EntityId | QueryOperator<EntityId>;
   created_timestamp?: Timestamp | { from?: Timestamp; to?: Timestamp };
+  name?: string;
   public_key?: string;
   type?: "FUNGIBLE_COMMON" | "NON_FUNGIBLE_UNIQUE";
 }
@@ -15,9 +17,12 @@ export interface TokenListParams extends PaginationParams {
 export interface TokenBalancesParams extends PaginationParams {
   account?: EntityId;
   "account.balance"?: QueryOperator<number>;
+  "account.publickey"?: string;
+  timestamp?: Timestamp;
 }
 
 export interface TokenNftsParams extends PaginationParams {
+  "account.id"?: EntityId;
   serial_number?: number;
 }
 
@@ -41,6 +46,12 @@ export class TokenApi extends BaseApi {
       if (params["account.balance"]) {
         builder.add("account.balance", params["account.balance"]);
       }
+      if (params["account.publickey"]) {
+        builder.add("account.publickey", params["account.publickey"]);
+      }
+      if (params.timestamp) {
+        builder.addTimestamp(params.timestamp);
+      }
     }
 
     return this.getList<TokenDistribution>(`tokens/${tokenId}/balances`, builder.build());
@@ -52,6 +63,9 @@ export class TokenApi extends BaseApi {
     if (params) {
       builder.addPagination(params);
 
+      if (params["account.id"]) {
+        builder.add("account.id", params["account.id"]);
+      }
       if (params.serial_number !== undefined) {
         builder.add("serialNumber", params.serial_number);
       }
@@ -90,11 +104,17 @@ export class TokenApi extends BaseApi {
     if (params) {
       builder.addPagination(params);
 
+      if (params["account.id"]) {
+        builder.add("account.id", params["account.id"]);
+      }
       if (params["token.id"]) {
         builder.add("token.id", params["token.id"]);
       }
       if (params.created_timestamp) {
         builder.addTimestamp(params.created_timestamp);
+      }
+      if (params.name) {
+        builder.add("name", params.name);
       }
       if (params.public_key) {
         builder.add("publickey", params.public_key);
@@ -113,11 +133,17 @@ export class TokenApi extends BaseApi {
     if (params) {
       builder.addPagination(params);
 
+      if (params["account.id"]) {
+        builder.add("account.id", params["account.id"]);
+      }
       if (params["token.id"]) {
         builder.add("token.id", params["token.id"]);
       }
       if (params.created_timestamp) {
         builder.addTimestamp(params.created_timestamp);
+      }
+      if (params.name) {
+        builder.add("name", params.name);
       }
       if (params.public_key) {
         builder.add("publickey", params.public_key);

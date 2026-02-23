@@ -7,25 +7,43 @@ import { BaseApi } from "../base-api";
 export interface TransactionListParams extends PaginationParams {
   account?: EntityId;
   "account.id"?: EntityId | QueryOperator<EntityId> | QueryOperator<EntityId>[];
-  transaction_id?: string;
-  transactionhash?: string;
   result?: string;
   scheduled?: boolean;
   timestamp?: Timestamp | { from?: Timestamp; to?: Timestamp };
+  transaction_id?: string;
+  transactionhash?: string;
+  transactiontype?: string;
   "transfers.account"?: EntityId | QueryOperator<EntityId> | QueryOperator<EntityId>[];
+  type?: "credit" | "debit";
 }
 
 export interface TransactionsByAccountParams extends PaginationParams {
+  result?: string;
+  scheduled?: boolean;
   timestamp?: Timestamp | { from?: Timestamp; to?: Timestamp };
   transaction_id?: string;
   transactionhash?: string;
-  result?: string;
-  scheduled?: boolean;
+  transactiontype?: string;
+  type?: "credit" | "debit";
 }
 
 export class TransactionApi extends BaseApi {
-  async getById(transactionId: string): Promise<ApiResult<TransactionDetails>> {
-    return this.getSingle<TransactionDetails>(`transactions/${transactionId}`);
+  async getById(
+    transactionId: string,
+    params?: { nonce?: number; scheduled?: boolean },
+  ): Promise<ApiResult<TransactionDetails>> {
+    const builder = this.createQueryBuilder();
+
+    if (params) {
+      if (params.nonce !== undefined) {
+        builder.add("nonce", params.nonce);
+      }
+      if (params.scheduled !== undefined) {
+        builder.add("scheduled", params.scheduled);
+      }
+    }
+
+    return this.getSingle<TransactionDetails>(`transactions/${transactionId}`, builder.build());
   }
 
   async listByAccount(
@@ -37,6 +55,12 @@ export class TransactionApi extends BaseApi {
     if (params) {
       builder.addPagination(params);
 
+      if (params.result) {
+        builder.add("result", params.result);
+      }
+      if (params.scheduled !== undefined) {
+        builder.add("scheduled", params.scheduled);
+      }
       if (params.timestamp) {
         builder.addTimestamp(params.timestamp);
       }
@@ -46,11 +70,11 @@ export class TransactionApi extends BaseApi {
       if (params.transactionhash) {
         builder.add("transactionhash", params.transactionhash);
       }
-      if (params.result) {
-        builder.add("result", params.result);
+      if (params.transactiontype) {
+        builder.add("transactiontype", params.transactiontype);
       }
-      if (params.scheduled !== undefined) {
-        builder.add("scheduled", params.scheduled);
+      if (params.type) {
+        builder.add("type", params.type);
       }
     }
 
@@ -73,12 +97,6 @@ export class TransactionApi extends BaseApi {
           builder.add("account.id", params["account.id"]);
         }
       }
-      if (params.transaction_id) {
-        builder.add("transactionid", params.transaction_id);
-      }
-      if (params.transactionhash) {
-        builder.add("transactionhash", params.transactionhash);
-      }
       if (params.result) {
         builder.add("result", params.result);
       }
@@ -88,12 +106,24 @@ export class TransactionApi extends BaseApi {
       if (params.timestamp) {
         builder.addTimestamp(params.timestamp);
       }
+      if (params.transaction_id) {
+        builder.add("transactionid", params.transaction_id);
+      }
+      if (params.transactionhash) {
+        builder.add("transactionhash", params.transactionhash);
+      }
+      if (params.transactiontype) {
+        builder.add("transactiontype", params.transactiontype);
+      }
       if (params["transfers.account"]) {
         if (Array.isArray(params["transfers.account"])) {
           builder.addIn("transfers.account", params["transfers.account"]);
         } else {
           builder.add("transfers.account", params["transfers.account"]);
         }
+      }
+      if (params.type) {
+        builder.add("type", params.type);
       }
     }
 

@@ -16,13 +16,19 @@ import type { CursorPaginator } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface ContractListParams extends PaginationParams {
+  "contract.id"?: EntityId | QueryOperator<EntityId>;
   address?: string;
   smart_contract_id?: EntityId | QueryOperator<EntityId>;
   created_timestamp?: Timestamp | { from?: Timestamp; to?: Timestamp };
 }
 
 export interface ContractResultsParams extends PaginationParams {
+  "block.hash"?: string;
+  block_number?: number;
+  from?: string;
+  internal?: boolean;
   timestamp?: Timestamp;
+  transaction_index?: number;
 }
 
 export interface ContractStateParams extends PaginationParams {
@@ -30,8 +36,13 @@ export interface ContractStateParams extends PaginationParams {
 }
 
 export interface ContractLogsParams extends PaginationParams {
-  timestamp?: Timestamp;
   index?: number;
+  timestamp?: Timestamp;
+  topic0?: string;
+  topic1?: string;
+  topic2?: string;
+  topic3?: string;
+  "transaction.hash"?: string;
 }
 
 export class ContractApi extends BaseApi {
@@ -61,8 +72,23 @@ export class ContractApi extends BaseApi {
     if (params) {
       builder.addPagination(params);
 
+      if (params["block.hash"]) {
+        builder.add("block.hash", params["block.hash"]);
+      }
+      if (params.block_number !== undefined) {
+        builder.add("block.number", params.block_number);
+      }
+      if (params.from) {
+        builder.add("from", params.from);
+      }
+      if (params.internal !== undefined) {
+        builder.add("internal", params.internal);
+      }
       if (params.timestamp) {
-        builder.add("timestamp", params.timestamp);
+        builder.addTimestamp(params.timestamp);
+      }
+      if (params.transaction_index !== undefined) {
+        builder.add("transaction.index", params.transaction_index);
       }
     }
 
@@ -99,11 +125,26 @@ export class ContractApi extends BaseApi {
     if (params) {
       builder.addPagination(params);
 
-      if (params.timestamp) {
-        builder.add("timestamp", params.timestamp);
-      }
       if (params.index !== undefined) {
         builder.add("index", params.index);
+      }
+      if (params.timestamp) {
+        builder.addTimestamp(params.timestamp);
+      }
+      if (params.topic0) {
+        builder.add("topic0", params.topic0);
+      }
+      if (params.topic1) {
+        builder.add("topic1", params.topic1);
+      }
+      if (params.topic2) {
+        builder.add("topic2", params.topic2);
+      }
+      if (params.topic3) {
+        builder.add("topic3", params.topic3);
+      }
+      if (params["transaction.hash"]) {
+        builder.add("transaction.hash", params["transaction.hash"]);
       }
     }
 
@@ -166,9 +207,17 @@ export class ContractApi extends BaseApi {
 
   async getResultActions(
     transactionIdOrHash: string,
+    params?: PaginationParams,
   ): Promise<ApiResult<{ actions: ContractAction[] }>> {
+    const builder = this.createQueryBuilder();
+
+    if (params) {
+      builder.addPagination(params);
+    }
+
     return this.getSingle<{ actions: ContractAction[] }>(
       `contracts/results/${transactionIdOrHash}/actions`,
+      builder.build(),
     );
   }
 
@@ -178,22 +227,40 @@ export class ContractApi extends BaseApi {
     );
   }
 
-  async getAllContractLogs(params?: {
-    limit?: number;
-    order?: "asc" | "desc";
-    timestamp?: Timestamp;
+  async getAllContractLogs(params?: PaginationParams & {
     index?: number;
+    timestamp?: Timestamp;
+    topic0?: string;
+    topic1?: string;
+    topic2?: string;
+    topic3?: string;
+    "transaction.hash"?: string;
   }): Promise<ApiResult<{ logs: ContractLog[]; links: { next?: string } }>> {
     const builder = this.createQueryBuilder();
 
     if (params) {
       builder.addPagination(params);
 
+      if (params.index !== undefined) {
+        builder.add("index", params.index);
+      }
       if (params.timestamp) {
         builder.addTimestamp(params.timestamp);
       }
-      if (params.index !== undefined) {
-        builder.add("index", params.index);
+      if (params.topic0) {
+        builder.add("topic0", params.topic0);
+      }
+      if (params.topic1) {
+        builder.add("topic1", params.topic1);
+      }
+      if (params.topic2) {
+        builder.add("topic2", params.topic2);
+      }
+      if (params.topic3) {
+        builder.add("topic3", params.topic3);
+      }
+      if (params["transaction.hash"]) {
+        builder.add("transaction.hash", params["transaction.hash"]);
       }
     }
 
@@ -209,6 +276,9 @@ export class ContractApi extends BaseApi {
     if (params) {
       builder.addPagination(params);
 
+      if (params["contract.id"]) {
+        builder.add("contract.id", params["contract.id"]);
+      }
       if (params.address) {
         builder.add("address", params.address);
       }
@@ -229,6 +299,9 @@ export class ContractApi extends BaseApi {
     if (params) {
       builder.addPagination(params);
 
+      if (params["contract.id"]) {
+        builder.add("contract.id", params["contract.id"]);
+      }
       if (params.address) {
         builder.add("address", params.address);
       }

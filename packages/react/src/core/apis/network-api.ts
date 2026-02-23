@@ -1,4 +1,4 @@
-import type { ApiResult } from "../../types/rest-api";
+import type { ApiResult, PaginationParams, Timestamp } from "../../types/rest-api";
 import type {
   ExchangeRate,
   NetworkFee,
@@ -8,17 +8,41 @@ import type {
 } from "../../types/entities/network";
 import { BaseApi } from "../base-api";
 
+export interface NetworkNodesParams extends PaginationParams {
+  "file.id"?: number;
+  "node.id"?: number;
+}
+
 export class NetworkApi extends BaseApi {
-  async getExchangeRate(): Promise<ApiResult<ExchangeRate>> {
-    return this.getSingle<ExchangeRate>("network/exchangerate");
+  async getExchangeRate(params?: { timestamp?: Timestamp }): Promise<ApiResult<ExchangeRate>> {
+    const builder = this.createQueryBuilder();
+
+    if (params?.timestamp) {
+      builder.addTimestamp(params.timestamp);
+    }
+
+    return this.getSingle<ExchangeRate>("network/exchangerate", builder.build());
   }
 
   async getFees(): Promise<ApiResult<NetworkFee>> {
     return this.getSingle<NetworkFee>("network/fees");
   }
 
-  async getNodes(): Promise<ApiResult<NetworkNode[]>> {
-    return this.getList<NetworkNode>("network/nodes");
+  async getNodes(params?: NetworkNodesParams): Promise<ApiResult<NetworkNode[]>> {
+    const builder = this.createQueryBuilder();
+
+    if (params) {
+      builder.addPagination(params);
+
+      if (params["file.id"] !== undefined) {
+        builder.add("file.id", params["file.id"]);
+      }
+      if (params["node.id"] !== undefined) {
+        builder.add("node.id", params["node.id"]);
+      }
+    }
+
+    return this.getList<NetworkNode>("network/nodes", builder.build());
   }
 
   async getStake(): Promise<ApiResult<NetworkStake>> {
