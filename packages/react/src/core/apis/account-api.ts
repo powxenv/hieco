@@ -7,6 +7,7 @@ import type {
   StakingReward,
   TokenRelationship,
   TokenAllowance,
+  TokenAirdropsResponse,
 } from "../../types/entities/account";
 import type { EntityId } from "../../types/rest-api";
 import type { CursorPaginator } from "../builders";
@@ -123,6 +124,68 @@ export class AccountApi extends BaseApi {
     }
 
     return this.getList<NftAllowance>(`accounts/${accountId}/allowances/nft`, builder.build());
+  }
+
+  async getOutstandingAirdrops(
+    accountId: EntityId,
+    params?: {
+      limit?: number;
+      order?: "asc" | "desc";
+      receiver?: EntityId;
+      serial_number?: number;
+      "token.id"?: EntityId;
+    },
+  ): Promise<ApiResult<TokenAirdropsResponse>> {
+    const builder = this.createQueryBuilder();
+
+    if (params) {
+      builder.addPagination(params);
+      if (params.receiver) {
+        builder.add("receiver", params.receiver);
+      }
+      if (params.serial_number !== undefined) {
+        builder.add("serialNumber", params.serial_number);
+      }
+      if (params["token.id"]) {
+        builder.add("token.id", params["token.id"]);
+      }
+    }
+
+    return this.getSingle<TokenAirdropsResponse>(
+      `accounts/${accountId}/airdrops/outstanding`,
+      builder.build(),
+    );
+  }
+
+  async getPendingAirdrops(
+    accountId: EntityId,
+    params?: {
+      limit?: number;
+      order?: "asc" | "desc";
+      sender?: EntityId;
+      serial_number?: number;
+      "token.id"?: EntityId;
+    },
+  ): Promise<ApiResult<TokenAirdropsResponse>> {
+    const builder = this.createQueryBuilder();
+
+    if (params) {
+      builder.addPagination(params);
+      if (params.sender) {
+        builder.add("sender", params.sender);
+      }
+      if (params.serial_number !== undefined) {
+        builder.add("serialNumber", params.serial_number);
+      }
+      if (params["token.id"]) {
+        builder.add("token.id", params["token.id"]);
+      }
+    }
+
+    return this.getSingle<TokenAirdropsResponse>(
+      `accounts/${accountId}/airdrops/pending`,
+      builder.build(),
+    );
   }
 
   async listPaginated(params?: AccountListParams): Promise<ApiResult<AccountInfo[]>> {

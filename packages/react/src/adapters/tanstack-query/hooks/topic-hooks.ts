@@ -73,7 +73,9 @@ export type UseTopicsInfiniteResult = UseInfiniteQueryResult<
   TopicQueryError
 >;
 
-export function useTopicInfo(options: UseTopicInfoOptions): UseTopicInfoResult {
+export function useTopicInfo(
+  options: UseTopicInfoOptions,
+): UseTopicInfoResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -82,11 +84,12 @@ export function useTopicInfo(options: UseTopicInfoOptions): UseTopicInfoResult {
     queryFn: async () => {
       return client.topic.getInfo(options.topicId);
     },
-    enabled: options.enabled !== false,
   });
 }
 
-export function useTopicMessages(options: UseTopicMessagesOptions): UseTopicMessagesResult {
+export function useTopicMessages(
+  options: UseTopicMessagesOptions,
+): UseTopicMessagesResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -95,11 +98,12 @@ export function useTopicMessages(options: UseTopicMessagesOptions): UseTopicMess
     queryFn: async () => {
       return client.topic.getMessages(options.topicId, options.params);
     },
-    enabled: options.enabled !== false,
   });
 }
 
-export function useTopicMessage(options: UseTopicMessageOptions): UseTopicMessageResult {
+export function useTopicMessage(
+  options: UseTopicMessageOptions,
+): UseTopicMessageResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -108,7 +112,6 @@ export function useTopicMessage(options: UseTopicMessageOptions): UseTopicMessag
     queryFn: async () => {
       return client.topic.getMessage(options.topicId, options.sequenceNumber);
     },
-    enabled: options.enabled !== false,
   });
 }
 
@@ -124,7 +127,9 @@ export function useTopics(options: UseTopicsOptions = {}): UseTopicsResult {
   });
 }
 
-export function useTopicsInfinite(options: UseTopicsInfiniteOptions): UseTopicsInfiniteResult {
+export function useTopicsInfinite(
+  options: UseTopicsInfiniteOptions,
+): UseTopicsInfiniteResult {
   const client = useMirrorNodeClient();
 
   return useInfiniteQuery({
@@ -147,5 +152,31 @@ export function useTopicsInfinite(options: UseTopicsInfiniteOptions): UseTopicsI
       return lastPage.data.length;
     },
     initialPageParam: 0,
+  });
+}
+
+export interface UseTopicMessageByTimestampOptions extends Omit<
+  UseQueryOptions<TopicQueryFnData<TopicMessage>, TopicQueryError>,
+  "queryKey" | "queryFn"
+> {
+  timestamp: string;
+}
+
+export type UseTopicMessageByTimestampResult = UseQueryResult<
+  TopicQueryFnData<TopicMessage>,
+  TopicQueryError
+>;
+
+export function useTopicMessageByTimestamp(
+  options: UseTopicMessageByTimestampOptions,
+): UseTopicMessageByTimestampResult {
+  const client = useMirrorNodeClient();
+
+  return useQuery({
+    ...options,
+    queryKey: mirrorNodeKeys.topic.messageByTimestamp(options.timestamp),
+    queryFn: async () => {
+      return client.topic.getMessageByTimestamp(options.timestamp);
+    },
   });
 }

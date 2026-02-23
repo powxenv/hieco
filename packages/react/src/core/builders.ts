@@ -37,11 +37,15 @@ export class QueryBuilder {
     if (typeof timestamp === "string") {
       this.params.set("timestamp", timestamp);
     } else {
+      const parts: string[] = [];
       if (timestamp.from) {
-        this.params.set("timestamp", `gt:${timestamp.from}`);
+        parts.push(`gt:${timestamp.from}`);
       }
       if (timestamp.to) {
-        this.params.set("timestamp", `lt:${timestamp.to}`);
+        parts.push(`lt:${timestamp.to}`);
+      }
+      if (parts.length > 0) {
+        this.params.set("timestamp", parts.join(":"));
       }
     }
     return this;

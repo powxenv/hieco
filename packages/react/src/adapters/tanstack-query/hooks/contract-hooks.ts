@@ -19,6 +19,10 @@ import type {
   ContractLog,
   ContractResult,
   ContractState,
+  ContractResultDetails,
+  ContractResultsResponse,
+  ContractAction,
+  ContractOpcodesResponse,
 } from "../../../types/entities/contract";
 import { useMirrorNodeClient } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
@@ -138,7 +142,9 @@ export type UseContractsInfiniteResult = UseInfiniteQueryResult<
   ContractQueryError
 >;
 
-export function useContractInfo(options: UseContractInfoOptions): UseContractInfoResult {
+export function useContractInfo(
+  options: UseContractInfoOptions,
+): UseContractInfoResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -147,24 +153,26 @@ export function useContractInfo(options: UseContractInfoOptions): UseContractInf
     queryFn: async () => {
       return client.contract.getInfo(options.contractIdOrAddress);
     },
-    enabled: options.enabled !== false,
   });
 }
 
-export function useContractCall(options: UseContractCallOptions): UseContractCallResult {
+export function useContractCall(
+  options: UseContractCallOptions,
+): UseContractCallResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
     ...options,
-    queryKey: ["mirror-node", "contract", "call"],
+    queryKey: mirrorNodeKeys.contract.call(),
     queryFn: async () => {
       return client.contract.call(options.params);
     },
-    enabled: options.enabled !== false,
   });
 }
 
-export function useContractResults(options: UseContractResultsOptions): UseContractResultsResult {
+export function useContractResults(
+  options: UseContractResultsOptions,
+): UseContractResultsResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -173,11 +181,12 @@ export function useContractResults(options: UseContractResultsOptions): UseContr
     queryFn: async () => {
       return client.contract.getResults(options.contractId, options.params);
     },
-    enabled: options.enabled !== false,
   });
 }
 
-export function useContractResult(options: UseContractResultOptions): UseContractResultResult {
+export function useContractResult(
+  options: UseContractResultOptions,
+): UseContractResultResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -186,11 +195,12 @@ export function useContractResult(options: UseContractResultOptions): UseContrac
     queryFn: async () => {
       return client.contract.getResult(options.contractId, options.timestamp);
     },
-    enabled: options.enabled !== false,
   });
 }
 
-export function useContractState(options: UseContractStateOptions): UseContractStateResult {
+export function useContractState(
+  options: UseContractStateOptions,
+): UseContractStateResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -199,11 +209,12 @@ export function useContractState(options: UseContractStateOptions): UseContractS
     queryFn: async () => {
       return client.contract.getState(options.contractId, options.params);
     },
-    enabled: options.enabled !== false,
   });
 }
 
-export function useContractLogs(options: UseContractLogsOptions): UseContractLogsResult {
+export function useContractLogs(
+  options: UseContractLogsOptions,
+): UseContractLogsResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -212,7 +223,6 @@ export function useContractLogs(options: UseContractLogsOptions): UseContractLog
     queryFn: async () => {
       return client.contract.getLogs(options.contractId, options.params);
     },
-    enabled: options.enabled !== false,
   });
 }
 
@@ -253,5 +263,156 @@ export function useContractsInfinite(
       return lastPage.data.length;
     },
     initialPageParam: 0,
+  });
+}
+
+export interface UseContractAllResultsOptions extends Omit<
+  UseQueryOptions<ContractQueryFnData<ContractResultsResponse>, ContractQueryError>,
+  "queryKey" | "queryFn"
+> {
+  params?: {
+    limit?: number;
+    order?: "asc" | "desc";
+    from?: string;
+    block_hash?: string;
+    block_number?: number;
+    internal?: boolean;
+    timestamp?: Timestamp;
+    transaction_index?: number;
+  };
+}
+
+export type UseContractAllResultsResult = UseQueryResult<
+  ContractQueryFnData<ContractResultsResponse>,
+  ContractQueryError
+>;
+
+export interface UseContractResultByTransactionIdOrHashOptions extends Omit<
+  UseQueryOptions<ContractQueryFnData<ContractResultDetails>, ContractQueryError>,
+  "queryKey" | "queryFn"
+> {
+  transactionIdOrHash: string;
+  params?: { nonce?: number };
+}
+
+export type UseContractResultByTransactionIdOrHashResult = UseQueryResult<
+  ContractQueryFnData<ContractResultDetails>,
+  ContractQueryError
+>;
+
+export interface UseContractResultActionsOptions extends Omit<
+  UseQueryOptions<ContractQueryFnData<{ actions: ContractAction[] }>, ContractQueryError>,
+  "queryKey" | "queryFn"
+> {
+  transactionIdOrHash: string;
+}
+
+export type UseContractResultActionsResult = UseQueryResult<
+  ContractQueryFnData<{ actions: ContractAction[] }>,
+  ContractQueryError
+>;
+
+export interface UseContractResultOpcodesOptions extends Omit<
+  UseQueryOptions<ContractQueryFnData<ContractOpcodesResponse>, ContractQueryError>,
+  "queryKey" | "queryFn"
+> {
+  transactionIdOrHash: string;
+}
+
+export type UseContractResultOpcodesResult = UseQueryResult<
+  ContractQueryFnData<ContractOpcodesResponse>,
+  ContractQueryError
+>;
+
+export interface UseContractAllLogsOptions extends Omit<
+  UseQueryOptions<
+    ContractQueryFnData<{ logs: ContractLog[]; links: { next?: string } }>,
+    ContractQueryError
+  >,
+  "queryKey" | "queryFn"
+> {
+  params?: {
+    limit?: number;
+    order?: "asc" | "desc";
+    timestamp?: Timestamp;
+    index?: number;
+  };
+}
+
+export type UseContractAllLogsResult = UseQueryResult<
+  ContractQueryFnData<{ logs: ContractLog[]; links: { next?: string } }>,
+  ContractQueryError
+>;
+
+export function useContractAllResults(
+  options: UseContractAllResultsOptions = {},
+): UseContractAllResultsResult {
+  const client = useMirrorNodeClient();
+
+  return useQuery({
+    ...options,
+    queryKey: mirrorNodeKeys.contract.allResults(),
+    queryFn: async () => {
+      return client.contract.getAllResults(options.params);
+    },
+  });
+}
+
+export function useContractResultByTransactionIdOrHash(
+  options: UseContractResultByTransactionIdOrHashOptions,
+): UseContractResultByTransactionIdOrHashResult {
+  const client = useMirrorNodeClient();
+
+  return useQuery({
+    ...options,
+    queryKey: mirrorNodeKeys.contract.resultByTx(options.transactionIdOrHash),
+    queryFn: async () => {
+      return client.contract.getResultByTransactionIdOrHash(
+        options.transactionIdOrHash,
+        options.params,
+      );
+    },
+  });
+}
+
+export function useContractResultActions(
+  options: UseContractResultActionsOptions,
+): UseContractResultActionsResult {
+  const client = useMirrorNodeClient();
+
+  return useQuery({
+    ...options,
+    queryKey: mirrorNodeKeys.contract.resultActions(options.transactionIdOrHash),
+    queryFn: async () => {
+      return client.contract.getResultActions(options.transactionIdOrHash);
+    },
+  });
+}
+
+export function useContractResultOpcodes(
+  options: UseContractResultOpcodesOptions,
+): UseContractResultOpcodesResult {
+  const client = useMirrorNodeClient();
+
+  return useQuery({
+    ...options,
+    queryKey: mirrorNodeKeys.contract.resultOpcodes(options.transactionIdOrHash),
+    queryFn: async () => {
+      return client.contract.getResultOpcodes(options.transactionIdOrHash);
+    },
+  });
+}
+
+export function useContractAllLogs(
+  options: UseContractAllLogsOptions = {},
+): UseContractAllLogsResult {
+  const client = useMirrorNodeClient();
+
+  return useQuery({
+    ...options,
+    queryKey: mirrorNodeKeys.contract.allLogs(),
+    queryFn: async () => {
+      return client.contract.getAllContractLogs(options.params);
+    },
   });
 }

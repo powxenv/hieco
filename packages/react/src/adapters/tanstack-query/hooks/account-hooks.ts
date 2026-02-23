@@ -20,6 +20,7 @@ import type {
   StakingReward,
   TokenRelationship,
   TokenAllowance,
+  TokenAirdropsResponse,
 } from "../../../types/entities/account";
 import { useMirrorNodeClient } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
@@ -178,7 +179,6 @@ export function useAccountInfo(options: UseAccountInfoOptions): UseAccountInfoRe
     queryFn: async () => {
       return client.account.getInfo(options.accountId);
     },
-    enabled: options.enabled !== false,
   });
 }
 
@@ -191,7 +191,6 @@ export function useAccountBalances(options: UseAccountBalancesOptions): UseAccou
     queryFn: async () => {
       return client.account.getBalances(options.accountId);
     },
-    enabled: options.enabled !== false,
   });
 }
 
@@ -204,7 +203,6 @@ export function useAccountTokens(options: UseAccountTokensOptions): UseAccountTo
     queryFn: async () => {
       return client.account.getTokens(options.accountId, options.params);
     },
-    enabled: options.enabled !== false,
   });
 }
 
@@ -217,7 +215,6 @@ export function useAccountNfts(options: UseAccountNftsOptions): UseAccountNftsRe
     queryFn: async () => {
       return client.account.getNfts(options.accountId, options.params);
     },
-    enabled: options.enabled !== false,
   });
 }
 
@@ -232,7 +229,6 @@ export function useAccountStakingRewards(
     queryFn: async () => {
       return client.account.getStakingRewards(options.accountId, options.params);
     },
-    enabled: options.enabled !== false,
   });
 }
 
@@ -247,7 +243,6 @@ export function useAccountCryptoAllowances(
     queryFn: async () => {
       return client.account.getCryptoAllowances(options.accountId);
     },
-    enabled: options.enabled !== false,
   });
 }
 
@@ -262,7 +257,6 @@ export function useAccountTokenAllowances(
     queryFn: async () => {
       return client.account.getTokenAllowances(options.accountId, options.params);
     },
-    enabled: options.enabled !== false,
   });
 }
 
@@ -277,7 +271,6 @@ export function useAccountNftAllowances(
     queryFn: async () => {
       return client.account.getNftAllowances(options.accountId, options.params);
     },
-    enabled: options.enabled !== false,
   });
 }
 
@@ -318,5 +311,71 @@ export function useAccountsInfinite(
       return lastPage.data.length;
     },
     initialPageParam: 0,
+  });
+}
+
+export interface UseAccountOutstandingAirdropsOptions extends Omit<
+  UseQueryOptions<AccountQueryFnData<TokenAirdropsResponse>, AccountQueryError>,
+  "queryKey" | "queryFn"
+> {
+  accountId: EntityId;
+  params?: {
+    limit?: number;
+    order?: "asc" | "desc";
+    receiver?: EntityId;
+    serial_number?: number;
+    "token.id"?: EntityId;
+  };
+}
+
+export type UseAccountOutstandingAirdropsResult = UseQueryResult<
+  AccountQueryFnData<TokenAirdropsResponse>,
+  AccountQueryError
+>;
+
+export interface UseAccountPendingAirdropsOptions extends Omit<
+  UseQueryOptions<AccountQueryFnData<TokenAirdropsResponse>, AccountQueryError>,
+  "queryKey" | "queryFn"
+> {
+  accountId: EntityId;
+  params?: {
+    limit?: number;
+    order?: "asc" | "desc";
+    sender?: EntityId;
+    serial_number?: number;
+    "token.id"?: EntityId;
+  };
+}
+
+export type UseAccountPendingAirdropsResult = UseQueryResult<
+  AccountQueryFnData<TokenAirdropsResponse>,
+  AccountQueryError
+>;
+
+export function useAccountOutstandingAirdrops(
+  options: UseAccountOutstandingAirdropsOptions,
+): UseAccountOutstandingAirdropsResult {
+  const client = useMirrorNodeClient();
+
+  return useQuery({
+    ...options,
+    queryKey: mirrorNodeKeys.account.outstandingAirdrops(options.accountId),
+    queryFn: async () => {
+      return client.account.getOutstandingAirdrops(options.accountId, options.params);
+    },
+  });
+}
+
+export function useAccountPendingAirdrops(
+  options: UseAccountPendingAirdropsOptions,
+): UseAccountPendingAirdropsResult {
+  const client = useMirrorNodeClient();
+
+  return useQuery({
+    ...options,
+    queryKey: mirrorNodeKeys.account.pendingAirdrops(options.accountId),
+    queryFn: async () => {
+      return client.account.getPendingAirdrops(options.accountId, options.params);
+    },
   });
 }

@@ -5,3 +5,5 @@ export * from "./contract-hooks";
 export * from "./topic-hooks";
 export * from "./schedule-hooks";
 export * from "./network-hooks";
+export * from "./balance-hooks";
+export * from "./block-hooks";

@@ -7,6 +7,8 @@ import { TransactionApi } from "./apis/transaction-api";
 import { TopicApi } from "./apis/topic-api";
 import { ScheduleApi } from "./apis/schedule-api";
 import { NetworkApi } from "./apis/network-api";
+import { BalanceApi } from "./apis/balance-api";
+import { BlockApi } from "./apis/block-api";
 
 export class MirrorNodeClient {
   readonly account: AccountApi;
@@ -16,6 +18,8 @@ export class MirrorNodeClient {
   readonly topic: TopicApi;
   readonly schedule: ScheduleApi;
   readonly network: NetworkApi;
+  readonly balance: BalanceApi;
+  readonly block: BlockApi;
   readonly networkType: NetworkType;
   readonly baseUrl: string;
   private readonly httpClient: HttpClient;
@@ -32,5 +36,7 @@ export class MirrorNodeClient {
     this.topic = new TopicApi(this.httpClient);
     this.schedule = new ScheduleApi(this.httpClient);
     this.network = new NetworkApi(this.httpClient);
+    this.balance = new BalanceApi(this.httpClient);
+    this.block = new BlockApi(this.httpClient);
   }
 }

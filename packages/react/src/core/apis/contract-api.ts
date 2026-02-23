@@ -6,6 +6,10 @@ import type {
   ContractLog,
   ContractResult,
   ContractState,
+  ContractResultDetails,
+  ContractResultsResponse,
+  ContractAction,
+  ContractOpcodesResponse,
 } from "../../types/entities/contract";
 import type { EntityId } from "../../types/rest-api";
 import type { CursorPaginator } from "../builders";
@@ -104,6 +108,99 @@ export class ContractApi extends BaseApi {
     }
 
     return this.getList<ContractLog>(`contracts/${contractId}/results/logs`, builder.build());
+  }
+
+  async getAllResults(params?: {
+    limit?: number;
+    order?: "asc" | "desc";
+    from?: string;
+    block_hash?: string;
+    block_number?: number;
+    internal?: boolean;
+    timestamp?: Timestamp;
+    transaction_index?: number;
+  }): Promise<ApiResult<ContractResultsResponse>> {
+    const builder = this.createQueryBuilder();
+
+    if (params) {
+      builder.addPagination(params);
+
+      if (params.from) {
+        builder.add("from", params.from);
+      }
+      if (params.block_hash) {
+        builder.add("block.hash", params.block_hash);
+      }
+      if (params.block_number !== undefined) {
+        builder.add("block.number", params.block_number);
+      }
+      if (params.internal !== undefined) {
+        builder.add("internal", params.internal);
+      }
+      if (params.timestamp) {
+        builder.addTimestamp(params.timestamp);
+      }
+      if (params.transaction_index !== undefined) {
+        builder.add("transaction.index", params.transaction_index);
+      }
+    }
+
+    return this.getSingle<ContractResultsResponse>("contracts/results", builder.build());
+  }
+
+  async getResultByTransactionIdOrHash(
+    transactionIdOrHash: string,
+    params?: { nonce?: number },
+  ): Promise<ApiResult<ContractResultDetails>> {
+    const builder = this.createQueryBuilder();
+
+    if (params?.nonce !== undefined) {
+      builder.add("nonce", params.nonce);
+    }
+
+    return this.getSingle<ContractResultDetails>(
+      `contracts/results/${transactionIdOrHash}`,
+      builder.build(),
+    );
+  }
+
+  async getResultActions(
+    transactionIdOrHash: string,
+  ): Promise<ApiResult<{ actions: ContractAction[] }>> {
+    return this.getSingle<{ actions: ContractAction[] }>(
+      `contracts/results/${transactionIdOrHash}/actions`,
+    );
+  }
+
+  async getResultOpcodes(transactionIdOrHash: string): Promise<ApiResult<ContractOpcodesResponse>> {
+    return this.getSingle<ContractOpcodesResponse>(
+      `contracts/results/${transactionIdOrHash}/opcodes`,
+    );
+  }
+
+  async getAllContractLogs(params?: {
+    limit?: number;
+    order?: "asc" | "desc";
+    timestamp?: Timestamp;
+    index?: number;
+  }): Promise<ApiResult<{ logs: ContractLog[]; links: { next?: string } }>> {
+    const builder = this.createQueryBuilder();
+
+    if (params) {
+      builder.addPagination(params);
+
+      if (params.timestamp) {
+        builder.addTimestamp(params.timestamp);
+      }
+      if (params.index !== undefined) {
+        builder.add("index", params.index);
+      }
+    }
+
+    return this.getSingle<{ logs: ContractLog[]; links: { next?: string } }>(
+      "contracts/results/logs",
+      builder.build(),
+    );
   }
 
   async listPaginated(params?: ContractListParams): Promise<ApiResult<ContractInfo[]>> {

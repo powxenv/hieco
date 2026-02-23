@@ -73,3 +73,17 @@ export interface StakingReward {
   node_id: number;
   reward_sum: number;
 }
+
+export interface TokenAirdrop {
+  token_id: EntityId;
+  serial_numbers: number[];
+  sender_account_id: EntityId;
+  receiver_account_id: EntityId;
+}
+
+export interface TokenAirdropsResponse {
+  airdrops: TokenAirdrop[];
+  links: {
+    next?: string;
+  };
+}

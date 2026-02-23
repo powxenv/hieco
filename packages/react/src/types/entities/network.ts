@@ -87,3 +87,42 @@ export interface NetworkSupply {
   total_supply: number;
   released_supply: number;
 }
+
+export interface AccountBalance {
+  account: EntityId;
+  balance: number;
+  tokens: TokenBalance[];
+}
+
+export interface TokenBalance {
+  token_id: EntityId;
+  balance: number;
+}
+
+export interface BalancesResponse {
+  timestamp: Timestamp | null;
+  balances: AccountBalance[];
+  links: {
+    next?: string;
+  };
+}
+
+export interface Block {
+  hash: string;
+  number: number;
+  timestamp: {
+    from: string;
+    to: string;
+  };
+  gas_used: number;
+  record_file_hash: string;
+  state_hash: string;
+  previous_hash: string;
+}
+
+export interface BlocksResponse {
+  blocks: Block[];
+  links: {
+    next?: string;
+  };
+}

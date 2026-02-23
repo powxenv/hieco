@@ -81,3 +81,63 @@ export interface ContractCallResult {
   result: string;
   error?: string;
 }
+
+export interface ContractResultDetails {
+  access_list: string | null;
+  amount: number | null;
+  block_gas_used: number | null;
+  block_hash: string | null;
+  block_number: number | null;
+  bloom: string | null;
+  call_result: string | null;
+  chain_id: string | null;
+  contract_id: EntityId;
+  created_contract_ids: EntityId[];
+  error_message: string | null;
+  from: string | null;
+  function_parameters: string;
+  gas: number | null;
+  gas_used: number;
+  hash: string;
+  max_gas_allowance: number | null;
+  nonce: number | null;
+  parent_hash: string | null;
+  result: string | null;
+  timestamp: Timestamp;
+  to: string;
+  transaction_id: string;
+  value: string | null;
+}
+
+export interface ContractResultsResponse {
+  results: ContractResult[];
+  links: {
+    next?: string;
+  };
+}
+
+export interface ContractAction {
+  caller: string;
+  call_depth: number;
+  call_operation_type: string;
+  call_type: string;
+  destination_data: string;
+  function_parameters: string;
+  function_result_data: string;
+  gas: number;
+  index: number;
+  input: string;
+  recipient: string;
+  result_data: string;
+  type: string;
+  value: number;
+}
+
+export interface ContractOpcodesResponse {
+  opcodes: {
+    address: string;
+    instruction: string;
+    opcode: number;
+    gas: number;
+  }[];
+}

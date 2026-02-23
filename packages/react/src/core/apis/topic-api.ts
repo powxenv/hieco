@@ -41,6 +41,10 @@ export class TopicApi extends BaseApi {
     return this.getSingle<TopicMessage>(`topics/${topicId}/messages/${sequenceNumber}`);
   }
 
+  async getMessageByTimestamp(timestamp: string): Promise<ApiResult<TopicMessage>> {
+    return this.getSingle<TopicMessage>(`topics/messages/${timestamp}`);
+  }
+
   async listPaginated(params?: PaginationParams): Promise<ApiResult<Topic[]>> {
     const builder = this.createQueryBuilder();
 

@@ -23,3 +23,5 @@ export {
 export { TopicApi, type TopicMessagesParams } from "./apis/topic-api";
 export { ScheduleApi, type ScheduleListParams } from "./apis/schedule-api";
 export { NetworkApi } from "./apis/network-api";
+export { BalanceApi, type BalancesListParams } from "./apis/balance-api";
+export { BlockApi, type BlocksListParams } from "./apis/block-api";
