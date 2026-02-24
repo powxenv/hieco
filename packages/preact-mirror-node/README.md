@@ -1,47 +1,35 @@
-# @hiecom/react-mirror-node
+# @hiecom/preact-mirror-node
 
-Type-safe React hooks for Hedera Mirror Node.
+Type-safe Preact hooks for Hedera Mirror Node API with TanStack Query.
 
-## Install
+## Installation
 
 ```bash
-# bun
-bun add @hiecom/mirror-node @hiecom/react-mirror-node @tanstack/react-query
-
-# npm
-npm install @hiecom/mirror-node @hiecom/react-mirror-node @tanstack/react-query
-
-# pnpm
-pnpm add @hiecom/mirror-node @hiecom/react-mirror-node @tanstack/react-query
-
-# yarn
-yarn add @hiecom/mirror-node @hiecom/react-mirror-node @tanstack/react-query
+bun add @hiecom/mirror-node @hiecom/preact-mirror-node @tanstack/react-query
 ```
 
 ## Quick Start
 
-### 1. Setup Provider
+### Step 1: Wrap your app with providers
 
 ```tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MirrorNodeProvider, createNetworkConfig } from "@hiecom/react-mirror-node";
+import { MirrorNodeProvider, createNetworkConfig } from "@hiecom/preact-mirror-node";
 
 const queryClient = new QueryClient();
 
-// Default networks (mainnet, testnet, previewnet) are built-in
-// Only specify custom networks if needed
-const config = createNetworkConfig({
+const networkConfig = createNetworkConfig({
   defaultNetwork: "mainnet",
   networks: {
-    local: "http://localhost:5600",
-    staging: "https://staging.mirrornode.hedera.com",
+    testnet: "https://testnet.mirrornode.hedera.com",
+    custom: "https://custom.mirror-node.com",
   },
 });
 
-function App() {
+export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <MirrorNodeProvider config={config}>
+      <MirrorNodeProvider config={networkConfig}>
         <YourApp />
       </MirrorNodeProvider>
     </QueryClientProvider>
@@ -49,223 +37,170 @@ function App() {
 }
 ```
 
-### 2. Use Hooks
+### Step 2: Use hooks in your components
 
 ```tsx
-import { useAccountInfo } from "@hiecom/react-mirror-node";
+import { useAccountInfo } from "@hiecom/preact-mirror-node";
 
 function AccountBalance({ accountId }: { accountId: string }) {
   const { data, isLoading, error } = useAccountInfo({ accountId });
 
-  if (isLoading) return <span>Loading...</span>;
-  if (!data?.success) return <span>Error: {data.error.message}</span>;
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (!data?.success) return <div>Failed to load</div>;
 
-  return <span>Balance: {data.data.balance.balance} ℏ</span>;
+  return <div>Balance: {data.data.balance.balance} tinybars</div>;
 }
 ```
 
-## Network Switching
+## Switching Networks
 
-The package supports switching between networks at runtime.
-
-### Define Your Networks
-
-Default networks (mainnet, testnet, previewnet) are built-in with official Hedera URLs. Only specify custom networks:
+Switch networks at runtime. All queries automatically refetch with the new network:
 
 ```tsx
-const config = createNetworkConfig({
-  defaultNetwork: "mainnet",
-  networks: {
-    local: "http://localhost:5600",
-    staging: "https://staging.mirrornode.hedera.com",
-  },
-});
-```
+import { useNetwork } from "@hiecom/preact-mirror-node";
 
-### Switch Networks
-
-```tsx
-import { useNetwork } from "@hiecom/react-mirror-node";
-
-function NetworkSwitcher() {
+function NetworkSelector() {
   const { network, switchNetwork } = useNetwork();
 
   return (
     <div>
-      <p>Current: {network}</p>
-      <button onClick={() => switchNetwork("testnet")}>Testnet</button>
+      <span>Current: {network}</span>
       <button onClick={() => switchNetwork("mainnet")}>Mainnet</button>
-      <button onClick={() => switchNetwork("local")}>Local</button>
+      <button onClick={() => switchNetwork("testnet")}>Testnet</button>
     </div>
   );
 }
 ```
 
-### Query Keys Are Network-Aware
+## Pagination
 
-All queries automatically include the network in their cache keys, so switching networks triggers automatic refetch:
+The Hedera Mirror Node API uses cursor-based pagination. The hooks handle this automatically.
 
-```tsx
-// When network is "mainnet", key is:
-// ["mirror-node", "mainnet", "account", "info", "0.0.123"]
+### List Queries
 
-// When network switches to "testnet", key becomes:
-// ["mirror-node", "testnet", "account", "info", "0.0.123"]
-// This triggers automatic refetch
-```
-
-## Prefetch & Invalidation
-
-Generic helpers that work with all query keys:
+List hooks fetch all items across all pages by default:
 
 ```tsx
-import { prefetchQuery, invalidateQueries, mirrorNodeKeys } from "@hiecom/react-mirror-node";
+import { useTokens } from "@hiecom/preact-mirror-node";
 
-// Prefetch any query - method is automatically resolved
-await prefetchQuery(queryClient, client, mirrorNodeKeys.account.info("mainnet", accountId));
-await prefetchQuery(queryClient, client, mirrorNodeKeys.token.nft("mainnet", tokenId, serial));
-await prefetchQuery(queryClient, client, mirrorNodeKeys.network.exchangeRate("mainnet"));
+function TokenList() {
+  const { data, isLoading } = useTokens({
+    params: { limit: 25, order: "desc" },
+  });
 
-// Invalidate by exact key
-await invalidateQueries(queryClient, {
-  exactKey: mirrorNodeKeys.account.info("mainnet", accountId),
-});
+  if (isLoading) return <div>Loading...</div>;
+  if (!data?.success) return <div>Failed to load</div>;
 
-// Invalidate by entity type (type-safe)
-await invalidateQueries(queryClient, { entityType: "account" });
-
-// Invalidate by entity + ID
-await invalidateQueries(queryClient, {
-  entityType: "account",
-  resourceId: accountId,
-});
-
-// Invalidate all mirror-node queries
-await invalidateQueries(queryClient, {});
+  return (
+    <div>
+      <p>Showing {data.data.length} tokens</p>
+      <ul>
+        {data.data.map((token) => (
+          <li key={token.token_id}>{token.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 ```
 
-## Hooks
+The `limit` parameter controls how many items per page to fetch from the API. The hooks automatically follow the pagination cursor (`links.next`) to fetch all pages and combine the results.
 
-### Account
+## Available Hooks
 
-```tsx
-useAccountInfo({ accountId });
-useAccountBalances({ accountId });
-useAccountTokens({ accountId, params });
-useAccountNfts({ accountId, params });
-useAccountStakingRewards({ accountId, params });
-useAccountCryptoAllowances({ accountId });
-useAccountTokenAllowances({ accountId, params });
-useAccountNftAllowances({ accountId, params });
-useAccountOutstandingAirdrops({ accountId, params });
-useAccountPendingAirdrops({ accountId, params });
-useAccounts({ params });
-useAccountsInfinite({ params });
-```
+### Accounts
+- `useAccountInfo` - Get account details
+- `useAccountBalances` - Get account balances
+- `useAccountTokens` - Get associated tokens
+- `useAccountNfts` - Get associated NFTs
+- `useAccounts` - List accounts (with pagination)
 
-### Token
+### Tokens
+- `useTokenInfo` - Get token details
+- `useTokenBalances` - Get token balances
+- `useTokenNfts` - Get token NFTs
+- `useTokens` - List tokens (with pagination)
 
-```tsx
-useTokenInfo({ tokenId });
-useTokenBalances({ tokenId, params });
-useTokenNfts({ tokenId, params });
-useTokenNft({ tokenId, serialNumber });
-useTokenNftTransactions({ tokenId, serialNumber, params });
-useTokens({ params });
-useTokensInfinite({ params });
-```
+### Transactions
+- `useTransaction` - Get transaction details
+- `useTransactions` - List transactions (with pagination)
+- `usePollTransaction` - Poll for transaction confirmation
 
-### Topic
+### Contracts
+- `useContractInfo` - Get contract details
+- `useContractCall` - Call contract function
+- `useContractState` - Get contract state
+- `useContractLogs` - Get contract logs
+- `useContracts` - List contracts (with pagination)
 
-```tsx
-useTopicInfo({ topicId });
-useTopicMessages({ topicId, params });
-useTopicMessage({ topicId, sequenceNumber });
-useTopicMessageByTimestamp({ timestamp });
-useTopics({ params });
-useTopicsInfinite({ params });
-```
+### Topics
+- `useTopicInfo` - Get topic details
+- `useTopicMessages` - Get topic messages
+- `useTopics` - List topics (with pagination)
 
-### Transaction
-
-```tsx
-useTransaction({ transactionId });
-useTransactionsByAccount({ accountId, params });
-useTransactions({ params });
-useTransactionsInfinite({ params });
-```
-
-### Contract
-
-```tsx
-useContractInfo({ contractIdOrAddress });
-useContractCall({ params });
-useContractResults({ contractId, params });
-useContractResult({ contractId, timestamp });
-useContractAllResults({ params });
-useContractResultByTransactionIdOrHash({ transactionIdOrHash, params });
-useContractResultActions({ transactionIdOrHash });
-useContractResultOpcodes({ transactionIdOrHash });
-useContractState({ contractId, params });
-useContractLogs({ contractId, params });
-useContractAllLogs({ params });
-useContracts({ params });
-useContractsInfinite({ params });
-```
-
-### Schedule
-
-```tsx
-useScheduleInfo({ scheduleId });
-useSchedules({ params });
-useSchedulesInfinite({ params });
-```
+### Schedules
+- `useScheduleInfo` - Get schedule details
+- `useSchedules` - List schedules (with pagination)
 
 ### Network
-
-```tsx
-useNetworkExchangeRate();
-useNetworkFees();
-useNetworkNodes();
-useNetworkStake();
-useNetworkSupply();
-```
-
-### Balance
-
-```tsx
-useBalances({ params });
-```
-
-### Block
-
-```tsx
-useBlock({ hashOrNumber });
-useBlocks({ params });
-```
+- `useNetworkExchangeRate` - Get HBAR exchange rates
+- `useNetworkFees` - Get network fees
+- `useNetworkNodes` - Get network nodes
+- `useNetworkStake` - Get network stake
+- `useNetworkSupply` - Get network supply
 
 ## Query Options
 
-All hooks accept TanStack Query options:
+All hooks accept standard TanStack Query options:
 
 ```tsx
 const { data } = useAccountInfo({
   accountId: "0.0.123",
   enabled: true,
-  staleTime: 1000 * 60 * 5,
+  staleTime: 60000,
   refetchOnWindowFocus: false,
-  retry: 3,
 });
 ```
 
-## Pagination
+## Utilities
+
+Prefetch and invalidate queries from anywhere in your app:
 
 ```tsx
-const { data } = useAccounts({ params: { balance: "gte:1000", limit: 25 } });
+import { prefetchQuery, invalidateQueries, mirrorNodeKeys } from "@hiecom/preact-mirror-node";
+import { useMirrorNodeClient } from "@hiecom/preact-mirror-node";
 
-const { data, fetchNextPage, hasNextPage } = useAccountsInfinite({
-  params: { limit: 25 },
-});
+function MyComponent() {
+  const client = useMirrorNodeClient();
+
+  // Prefetch data before it's needed
+  const prefetchAccount = async () => {
+    await prefetchQuery(queryClient, client, mirrorNodeKeys.account.info("mainnet", "0.0.123"));
+  };
+
+  // Invalidate queries to trigger refetch
+  const refreshAccount = async () => {
+    // Invalidate specific query
+    await invalidateQueries(queryClient, {
+      exactKey: mirrorNodeKeys.account.info("mainnet", "0.0.123"),
+    });
+
+    // Invalidate all queries for an entity type
+    await invalidateQueries(queryClient, { entityType: "account" });
+
+    // Invalidate all queries for an entity with specific ID
+    await invalidateQueries(queryClient, {
+      entityType: "account",
+      resourceId: "0.0.123",
+    });
+  };
+
+  // Invalidate all mirror-node queries
+  const refreshAll = async () => {
+    await invalidateQueries(queryClient, {});
+  };
+}
 ```
 
 ## License
