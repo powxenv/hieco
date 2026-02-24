@@ -1,13 +1,13 @@
-# @hiecom/react
+# @hiecom/react-mirror-node-mirror-node
 
 Type-safe Hedera Mirror Node API client for React.
 
 ## Install
 
 ```bash
-npm install @hiecom/react
+npm install @hiecom/react-mirror-node-mirror-node
 # or
-bun add @hiecom/react
+bun add @hiecom/react-mirror-node-mirror-node
 ```
 
 ## Quick Start
@@ -15,7 +15,7 @@ bun add @hiecom/react
 ### 1. Setup Provider
 
 ```tsx
-import { MirrorNodeProvider, MirrorNodeClient } from "@hiecom/react";
+import { MirrorNodeProvider, MirrorNodeClient } from "@hiecom/react-mirror-node";
 
 const client = new MirrorNodeClient({ network: "mainnet" });
 
@@ -33,7 +33,7 @@ function App() {
 **Option A: React Query Hooks (recommended)**
 
 ```tsx
-import { useAccountInfo } from "@hiecom/react";
+import { useAccountInfo } from "@hiecom/react-mirror-node";
 
 function AccountBalance({ accountId }: { accountId: string }) {
   const { data, isLoading, error } = useAccountInfo({ accountId });
@@ -49,7 +49,7 @@ function AccountBalance({ accountId }: { accountId: string }) {
 
 ```tsx
 import { useQuery } from "@tanstack/react-query";
-import { useMirrorNodeClient, mirrorNodeKeys } from "@hiecom/react";
+import { useMirrorNodeClient, mirrorNodeKeys } from "@hiecom/react-mirror-node";
 
 function AccountBalance({ accountId }: { accountId: string }) {
   const client = useMirrorNodeClient();
@@ -70,7 +70,7 @@ function AccountBalance({ accountId }: { accountId: string }) {
 
 ```tsx
 import { useState, useEffect } from "react";
-import { useMirrorNodeClient } from "@hiecom/react";
+import { useMirrorNodeClient } from "@hiecom/react-mirror-node";
 
 function AccountBalance({ accountId }: { accountId: string }) {
   const client = useMirrorNodeClient();
