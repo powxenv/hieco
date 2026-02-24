@@ -19,13 +19,13 @@ export function useMirrorNodeClient(): MirrorNodeClient {
   return client;
 }
 
-export function useNetwork<T extends string = AnyNetwork>(): NetworkState<T> {
+export function useNetwork(): NetworkState {
   const { network, mirrorNodeUrl, switchNetwork } = useMirrorNodeContext();
 
   return {
-    network: network as T,
+    network,
     mirrorNodeUrl,
-    switchNetwork: switchNetwork as (network: T) => void,
+    switchNetwork,
   };
 }
 

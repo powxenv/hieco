@@ -9,48 +9,48 @@ const DEFAULT_MIRROR_NODE_URLS: Record<NetworkType, string> = {
 
 export type AnyNetwork = NetworkType | string;
 
-export function createNetworkConfig<const T extends string>(config: {
-  defaultNetwork: T;
+export interface NetworkConfig<T extends string = string, U extends NetworkType = NetworkType> {
+  defaultNetwork: U | T;
+  networks?: Record<T, string>;
+}
+
+export function createNetworkConfig<T extends string, U extends NetworkType = NetworkType>(config: {
+  defaultNetwork: U | T;
   networks: Record<T, string>;
-}) {
-  return config;
+}): NetworkConfig<T, U> {
+  return config as NetworkConfig<T, U>;
 }
 
-export type AnyNetworkConfig = {
-  defaultNetwork: string;
-  networks: Record<string, string>;
-};
-
-export interface NetworkState<T extends string = AnyNetwork> {
-  network: T;
+export interface NetworkState {
+  network: AnyNetwork;
   mirrorNodeUrl: string | undefined;
-  switchNetwork: (network: T) => void;
+  switchNetwork: (network: AnyNetwork) => void;
 }
 
-export interface MirrorNodeContextValue<T extends string = AnyNetwork> {
+export interface MirrorNodeContextValue {
   client: MirrorNodeClient;
-  network: T;
+  network: AnyNetwork;
   mirrorNodeUrl: string | undefined;
-  switchNetwork: (network: T) => void;
+  switchNetwork: (network: AnyNetwork) => void;
 }
 
-const MirrorNodeContext = createContext<MirrorNodeContextValue<AnyNetwork> | null>(null);
+const MirrorNodeContext = createContext<MirrorNodeContextValue | null>(null);
 
-export interface MirrorNodeProviderProps<T extends string = AnyNetwork> {
+export interface MirrorNodeProviderProps<
+  T extends string = string,
+  U extends NetworkType = NetworkType,
+> {
   children: ReactNode;
-  config: {
-    defaultNetwork: T;
-    networks: Record<T, string>;
-  };
+  config: NetworkConfig<T, U>;
 }
 
-export function MirrorNodeProvider<T extends string>({
+export function MirrorNodeProvider<T extends string, U extends NetworkType = NetworkType>({
   children,
   config,
-}: MirrorNodeProviderProps<T>) {
-  const { defaultNetwork, networks } = config;
+}: MirrorNodeProviderProps<T, U>) {
+  const { defaultNetwork, networks = {} } = config;
 
-  const [currentNetwork, setCurrentNetwork] = useState<T>(defaultNetwork);
+  const [currentNetwork, setCurrentNetwork] = useState<AnyNetwork>(defaultNetwork);
   const [currentMirrorNodeUrl, setCurrentMirrorNodeUrl] = useState<string | undefined>(
     getNetworkUrl(defaultNetwork, networks),
   );
@@ -64,7 +64,7 @@ export function MirrorNodeProvider<T extends string>({
   }, [currentNetwork, currentMirrorNodeUrl, networks]);
 
   const switchNetwork = useCallback(
-    (newNetwork: T) => {
+    (newNetwork: AnyNetwork) => {
       const url = getNetworkUrl(newNetwork, networks);
       setCurrentNetwork(newNetwork);
       setCurrentMirrorNodeUrl(url);
@@ -72,7 +72,7 @@ export function MirrorNodeProvider<T extends string>({
     [networks],
   );
 
-  const value = useMemo<MirrorNodeContextValue<T>>(
+  const value = useMemo<MirrorNodeContextValue>(
     () => ({
       client,
       network: currentNetwork,
@@ -82,11 +82,7 @@ export function MirrorNodeProvider<T extends string>({
     [client, currentNetwork, currentMirrorNodeUrl, switchNetwork],
   );
 
-  return (
-    <MirrorNodeContext.Provider value={value as unknown as MirrorNodeContextValue}>
-      {children}
-    </MirrorNodeContext.Provider>
-  );
+  return <MirrorNodeContext.Provider value={value}>{children}</MirrorNodeContext.Provider>;
 }
 
 function isDefaultNetwork(network: string): network is NetworkType {
@@ -94,7 +90,7 @@ function isDefaultNetwork(network: string): network is NetworkType {
 }
 
 function getNetworkUrl(
-  network: string,
+  network: AnyNetwork,
   customNetworks: Record<string, string>,
 ): string | undefined {
   if (isDefaultNetwork(network)) {

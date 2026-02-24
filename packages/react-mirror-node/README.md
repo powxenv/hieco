@@ -24,16 +24,24 @@ yarn add @hiecom/mirror-node @hiecom/react-mirror-node @tanstack/react-query
 
 ```tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MirrorNodeProvider } from "@hiecom/react-mirror-node";
-import { createMirrorNodeClient } from "@hiecom/mirror-node";
+import { MirrorNodeProvider, createNetworkConfig } from "@hiecom/react-mirror-node";
 
 const queryClient = new QueryClient();
-const client = createMirrorNodeClient({ network: "mainnet" });
+
+// Default networks (mainnet, testnet, previewnet) are built-in
+// Only specify custom networks if needed
+const config = createNetworkConfig({
+  defaultNetwork: "mainnet",
+  networks: {
+    local: "http://localhost:5600",
+    staging: "https://staging.mirrornode.hedera.com",
+  },
+});
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <MirrorNodeProvider client={client}>
+      <MirrorNodeProvider config={config}>
         <YourApp />
       </MirrorNodeProvider>
     </QueryClientProvider>
@@ -56,6 +64,56 @@ function AccountBalance({ accountId }: { accountId: string }) {
 }
 ```
 
+## Network Switching
+
+The package supports switching between networks at runtime.
+
+### Define Your Networks
+
+Default networks (mainnet, testnet, previewnet) are built-in with official Hedera URLs. Only specify custom networks:
+
+```tsx
+const config = createNetworkConfig({
+  defaultNetwork: "mainnet",
+  networks: {
+    local: "http://localhost:5600",
+    staging: "https://staging.mirrornode.hedera.com",
+  },
+});
+```
+
+### Switch Networks
+
+```tsx
+import { useNetwork } from "@hiecom/react-mirror-node";
+
+function NetworkSwitcher() {
+  const { network, switchNetwork } = useNetwork();
+
+  return (
+    <div>
+      <p>Current: {network}</p>
+      <button onClick={() => switchNetwork("testnet")}>Testnet</button>
+      <button onClick={() => switchNetwork("mainnet")}>Mainnet</button>
+      <button onClick={() => switchNetwork("local")}>Local</button>
+    </div>
+  );
+}
+```
+
+### Query Keys Are Network-Aware
+
+All queries automatically include the network in their cache keys, so switching networks triggers automatic refetch:
+
+```tsx
+// When network is "mainnet", key is:
+// ["mirror-node", "mainnet", "account", "info", "0.0.123"]
+
+// When network switches to "testnet", key becomes:
+// ["mirror-node", "testnet", "account", "info", "0.0.123"]
+// This triggers automatic refetch
+```
+
 ## Prefetch & Invalidation
 
 Generic helpers that work with all query keys:
@@ -64,13 +122,13 @@ Generic helpers that work with all query keys:
 import { prefetchQuery, invalidateQueries, mirrorNodeKeys } from "@hiecom/react-mirror-node";
 
 // Prefetch any query - method is automatically resolved
-await prefetchQuery(queryClient, client, mirrorNodeKeys.account.info(accountId));
-await prefetchQuery(queryClient, client, mirrorNodeKeys.token.nft(tokenId, serial));
-await prefetchQuery(queryClient, client, mirrorNodeKeys.network.exchangeRate());
+await prefetchQuery(queryClient, client, mirrorNodeKeys.account.info("mainnet", accountId));
+await prefetchQuery(queryClient, client, mirrorNodeKeys.token.nft("mainnet", tokenId, serial));
+await prefetchQuery(queryClient, client, mirrorNodeKeys.network.exchangeRate("mainnet"));
 
 // Invalidate by exact key
 await invalidateQueries(queryClient, {
-  exactKey: mirrorNodeKeys.account.info(accountId),
+  exactKey: mirrorNodeKeys.account.info("mainnet", accountId),
 });
 
 // Invalidate by entity type (type-safe)
