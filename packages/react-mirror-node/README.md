@@ -63,7 +63,7 @@ Generic helpers that work with all query keys:
 ```tsx
 import { prefetchQuery, invalidateQueries, mirrorNodeKeys } from "@hiecom/react-mirror-node";
 
-// Prefetch any query
+// Prefetch any query - method is automatically resolved
 await prefetchQuery(queryClient, client, mirrorNodeKeys.account.info(accountId));
 await prefetchQuery(queryClient, client, mirrorNodeKeys.token.nft(tokenId, serial));
 await prefetchQuery(queryClient, client, mirrorNodeKeys.network.exchangeRate());
@@ -73,7 +73,7 @@ await invalidateQueries(queryClient, {
   exactKey: mirrorNodeKeys.account.info(accountId)
 });
 
-// Invalidate by entity type
+// Invalidate by entity type (type-safe)
 await invalidateQueries(queryClient, { entityType: "account" });
 
 // Invalidate by entity + ID
@@ -84,23 +84,6 @@ await invalidateQueries(queryClient, {
 
 // Invalidate all mirror-node queries
 await invalidateQueries(queryClient, {});
-```
-
-Convenience helpers for common cases:
-
-```tsx
-// Prefetch
-await prefetchAccountInfo(queryClient, client, accountId);
-await prefetchAccountBalances(queryClient, client, accountId);
-await prefetchAccountTokens(queryClient, client, accountId);
-await prefetchTokenInfo(queryClient, client, tokenId);
-await prefetchTransaction(queryClient, client, transactionId);
-
-// Invalidate
-await invalidateAccountQueries(queryClient, accountId);
-await invalidateTokenQueries(queryClient, tokenId);
-await invalidateContractQueries(queryClient, contractId);
-await invalidateNetworkData(queryClient);
 ```
 
 ## Hooks
