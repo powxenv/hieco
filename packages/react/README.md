@@ -1,13 +1,22 @@
-# @hiecom/react-mirror-node-mirror-node
+# @hiecom/react-mirror-node
 
 Type-safe Hedera Mirror Node API client for React.
 
 ## Install
 
 ```bash
-npm install @hiecom/react-mirror-node-mirror-node
+npm install @hiecom/react-mirror-node
 # or
-bun add @hiecom/react-mirror-node-mirror-node
+bun add @hiecom/react-mirror-node
+```
+
+TanStack Query is optional:
+
+```bash
+# Required for Option A (React Query Hooks)
+npm install @tanstack/react-query
+# or
+bun add @tanstack/react-query
 ```
 
 ## Quick Start
@@ -30,7 +39,7 @@ function App() {
 
 ### 2. Use in Components
 
-**Option A: React Query Hooks (recommended)**
+**Option A: React Query Hooks** (requires `@tanstack/react-query`)
 
 ```tsx
 import { useAccountInfo } from "@hiecom/react-mirror-node";
@@ -86,6 +95,9 @@ function AccountBalance({ accountId }: { accountId: string }) {
   return <span>Balance: {account.data.balance.balance} ℏ</span>;
 }
 ```
+
+- **Option A** & **Option B**: Require `@tanstack/react-query`
+- **Option C**: Works without `@tanstack/react-query`
 
 ## Configuration
 
