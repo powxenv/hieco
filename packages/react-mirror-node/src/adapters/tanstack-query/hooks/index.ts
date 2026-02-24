@@ -7,3 +7,5 @@ export * from "./schedule-hooks";
 export * from "./network-hooks";
 export * from "./balance-hooks";
 export * from "./block-hooks";
+export * from "./polling-hooks";
+export * from "./compound-hooks";
