@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
-import type { ApiResult, ApiError, Timestamp } from "../../../types/rest-api";
-import type { BlocksResponse, Block } from "../../../types/entities/network";
+import type { ApiResult, ApiError, Timestamp } from "@hiecom/mirror-node";
+import type { BlocksResponse, Block } from "@hiecom/mirror-node";
 import { useMirrorNodeClient } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
-export type { BlocksListParams } from "../../../core/apis/block-api";
+export type { BlocksListParams } from "@hiecom/mirror-node";
 
 type BlockQueryFnData<T> = ApiResult<T>;
 type BlockQueryError = ApiError;
@@ -22,10 +22,7 @@ export interface UseBlocksOptions extends Omit<
   };
 }
 
-export type UseBlocksResult = UseQueryResult<
-  BlockQueryFnData<BlocksResponse>,
-  BlockQueryError
->;
+export type UseBlocksResult = UseQueryResult<BlockQueryFnData<BlocksResponse>, BlockQueryError>;
 
 export interface UseBlockOptions extends Omit<
   UseQueryOptions<BlockQueryFnData<Block>, BlockQueryError>,
@@ -36,9 +33,7 @@ export interface UseBlockOptions extends Omit<
 
 export type UseBlockResult = UseQueryResult<BlockQueryFnData<Block>, BlockQueryError>;
 
-export function useBlocks(
-  options: UseBlocksOptions = {},
-): UseBlocksResult {
+export function useBlocks(options: UseBlocksOptions = {}): UseBlocksResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -50,9 +45,7 @@ export function useBlocks(
   });
 }
 
-export function useBlock(
-  options: UseBlockOptions,
-): UseBlockResult {
+export function useBlock(options: UseBlockOptions): UseBlockResult {
   const client = useMirrorNodeClient();
 
   return useQuery({

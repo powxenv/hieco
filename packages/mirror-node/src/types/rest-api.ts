@@ -40,7 +40,12 @@ export type ApiResult<T, E extends ApiError = ApiError> =
   | { readonly success: false; readonly error: E };
 
 export interface ApiError {
-  readonly _tag: "NetworkError" | "ValidationError" | "NotFoundError" | "RateLimitError" | "UnknownError";
+  readonly _tag:
+    | "NetworkError"
+    | "ValidationError"
+    | "NotFoundError"
+    | "RateLimitError"
+    | "UnknownError";
   readonly message: string;
   readonly status?: number;
   readonly code?: string;

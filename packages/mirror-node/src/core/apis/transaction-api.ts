@@ -131,10 +131,16 @@ export class TransactionApi extends BaseApi {
   }
 
   async listPaginated(params?: TransactionListParams): Promise<ApiResult<Transaction[]>> {
-    return this.getAllPaginated<Transaction>("transactions", this.buildTransactionListParams(params));
+    return this.getAllPaginated<Transaction>(
+      "transactions",
+      this.buildTransactionListParams(params),
+    );
   }
 
   createTransactionPaginator(params?: TransactionListParams): CursorPaginator<Transaction> {
-    return super.createPaginator<Transaction>("transactions", this.buildTransactionListParams(params));
+    return super.createPaginator<Transaction>(
+      "transactions",
+      this.buildTransactionListParams(params),
+    );
   }
 }

@@ -11,7 +11,7 @@ export class HttpClient {
   constructor(config: MirrorNodeConfig) {
     this.network = config.network;
     this.baseUrl = config.mirrorNodeUrl ?? NETWORK_CONFIGS[config.network].mirrorNode;
-    
+
     this.limiter = pLimit(50);
   }
 
@@ -52,7 +52,9 @@ export class HttpClient {
         if (response.status === 404) {
           return {
             success: false,
-            error: ApiErrorFactory.notFound(`Resource not found: ${options?.method ?? "GET"} ${path}`),
+            error: ApiErrorFactory.notFound(
+              `Resource not found: ${options?.method ?? "GET"} ${path}`,
+            ),
           };
         }
 

@@ -27,7 +27,10 @@ export interface TokenNftsParams extends PaginationParams {
 }
 
 export class TokenApi extends BaseApi {
-  async getInfo(tokenId: EntityId, params?: { timestamp?: Timestamp }): Promise<ApiResult<TokenInfo>> {
+  async getInfo(
+    tokenId: EntityId,
+    params?: { timestamp?: Timestamp },
+  ): Promise<ApiResult<TokenInfo>> {
     const builder = this.createQueryBuilder();
 
     if (params?.timestamp) {

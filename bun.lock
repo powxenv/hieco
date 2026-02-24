@@ -5,13 +5,24 @@
     "": {
       "name": "hiecom",
     },
-    "packages/react": {
-      "name": "@hiecom/react",
+    "packages/mirror-node": {
+      "name": "@hiecom/mirror-node",
       "version": "0.0.1",
       "dependencies": {
         "ky": "^1.14.3",
         "p-limit": "^7.3.0",
       },
+      "devDependencies": {
+        "@typescript/native-preview": "^7.0.0-dev.20260222.1",
+        "bun-types": "^1.3.9",
+        "oxfmt": "^0.34.0",
+        "oxlint": "^1.49.0",
+        "oxlint-tsgolint": "^0.14.2",
+      },
+    },
+    "packages/react": {
+      "name": "@hiecom/react-mirror-node",
+      "version": "0.0.1",
       "devDependencies": {
         "@types/react": "^18.2.0",
         "@types/react-dom": "^18.2.0",
@@ -23,17 +34,18 @@
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
       },
-      "optionalDependencies": {
-        "@tanstack/react-query": "^5.0.0",
-      },
       "peerDependencies": {
+        "@hiecom/mirror-node": "workspace:*",
+        "@tanstack/react-query": "^5.0.0",
         "react": ">=18",
         "react-dom": ">=18",
       },
     },
   },
   "packages": {
-    "@hiecom/react": ["@hiecom/react@workspace:packages/react"],
+    "@hiecom/mirror-node": ["@hiecom/mirror-node@workspace:packages/mirror-node"],
+
+    "@hiecom/react-mirror-node": ["@hiecom/react-mirror-node@workspace:packages/react"],
 
     "@oxfmt/binding-android-arm-eabi": ["@oxfmt/binding-android-arm-eabi@0.34.0", "", { "os": "android", "cpu": "arm" }, "sha512-sqkqjh/Z38l+duOb1HtVqJTAj1grt2ttkobCopC/72+a4Xxz4xUgZPFyQ4HxrYMvyqO/YA0tvM1QbfOu70Gk1Q=="],
 

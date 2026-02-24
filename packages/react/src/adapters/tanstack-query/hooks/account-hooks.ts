@@ -11,7 +11,7 @@ import type {
   EntityId,
   PaginationParams,
   QueryOperator,
-} from "../../../types/rest-api";
+} from "@hiecom/mirror-node";
 import type {
   AccountInfo,
   Balance,
@@ -21,11 +21,11 @@ import type {
   TokenRelationship,
   TokenAllowance,
   TokenAirdropsResponse,
-} from "../../../types/entities/account";
+} from "@hiecom/mirror-node";
 import { useMirrorNodeClient } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
-export type { AccountListParams, AccountNftsParams } from "../../../core/apis/account-api";
+export type { AccountListParams, AccountNftsParams } from "@hiecom/mirror-node";
 
 export interface AccountTokenAllowancesParams {
   readonly spender?: EntityId;

@@ -5,21 +5,12 @@ import type {
   UseQueryResult,
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
-import type {
-  ApiResult,
-  ApiError,
-  EntityId,
-  QueryOperator,
-  Timestamp,
-} from "../../../types/rest-api";
-import type { Transaction, TransactionDetails } from "../../../types/entities/transaction";
+import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hiecom/mirror-node";
+import type { Transaction, TransactionDetails } from "@hiecom/mirror-node";
 import { useMirrorNodeClient } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
-export type {
-  TransactionListParams,
-  TransactionsByAccountParams,
-} from "../../../core/apis/transaction-api";
+export type { TransactionListParams, TransactionsByAccountParams } from "@hiecom/mirror-node";
 
 type TransactionQueryFnData<T> = ApiResult<T>;
 type TransactionQueryError = ApiError;

@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
-import type { ApiResult, ApiError, QueryOperator, Timestamp } from "../../../types/rest-api";
-import type { BalancesResponse } from "../../../types/entities/network";
+import type { ApiResult, ApiError, QueryOperator, Timestamp } from "@hiecom/mirror-node";
+import type { BalancesResponse } from "@hiecom/mirror-node";
 import { useMirrorNodeClient } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
-export type { BalancesListParams } from "../../../core/apis/balance-api";
+export type { BalancesListParams } from "@hiecom/mirror-node";
 
 type BalanceQueryFnData<T> = ApiResult<T>;
 type BalanceQueryError = ApiError;
@@ -29,9 +29,7 @@ export type UseBalancesResult = UseQueryResult<
   BalanceQueryError
 >;
 
-export function useBalances(
-  options: UseBalancesOptions = {},
-): UseBalancesResult {
+export function useBalances(options: UseBalancesOptions = {}): UseBalancesResult {
   const client = useMirrorNodeClient();
 
   return useQuery({

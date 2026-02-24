@@ -11,17 +11,13 @@ import type {
   EntityId,
   PaginationParams,
   QueryOperator,
-} from "../../../types/rest-api";
-import type { Nft, TokenDistribution, TokenInfo } from "../../../types/entities/token";
-import type { Transaction } from "../../../types/entities/transaction";
+} from "@hiecom/mirror-node";
+import type { Nft, TokenDistribution, TokenInfo } from "@hiecom/mirror-node";
+import type { Transaction } from "@hiecom/mirror-node";
 import { useMirrorNodeClient } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
-export type {
-  TokenListParams,
-  TokenBalancesParams,
-  TokenNftsParams,
-} from "../../../core/apis/token-api";
+export type { TokenListParams, TokenBalancesParams, TokenNftsParams } from "@hiecom/mirror-node";
 
 type TokenQueryFnData<T> = ApiResult<T>;
 type TokenQueryError = ApiError;

@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { MirrorNodeContext } from "./provider";
-import type { MirrorNodeClient } from "../core/mirror-client";
+import type { MirrorNodeClient } from "@hiecom/mirror-node";
 
 export function useMirrorNodeContext(): MirrorNodeContextValue {
   const context = useContext(MirrorNodeContext);

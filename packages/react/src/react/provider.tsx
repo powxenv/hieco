@@ -1,5 +1,5 @@
 import { createContext, useMemo, type ReactNode } from "react";
-import type { MirrorNodeClient } from "../core/mirror-client";
+import type { MirrorNodeClient } from "@hiecom/mirror-node";
 import type { MirrorNodeContextValue } from "./hooks";
 
 export const MirrorNodeContext = createContext<MirrorNodeContextValue | null>(null);

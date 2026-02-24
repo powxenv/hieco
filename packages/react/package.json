@@ -1,11 +1,19 @@
 {
   "name": "@hiecom/react-mirror-node",
   "version": "0.0.1",
+  "description": "Type-safe React hooks for Hedera Mirror Node",
+  "keywords": [
+    "hedera",
+    "hooks",
+    "mirror-node",
+    "react"
+  ],
   "license": "MIT",
   "files": [
     "dist"
   ],
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -20,17 +28,13 @@
     }
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external react --external react-dom && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
-    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external react --external react-dom",
-    "typecheck": "tsc --noEmit",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external react --external react-dom --external @hiecom/mirror-node && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
+    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external react --external react-dom --external @hiecom/mirror-node",
+    "typecheck": "tsgo --noEmit",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check"
-  },
-  "dependencies": {
-    "ky": "^1.14.3",
-    "p-limit": "^7.3.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
@@ -44,10 +48,9 @@
     "react-dom": "^18.2.0"
   },
   "peerDependencies": {
+    "@hiecom/mirror-node": "workspace:*",
+    "@tanstack/react-query": "^5.0.0",
     "react": ">=18",
     "react-dom": ">=18"
-  },
-  "optionalDependencies": {
-    "@tanstack/react-query": "^5.0.0"
   }
 }

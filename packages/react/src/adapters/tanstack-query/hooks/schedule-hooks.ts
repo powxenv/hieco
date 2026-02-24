@@ -5,12 +5,12 @@ import type {
   UseQueryResult,
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
-import type { ApiResult, ApiError, EntityId, QueryOperator } from "../../../types/rest-api";
-import type { Schedule } from "../../../types/entities/schedule";
+import type { ApiResult, ApiError, EntityId, QueryOperator } from "@hiecom/mirror-node";
+import type { Schedule } from "@hiecom/mirror-node";
 import { useMirrorNodeClient } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
-export type { ScheduleListParams } from "../../../core/apis/schedule-api";
+export type { ScheduleListParams } from "@hiecom/mirror-node";
 
 type ScheduleQueryFnData<T> = ApiResult<T>;
 type ScheduleQueryError = ApiError;

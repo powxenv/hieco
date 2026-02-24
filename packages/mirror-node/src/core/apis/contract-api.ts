@@ -261,15 +261,17 @@ export class ContractApi extends BaseApi {
     );
   }
 
-  async getAllContractLogs(params?: PaginationParams & {
-    index?: number;
-    timestamp?: Timestamp;
-    topic0?: string;
-    topic1?: string;
-    topic2?: string;
-    topic3?: string;
-    "transaction.hash"?: string;
-  }): Promise<ApiResult<{ logs: ContractLog[]; links: { next?: string } }>> {
+  async getAllContractLogs(
+    params?: PaginationParams & {
+      index?: number;
+      timestamp?: Timestamp;
+      topic0?: string;
+      topic1?: string;
+      topic2?: string;
+      topic3?: string;
+      "transaction.hash"?: string;
+    },
+  ): Promise<ApiResult<{ logs: ContractLog[]; links: { next?: string } }>> {
     const builder = this.createQueryBuilder();
 
     if (params) {

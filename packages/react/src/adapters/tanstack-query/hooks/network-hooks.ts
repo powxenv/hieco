@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
-import type { ApiResult, ApiError } from "../../../types/rest-api";
+import type { ApiResult, ApiError } from "@hiecom/mirror-node";
 import type {
   ExchangeRate,
   NetworkFee,
   NetworkNode,
   NetworkStake,
   NetworkSupply,
-} from "../../../types/entities/network";
+} from "@hiecom/mirror-node";
 import { useMirrorNodeClient } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 

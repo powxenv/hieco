@@ -41,6 +41,9 @@ export class MirrorNodeClient {
   }
 }
 
-export function createMirrorNodeClient(network: "mainnet" | "testnet" | "previewnet", mirrorNodeUrl?: string): MirrorNodeClient {
+export function createMirrorNodeClient(
+  network: "mainnet" | "testnet" | "previewnet",
+  mirrorNodeUrl?: string,
+): MirrorNodeClient {
   return new MirrorNodeClient({ network, mirrorNodeUrl });
 }

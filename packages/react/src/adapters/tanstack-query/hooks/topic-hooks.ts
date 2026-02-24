@@ -5,12 +5,12 @@ import type {
   UseQueryResult,
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
-import type { ApiResult, ApiError, EntityId, PaginationParams } from "../../../types/rest-api";
-import type { Topic, TopicMessage } from "../../../types/entities/topic";
+import type { ApiResult, ApiError, EntityId, PaginationParams } from "@hiecom/mirror-node";
+import type { Topic, TopicMessage } from "@hiecom/mirror-node";
 import { useMirrorNodeClient } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
-export type { TopicMessagesParams } from "../../../core/apis/topic-api";
+export type { TopicMessagesParams } from "@hiecom/mirror-node";
 
 type TopicQueryFnData<T> = ApiResult<T>;
 type TopicQueryError = ApiError;
@@ -73,9 +73,7 @@ export type UseTopicsInfiniteResult = UseInfiniteQueryResult<
   TopicQueryError
 >;
 
-export function useTopicInfo(
-  options: UseTopicInfoOptions,
-): UseTopicInfoResult {
+export function useTopicInfo(options: UseTopicInfoOptions): UseTopicInfoResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -87,9 +85,7 @@ export function useTopicInfo(
   });
 }
 
-export function useTopicMessages(
-  options: UseTopicMessagesOptions,
-): UseTopicMessagesResult {
+export function useTopicMessages(options: UseTopicMessagesOptions): UseTopicMessagesResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -101,9 +97,7 @@ export function useTopicMessages(
   });
 }
 
-export function useTopicMessage(
-  options: UseTopicMessageOptions,
-): UseTopicMessageResult {
+export function useTopicMessage(options: UseTopicMessageOptions): UseTopicMessageResult {
   const client = useMirrorNodeClient();
 
   return useQuery({
@@ -127,9 +121,7 @@ export function useTopics(options: UseTopicsOptions = {}): UseTopicsResult {
   });
 }
 
-export function useTopicsInfinite(
-  options: UseTopicsInfiniteOptions,
-): UseTopicsInfiniteResult {
+export function useTopicsInfinite(options: UseTopicsInfiniteOptions): UseTopicsInfiniteResult {
   const client = useMirrorNodeClient();
 
   return useInfiniteQuery({
