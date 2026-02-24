@@ -14,7 +14,7 @@ import type {
 } from "@hiecom/mirror-node";
 import type { Nft, TokenDistribution, TokenInfo } from "@hiecom/mirror-node";
 import type { Transaction } from "@hiecom/mirror-node";
-import { useMirrorNodeClient } from "../../../react/hooks";
+import { useMirrorNodeClient, useNetwork } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
 export type { TokenListParams, TokenBalancesParams, TokenNftsParams } from "@hiecom/mirror-node";
@@ -111,10 +111,11 @@ export type UseTokensInfiniteResult = UseInfiniteQueryResult<
 
 export function useTokenInfo(options: UseTokenInfoOptions): UseTokenInfoResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.token.info(options.tokenId),
+    queryKey: mirrorNodeKeys.token.info(network, options.tokenId),
     queryFn: async () => {
       return client.token.getInfo(options.tokenId);
     },
@@ -124,10 +125,11 @@ export function useTokenInfo(options: UseTokenInfoOptions): UseTokenInfoResult {
 
 export function useTokenBalances(options: UseTokenBalancesOptions): UseTokenBalancesResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.token.balances(options.tokenId),
+    queryKey: mirrorNodeKeys.token.balances(network, options.tokenId),
     queryFn: async () => {
       return client.token.getBalances(options.tokenId, options.params);
     },
@@ -137,10 +139,11 @@ export function useTokenBalances(options: UseTokenBalancesOptions): UseTokenBala
 
 export function useTokenNfts(options: UseTokenNftsOptions): UseTokenNftsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.token.nfts(options.tokenId),
+    queryKey: mirrorNodeKeys.token.nfts(network, options.tokenId),
     queryFn: async () => {
       return client.token.getNfts(options.tokenId, options.params);
     },
@@ -150,10 +153,11 @@ export function useTokenNfts(options: UseTokenNftsOptions): UseTokenNftsResult {
 
 export function useTokenNft(options: UseTokenNftOptions): UseTokenNftResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.token.nft(options.tokenId, options.serialNumber),
+    queryKey: mirrorNodeKeys.token.nft(network, options.tokenId, options.serialNumber),
     queryFn: async () => {
       return client.token.getNft(options.tokenId, options.serialNumber);
     },
@@ -165,10 +169,11 @@ export function useTokenNftTransactions(
   options: UseTokenNftTransactionsOptions,
 ): UseTokenNftTransactionsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.token.nftTransactions(options.tokenId, options.serialNumber),
+    queryKey: mirrorNodeKeys.token.nftTransactions(network, options.tokenId, options.serialNumber),
     queryFn: async () => {
       return client.token.getNftTransactions(options.tokenId, options.serialNumber, options.params);
     },
@@ -178,10 +183,11 @@ export function useTokenNftTransactions(
 
 export function useTokens(options: UseTokensOptions = {}): UseTokensResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.token.list(),
+    queryKey: mirrorNodeKeys.token.list(network),
     queryFn: async () => {
       return client.token.listPaginated(options.params);
     },
@@ -190,10 +196,11 @@ export function useTokens(options: UseTokensOptions = {}): UseTokensResult {
 
 export function useTokensInfinite(options: UseTokensInfiniteOptions): UseTokensInfiniteResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useInfiniteQuery({
     ...options,
-    queryKey: mirrorNodeKeys.token.list(),
+    queryKey: mirrorNodeKeys.token.list(network),
     queryFn: async () => {
       const params = {
         ...options.params,

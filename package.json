@@ -8,13 +8,16 @@
     ],
     "scripts": {
         "fmt": "bun --filter '*' fmt",
-        "fmt:web": "bun --filter '@hiecom/mirror-node' fmt",
-        "fmt:api": "bun --filter '@hiecom/react-mirror-node' fmt",
+        "fmt:mirror-core": "bun --filter '@hiecom/mirror-node' fmt",
+        "fmt:mirror-react": "bun --filter '@hiecom/react-mirror-node' fmt",
         "lint": "bun --filter '*' lint",
-        "lint:web": "bun --filter '@hiecom/mirror-node' lint",
-        "lint:api": "bun --filter '@hiecom/react-mirror-node' lint",
+        "lint:mirror-core": "bun --filter '@hiecom/mirror-node' lint",
+        "lint:mirror-react": "bun --filter '@hiecom/react-mirror-node' lint",
         "typecheck": "bun --filter '*' typecheck",
-        "typecheck:web": "bun --filter '@hiecom/mirror-node' typecheck",
-        "typecheck:api": "bun --filter '@hiecom/react-mirror-node' typecheck"
+        "typecheck:mirror-core": "bun --filter '@hiecom/mirror-node' typecheck",
+        "typecheck:mirror-react": "bun --filter '@hiecom/react-mirror-node' typecheck",
+        "build": "bun --filter '*' build",
+        "build:mirror-core": "bun --filter '@hiecom/mirror-node' build",
+        "build:mirror-react": "bun --filter '@hiecom/react-mirror-node' build"
     }
 }

@@ -7,7 +7,7 @@ import type {
 } from "@tanstack/react-query";
 import type { ApiResult, ApiError, EntityId, PaginationParams } from "@hiecom/mirror-node";
 import type { Topic, TopicMessage } from "@hiecom/mirror-node";
-import { useMirrorNodeClient } from "../../../react/hooks";
+import { useMirrorNodeClient, useNetwork } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
 export type { TopicMessagesParams } from "@hiecom/mirror-node";
@@ -75,10 +75,11 @@ export type UseTopicsInfiniteResult = UseInfiniteQueryResult<
 
 export function useTopicInfo(options: UseTopicInfoOptions): UseTopicInfoResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.topic.info(options.topicId),
+    queryKey: mirrorNodeKeys.topic.info(network, options.topicId),
     queryFn: async () => {
       return client.topic.getInfo(options.topicId);
     },
@@ -87,10 +88,11 @@ export function useTopicInfo(options: UseTopicInfoOptions): UseTopicInfoResult {
 
 export function useTopicMessages(options: UseTopicMessagesOptions): UseTopicMessagesResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.topic.messages(options.topicId),
+    queryKey: mirrorNodeKeys.topic.messages(network, options.topicId),
     queryFn: async () => {
       return client.topic.getMessages(options.topicId, options.params);
     },
@@ -99,10 +101,11 @@ export function useTopicMessages(options: UseTopicMessagesOptions): UseTopicMess
 
 export function useTopicMessage(options: UseTopicMessageOptions): UseTopicMessageResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.topic.message(options.topicId, options.sequenceNumber),
+    queryKey: mirrorNodeKeys.topic.message(network, options.topicId, options.sequenceNumber),
     queryFn: async () => {
       return client.topic.getMessage(options.topicId, options.sequenceNumber);
     },
@@ -111,10 +114,11 @@ export function useTopicMessage(options: UseTopicMessageOptions): UseTopicMessag
 
 export function useTopics(options: UseTopicsOptions = {}): UseTopicsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.topic.list(),
+    queryKey: mirrorNodeKeys.topic.list(network),
     queryFn: async () => {
       return client.topic.listPaginated(options.params);
     },
@@ -123,10 +127,11 @@ export function useTopics(options: UseTopicsOptions = {}): UseTopicsResult {
 
 export function useTopicsInfinite(options: UseTopicsInfiniteOptions): UseTopicsInfiniteResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useInfiniteQuery({
     ...options,
-    queryKey: mirrorNodeKeys.topic.list(),
+    queryKey: mirrorNodeKeys.topic.list(network),
     queryFn: async () => {
       const params = {
         ...options.params,
@@ -163,10 +168,11 @@ export function useTopicMessageByTimestamp(
   options: UseTopicMessageByTimestampOptions,
 ): UseTopicMessageByTimestampResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.topic.messageByTimestamp(options.timestamp),
+    queryKey: mirrorNodeKeys.topic.messageByTimestamp(network, options.timestamp),
     queryFn: async () => {
       return client.topic.getMessageByTimestamp(options.timestamp);
     },

@@ -1,4 +1,4 @@
 export { MirrorNodeContext, MirrorNodeProvider } from "./provider";
-export { useMirrorNodeClient, useMirrorNodeContext } from "./hooks";
-export type { MirrorNodeContextValue } from "./hooks";
+export { useMirrorNodeClient, useMirrorNodeContext, useNetwork } from "./hooks";
+export type { MirrorNodeContextValue, NetworkState, AnyNetwork } from "./hooks";
 export * from "./components";

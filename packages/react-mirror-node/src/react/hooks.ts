@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { MirrorNodeContext } from "./provider";
 import type { MirrorNodeClient } from "@hiecom/mirror-node";
+import type { MirrorNodeContextValue, NetworkState, AnyNetwork } from "./provider";
 
 export function useMirrorNodeContext(): MirrorNodeContextValue {
   const context = useContext(MirrorNodeContext);
@@ -18,6 +19,14 @@ export function useMirrorNodeClient(): MirrorNodeClient {
   return client;
 }
 
-export interface MirrorNodeContextValue {
-  client: MirrorNodeClient;
+export function useNetwork(): NetworkState {
+  const { network, mirrorNodeUrl, switchNetwork } = useMirrorNodeContext();
+
+  return {
+    network,
+    mirrorNodeUrl,
+    switchNetwork,
+  };
 }
+
+export type { AnyNetwork, MirrorNodeContextValue, NetworkState };

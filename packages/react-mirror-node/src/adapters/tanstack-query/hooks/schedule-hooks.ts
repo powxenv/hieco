@@ -7,7 +7,7 @@ import type {
 } from "@tanstack/react-query";
 import type { ApiResult, ApiError, EntityId, QueryOperator } from "@hiecom/mirror-node";
 import type { Schedule } from "@hiecom/mirror-node";
-import { useMirrorNodeClient } from "../../../react/hooks";
+import { useMirrorNodeClient, useNetwork } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
 export type { ScheduleListParams } from "@hiecom/mirror-node";
@@ -60,10 +60,11 @@ export type UseSchedulesInfiniteResult = UseInfiniteQueryResult<
 
 export function useScheduleInfo(options: UseScheduleInfoOptions): UseScheduleInfoResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.schedule.info(options.scheduleId),
+    queryKey: mirrorNodeKeys.schedule.info(network, options.scheduleId),
     queryFn: async () => {
       return client.schedule.getInfo(options.scheduleId);
     },
@@ -73,10 +74,11 @@ export function useScheduleInfo(options: UseScheduleInfoOptions): UseScheduleInf
 
 export function useSchedules(options: UseSchedulesOptions = {}): UseSchedulesResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.schedule.list(),
+    queryKey: mirrorNodeKeys.schedule.list(network),
     queryFn: async () => {
       return client.schedule.listPaginated(options.params);
     },
@@ -87,10 +89,11 @@ export function useSchedulesInfinite(
   options: UseSchedulesInfiniteOptions,
 ): UseSchedulesInfiniteResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useInfiniteQuery({
     ...options,
-    queryKey: mirrorNodeKeys.schedule.list(),
+    queryKey: mirrorNodeKeys.schedule.list(network),
     queryFn: async () => {
       const params = {
         ...options.params,

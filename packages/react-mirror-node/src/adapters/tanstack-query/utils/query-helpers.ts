@@ -60,8 +60,14 @@ const METHOD_MAPPINGS: readonly MethodMapping[] = [
   { apiProperty: "block", methodName: "getBlock", entityName: "block", resourceKeyPattern: ["info"] },
 ] as const;
 
-function isValidMirrorNodeKey(key: unknown): key is readonly ["mirror-node", string, ...unknown[]] {
-  return Array.isArray(key) && key.length >= 3 && key[0] === "mirror-node" && typeof key[1] === "string";
+function isValidMirrorNodeKey(key: unknown): key is readonly ["mirror-node", string, string, ...unknown[]] {
+  return (
+    Array.isArray(key) &&
+    key.length >= 4 &&
+    key[0] === "mirror-node" &&
+    typeof key[1] === "string" &&
+    typeof key[2] === "string"
+  );
 }
 
 function findMethodMapping(queryKey: readonly unknown[]): { mapping: MethodMapping; args: unknown[] } | null {
@@ -69,7 +75,7 @@ function findMethodMapping(queryKey: readonly unknown[]): { mapping: MethodMappi
     return null;
   }
 
-  const [, entity, ...queryKeyParts] = queryKey;
+  const [, , entity, ...queryKeyParts] = queryKey;
 
   for (const mapping of METHOD_MAPPINGS) {
     const isEntityMatch = entity === mapping.entityName || entity === `${mapping.entityName}s`;

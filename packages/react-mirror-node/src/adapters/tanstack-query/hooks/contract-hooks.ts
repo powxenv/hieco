@@ -18,7 +18,7 @@ import type {
   ContractAction,
   ContractOpcodesResponse,
 } from "@hiecom/mirror-node";
-import { useMirrorNodeClient } from "../../../react/hooks";
+import { useMirrorNodeClient, useNetwork } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
 export type {
@@ -138,10 +138,11 @@ export type UseContractsInfiniteResult = UseInfiniteQueryResult<
 
 export function useContractInfo(options: UseContractInfoOptions): UseContractInfoResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.info(options.contractIdOrAddress),
+    queryKey: mirrorNodeKeys.contract.info(network, options.contractIdOrAddress),
     queryFn: async () => {
       return client.contract.getInfo(options.contractIdOrAddress);
     },
@@ -150,10 +151,11 @@ export function useContractInfo(options: UseContractInfoOptions): UseContractInf
 
 export function useContractCall(options: UseContractCallOptions): UseContractCallResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.call(),
+    queryKey: mirrorNodeKeys.contract.call(network),
     queryFn: async () => {
       return client.contract.call(options.params);
     },
@@ -162,10 +164,11 @@ export function useContractCall(options: UseContractCallOptions): UseContractCal
 
 export function useContractResults(options: UseContractResultsOptions): UseContractResultsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.results(options.contractId),
+    queryKey: mirrorNodeKeys.contract.results(network, options.contractId),
     queryFn: async () => {
       return client.contract.getResults(options.contractId, options.params);
     },
@@ -174,10 +177,11 @@ export function useContractResults(options: UseContractResultsOptions): UseContr
 
 export function useContractResult(options: UseContractResultOptions): UseContractResultResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.result(options.contractId, options.timestamp),
+    queryKey: mirrorNodeKeys.contract.result(network, options.contractId, options.timestamp),
     queryFn: async () => {
       return client.contract.getResult(options.contractId, options.timestamp);
     },
@@ -186,10 +190,11 @@ export function useContractResult(options: UseContractResultOptions): UseContrac
 
 export function useContractState(options: UseContractStateOptions): UseContractStateResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.state(options.contractId),
+    queryKey: mirrorNodeKeys.contract.state(network, options.contractId),
     queryFn: async () => {
       return client.contract.getState(options.contractId, options.params);
     },
@@ -198,10 +203,11 @@ export function useContractState(options: UseContractStateOptions): UseContractS
 
 export function useContractLogs(options: UseContractLogsOptions): UseContractLogsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.logs(options.contractId),
+    queryKey: mirrorNodeKeys.contract.logs(network, options.contractId),
     queryFn: async () => {
       return client.contract.getLogs(options.contractId, options.params);
     },
@@ -210,10 +216,11 @@ export function useContractLogs(options: UseContractLogsOptions): UseContractLog
 
 export function useContracts(options: UseContractsOptions = {}): UseContractsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.list(),
+    queryKey: mirrorNodeKeys.contract.list(network),
     queryFn: async () => {
       return client.contract.listPaginated(options.params);
     },
@@ -224,10 +231,11 @@ export function useContractsInfinite(
   options: UseContractsInfiniteOptions,
 ): UseContractsInfiniteResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useInfiniteQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.list(),
+    queryKey: mirrorNodeKeys.contract.list(network),
     queryFn: async () => {
       const params = {
         ...options.params,
@@ -330,10 +338,11 @@ export function useContractAllResults(
   options: UseContractAllResultsOptions = {},
 ): UseContractAllResultsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.allResults(),
+    queryKey: mirrorNodeKeys.contract.allResults(network),
     queryFn: async () => {
       return client.contract.getAllResults(options.params);
     },
@@ -344,10 +353,11 @@ export function useContractResultByTransactionIdOrHash(
   options: UseContractResultByTransactionIdOrHashOptions,
 ): UseContractResultByTransactionIdOrHashResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.resultByTx(options.transactionIdOrHash),
+    queryKey: mirrorNodeKeys.contract.resultByTx(network, options.transactionIdOrHash),
     queryFn: async () => {
       return client.contract.getResultByTransactionIdOrHash(
         options.transactionIdOrHash,
@@ -361,10 +371,11 @@ export function useContractResultActions(
   options: UseContractResultActionsOptions,
 ): UseContractResultActionsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.resultActions(options.transactionIdOrHash),
+    queryKey: mirrorNodeKeys.contract.resultActions(network, options.transactionIdOrHash),
     queryFn: async () => {
       return client.contract.getResultActions(options.transactionIdOrHash);
     },
@@ -375,10 +386,11 @@ export function useContractResultOpcodes(
   options: UseContractResultOpcodesOptions,
 ): UseContractResultOpcodesResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.resultOpcodes(options.transactionIdOrHash),
+    queryKey: mirrorNodeKeys.contract.resultOpcodes(network, options.transactionIdOrHash),
     queryFn: async () => {
       return client.contract.getResultOpcodes(options.transactionIdOrHash);
     },
@@ -389,10 +401,11 @@ export function useContractAllLogs(
   options: UseContractAllLogsOptions = {},
 ): UseContractAllLogsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.contract.allLogs(),
+    queryKey: mirrorNodeKeys.contract.allLogs(network),
     queryFn: async () => {
       return client.contract.getAllContractLogs(options.params);
     },

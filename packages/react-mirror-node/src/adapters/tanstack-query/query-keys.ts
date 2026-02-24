@@ -1,76 +1,76 @@
 export const mirrorNodeKeys = {
   account: {
-    info: (id: string) => ["mirror-node", "account", "info", id] as const,
-    balances: (id: string) => ["mirror-node", "account", "balances", id] as const,
-    tokens: (id: string) => ["mirror-node", "account", "tokens", id] as const,
-    nfts: (id: string) => ["mirror-node", "account", "nfts", id] as const,
-    stakingRewards: (id: string) => ["mirror-node", "account", "rewards", id] as const,
-    cryptoAllowances: (id: string) =>
-      ["mirror-node", "account", "allowances", "crypto", id] as const,
-    tokenAllowances: (id: string) => ["mirror-node", "account", "allowances", "token", id] as const,
-    nftAllowances: (id: string) => ["mirror-node", "account", "allowances", "nft", id] as const,
-    outstandingAirdrops: (id: string) =>
-      ["mirror-node", "account", "airdrops", "outstanding", id] as const,
-    pendingAirdrops: (id: string) => ["mirror-node", "account", "airdrops", "pending", id] as const,
-    list: () => ["mirror-node", "accounts", "list"] as const,
+    info: (network: string, id: string) => ["mirror-node", network, "account", "info", id] as const,
+    balances: (network: string, id: string) => ["mirror-node", network, "account", "balances", id] as const,
+    tokens: (network: string, id: string) => ["mirror-node", network, "account", "tokens", id] as const,
+    nfts: (network: string, id: string) => ["mirror-node", network, "account", "nfts", id] as const,
+    stakingRewards: (network: string, id: string) => ["mirror-node", network, "account", "rewards", id] as const,
+    cryptoAllowances: (network: string, id: string) =>
+      ["mirror-node", network, "account", "allowances", "crypto", id] as const,
+    tokenAllowances: (network: string, id: string) => ["mirror-node", network, "account", "allowances", "token", id] as const,
+    nftAllowances: (network: string, id: string) => ["mirror-node", network, "account", "allowances", "nft", id] as const,
+    outstandingAirdrops: (network: string, id: string) =>
+      ["mirror-node", network, "account", "airdrops", "outstanding", id] as const,
+    pendingAirdrops: (network: string, id: string) => ["mirror-node", network, "account", "airdrops", "pending", id] as const,
+    list: (network: string) => ["mirror-node", network, "accounts", "list"] as const,
   },
   token: {
-    info: (id: string) => ["mirror-node", "token", "info", id] as const,
-    balances: (id: string) => ["mirror-node", "token", "balances", id] as const,
-    nfts: (id: string) => ["mirror-node", "token", "nfts", id] as const,
-    nft: (tokenId: string, serialNumber: number) =>
-      ["mirror-node", "token", "nft", tokenId, serialNumber] as const,
-    nftTransactions: (tokenId: string, serialNumber: number) =>
-      ["mirror-node", "token", "nft", "transactions", tokenId, serialNumber] as const,
-    list: () => ["mirror-node", "tokens", "list"] as const,
+    info: (network: string, id: string) => ["mirror-node", network, "token", "info", id] as const,
+    balances: (network: string, id: string) => ["mirror-node", network, "token", "balances", id] as const,
+    nfts: (network: string, id: string) => ["mirror-node", network, "token", "nfts", id] as const,
+    nft: (network: string, tokenId: string, serialNumber: number) =>
+      ["mirror-node", network, "token", "nft", tokenId, serialNumber] as const,
+    nftTransactions: (network: string, tokenId: string, serialNumber: number) =>
+      ["mirror-node", network, "token", "nft", "transactions", tokenId, serialNumber] as const,
+    list: (network: string) => ["mirror-node", network, "tokens", "list"] as const,
   },
   contract: {
-    info: (id: string) => ["mirror-node", "contract", "info", id] as const,
-    results: (id: string) => ["mirror-node", "contract", "results", id] as const,
-    result: (id: string, timestamp: string) =>
-      ["mirror-node", "contract", "result", id, timestamp] as const,
-    state: (id: string) => ["mirror-node", "contract", "state", id] as const,
-    logs: (id: string) => ["mirror-node", "contract", "logs", id] as const,
-    allResults: () => ["mirror-node", "contract", "results", "all"] as const,
-    resultByTx: (txHash: string) => ["mirror-node", "contract", "results", "byTx", txHash] as const,
-    resultActions: (txHash: string) =>
-      ["mirror-node", "contract", "results", "actions", txHash] as const,
-    resultOpcodes: (txHash: string) =>
-      ["mirror-node", "contract", "results", "opcodes", txHash] as const,
-    allLogs: () => ["mirror-node", "contract", "results", "logs", "all"] as const,
-    call: () => ["mirror-node", "contract", "call"] as const,
-    list: () => ["mirror-node", "contracts", "list"] as const,
+    info: (network: string, id: string) => ["mirror-node", network, "contract", "info", id] as const,
+    results: (network: string, id: string) => ["mirror-node", network, "contract", "results", id] as const,
+    result: (network: string, id: string, timestamp: string) =>
+      ["mirror-node", network, "contract", "result", id, timestamp] as const,
+    state: (network: string, id: string) => ["mirror-node", network, "contract", "state", id] as const,
+    logs: (network: string, id: string) => ["mirror-node", network, "contract", "logs", id] as const,
+    allResults: (network: string) => ["mirror-node", network, "contract", "results", "all"] as const,
+    resultByTx: (network: string, txHash: string) => ["mirror-node", network, "contract", "results", "byTx", txHash] as const,
+    resultActions: (network: string, txHash: string) =>
+      ["mirror-node", network, "contract", "results", "actions", txHash] as const,
+    resultOpcodes: (network: string, txHash: string) =>
+      ["mirror-node", network, "contract", "results", "opcodes", txHash] as const,
+    allLogs: (network: string) => ["mirror-node", network, "contract", "results", "logs", "all"] as const,
+    call: (network: string) => ["mirror-node", network, "contract", "call"] as const,
+    list: (network: string) => ["mirror-node", network, "contracts", "list"] as const,
   },
   transaction: {
-    info: (id: string) => ["mirror-node", "transaction", "info", id] as const,
-    byAccount: (id: string) => ["mirror-node", "transaction", "account", id] as const,
-    list: () => ["mirror-node", "transactions", "list"] as const,
+    info: (network: string, id: string) => ["mirror-node", network, "transaction", "info", id] as const,
+    byAccount: (network: string, id: string) => ["mirror-node", network, "transaction", "account", id] as const,
+    list: (network: string) => ["mirror-node", network, "transactions", "list"] as const,
   },
   topic: {
-    info: (id: string) => ["mirror-node", "topic", "info", id] as const,
-    messages: (id: string) => ["mirror-node", "topic", "messages", id] as const,
-    message: (id: string, sequenceNumber: number) =>
-      ["mirror-node", "topic", "message", id, sequenceNumber] as const,
-    messageByTimestamp: (timestamp: string) =>
-      ["mirror-node", "topic", "message", "byTimestamp", timestamp] as const,
-    list: () => ["mirror-node", "topics", "list"] as const,
+    info: (network: string, id: string) => ["mirror-node", network, "topic", "info", id] as const,
+    messages: (network: string, id: string) => ["mirror-node", network, "topic", "messages", id] as const,
+    message: (network: string, id: string, sequenceNumber: number) =>
+      ["mirror-node", network, "topic", "message", id, sequenceNumber] as const,
+    messageByTimestamp: (network: string, timestamp: string) =>
+      ["mirror-node", network, "topic", "message", "byTimestamp", timestamp] as const,
+    list: (network: string) => ["mirror-node", network, "topics", "list"] as const,
   },
   schedule: {
-    info: (id: string) => ["mirror-node", "schedule", "info", id] as const,
-    list: () => ["mirror-node", "schedules", "list"] as const,
+    info: (network: string, id: string) => ["mirror-node", network, "schedule", "info", id] as const,
+    list: (network: string) => ["mirror-node", network, "schedules", "list"] as const,
   },
   network: {
-    exchangeRate: () => ["mirror-node", "network", "exchange-rate"] as const,
-    fees: () => ["mirror-node", "network", "fees"] as const,
-    nodes: () => ["mirror-node", "network", "nodes"] as const,
-    stake: () => ["mirror-node", "network", "stake"] as const,
-    supply: () => ["mirror-node", "network", "supply"] as const,
+    exchangeRate: (network: string) => ["mirror-node", network, "network", "exchange-rate"] as const,
+    fees: (network: string) => ["mirror-node", network, "network", "fees"] as const,
+    nodes: (network: string) => ["mirror-node", network, "network", "nodes"] as const,
+    stake: (network: string) => ["mirror-node", network, "network", "stake"] as const,
+    supply: (network: string) => ["mirror-node", network, "network", "supply"] as const,
   },
   balance: {
-    list: () => ["mirror-node", "balances", "list"] as const,
+    list: (network: string) => ["mirror-node", network, "balances", "list"] as const,
   },
   block: {
-    list: () => ["mirror-node", "blocks", "list"] as const,
-    info: (hashOrNumber: string) => ["mirror-node", "block", "info", hashOrNumber] as const,
+    list: (network: string) => ["mirror-node", network, "blocks", "list"] as const,
+    info: (network: string, hashOrNumber: string) => ["mirror-node", network, "block", "info", hashOrNumber] as const,
   },
 };

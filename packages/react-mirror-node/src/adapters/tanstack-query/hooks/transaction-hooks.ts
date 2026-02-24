@@ -7,7 +7,7 @@ import type {
 } from "@tanstack/react-query";
 import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hiecom/mirror-node";
 import type { Transaction, TransactionDetails } from "@hiecom/mirror-node";
-import { useMirrorNodeClient } from "../../../react/hooks";
+import { useMirrorNodeClient, useNetwork } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
 export type { TransactionListParams, TransactionsByAccountParams } from "@hiecom/mirror-node";
@@ -79,10 +79,11 @@ export type UseTransactionsInfiniteResult = UseInfiniteQueryResult<
 
 export function useTransaction(options: UseTransactionOptions): UseTransactionResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.transaction.info(options.transactionId),
+    queryKey: mirrorNodeKeys.transaction.info(network, options.transactionId),
     queryFn: async () => {
       return client.transaction.getById(options.transactionId);
     },
@@ -94,10 +95,11 @@ export function useTransactionsByAccount(
   options: UseTransactionsByAccountOptions,
 ): UseTransactionsByAccountResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.transaction.byAccount(options.accountId),
+    queryKey: mirrorNodeKeys.transaction.byAccount(network, options.accountId),
     queryFn: async () => {
       return client.transaction.listByAccount(options.accountId, options.params);
     },
@@ -107,10 +109,11 @@ export function useTransactionsByAccount(
 
 export function useTransactions(options: UseTransactionsOptions = {}): UseTransactionsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.transaction.list(),
+    queryKey: mirrorNodeKeys.transaction.list(network),
     queryFn: async () => {
       return client.transaction.listPaginated(options.params);
     },
@@ -121,10 +124,11 @@ export function useTransactionsInfinite(
   options: UseTransactionsInfiniteOptions,
 ): UseTransactionsInfiniteResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useInfiniteQuery({
     ...options,
-    queryKey: mirrorNodeKeys.transaction.list(),
+    queryKey: mirrorNodeKeys.transaction.list(network),
     queryFn: async () => {
       const params = {
         ...options.params,

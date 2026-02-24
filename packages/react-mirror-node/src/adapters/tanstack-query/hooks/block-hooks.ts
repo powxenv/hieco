@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
 import type { ApiResult, ApiError, Timestamp } from "@hiecom/mirror-node";
 import type { BlocksResponse, Block } from "@hiecom/mirror-node";
-import { useMirrorNodeClient } from "../../../react/hooks";
+import { useMirrorNodeClient, useNetwork } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
 export type { BlocksListParams } from "@hiecom/mirror-node";
@@ -35,10 +35,11 @@ export type UseBlockResult = UseQueryResult<BlockQueryFnData<Block>, BlockQueryE
 
 export function useBlocks(options: UseBlocksOptions = {}): UseBlocksResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.block.list(),
+    queryKey: mirrorNodeKeys.block.list(network),
     queryFn: async () => {
       return client.block.getBlocks(options.params);
     },
@@ -47,10 +48,11 @@ export function useBlocks(options: UseBlocksOptions = {}): UseBlocksResult {
 
 export function useBlock(options: UseBlockOptions): UseBlockResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.block.info(options.hashOrNumber),
+    queryKey: mirrorNodeKeys.block.info(network, options.hashOrNumber),
     queryFn: async () => {
       return client.block.getBlock(options.hashOrNumber);
     },

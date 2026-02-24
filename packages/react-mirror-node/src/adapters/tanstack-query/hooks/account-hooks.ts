@@ -22,7 +22,7 @@ import type {
   TokenAllowance,
   TokenAirdropsResponse,
 } from "@hiecom/mirror-node";
-import { useMirrorNodeClient } from "../../../react/hooks";
+import { useMirrorNodeClient, useNetwork } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
 export type { AccountListParams, AccountNftsParams } from "@hiecom/mirror-node";
@@ -172,10 +172,11 @@ export type UseAccountsInfiniteResult = UseInfiniteQueryResult<
 
 export function useAccountInfo(options: UseAccountInfoOptions): UseAccountInfoResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.account.info(options.accountId),
+    queryKey: mirrorNodeKeys.account.info(network, options.accountId),
     queryFn: async () => {
       return client.account.getInfo(options.accountId);
     },
@@ -184,10 +185,11 @@ export function useAccountInfo(options: UseAccountInfoOptions): UseAccountInfoRe
 
 export function useAccountBalances(options: UseAccountBalancesOptions): UseAccountBalancesResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.account.balances(options.accountId),
+    queryKey: mirrorNodeKeys.account.balances(network, options.accountId),
     queryFn: async () => {
       return client.account.getBalances(options.accountId);
     },
@@ -196,10 +198,11 @@ export function useAccountBalances(options: UseAccountBalancesOptions): UseAccou
 
 export function useAccountTokens(options: UseAccountTokensOptions): UseAccountTokensResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.account.tokens(options.accountId),
+    queryKey: mirrorNodeKeys.account.tokens(network, options.accountId),
     queryFn: async () => {
       return client.account.getTokens(options.accountId, options.params);
     },
@@ -208,10 +211,11 @@ export function useAccountTokens(options: UseAccountTokensOptions): UseAccountTo
 
 export function useAccountNfts(options: UseAccountNftsOptions): UseAccountNftsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.account.nfts(options.accountId),
+    queryKey: mirrorNodeKeys.account.nfts(network, options.accountId),
     queryFn: async () => {
       return client.account.getNfts(options.accountId, options.params);
     },
@@ -222,10 +226,11 @@ export function useAccountStakingRewards(
   options: UseAccountStakingRewardsOptions,
 ): UseAccountStakingRewardsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.account.stakingRewards(options.accountId),
+    queryKey: mirrorNodeKeys.account.stakingRewards(network, options.accountId),
     queryFn: async () => {
       return client.account.getStakingRewards(options.accountId, options.params);
     },
@@ -236,10 +241,11 @@ export function useAccountCryptoAllowances(
   options: UseAccountCryptoAllowancesOptions,
 ): UseAccountCryptoAllowancesResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.account.cryptoAllowances(options.accountId),
+    queryKey: mirrorNodeKeys.account.cryptoAllowances(network, options.accountId),
     queryFn: async () => {
       return client.account.getCryptoAllowances(options.accountId);
     },
@@ -250,10 +256,11 @@ export function useAccountTokenAllowances(
   options: UseAccountTokenAllowancesOptions,
 ): UseAccountTokenAllowancesResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.account.tokenAllowances(options.accountId),
+    queryKey: mirrorNodeKeys.account.tokenAllowances(network, options.accountId),
     queryFn: async () => {
       return client.account.getTokenAllowances(options.accountId, options.params);
     },
@@ -264,10 +271,11 @@ export function useAccountNftAllowances(
   options: UseAccountNftAllowancesOptions,
 ): UseAccountNftAllowancesResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.account.nftAllowances(options.accountId),
+    queryKey: mirrorNodeKeys.account.nftAllowances(network, options.accountId),
     queryFn: async () => {
       return client.account.getNftAllowances(options.accountId, options.params);
     },
@@ -276,10 +284,11 @@ export function useAccountNftAllowances(
 
 export function useAccounts(options: UseAccountsOptions = {}): UseAccountsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.account.list(),
+    queryKey: mirrorNodeKeys.account.list(network),
     queryFn: async () => {
       return client.account.listPaginated(options.params);
     },
@@ -290,10 +299,11 @@ export function useAccountsInfinite(
   options: UseAccountsInfiniteOptions,
 ): UseAccountsInfiniteResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useInfiniteQuery({
     ...options,
-    queryKey: mirrorNodeKeys.account.list(),
+    queryKey: mirrorNodeKeys.account.list(network),
     queryFn: async () => {
       const params = {
         ...options.params,
@@ -356,10 +366,11 @@ export function useAccountOutstandingAirdrops(
   options: UseAccountOutstandingAirdropsOptions,
 ): UseAccountOutstandingAirdropsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.account.outstandingAirdrops(options.accountId),
+    queryKey: mirrorNodeKeys.account.outstandingAirdrops(network, options.accountId),
     queryFn: async () => {
       return client.account.getOutstandingAirdrops(options.accountId, options.params);
     },
@@ -370,10 +381,11 @@ export function useAccountPendingAirdrops(
   options: UseAccountPendingAirdropsOptions,
 ): UseAccountPendingAirdropsResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.account.pendingAirdrops(options.accountId),
+    queryKey: mirrorNodeKeys.account.pendingAirdrops(network, options.accountId),
     queryFn: async () => {
       return client.account.getPendingAirdrops(options.accountId, options.params);
     },

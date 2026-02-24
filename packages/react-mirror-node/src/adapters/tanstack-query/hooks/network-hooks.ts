@@ -8,7 +8,7 @@ import type {
   NetworkStake,
   NetworkSupply,
 } from "@hiecom/mirror-node";
-import { useMirrorNodeClient } from "../../../react/hooks";
+import { useMirrorNodeClient, useNetwork } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
 type NetworkQueryFnData<T> = ApiResult<T>;
@@ -68,10 +68,11 @@ export function useNetworkExchangeRate(
   options: UseNetworkExchangeRateOptions = {},
 ): UseNetworkExchangeRateResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.network.exchangeRate(),
+    queryKey: mirrorNodeKeys.network.exchangeRate(network),
     queryFn: async () => {
       return client.network.getExchangeRate();
     },
@@ -80,10 +81,11 @@ export function useNetworkExchangeRate(
 
 export function useNetworkFees(options: UseNetworkFeesOptions = {}): UseNetworkFeesResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.network.fees(),
+    queryKey: mirrorNodeKeys.network.fees(network),
     queryFn: async () => {
       return client.network.getFees();
     },
@@ -92,10 +94,11 @@ export function useNetworkFees(options: UseNetworkFeesOptions = {}): UseNetworkF
 
 export function useNetworkNodes(options: UseNetworkNodesOptions = {}): UseNetworkNodesResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.network.nodes(),
+    queryKey: mirrorNodeKeys.network.nodes(network),
     queryFn: async () => {
       return client.network.getNodes();
     },
@@ -104,10 +107,11 @@ export function useNetworkNodes(options: UseNetworkNodesOptions = {}): UseNetwor
 
 export function useNetworkStake(options: UseNetworkStakeOptions = {}): UseNetworkStakeResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.network.stake(),
+    queryKey: mirrorNodeKeys.network.stake(network),
     queryFn: async () => {
       return client.network.getStake();
     },
@@ -116,10 +120,11 @@ export function useNetworkStake(options: UseNetworkStakeOptions = {}): UseNetwor
 
 export function useNetworkSupply(options: UseNetworkSupplyOptions = {}): UseNetworkSupplyResult {
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.network.supply(),
+    queryKey: mirrorNodeKeys.network.supply(network),
     queryFn: async () => {
       return client.network.getSupply();
     },

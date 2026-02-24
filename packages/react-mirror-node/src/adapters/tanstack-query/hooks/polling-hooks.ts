@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
 import type { ApiResult, ApiError, TransactionDetails } from "@hiecom/mirror-node";
 import type { EntityId } from "@hiecom/mirror-node";
-import { useMirrorNodeClient } from "../../../react/hooks";
+import { useMirrorNodeClient, useNetwork } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 import { isSuccess, isApiError } from "../utils/type-guards";
 
@@ -32,11 +32,12 @@ export function usePollTransaction(options: UsePollTransactionOptions): UsePollT
   } = options;
 
   const client = useMirrorNodeClient();
+  const { network } = useNetwork();
   const attemptsRef = useRef(0);
 
   return useQuery({
     ...queryOptions,
-    queryKey: mirrorNodeKeys.transaction.info(transactionId),
+    queryKey: mirrorNodeKeys.transaction.info(network, transactionId),
     queryFn: async () => {
       attemptsRef.current++;
       if (attemptsRef.current > maxAttempts) {
