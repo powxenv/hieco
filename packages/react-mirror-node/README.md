@@ -70,7 +70,7 @@ await prefetchQuery(queryClient, client, mirrorNodeKeys.network.exchangeRate());
 
 // Invalidate by exact key
 await invalidateQueries(queryClient, {
-  exactKey: mirrorNodeKeys.account.info(accountId)
+  exactKey: mirrorNodeKeys.account.info(accountId),
 });
 
 // Invalidate by entity type (type-safe)
@@ -79,7 +79,7 @@ await invalidateQueries(queryClient, { entityType: "account" });
 // Invalidate by entity + ID
 await invalidateQueries(queryClient, {
   entityType: "account",
-  resourceId: accountId
+  resourceId: accountId,
 });
 
 // Invalidate all mirror-node queries

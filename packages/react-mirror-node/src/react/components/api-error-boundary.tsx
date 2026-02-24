@@ -21,10 +21,7 @@ export interface ApiErrorBoundaryState {
   readonly error: ApiError | null;
 }
 
-export class ApiErrorBoundary extends Component<
-  ApiErrorBoundaryProps,
-  ApiErrorBoundaryState
-> {
+export class ApiErrorBoundary extends Component<ApiErrorBoundaryProps, ApiErrorBoundaryState> {
   constructor(props: ApiErrorBoundaryProps) {
     super(props);
     this.state = { error: null };
@@ -63,10 +60,7 @@ export class ApiErrorBoundary extends Component<
 
 function isApiError(error: unknown): error is ApiError {
   return (
-    typeof error === "object" &&
-    error !== null &&
-    "_tag" in error &&
-    typeof error._tag === "string"
+    typeof error === "object" && error !== null && "_tag" in error && typeof error._tag === "string"
   );
 }
 

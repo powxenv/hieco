@@ -1,10 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { EntityId } from "@hiecom/mirror-node";
-import type {
-  AccountInfo,
-  Balance,
-  TokenRelationship,
-} from "@hiecom/mirror-node";
+import type { AccountInfo, Balance, TokenRelationship } from "@hiecom/mirror-node";
 import { useMirrorNodeClient, useNetwork } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 import { isSuccess } from "../utils/type-guards";

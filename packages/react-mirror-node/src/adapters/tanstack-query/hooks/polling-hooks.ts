@@ -17,10 +17,7 @@ export interface UsePollTransactionOptions extends Omit<
   readonly stopOnConfirmed?: boolean;
 }
 
-export type UsePollTransactionResult = UseQueryResult<
-  ApiResult<TransactionDetails>,
-  ApiError
->;
+export type UsePollTransactionResult = UseQueryResult<ApiResult<TransactionDetails>, ApiError>;
 
 export function usePollTransaction(options: UsePollTransactionOptions): UsePollTransactionResult {
   const {

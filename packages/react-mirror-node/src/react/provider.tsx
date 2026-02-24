@@ -74,7 +74,10 @@ function isDefaultNetwork(network: AnyNetwork): network is NetworkType {
   return network === "mainnet" || network === "testnet" || network === "previewnet";
 }
 
-function getNetworkUrl(network: AnyNetwork, customNetworks: Record<string, string>): string | undefined {
+function getNetworkUrl(
+  network: AnyNetwork,
+  customNetworks: Record<string, string>,
+): string | undefined {
   if (isDefaultNetwork(network)) {
     return customNetworks[network] ?? DEFAULT_MIRROR_NODE_URLS[network];
   }

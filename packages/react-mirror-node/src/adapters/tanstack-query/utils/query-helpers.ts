@@ -11,56 +11,288 @@ type MethodMapping = {
 };
 
 const METHOD_MAPPINGS: readonly MethodMapping[] = [
-  { apiProperty: "account", methodName: "getInfo", entityName: "account", resourceKeyPattern: ["info"] },
-  { apiProperty: "account", methodName: "getBalances", entityName: "account", resourceKeyPattern: ["balances"] },
-  { apiProperty: "account", methodName: "getTokens", entityName: "account", resourceKeyPattern: ["tokens"] },
-  { apiProperty: "account", methodName: "getNfts", entityName: "account", resourceKeyPattern: ["nfts"] },
-  { apiProperty: "account", methodName: "getStakingRewards", entityName: "account", resourceKeyPattern: ["rewards"] },
-  { apiProperty: "account", methodName: "getCryptoAllowances", entityName: "account", resourceKeyPattern: ["allowances", "crypto"] },
-  { apiProperty: "account", methodName: "getTokenAllowances", entityName: "account", resourceKeyPattern: ["allowances", "token"] },
-  { apiProperty: "account", methodName: "getNftAllowances", entityName: "account", resourceKeyPattern: ["allowances", "nft"] },
-  { apiProperty: "account", methodName: "getOutstandingAirdrops", entityName: "account", resourceKeyPattern: ["airdrops", "outstanding"] },
-  { apiProperty: "account", methodName: "getPendingAirdrops", entityName: "account", resourceKeyPattern: ["airdrops", "pending"] },
-  { apiProperty: "account", methodName: "listPaginated", entityName: "account", resourceKeyPattern: ["list"] },
-  { apiProperty: "token", methodName: "getInfo", entityName: "token", resourceKeyPattern: ["info"] },
-  { apiProperty: "token", methodName: "getBalances", entityName: "token", resourceKeyPattern: ["balances"] },
-  { apiProperty: "token", methodName: "getNfts", entityName: "token", resourceKeyPattern: ["nfts"] },
+  {
+    apiProperty: "account",
+    methodName: "getInfo",
+    entityName: "account",
+    resourceKeyPattern: ["info"],
+  },
+  {
+    apiProperty: "account",
+    methodName: "getBalances",
+    entityName: "account",
+    resourceKeyPattern: ["balances"],
+  },
+  {
+    apiProperty: "account",
+    methodName: "getTokens",
+    entityName: "account",
+    resourceKeyPattern: ["tokens"],
+  },
+  {
+    apiProperty: "account",
+    methodName: "getNfts",
+    entityName: "account",
+    resourceKeyPattern: ["nfts"],
+  },
+  {
+    apiProperty: "account",
+    methodName: "getStakingRewards",
+    entityName: "account",
+    resourceKeyPattern: ["rewards"],
+  },
+  {
+    apiProperty: "account",
+    methodName: "getCryptoAllowances",
+    entityName: "account",
+    resourceKeyPattern: ["allowances", "crypto"],
+  },
+  {
+    apiProperty: "account",
+    methodName: "getTokenAllowances",
+    entityName: "account",
+    resourceKeyPattern: ["allowances", "token"],
+  },
+  {
+    apiProperty: "account",
+    methodName: "getNftAllowances",
+    entityName: "account",
+    resourceKeyPattern: ["allowances", "nft"],
+  },
+  {
+    apiProperty: "account",
+    methodName: "getOutstandingAirdrops",
+    entityName: "account",
+    resourceKeyPattern: ["airdrops", "outstanding"],
+  },
+  {
+    apiProperty: "account",
+    methodName: "getPendingAirdrops",
+    entityName: "account",
+    resourceKeyPattern: ["airdrops", "pending"],
+  },
+  {
+    apiProperty: "account",
+    methodName: "listPaginated",
+    entityName: "account",
+    resourceKeyPattern: ["list"],
+  },
+  {
+    apiProperty: "token",
+    methodName: "getInfo",
+    entityName: "token",
+    resourceKeyPattern: ["info"],
+  },
+  {
+    apiProperty: "token",
+    methodName: "getBalances",
+    entityName: "token",
+    resourceKeyPattern: ["balances"],
+  },
+  {
+    apiProperty: "token",
+    methodName: "getNfts",
+    entityName: "token",
+    resourceKeyPattern: ["nfts"],
+  },
   { apiProperty: "token", methodName: "getNft", entityName: "token", resourceKeyPattern: ["nft"] },
-  { apiProperty: "token", methodName: "getNftTransactions", entityName: "token", resourceKeyPattern: ["nft", "transactions"] },
-  { apiProperty: "token", methodName: "listPaginated", entityName: "token", resourceKeyPattern: ["list"] },
-  { apiProperty: "contract", methodName: "getInfo", entityName: "contract", resourceKeyPattern: ["info"] },
-  { apiProperty: "contract", methodName: "getResults", entityName: "contract", resourceKeyPattern: ["results"] },
-  { apiProperty: "contract", methodName: "getResult", entityName: "contract", resourceKeyPattern: ["result"] },
-  { apiProperty: "contract", methodName: "getState", entityName: "contract", resourceKeyPattern: ["state"] },
-  { apiProperty: "contract", methodName: "getLogs", entityName: "contract", resourceKeyPattern: ["logs"] },
-  { apiProperty: "contract", methodName: "getAllResults", entityName: "contract", resourceKeyPattern: ["results", "all"] },
-  { apiProperty: "contract", methodName: "getResultByTransactionIdOrHash", entityName: "contract", resourceKeyPattern: ["results", "byTx"] },
-  { apiProperty: "contract", methodName: "getResultActions", entityName: "contract", resourceKeyPattern: ["results", "actions"] },
-  { apiProperty: "contract", methodName: "getResultOpcodes", entityName: "contract", resourceKeyPattern: ["results", "opcodes"] },
-  { apiProperty: "contract", methodName: "getAllContractLogs", entityName: "contract", resourceKeyPattern: ["results", "logs", "all"] },
-  { apiProperty: "contract", methodName: "callContract", entityName: "contract", resourceKeyPattern: ["call"] },
-  { apiProperty: "contract", methodName: "listPaginated", entityName: "contract", resourceKeyPattern: ["list"] },
-  { apiProperty: "transaction", methodName: "getById", entityName: "transaction", resourceKeyPattern: ["info"] },
-  { apiProperty: "transaction", methodName: "listByAccount", entityName: "transaction", resourceKeyPattern: ["account"] },
-  { apiProperty: "transaction", methodName: "listPaginated", entityName: "transaction", resourceKeyPattern: ["list"] },
-  { apiProperty: "topic", methodName: "getInfo", entityName: "topic", resourceKeyPattern: ["info"] },
-  { apiProperty: "topic", methodName: "getMessages", entityName: "topic", resourceKeyPattern: ["messages"] },
-  { apiProperty: "topic", methodName: "getMessage", entityName: "topic", resourceKeyPattern: ["message"] },
-  { apiProperty: "topic", methodName: "getMessageByTimestamp", entityName: "topic", resourceKeyPattern: ["message", "byTimestamp"] },
-  { apiProperty: "topic", methodName: "listPaginated", entityName: "topic", resourceKeyPattern: ["list"] },
-  { apiProperty: "schedule", methodName: "getInfo", entityName: "schedule", resourceKeyPattern: ["info"] },
-  { apiProperty: "schedule", methodName: "listPaginated", entityName: "schedule", resourceKeyPattern: ["list"] },
-  { apiProperty: "network", methodName: "getExchangeRate", entityName: "network", resourceKeyPattern: ["exchange-rate"] },
-  { apiProperty: "network", methodName: "getFees", entityName: "network", resourceKeyPattern: ["fees"] },
-  { apiProperty: "network", methodName: "getNodes", entityName: "network", resourceKeyPattern: ["nodes"] },
-  { apiProperty: "network", methodName: "getStake", entityName: "network", resourceKeyPattern: ["stake"] },
-  { apiProperty: "network", methodName: "getSupply", entityName: "network", resourceKeyPattern: ["supply"] },
-  { apiProperty: "balance", methodName: "getBalances", entityName: "balance", resourceKeyPattern: ["list"] },
-  { apiProperty: "block", methodName: "getBlocks", entityName: "block", resourceKeyPattern: ["list"] },
-  { apiProperty: "block", methodName: "getBlock", entityName: "block", resourceKeyPattern: ["info"] },
+  {
+    apiProperty: "token",
+    methodName: "getNftTransactions",
+    entityName: "token",
+    resourceKeyPattern: ["nft", "transactions"],
+  },
+  {
+    apiProperty: "token",
+    methodName: "listPaginated",
+    entityName: "token",
+    resourceKeyPattern: ["list"],
+  },
+  {
+    apiProperty: "contract",
+    methodName: "getInfo",
+    entityName: "contract",
+    resourceKeyPattern: ["info"],
+  },
+  {
+    apiProperty: "contract",
+    methodName: "getResults",
+    entityName: "contract",
+    resourceKeyPattern: ["results"],
+  },
+  {
+    apiProperty: "contract",
+    methodName: "getResult",
+    entityName: "contract",
+    resourceKeyPattern: ["result"],
+  },
+  {
+    apiProperty: "contract",
+    methodName: "getState",
+    entityName: "contract",
+    resourceKeyPattern: ["state"],
+  },
+  {
+    apiProperty: "contract",
+    methodName: "getLogs",
+    entityName: "contract",
+    resourceKeyPattern: ["logs"],
+  },
+  {
+    apiProperty: "contract",
+    methodName: "getAllResults",
+    entityName: "contract",
+    resourceKeyPattern: ["results", "all"],
+  },
+  {
+    apiProperty: "contract",
+    methodName: "getResultByTransactionIdOrHash",
+    entityName: "contract",
+    resourceKeyPattern: ["results", "byTx"],
+  },
+  {
+    apiProperty: "contract",
+    methodName: "getResultActions",
+    entityName: "contract",
+    resourceKeyPattern: ["results", "actions"],
+  },
+  {
+    apiProperty: "contract",
+    methodName: "getResultOpcodes",
+    entityName: "contract",
+    resourceKeyPattern: ["results", "opcodes"],
+  },
+  {
+    apiProperty: "contract",
+    methodName: "getAllContractLogs",
+    entityName: "contract",
+    resourceKeyPattern: ["results", "logs", "all"],
+  },
+  {
+    apiProperty: "contract",
+    methodName: "callContract",
+    entityName: "contract",
+    resourceKeyPattern: ["call"],
+  },
+  {
+    apiProperty: "contract",
+    methodName: "listPaginated",
+    entityName: "contract",
+    resourceKeyPattern: ["list"],
+  },
+  {
+    apiProperty: "transaction",
+    methodName: "getById",
+    entityName: "transaction",
+    resourceKeyPattern: ["info"],
+  },
+  {
+    apiProperty: "transaction",
+    methodName: "listByAccount",
+    entityName: "transaction",
+    resourceKeyPattern: ["account"],
+  },
+  {
+    apiProperty: "transaction",
+    methodName: "listPaginated",
+    entityName: "transaction",
+    resourceKeyPattern: ["list"],
+  },
+  {
+    apiProperty: "topic",
+    methodName: "getInfo",
+    entityName: "topic",
+    resourceKeyPattern: ["info"],
+  },
+  {
+    apiProperty: "topic",
+    methodName: "getMessages",
+    entityName: "topic",
+    resourceKeyPattern: ["messages"],
+  },
+  {
+    apiProperty: "topic",
+    methodName: "getMessage",
+    entityName: "topic",
+    resourceKeyPattern: ["message"],
+  },
+  {
+    apiProperty: "topic",
+    methodName: "getMessageByTimestamp",
+    entityName: "topic",
+    resourceKeyPattern: ["message", "byTimestamp"],
+  },
+  {
+    apiProperty: "topic",
+    methodName: "listPaginated",
+    entityName: "topic",
+    resourceKeyPattern: ["list"],
+  },
+  {
+    apiProperty: "schedule",
+    methodName: "getInfo",
+    entityName: "schedule",
+    resourceKeyPattern: ["info"],
+  },
+  {
+    apiProperty: "schedule",
+    methodName: "listPaginated",
+    entityName: "schedule",
+    resourceKeyPattern: ["list"],
+  },
+  {
+    apiProperty: "network",
+    methodName: "getExchangeRate",
+    entityName: "network",
+    resourceKeyPattern: ["exchange-rate"],
+  },
+  {
+    apiProperty: "network",
+    methodName: "getFees",
+    entityName: "network",
+    resourceKeyPattern: ["fees"],
+  },
+  {
+    apiProperty: "network",
+    methodName: "getNodes",
+    entityName: "network",
+    resourceKeyPattern: ["nodes"],
+  },
+  {
+    apiProperty: "network",
+    methodName: "getStake",
+    entityName: "network",
+    resourceKeyPattern: ["stake"],
+  },
+  {
+    apiProperty: "network",
+    methodName: "getSupply",
+    entityName: "network",
+    resourceKeyPattern: ["supply"],
+  },
+  {
+    apiProperty: "balance",
+    methodName: "getBalances",
+    entityName: "balance",
+    resourceKeyPattern: ["list"],
+  },
+  {
+    apiProperty: "block",
+    methodName: "getBlocks",
+    entityName: "block",
+    resourceKeyPattern: ["list"],
+  },
+  {
+    apiProperty: "block",
+    methodName: "getBlock",
+    entityName: "block",
+    resourceKeyPattern: ["info"],
+  },
 ] as const;
 
-function isValidMirrorNodeKey(key: unknown): key is readonly ["mirror-node", string, string, ...unknown[]] {
+function isValidMirrorNodeKey(
+  key: unknown,
+): key is readonly ["mirror-node", string, string, ...unknown[]] {
   return (
     Array.isArray(key) &&
     key.length >= 4 &&
@@ -70,7 +302,9 @@ function isValidMirrorNodeKey(key: unknown): key is readonly ["mirror-node", str
   );
 }
 
-function findMethodMapping(queryKey: readonly unknown[]): { mapping: MethodMapping; args: unknown[] } | null {
+function findMethodMapping(
+  queryKey: readonly unknown[],
+): { mapping: MethodMapping; args: unknown[] } | null {
   if (!isValidMirrorNodeKey(queryKey)) {
     return null;
   }
@@ -82,13 +316,16 @@ function findMethodMapping(queryKey: readonly unknown[]): { mapping: MethodMappi
 
     if (!isEntityMatch) continue;
 
-    const isListWithPluralEntity = entity === `${mapping.entityName}s` && queryKeyParts[0] === "list";
+    const isListWithPluralEntity =
+      entity === `${mapping.entityName}s` && queryKeyParts[0] === "list";
 
     if (isListWithPluralEntity) {
       return { mapping, args: queryKeyParts.slice(1) };
     }
 
-    const isPatternMatch = mapping.resourceKeyPattern.every((part, index) => part === queryKeyParts[index]);
+    const isPatternMatch = mapping.resourceKeyPattern.every(
+      (part, index) => part === queryKeyParts[index],
+    );
 
     if (!isPatternMatch) continue;
 
@@ -113,7 +350,9 @@ export async function prefetchQuery(
   const { mapping, args } = result;
 
   const api = client[mapping.apiProperty];
-  const method = (api as unknown as Record<string, (...args: unknown[]) => unknown>)[mapping.methodName];
+  const method = (api as unknown as Record<string, (...args: unknown[]) => unknown>)[
+    mapping.methodName
+  ];
 
   if (typeof method !== "function") {
     throw new Error(`Method ${mapping.methodName} not found on ${mapping.apiProperty}`);
@@ -126,12 +365,18 @@ export async function prefetchQuery(
 }
 
 export type EntityType =
-  | "account" | "accounts"
-  | "token" | "tokens"
-  | "contract" | "contracts"
-  | "transaction" | "transactions"
-  | "topic" | "topics"
-  | "schedule" | "schedules"
+  | "account"
+  | "accounts"
+  | "token"
+  | "tokens"
+  | "contract"
+  | "contracts"
+  | "transaction"
+  | "transactions"
+  | "topic"
+  | "topics"
+  | "schedule"
+  | "schedules"
   | "network"
   | "balances"
   | "blocks"
