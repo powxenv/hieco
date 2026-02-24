@@ -1,8 +1,8 @@
 # @hiecom/react
 
-Type-safe Hedera Mirror Node API client for React applications.
+Type-safe Hedera Mirror Node API client for React.
 
-## Installation
+## Install
 
 ```bash
 npm install @hiecom/react
@@ -12,50 +12,164 @@ bun add @hiecom/react
 
 ## Quick Start
 
+### 1. Setup Provider
+
 ```tsx
-import { MirrorNodeClient, MirrorNodeProvider, useMirrorNodeClient } from "@hiecom/react";
+import { MirrorNodeProvider, MirrorNodeClient } from "@hiecom/react";
 
 const client = new MirrorNodeClient({ network: "mainnet" });
 
 function App() {
   return (
-    <MirrorNodeClient client={client}>
+    <MirrorNodeProvider client={client}>
       <YourApp />
-    </MirrorNodeClient>
+    </MirrorNodeProvider>
   );
 }
+```
 
-function YourComponent() {
+### 2. Use in Components
+
+**Option A: React Query Hooks (recommended)**
+
+```tsx
+import { useAccountInfo } from "@hiecom/react";
+
+function AccountBalance({ accountId }: { accountId: string }) {
+  const { data, isLoading, error } = useAccountInfo({ accountId });
+
+  if (isLoading) return <span>Loading...</span>;
+  if (!data?.success) return <span>Error: {data.error.message}</span>;
+
+  return <span>Balance: {data.data.balance.balance} ℏ</span>;
+}
+```
+
+**Option B: Manual TanStack Query**
+
+```tsx
+import { useQuery } from "@tanstack/react-query";
+import { useMirrorNodeClient, mirrorNodeKeys } from "@hiecom/react";
+
+function AccountBalance({ accountId }: { accountId: string }) {
   const client = useMirrorNodeClient();
+  
+  const { data, isLoading, error } = useQuery({
+    queryKey: mirrorNodeKeys.account.info(accountId),
+    queryFn: () => client.account.getInfo(accountId),
+  });
 
-  // Fetch account info
-  const account = await client.account.getInfo("0.0.123");
+  if (isLoading) return <span>Loading...</span>;
+  if (!data?.success) return <span>Error: {data.error.message}</span>;
 
-  if (account.success) {
-    console.log(account.data.balance);
-  }
+  return <span>Balance: {data.data.balance.balance} ℏ</span>;
+}
+```
+
+**Option C: Direct Client**
+
+```tsx
+import { useState, useEffect } from "react";
+import { useMirrorNodeClient } from "@hiecom/react";
+
+function AccountBalance({ accountId }: { accountId: string }) {
+  const client = useMirrorNodeClient();
+  const [account, setAccount] = useState(null);
+
+  useEffect(() => {
+    client.account.getInfo(accountId).then(setAccount);
+  }, [accountId]);
+
+  if (!account) return <span>Loading...</span>;
+  if (!account.success) return <span>Error: {account.error.message}</span>;
+
+  return <span>Balance: {account.data.balance.balance} ℏ</span>;
 }
 ```
 
 ## Configuration
 
 ```tsx
-import { MirrorNodeClient } from "@hiecom/react";
-
-// Mainnet (default)
-const mainnetClient = new MirrorNodeClient({ network: "mainnet" });
-
-// Testnet
-const testnetClient = new MirrorNodeClient({ network: "testnet" });
-
-// Previewnet
-const previewnetClient = new MirrorNodeClient({ network: "previewnet" });
+const client = new MirrorNodeClient({ network: "mainnet" });  // default
+const client = new MirrorNodeClient({ network: "testnet" });
+const client = new MirrorNodeClient({ network: "previewnet" });
 
 // Custom Mirror Node URL
-const customClient = new MirrorNodeClient({
+const client = new MirrorNodeClient({
   network: "mainnet",
-  mirrorNodeUrl: "https://your-custom-mirror-node.com",
+  mirrorNodeUrl: "https://your-mirror-node.com",
 });
+```
+
+## Query Keys
+
+Use `mirrorNodeKeys` for manual cache management with `useQuery`:
+
+```ts
+// Account
+mirrorNodeKeys.account.info(id)
+mirrorNodeKeys.account.balances(id)
+mirrorNodeKeys.account.tokens(id)
+mirrorNodeKeys.account.nfts(id)
+mirrorNodeKeys.account.stakingRewards(id)
+mirrorNodeKeys.account.cryptoAllowances(id)
+mirrorNodeKeys.account.tokenAllowances(id)
+mirrorNodeKeys.account.nftAllowances(id)
+mirrorNodeKeys.account.outstandingAirdrops(id)
+mirrorNodeKeys.account.pendingAirdrops(id)
+mirrorNodeKeys.account.list()
+
+// Token
+mirrorNodeKeys.token.info(id)
+mirrorNodeKeys.token.balances(id)
+mirrorNodeKeys.token.nfts(id)
+mirrorNodeKeys.token.nft(tokenId, serialNumber)
+mirrorNodeKeys.token.nftTransactions(tokenId, serialNumber)
+mirrorNodeKeys.token.list()
+
+// Contract
+mirrorNodeKeys.contract.info(id)
+mirrorNodeKeys.contract.results(id)
+mirrorNodeKeys.contract.result(id, timestamp)
+mirrorNodeKeys.contract.state(id)
+mirrorNodeKeys.contract.logs(id)
+mirrorNodeKeys.contract.allResults()
+mirrorNodeKeys.contract.resultByTx(txHash)
+mirrorNodeKeys.contract.resultActions(txHash)
+mirrorNodeKeys.contract.resultOpcodes(txHash)
+mirrorNodeKeys.contract.allLogs()
+mirrorNodeKeys.contract.call()
+mirrorNodeKeys.contract.list()
+
+// Transaction
+mirrorNodeKeys.transaction.info(id)
+mirrorNodeKeys.transaction.byAccount(id)
+mirrorNodeKeys.transaction.list()
+
+// Topic
+mirrorNodeKeys.topic.info(id)
+mirrorNodeKeys.topic.messages(id)
+mirrorNodeKeys.topic.message(id, sequenceNumber)
+mirrorNodeKeys.topic.messageByTimestamp(timestamp)
+mirrorNodeKeys.topic.list()
+
+// Schedule
+mirrorNodeKeys.schedule.info(id)
+mirrorNodeKeys.schedule.list()
+
+// Network
+mirrorNodeKeys.network.exchangeRate()
+mirrorNodeKeys.network.fees()
+mirrorNodeKeys.network.nodes()
+mirrorNodeKeys.network.stake()
+mirrorNodeKeys.network.supply()
+
+// Balance
+mirrorNodeKeys.balance.list()
+
+// Block
+mirrorNodeKeys.block.list()
+mirrorNodeKeys.block.info(hashOrNumber)
 ```
 
 ## API Reference
@@ -63,263 +177,244 @@ const customClient = new MirrorNodeClient({
 ### Account API
 
 ```tsx
-const client = useMirrorNodeClient();
+// Hooks
+useAccountInfo({ accountId })
+useAccountBalances({ accountId })
+useAccountTokens({ accountId, params })
+useAccountNfts({ accountId, params })
+useAccountStakingRewards({ accountId, params })
+useAccountCryptoAllowances({ accountId })
+useAccountTokenAllowances({ accountId, params })
+useAccountNftAllowances({ accountId, params })
+useAccountOutstandingAirdrops({ accountId, params })
+useAccountPendingAirdrops({ accountId, params })
+useAccounts({ params })
+useAccountsInfinite({ params })
 
-// Get account by ID, alias, or EVM address
-const account = await client.account.getInfo("0.0.123");
-
-// Get account balances
-const balances = await client.account.getBalances("0.0.123");
-
-// Get tokens owned by account
-const tokens = await client.account.getTokens("0.0.123", { limit: 25 });
-
-// Get NFTs owned by account
-const nfts = await client.account.getNfts("0.0.123", {
-  "token.id": "0.0.456",
-  limit: 100,
-  order: "desc",
-});
-
-// Get staking rewards
-const rewards = await client.account.getStakingRewards("0.0.123");
-
-// Get crypto allowances
-const allowances = await client.account.getCryptoAllowances("0.0.123");
-
-// List accounts with filters
-const accounts = await client.account.listPaginated({
-  balance: "gte:1000",
-  limit: 50,
-  order: "desc",
-});
+// Client
+client.account.getInfo("0.0.123")
+client.account.getBalances("0.0.123")
+client.account.getTokens("0.0.123", { limit: 25 })
+client.account.getNfts("0.0.123", { "token.id": "0.0.456", limit: 100 })
+client.account.getStakingRewards("0.0.123")
+client.account.getCryptoAllowances("0.0.123")
+client.account.getTokenAllowances("0.0.123", { spender: "0.0.456" })
+client.account.getNftAllowances("0.0.123")
+client.account.getOutstandingAirdrops("0.0.123")
+client.account.getPendingAirdrops("0.0.123")
+client.account.listPaginated({ balance: "gte:1000", limit: 50 })
 ```
 
 ### Token API
 
 ```tsx
-const client = useMirrorNodeClient();
+// Hooks
+useTokenInfo({ tokenId })
+useTokenBalances({ tokenId, params })
+useTokenNfts({ tokenId, params })
+useTokenNft({ tokenId, serialNumber })
+useTokenNftTransactions({ tokenId, serialNumber, params })
+useTokens({ params })
+useTokensInfinite({ params })
 
-// Get token info
-const token = await client.token.getInfo("0.0.456");
-
-// Get token balances
-const balances = await client.token.getBalances("0.0.456", {
-  account: "0.0.123",
-  limit: 100,
-});
-
-// Get NFTs for a token
-const nfts = await client.token.getNfts("0.0.456", { limit: 25 });
-
-// Get specific NFT
-const nft = await client.token.getNft("0.0.456", 1);
-
-// Get NFT transaction history
-const transactions = await client.token.getNftTransactions("0.0.456", 1);
-
-// List tokens with filters
-const tokens = await client.token.listPaginated({
-  type: "FUNGIBLE_COMMON",
-  limit: 50,
-});
+// Client
+client.token.getInfo("0.0.456")
+client.token.getBalances("0.0.456", { account: "0.0.123", limit: 100 })
+client.token.getNfts("0.0.456", { limit: 25 })
+client.token.getNft("0.0.456", 1)
+client.token.getNftTransactions("0.0.456", 1)
+client.token.listPaginated({ type: "FUNGIBLE_COMMON", limit: 50 })
 ```
 
 ### Topic API
 
 ```tsx
-const client = useMirrorNodeClient();
+// Hooks
+useTopicInfo({ topicId })
+useTopicMessages({ topicId, params })
+useTopicMessage({ topicId, sequenceNumber })
+useTopicMessageByTimestamp({ timestamp })
+useTopics({ params })
+useTopicsInfinite({ params })
 
-// Get topic info
-const topic = await client.topic.getInfo("0.0.789");
-
-// Get topic messages
-const messages = await client.topic.getMessages("0.0.789", {
-  limit: 50,
-  encoding: "utf-8",
-});
-
-// Get specific message by sequence number
-const message = await client.topic.getMessage("0.0.789", 1);
-
-// List topics
-const topics = await client.topic.listPaginated({ limit: 25 });
+// Client
+client.topic.getInfo("0.0.789")
+client.topic.getMessages("0.0.789", { limit: 50, encoding: "utf-8" })
+client.topic.getMessage("0.0.789", 1)
+client.topic.getMessageByTimestamp("1234567890.000000000")
+client.topic.listPaginated({ limit: 25 })
 ```
 
 ### Transaction API
 
 ```tsx
-const client = useMirrorNodeClient();
+// Hooks
+useTransaction({ transactionId })
+useTransactionsByAccount({ accountId, params })
+useTransactions({ params })
+useTransactionsInfinite({ params })
 
-// Get transaction by ID
-const tx = await client.transaction.getById("0.0.123@1234567890.123456789");
-
-// Get transactions by account
-const txs = await client.transaction.listByAccount("0.0.123", {
-  limit: 50,
-  result: "SUCCESS",
-});
-
-// List transactions with filters
-const allTxs = await client.transaction.listPaginated({
-  "account.id": "0.0.123",
-  timestamp: { from: "1234567890.000000000", to: "1234567900.000000000" },
-  limit: 100,
-});
+// Client
+client.transaction.getById("0.0.123@1234567890.123456789")
+client.transaction.listByAccount("0.0.123", { limit: 50, result: "SUCCESS" })
+client.transaction.listPaginated({ "account.id": "0.0.123", limit: 100 })
 ```
 
 ### Contract API
 
 ```tsx
-const client = useMirrorNodeClient();
+// Hooks
+useContractInfo({ contractIdOrAddress })
+useContractCall({ params: { contractId, data } })
+useContractResults({ contractId, params })
+useContractResult({ contractId, timestamp })
+useContractAllResults({ params })
+useContractResultByTransactionIdOrHash({ transactionIdOrHash, params })
+useContractResultActions({ transactionIdOrHash })
+useContractResultOpcodes({ transactionIdOrHash })
+useContractState({ contractId, params })
+useContractLogs({ contractId, params })
+useContractAllLogs({ params })
+useContracts({ params })
+useContractsInfinite({ params })
 
-// Get contract info
-const contract = await client.contract.getInfo("0.0.456");
-
-// Call contract (read-only)
-const result = await client.contract.call({
-  contractId: "0.0.456",
-  data: "0x...",
-});
-
-// Get contract execution results
-const results = await client.contract.getResults("0.0.456", { limit: 25 });
-
-// Get contract state
-const state = await client.contract.getState("0.0.456", { slot: "0x..." });
-
-// Get contract logs
-const logs = await client.contract.getLogs("0.0.456", {
-  timestamp: "1234567890.123456789",
-});
-
-// List contracts
-const contracts = await client.contract.listPaginated({ limit: 50 });
+// Client
+client.contract.getInfo("0.0.456")
+client.contract.call({ contractId: "0.0.456", data: "0x..." })
+client.contract.getResults("0.0.456", { limit: 25 })
+client.contract.getResult("0.0.456", "1234567890.123456789")
+client.contract.getAllResults({ limit: 25 })
+client.contract.getResultByTransactionIdOrHash("0x...", { nonce: 0 })
+client.contract.getResultActions("0x...")
+client.contract.getResultOpcodes("0x...")
+client.contract.getState("0.0.456", { slot: "0x..." })
+client.contract.getLogs("0.0.456", { timestamp: "1234567890.123456789" })
+client.contract.getAllContractLogs({ limit: 100 })
+client.contract.listPaginated({ limit: 50 })
 ```
 
 ### Schedule API
 
 ```tsx
-const client = useMirrorNodeClient();
+// Hooks
+useScheduleInfo({ scheduleId })
+useSchedules({ params })
+useSchedulesInfinite({ params })
 
-// Get schedule info
-const schedule = await client.schedule.getInfo("0.0.123");
-
-// List schedules with filters
-const schedules = await client.schedule.listPaginated({
-  "creator.account.id": "0.0.456",
-  executed_timestamp: "gte:1234567890.000000000",
-  limit: 25,
-});
+// Client
+client.schedule.getInfo("0.0.123")
+client.schedule.listPaginated({ "creator.account.id": "0.0.456", limit: 25 })
 ```
 
 ### Network API
 
 ```tsx
-const client = useMirrorNodeClient();
+// Hooks
+useNetworkExchangeRate()
+useNetworkFees()
+useNetworkNodes()
+useNetworkStake()
+useNetworkSupply()
 
-// Get exchange rate
-const rate = await client.network.getExchangeRate();
-
-// Get network fees
-const fees = await client.network.getFees();
-
-// Get network nodes
-const nodes = await client.network.getNodes();
-
-// Get stake info
-const stake = await client.network.getStake();
-
-// Get token supply
-const supply = await client.network.getSupply();
+// Client
+client.network.getExchangeRate()
+client.network.getFees()
+client.network.getNodes()
+client.network.getStake()
+client.network.getSupply()
 ```
 
-## Type Safety
-
-All API methods return a typed `ApiResult<T>` that is a discriminated union:
+### Balance API
 
 ```tsx
-type ApiResult<T> = { success: true; data: T } | { success: false; error: ApiError };
+// Hooks
+useBalances({ params })
 
-// Handle success
-const result = await client.account.getInfo("0.0.123");
-if (result.success) {
-  // result.data is fully typed
-  console.log(result.data.balance);
-}
-
-// Handle error
-if (!result.success) {
-  console.error(result.error.message);
-  console.log(result.error._tag); // "NetworkError" | "ValidationError" | "NotFoundError" | "RateLimitError" | "UnknownError"
-}
+// Client
+client.balance.getBalances({ limit: 100 })
 ```
 
-## TanStack Query Integration
-
-Use the query keys for cache management:
+### Block API
 
 ```tsx
-import { useQuery } from "@tanstack/react-query";
-import { MirrorNodeClient, mirrorNodeKeys } from "@hiecom/react";
+// Hooks
+useBlock({ hashOrNumber })
+useBlocks({ params })
 
-const client = new MirrorNodeClient({ network: "mainnet" });
+// Client
+client.block.getBlock("0.0.456")
+client.block.getBlock("123456")
+client.block.getBlocks({ limit: 50 })
+```
 
-function AccountBalance({ accountId }: { accountId: string }) {
-  const { data, isLoading, error } = useQuery({
-    queryKey: mirrorNodeKeys.account.info(accountId),
-    queryFn: () => client.account.getInfo(accountId),
-  });
+## Query Options
 
-  if (isLoading) return <div>Loading...</div>;
-  if (!data?.success) return <div>Error: {data.error.message}</div>;
+All hooks accept TanStack Query options:
 
-  return <div>Balance: {data.data.balance.balance}</div>;
-}
+```tsx
+const { data } = useAccountInfo({ 
+  accountId: "0.0.123",
+  enabled: true,                    // enable/disable fetch
+  staleTime: 1000 * 60 * 5,         // cache time (5 min)
+  refetchOnWindowFocus: false,      // refetch on window focus
+  retry: 3,                         // retry count
+});
+
+// Network hooks don't require entity ID
+const { data } = useNetworkExchangeRate({
+  staleTime: 1000 * 60 * 10,        // cache longer for static data
+});
 ```
 
 ## Pagination
 
 ```tsx
-// Simple pagination with listPaginated
-const result = await client.account.listPaginated({
-  limit: 25,
-  order: "desc",
+// Paginated list
+const { data } = useAccounts({ params: { balance: "gte:1000", limit: 25 } });
+
+// Infinite scroll
+const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useAccountsInfinite({ 
+  params: { limit: 25 } 
 });
 
+// Manual pagination with client
+const result = await client.account.listPaginated({ limit: 25, order: "desc" });
 if (result.success) {
-  console.log(result.data); // First page of results
-  console.log(result.links?.next); // Cursor for next page
+  console.log(result.data);
+  console.log(result.links?.next); // cursor for next page
 }
-
-// Cursor-based pagination with paginator
-const paginator = client.account.createAccountPaginator({
-  limit: 25,
-  order: "desc",
-});
-
-const page1 = await paginator.next();
-const page2 = await paginator.next();
-const allResults = await paginator.collect();
 ```
 
-## Query Operators
-
-Filter your queries using operators:
+## Filters
 
 ```tsx
-// Single value (exact match)
+// Exact match
 { account: "0.0.123" }
 
-// Operators
-{ balance: "gte:1000" }    // Greater than or equal
-{ balance: "lte:500" }      // Less than or equal
-{ balance: "gt:100" }      // Greater than
-{ balance: "lt:50" }        // Less than
-{ balance: "ne:0" }         // Not equal
+// Operators: gte, lte, gt, lt, ne
+{ balance: "gte:1000" }
 
 // Timestamp range
 { timestamp: { from: "1234567890.000000000", to: "1234567900.000000000" } }
+
+// List filters
+useTokens({ params: { type: "FUNGIBLE_COMMON", limit: 50 } });
+useTransactions({ params: { "account.id": "0.0.123", result: "SUCCESS" } });
+```
+
+## Type Safety
+
+Every response is typed and includes error handling:
+
+```tsx
+const result = await client.account.getInfo("0.0.123");
+
+if (result.success) {
+  console.log(result.data.balance); // typed
+} else {
+  console.error(result.error.message);
+  console.log(result.error._tag);   // "NetworkError" | "ValidationError" | "NotFoundError" | "RateLimitError" | "UnknownError"
+}
 ```
 
 ## License
