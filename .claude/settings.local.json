@@ -1,28 +1,29 @@
 {
-    "permissions": {
-        "allow": [
-            "mcp__fetch__fetch",
-            "mcp__exa__deep_researcher_start",
-            "mcp__exa__deep_researcher_check",
-            "mcp__context7__resolve-library-id",
-            "mcp__exa__web_search_exa",
-            "mcp__exa__web_search_advanced_exa",
-            "mcp__grep__searchGitHub",
-            "mcp__context7__query-docs",
-            "Bash(ls:*)",
-            "mcp__exa__get_code_context_exa",
-            "Bash(bun run typecheck:*)",
-            "Bash(bun run build:*)",
-            "Bash(bun test:*)",
-            "Bash(bunx tsc:*)",
-            "Bash(bun run lint:*)",
-            "Bash(bun run fmt:*)",
-            "Bash(wc:*)",
-            "Bash(bun typecheck:*)",
-            "Bash(bun lint:*)",
-            "Bash(bun fmt:*)",
-            "Bash(find:*)",
-            "Bash(grep:*)"
-        ]
-    }
+  "permissions": {
+    "allow": [
+      "mcp__fetch__fetch",
+      "mcp__exa__deep_researcher_start",
+      "mcp__exa__deep_researcher_check",
+      "mcp__context7__resolve-library-id",
+      "mcp__exa__web_search_exa",
+      "mcp__exa__web_search_advanced_exa",
+      "mcp__grep__searchGitHub",
+      "mcp__context7__query-docs",
+      "Bash(ls:*)",
+      "mcp__exa__get_code_context_exa",
+      "Bash(bun run typecheck:*)",
+      "Bash(bun run build:*)",
+      "Bash(bun test:*)",
+      "Bash(bunx tsc:*)",
+      "Bash(bun run lint:*)",
+      "Bash(bun run fmt:*)",
+      "Bash(wc:*)",
+      "Bash(bun typecheck:*)",
+      "Bash(bun lint:*)",
+      "Bash(bun fmt:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(tail:*)"
+    ]
+  }
 }

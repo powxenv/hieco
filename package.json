@@ -10,14 +10,22 @@
         "fmt": "bun --filter '*' fmt",
         "fmt:mirror-core": "bun --filter '@hiecom/mirror-node' fmt",
         "fmt:mirror-react": "bun --filter '@hiecom/react-mirror-node' fmt",
+        "fmt:mirror-solid": "bun --filter '@hiecom/solid-mirror-node' fmt",
+        "fmt:mirror-preact": "bun --filter '@hiecom/preact-mirror-node' fmt",
         "lint": "bun --filter '*' lint",
         "lint:mirror-core": "bun --filter '@hiecom/mirror-node' lint",
         "lint:mirror-react": "bun --filter '@hiecom/react-mirror-node' lint",
+        "lint:mirror-solid": "bun --filter '@hiecom/solid-mirror-node' lint",
+        "lint:mirror-preact": "bun --filter '@hiecom/preact-mirror-node' lint",
         "typecheck": "bun --filter '*' typecheck",
         "typecheck:mirror-core": "bun --filter '@hiecom/mirror-node' typecheck",
         "typecheck:mirror-react": "bun --filter '@hiecom/react-mirror-node' typecheck",
+        "typecheck:mirror-solid": "bun --filter '@hiecom/solid-mirror-node' typecheck",
+        "typecheck:mirror-preact": "bun --filter '@hiecom/preact-mirror-node' typecheck",
         "build": "bun --filter '*' build",
         "build:mirror-core": "bun --filter '@hiecom/mirror-node' build",
-        "build:mirror-react": "bun --filter '@hiecom/react-mirror-node' build"
+        "build:mirror-react": "bun --filter '@hiecom/react-mirror-node' build",
+        "build:mirror-solid": "bun --filter '@hiecom/solid-mirror-node' build",
+        "build:mirror-preact": "bun --filter '@hiecom/preact-mirror-node' build"
     }
 }
