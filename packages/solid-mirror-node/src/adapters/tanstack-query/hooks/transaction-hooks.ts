@@ -1,6 +1,7 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
 import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hiecom/mirror-node";
+import type { PaginatedResponse } from "@hiecom/mirror-node";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../../../solid/hooks";
 import { mirrorNodeKeys } from "../query-keys";
@@ -47,7 +48,7 @@ export interface CreateTransactionsInfiniteOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTransactionsInfiniteResult = UseInfiniteQueryResult<ApiResult<any>, ApiError>;
+export type CreateTransactionsInfiniteResult = UseInfiniteQueryResult<ApiResult<PaginatedResponse<any>>, ApiError>;
 
 export function createTransaction(
   options: Accessor<CreateTransactionOptions>,
@@ -115,27 +116,24 @@ export function createTransactionsInfinite(
   const client = useMirrorNodeClient();
   const { network } = useNetwork();
 
-  return useInfiniteQuery(() => {
+  return useInfiniteQuery<ApiResult<PaginatedResponse<any>>, ApiError, ApiResult<PaginatedResponse<any>>, readonly ["mirror-node", string, "transactions", "list"], string | undefined>(() => {
     const opts = options();
     return {
       queryKey: mirrorNodeKeys.transaction.list(network()),
-      queryFn: async () => {
-        const params = {
+      queryFn: async ({ pageParam }) => {
+        if (pageParam) {
+          return client().transaction.listPaginatedPageByUrl(pageParam);
+        }
+        return client().transaction.listPaginatedPage({
           ...opts.params,
           limit: opts.params?.limit ?? 25,
-        };
-
-        const result = await client().transaction.listPaginated(params);
-
-        return result;
+        });
       },
       getNextPageParam: (lastPage) => {
-        if (!lastPage.success || lastPage.data.length === 0) {
-          return undefined;
-        }
-        return lastPage.data.length;
+        if (!lastPage.success) return undefined;
+        return lastPage.data.links.next ?? undefined;
       },
-      initialPageParam: 0,
+      initialPageParam: undefined,
     };
   });
 }

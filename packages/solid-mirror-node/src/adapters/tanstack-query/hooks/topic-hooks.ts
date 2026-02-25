@@ -1,6 +1,7 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
 import type { ApiResult, ApiError, EntityId, PaginationParams } from "@hiecom/mirror-node";
+import type { PaginatedResponse } from "@hiecom/mirror-node";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../../../solid/hooks";
 import { mirrorNodeKeys } from "../query-keys";
@@ -47,7 +48,7 @@ export interface CreateTopicsInfiniteOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTopicsInfiniteResult = UseInfiniteQueryResult<ApiResult<any>, ApiError>;
+export type CreateTopicsInfiniteResult = UseInfiniteQueryResult<ApiResult<PaginatedResponse<any>>, ApiError>;
 
 export function createTopicInfo(options: Accessor<CreateTopicInfoOptions>): CreateTopicInfoResult {
   const client = useMirrorNodeClient();
@@ -137,23 +138,20 @@ export function createTopicsInfinite(
     const opts = options();
     return {
       queryKey: mirrorNodeKeys.topic.list(network()),
-      queryFn: async () => {
-        const params = {
+      queryFn: async ({ pageParam }) => {
+        if (pageParam !== undefined) {
+          return client().topic.listPaginatedPageByUrl(pageParam as string);
+        }
+        return client().topic.listPaginatedPage({
           ...opts.params,
           limit: opts.params?.limit ?? 25,
-        };
-
-        const result = await client().topic.listPaginated(params);
-
-        return result;
+        });
       },
       getNextPageParam: (lastPage) => {
-        if (!lastPage.success || lastPage.data.length === 0) {
-          return undefined;
-        }
-        return lastPage.data.length;
+        if (!lastPage.success) return undefined;
+        return lastPage.data.links.next ?? undefined;
       },
-      initialPageParam: 0,
+      initialPageParam: null,
     };
   });
 }

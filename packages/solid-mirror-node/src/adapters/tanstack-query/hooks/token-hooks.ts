@@ -7,6 +7,7 @@ import type {
   PaginationParams,
   QueryOperator,
 } from "@hiecom/mirror-node";
+import type { PaginatedResponse } from "@hiecom/mirror-node";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../../../solid/hooks";
 import { mirrorNodeKeys } from "../query-keys";
@@ -79,7 +80,7 @@ export interface CreateTokensInfiniteOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTokensInfiniteResult = UseInfiniteQueryResult<ApiResult<any>, ApiError>;
+export type CreateTokensInfiniteResult = UseInfiniteQueryResult<ApiResult<PaginatedResponse<any>>, ApiError>;
 
 export function createTokenInfo(options: Accessor<CreateTokenInfoOptions>): CreateTokenInfoResult {
   const client = useMirrorNodeClient();
@@ -201,27 +202,24 @@ export function createTokensInfinite(
   const client = useMirrorNodeClient();
   const { network } = useNetwork();
 
-  return useInfiniteQuery(() => {
+  return useInfiniteQuery<ApiResult<PaginatedResponse<any>>, ApiError, ApiResult<PaginatedResponse<any>>, readonly ["mirror-node", string, "tokens", "list"], string | undefined>(() => {
     const opts = options();
     return {
       queryKey: mirrorNodeKeys.token.list(network()),
-      queryFn: async () => {
-        const params = {
+      queryFn: async ({ pageParam }) => {
+        if (pageParam) {
+          return client().token.listPaginatedPageByUrl(pageParam);
+        }
+        return client().token.listPaginatedPage({
           ...opts.params,
           limit: opts.params?.limit ?? 25,
-        };
-
-        const result = await client().token.listPaginated(params);
-
-        return result;
+        });
       },
       getNextPageParam: (lastPage) => {
-        if (!lastPage.success || lastPage.data.length === 0) {
-          return undefined;
-        }
-        return lastPage.data.length;
+        if (!lastPage.success) return undefined;
+        return lastPage.data.links.next ?? undefined;
       },
-      initialPageParam: 0,
+      initialPageParam: undefined,
     };
   });
 }

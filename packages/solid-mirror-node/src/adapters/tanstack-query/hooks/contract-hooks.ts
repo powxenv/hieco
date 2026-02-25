@@ -13,6 +13,7 @@ import type {
   ContractAction,
   ContractOpcodesResponse,
 } from "@hiecom/mirror-node";
+import type { PaginatedResponse } from "@hiecom/mirror-node";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../../../solid/hooks";
 import { mirrorNodeKeys } from "../query-keys";
@@ -104,7 +105,7 @@ export interface CreateContractsInfiniteOptions {
 }
 
 export type CreateContractsInfiniteResult = UseInfiniteQueryResult<
-  ApiResult<ContractInfo[]>,
+  ApiResult<PaginatedResponse<ContractInfo>>,
   ApiError
 >;
 
@@ -258,23 +259,20 @@ export function createContractsInfinite(
     const opts = options();
     return {
       queryKey: mirrorNodeKeys.contract.list(network()),
-      queryFn: async () => {
-        const params = {
+      queryFn: async ({ pageParam }) => {
+        if (pageParam !== undefined) {
+          return client().contract.listPaginatedPageByUrl(pageParam as string);
+        }
+        return client().contract.listPaginatedPage({
           ...opts.params,
           limit: opts.params?.limit ?? 25,
-        };
-
-        const result = await client().contract.listPaginated(params);
-
-        return result;
+        });
       },
       getNextPageParam: (lastPage) => {
-        if (!lastPage.success || lastPage.data.length === 0) {
-          return undefined;
-        }
-        return lastPage.data.length;
+        if (!lastPage.success) return undefined;
+        return lastPage.data.links.next ?? undefined;
       },
-      initialPageParam: 0,
+      initialPageParam: undefined,
     };
   });
 }

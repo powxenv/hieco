@@ -2,6 +2,7 @@ import { useQuery, useInfiniteQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
 import type { ApiResult, ApiError, EntityId, QueryOperator } from "@hiecom/mirror-node";
 import type { Schedule } from "@hiecom/mirror-node";
+import type { PaginatedResponse } from "@hiecom/mirror-node";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../../../solid/hooks";
 import { mirrorNodeKeys } from "../query-keys";
@@ -34,7 +35,7 @@ export interface CreateSchedulesInfiniteOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateSchedulesInfiniteResult = UseInfiniteQueryResult<ApiResult<Schedule[]>, ApiError>;
+export type CreateSchedulesInfiniteResult = UseInfiniteQueryResult<ApiResult<PaginatedResponse<Schedule>>, ApiError>;
 
 export function createScheduleInfo(
   options: Accessor<CreateScheduleInfoOptions>,
@@ -86,23 +87,20 @@ export function createSchedulesInfinite(
     const opts = options();
     return {
       queryKey: mirrorNodeKeys.schedule.list(network()),
-      queryFn: async () => {
-        const params = {
+      queryFn: async ({ pageParam }) => {
+        if (pageParam !== undefined) {
+          return client().schedule.listPaginatedPageByUrl(pageParam as string);
+        }
+        return client().schedule.listPaginatedPage({
           ...opts.params,
           limit: opts.params?.limit ?? 25,
-        };
-
-        const result = await client().schedule.listPaginated(params);
-
-        return result;
+        });
       },
       getNextPageParam: (lastPage) => {
-        if (!lastPage.success || lastPage.data.length === 0) {
-          return undefined;
-        }
-        return lastPage.data.length;
+        if (!lastPage.success) return undefined;
+        return lastPage.data.links.next ?? undefined;
       },
-      initialPageParam: 0,
+      initialPageParam: undefined,
     };
   });
 }
