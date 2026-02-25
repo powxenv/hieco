@@ -72,7 +72,29 @@ Before writing any code:
 - Explore the existing project.
 - Understand the directory layout, conventions, abstractions, and dependency patterns.
 
-When adding new code:
+## Quality Check
 
-- Place it only in logically correct locations.
-- Do not introduce new patterns unless strictly necessary.
+Before committing or completing any task, run the quality check script:
+
+```bash
+bun run lint && bun run typecheck && bun run fmt
+```
+
+This runs linting, type checking, and formatting in sequence.
+
+To run quality checks for a specific package:
+
+```bash
+bun run lint:mirror-core && bun run typecheck:mirror-core && bun run fmt:mirror-core
+bun run lint:mirror-react && bun run typecheck:mirror-react && bun run fmt:mirror-react
+bun run lint:mirror-solid && bun run typecheck:mirror-solid && bun run fmt:mirror-solid
+bun run lint:mirror-preact && bun run typecheck:mirror-preact && bun run fmt:mirror-preact
+```
+
+Or individually:
+
+```bash
+bun run lint:mirror-core
+bun run typecheck:mirror-react
+bun run fmt:mirror-solid
+```
