@@ -41,7 +41,7 @@ export function App() {
 
 ```tsx
 import { createAccountInfo } from "@hiecom/solid-mirror-node";
-import { Show } from "solid-js";
+import { Show, Suspense } from "solid-js";
 
 function AccountBalance(props: { accountId: string }) {
   const query = createAccountInfo(() => ({
@@ -49,13 +49,15 @@ function AccountBalance(props: { accountId: string }) {
   }));
 
   return (
-    <Show when={query.data}>
-      {(data) => (
-        <Show when={data().success} fallback={<div>Error: {data().error.message}</div>}>
-          {(result) => <div>Balance: {result().data.balance.balance} tinybars</div>}
-        </Show>
-      )}
-    </Show>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Show when={query.data}>
+        {(data) => (
+          <Show when={data().success} fallback={<div>Failed to load</div>}>
+            {(result) => <div>Balance: {result().data.balance.balance} tinybars</div>}
+          </Show>
+        )}
+      </Show>
+    </Suspense>
   );
 }
 ```
@@ -116,6 +118,48 @@ function TokenList() {
 
 The `limit` parameter controls how many items per page to fetch from the API. The hooks automatically follow the pagination cursor (`links.next`) to fetch all pages and combine the results.
 
+### Infinite Queries
+
+For infinite scroll with manual page-by-page loading:
+
+```tsx
+import { createTokensInfinite } from "@hiecom/solid-mirror-node";
+import { Show, For } from "solid-js";
+
+function TokenInfiniteList() {
+  const query = createTokensInfinite(() => ({}));
+
+  return (
+    <Show when={query.data}>
+      {(data) => (
+        <div>
+          <For each={data().pages}>
+            {(page) => (
+              <Show when={page.success}>
+                {(result) => (
+                  <For each={result().data.data}>{(token) => <div>{token.name}</div>}</For>
+                )}
+              </Show>
+            )}
+          </For>
+          <Show when={query.hasNextPage}>
+            <button onClick={() => query.fetchNextPage()} disabled={query.isFetchingNextPage()}>
+              {query.isFetchingNextPage() ? "Loading..." : "Load More"}
+            </button>
+          </Show>
+        </div>
+      )}
+    </Show>
+  );
+}
+```
+
+Available return values:
+- `data().pages` - Array of fetched pages
+- `fetchNextPage()` - Call to fetch the next page
+- `hasNextPage()` - Boolean indicating if more pages exist
+- `isFetchingNextPage()` - Boolean indicating if next page is loading
+
 ## Available Hooks
 
 All hooks use `create` prefix and accept reactive `Accessor<T>` options.
@@ -126,39 +170,73 @@ All hooks use `create` prefix and accept reactive `Accessor<T>` options.
 - `createAccountBalances` - Get account balances
 - `createAccountTokens` - Get associated tokens
 - `createAccountNfts` - Get associated NFTs
+- `createAccountStakingRewards` - Get staking rewards
+- `createAccountCryptoAllowances` - Get crypto allowances
+- `createAccountTokenAllowances` - Get token allowances
+- `createAccountNftAllowances` - Get NFT allowances
+- `createAccountOutstandingAirdrops` - Get outstanding airdrops
+- `createAccountPendingAirdrops` - Get pending airdrops
+- `createAccountOverview` - Get complete account overview
 - `createAccounts` - List accounts (with pagination)
+- `createAccountsInfinite` - Infinite scroll for accounts
 
 ### Tokens
 
 - `createTokenInfo` - Get token details
 - `createTokenBalances` - Get token balances
 - `createTokenNfts` - Get token NFTs
+- `createTokenNft` - Get specific token NFT
+- `createTokenNftTransactions` - Get NFT transactions
 - `createTokens` - List tokens (with pagination)
+- `createTokensInfinite` - Infinite scroll for tokens
 
 ### Transactions
 
 - `createTransaction` - Get transaction details
 - `createTransactions` - List transactions (with pagination)
+- `createTransactionsByAccount` - List transactions by account
+- `createTransactionsInfinite` - Infinite scroll for transactions
 - `createPollTransaction` - Poll for transaction confirmation
 
 ### Contracts
 
 - `createContractInfo` - Get contract details
 - `createContractCall` - Call contract function
+- `createContractResults` - Get contract results
+- `createContractResult` - Get specific contract result
 - `createContractState` - Get contract state
 - `createContractLogs` - Get contract logs
+- `createContractAllResults` - Get all contract results
+- `createContractResultByTransactionIdOrHash` - Get result by transaction
+- `createContractResultActions` - Get result actions
+- `createContractResultOpcodes` - Get result opcodes
+- `createContractAllLogs` - Get all contract logs
 - `createContracts` - List contracts (with pagination)
+- `createContractsInfinite` - Infinite scroll for contracts
 
 ### Topics
 
 - `createTopicInfo` - Get topic details
 - `createTopicMessages` - Get topic messages
+- `createTopicMessage` - Get specific topic message
+- `createTopicMessageByTimestamp` - Get message by timestamp
 - `createTopics` - List topics (with pagination)
+- `createTopicsInfinite` - Infinite scroll for topics
 
 ### Schedules
 
 - `createScheduleInfo` - Get schedule details
 - `createSchedules` - List schedules (with pagination)
+- `createSchedulesInfinite` - Infinite scroll for schedules
+
+### Blocks
+
+- `createBlock` - Get block details
+- `createBlocks` - List blocks (with pagination)
+
+### Balances
+
+- `createBalances` - List balances (with pagination)
 
 ### Network
 
@@ -176,8 +254,6 @@ All hooks accept standard TanStack Query options:
 const query = createAccountInfo(() => ({
   accountId: "0.0.123",
   enabled: true,
-  staleTime: 60000,
-  refetchOnWindowFocus: false,
 }));
 ```
 
@@ -187,14 +263,18 @@ Options are wrapped in functions for automatic tracking:
 
 ```tsx
 function AccountComponent() {
-  const accountId = createSignal("0.0.123");
+  const [accountId, setAccountId] = createSignal("0.0.123");
 
-  // Automatically tracked - refetches when accountId changes
   const query = createAccountInfo(() => ({
     accountId: accountId(),
   }));
 
-  return <div>{query.data()?.data?.balance.balance}</div>;
+  return (
+    <div>
+      <Show when={query.data?.success}>{(data) => <div>{data().data.balance.balance}</div>}</Show>
+      <button onClick={() => setAccountId("0.0.456")}>Change Account</button>
+    </div>
+  );
 }
 ```
 
@@ -209,29 +289,20 @@ import { useMirrorNodeClient } from "@hiecom/solid-mirror-node";
 function MyComponent() {
   const client = useMirrorNodeClient();
 
-  // Prefetch data before it's needed
   const prefetchAccount = async () => {
     await prefetchQuery(queryClient, client, mirrorNodeKeys.account.info("mainnet", "0.0.123"));
   };
 
-  // Invalidate queries to trigger refetch
   const refreshAccount = async () => {
-    // Invalidate specific query
     await invalidateQueries(queryClient, {
       exactKey: mirrorNodeKeys.account.info("mainnet", "0.0.123"),
     });
-
-    // Invalidate all queries for an entity type
-    await invalidateQueries(queryClient, { entityType: "account" });
-
-    // Invalidate all queries for an entity with specific ID
-    await invalidateQueries(queryClient, {
-      entityType: "account",
-      resourceId: "0.0.123",
-    });
   };
 
-  // Invalidate all mirror-node queries
+  const refreshAllAccounts = async () => {
+    await invalidateQueries(queryClient, { entityType: "account" });
+  };
+
   const refreshAll = async () => {
     await invalidateQueries(queryClient, {});
   };
