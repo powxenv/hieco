@@ -51,14 +51,17 @@ export type UseTokenBalancesResult = UseQueryResult<
 >;
 
 export interface UseTokenNftsOptions extends Omit<
-  UseQueryOptions<TokenQueryFnData<Nft[]>, TokenQueryError>,
+  UseQueryOptions<TokenQueryFnData<PaginatedResponse<Nft>>, TokenQueryError>,
   "queryKey" | "queryFn"
 > {
   tokenId: EntityId;
   params?: { limit?: number; order?: "asc" | "desc"; serial_number?: number };
 }
 
-export type UseTokenNftsResult = UseQueryResult<TokenQueryFnData<Nft[]>, TokenQueryError>;
+export type UseTokenNftsResult = UseQueryResult<
+  TokenQueryFnData<PaginatedResponse<Nft>>,
+  TokenQueryError
+>;
 
 export interface UseTokenNftOptions extends Omit<
   UseQueryOptions<TokenQueryFnData<Nft>, TokenQueryError>,

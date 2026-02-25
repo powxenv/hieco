@@ -271,7 +271,7 @@ export class ContractApi extends BaseApi {
       topic3?: string;
       "transaction.hash"?: string;
     },
-  ): Promise<ApiResult<{ logs: ContractLog[]; links: { next?: string } }>> {
+  ): Promise<ApiResult<PaginatedResponse<ContractLog>>> {
     const builder = this.createQueryBuilder();
 
     if (params) {
@@ -300,10 +300,7 @@ export class ContractApi extends BaseApi {
       }
     }
 
-    return this.getSingle<{ logs: ContractLog[]; links: { next?: string } }>(
-      "contracts/results/logs",
-      builder.build(),
-    );
+    return this.getSinglePage<ContractLog>("contracts/results/logs", builder.build());
   }
 
   private buildContractListParams(params?: ContractListParams): Record<string, string> {

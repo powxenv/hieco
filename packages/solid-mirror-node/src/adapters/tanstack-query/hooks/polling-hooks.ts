@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/solid-query";
 import { createSignal } from "solid-js";
 import type { Accessor } from "solid-js";
 import type { UseQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, EntityId } from "@hiecom/mirror-node";
+import type { ApiResult, ApiError, EntityId, TransactionDetails } from "@hiecom/mirror-node";
 import { useMirrorNodeClient, useNetwork } from "../../../solid/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
@@ -14,7 +14,7 @@ export interface CreatePollTransactionOptions {
   readonly enabled?: boolean;
 }
 
-export type CreatePollTransactionResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreatePollTransactionResult = UseQueryResult<ApiResult<TransactionDetails>, ApiError>;
 
 export function createPollTransaction(
   options: Accessor<CreatePollTransactionOptions>,

@@ -115,13 +115,7 @@ For infinite scroll with manual page-by-page loading:
 import { useTokensInfinite } from "@hiecom/preact-mirror-node";
 
 function TokenInfiniteList() {
-  const {
-    data,
-    isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useTokensInfinite();
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useTokensInfinite();
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -144,6 +138,7 @@ function TokenInfiniteList() {
 ```
 
 Available return values:
+
 - `data.pages` - Array of fetched pages
 - `fetchNextPage()` - Call to fetch the next page
 - `hasNextPage` - Boolean indicating if more pages exist

@@ -155,6 +155,7 @@ function TokenInfiniteList() {
 ```
 
 Available return values:
+
 - `data().pages` - Array of fetched pages
 - `fetchNextPage()` - Call to fetch the next page
 - `hasNextPage()` - Boolean indicating if more pages exist

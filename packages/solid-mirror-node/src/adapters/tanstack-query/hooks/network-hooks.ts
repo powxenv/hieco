@@ -1,6 +1,13 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult } from "@tanstack/solid-query";
 import type { ApiResult, ApiError } from "@hiecom/mirror-node";
+import type {
+  ExchangeRate,
+  NetworkFee,
+  NetworkNode,
+  NetworkStake,
+  NetworkSupply,
+} from "@hiecom/mirror-node";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../../../solid/hooks";
 import { mirrorNodeKeys } from "../query-keys";
@@ -9,31 +16,31 @@ export interface CreateNetworkExchangeRateOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateNetworkExchangeRateResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateNetworkExchangeRateResult = UseQueryResult<ApiResult<ExchangeRate>, ApiError>;
 
 export interface CreateNetworkFeesOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateNetworkFeesResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateNetworkFeesResult = UseQueryResult<ApiResult<NetworkFee>, ApiError>;
 
 export interface CreateNetworkNodesOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateNetworkNodesResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateNetworkNodesResult = UseQueryResult<ApiResult<NetworkNode[]>, ApiError>;
 
 export interface CreateNetworkStakeOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateNetworkStakeResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateNetworkStakeResult = UseQueryResult<ApiResult<NetworkStake>, ApiError>;
 
 export interface CreateNetworkSupplyOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateNetworkSupplyResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateNetworkSupplyResult = UseQueryResult<ApiResult<NetworkSupply>, ApiError>;
 
 export function createNetworkExchangeRate(
   options: Accessor<CreateNetworkExchangeRateOptions> = () => ({}),

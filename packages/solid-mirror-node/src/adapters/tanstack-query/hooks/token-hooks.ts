@@ -6,6 +6,10 @@ import type {
   EntityId,
   PaginationParams,
   QueryOperator,
+  TokenDistribution,
+  TokenInfo,
+  Nft,
+  Transaction,
 } from "@hiecom/mirror-node";
 import type { PaginatedResponse } from "@hiecom/mirror-node";
 import type { Accessor } from "solid-js";
@@ -20,7 +24,7 @@ export interface CreateTokenInfoOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTokenInfoResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTokenInfoResult = UseQueryResult<ApiResult<TokenInfo>, ApiError>;
 
 export interface CreateTokenBalancesOptions {
   readonly tokenId: EntityId;
@@ -33,7 +37,7 @@ export interface CreateTokenBalancesOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTokenBalancesResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTokenBalancesResult = UseQueryResult<ApiResult<TokenDistribution[]>, ApiError>;
 
 export interface CreateTokenNftsOptions {
   readonly tokenId: EntityId;
@@ -45,7 +49,7 @@ export interface CreateTokenNftsOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTokenNftsResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTokenNftsResult = UseQueryResult<ApiResult<PaginatedResponse<Nft>>, ApiError>;
 
 export interface CreateTokenNftOptions {
   readonly tokenId: EntityId;
@@ -53,7 +57,7 @@ export interface CreateTokenNftOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTokenNftResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTokenNftResult = UseQueryResult<ApiResult<Nft>, ApiError>;
 
 export interface CreateTokenNftTransactionsOptions {
   readonly tokenId: EntityId;
@@ -62,7 +66,7 @@ export interface CreateTokenNftTransactionsOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTokenNftTransactionsResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTokenNftTransactionsResult = UseQueryResult<ApiResult<Transaction[]>, ApiError>;
 
 export interface CreateTokensOptions {
   readonly params?: {
@@ -74,7 +78,7 @@ export interface CreateTokensOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTokensResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTokensResult = UseQueryResult<ApiResult<TokenInfo[]>, ApiError>;
 
 export interface CreateTokensInfiniteOptions {
   readonly params?: { readonly limit?: number; readonly order?: "asc" | "desc" };
@@ -82,7 +86,7 @@ export interface CreateTokensInfiniteOptions {
 }
 
 export type CreateTokensInfiniteResult = UseInfiniteQueryResult<
-  ApiResult<PaginatedResponse<any>>,
+  ApiResult<PaginatedResponse<TokenInfo>>,
   ApiError
 >;
 

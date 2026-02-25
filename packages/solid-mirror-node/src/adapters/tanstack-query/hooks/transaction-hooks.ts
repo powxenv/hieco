@@ -1,6 +1,14 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hiecom/mirror-node";
+import type {
+  ApiResult,
+  ApiError,
+  EntityId,
+  QueryOperator,
+  Timestamp,
+  TransactionDetails,
+  Transaction,
+} from "@hiecom/mirror-node";
 import type { PaginatedResponse } from "@hiecom/mirror-node";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../../../solid/hooks";
@@ -14,7 +22,7 @@ export interface CreateTransactionOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTransactionResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTransactionResult = UseQueryResult<ApiResult<TransactionDetails>, ApiError>;
 
 export interface CreateTransactionsByAccountOptions {
   readonly accountId: EntityId;
@@ -28,7 +36,7 @@ export interface CreateTransactionsByAccountOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTransactionsByAccountResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTransactionsByAccountResult = UseQueryResult<ApiResult<Transaction[]>, ApiError>;
 
 export interface CreateTransactionsOptions {
   readonly params?: {
@@ -42,7 +50,7 @@ export interface CreateTransactionsOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTransactionsResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTransactionsResult = UseQueryResult<ApiResult<Transaction[]>, ApiError>;
 
 export interface CreateTransactionsInfiniteOptions {
   readonly params?: { readonly limit?: number; readonly order?: "asc" | "desc" };
@@ -50,7 +58,7 @@ export interface CreateTransactionsInfiniteOptions {
 }
 
 export type CreateTransactionsInfiniteResult = UseInfiniteQueryResult<
-  ApiResult<PaginatedResponse<any>>,
+  ApiResult<PaginatedResponse<Transaction>>,
   ApiError
 >;
 

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
 import type { ApiResult, ApiError, EntityId, PaginationParams } from "@hiecom/mirror-node";
-import type { PaginatedResponse } from "@hiecom/mirror-node";
+import type { PaginatedResponse, Topic, TopicMessage } from "@hiecom/mirror-node";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../../../solid/hooks";
 import { mirrorNodeKeys } from "../query-keys";
@@ -14,7 +14,7 @@ export interface CreateTopicInfoOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTopicInfoResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTopicInfoResult = UseQueryResult<ApiResult<Topic>, ApiError>;
 
 export interface CreateTopicMessagesOptions {
   readonly topicId: EntityId;
@@ -27,7 +27,7 @@ export interface CreateTopicMessagesOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTopicMessagesResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTopicMessagesResult = UseQueryResult<ApiResult<TopicMessage[]>, ApiError>;
 
 export interface CreateTopicMessageOptions {
   readonly topicId: EntityId;
@@ -35,14 +35,14 @@ export interface CreateTopicMessageOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTopicMessageResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTopicMessageResult = UseQueryResult<ApiResult<TopicMessage>, ApiError>;
 
 export interface CreateTopicsOptions {
   readonly params?: PaginationParams;
   readonly enabled?: boolean;
 }
 
-export type CreateTopicsResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTopicsResult = UseQueryResult<ApiResult<Topic[]>, ApiError>;
 
 export interface CreateTopicsInfiniteOptions {
   readonly params?: { readonly limit?: number; readonly order?: "asc" | "desc" };
@@ -50,7 +50,7 @@ export interface CreateTopicsInfiniteOptions {
 }
 
 export type CreateTopicsInfiniteResult = UseInfiniteQueryResult<
-  ApiResult<PaginatedResponse<any>>,
+  ApiResult<PaginatedResponse<Topic>>,
   ApiError
 >;
 
@@ -162,7 +162,7 @@ export interface CreateTopicMessageByTimestampOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTopicMessageByTimestampResult = UseQueryResult<ApiResult<any>, ApiError>;
+export type CreateTopicMessageByTimestampResult = UseQueryResult<ApiResult<TopicMessage>, ApiError>;
 
 export function createTopicMessageByTimestamp(
   options: Accessor<CreateTopicMessageByTimestampOptions>,

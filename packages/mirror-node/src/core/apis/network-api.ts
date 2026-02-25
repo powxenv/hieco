@@ -6,6 +6,7 @@ import type {
   NetworkStake,
   NetworkSupply,
 } from "../../types/entities/network";
+import type { CursorPaginator, PaginatedResponse } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface NetworkNodesParams extends PaginationParams {
@@ -54,6 +55,37 @@ export class NetworkApi extends BaseApi {
     }
 
     return this.getList<NetworkNode>("network/nodes", builder.build());
+  }
+
+  async listPaginated(params?: NetworkNodesParams): Promise<ApiResult<NetworkNode[]>> {
+    return this.getAllPaginated<NetworkNode>("network/nodes", this.buildNetworkNodesParams(params));
+  }
+
+  async listPaginatedPage(
+    params?: NetworkNodesParams,
+  ): Promise<ApiResult<PaginatedResponse<NetworkNode>>> {
+    return this.getSinglePage<NetworkNode>("network/nodes", this.buildNetworkNodesParams(params));
+  }
+
+  async listPaginatedPageByUrl(url: string): Promise<ApiResult<PaginatedResponse<NetworkNode>>> {
+    return this.getSinglePageByUrl<NetworkNode>(url);
+  }
+
+  createNetworkNodesPaginator(params?: NetworkNodesParams): CursorPaginator<NetworkNode> {
+    return super.createPaginator<NetworkNode>(
+      "network/nodes",
+      this.buildNetworkNodesParams(params),
+    );
+  }
+
+  private buildNetworkNodesParams(params?: NetworkNodesParams): Record<string, string> {
+    const builder = this.createQueryBuilder();
+    if (params) {
+      builder.addPagination(params);
+      if (params["file.id"] !== undefined) builder.add("file.id", params["file.id"]);
+      if (params["node.id"] !== undefined) builder.add("node.id", params["node.id"]);
+    }
+    return builder.build();
   }
 
   async getStake(): Promise<ApiResult<NetworkStake>> {
