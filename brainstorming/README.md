@@ -17,6 +17,7 @@ This directory contains comprehensive research, analysis, and proposals for the 
 | [01 - Hackathon Overview](./01-overview/)     | Comprehensive analysis of all 5 bounty tracks | ✅ Complete |
 | [02 - Bounty Research](./02-bounty-research/) | Deep-dive research on Hiero ecosystem         | ✅ Complete |
 | [03 - Proposals](./03-proposals/)             | Novel DX proposals and unified ecosystem      | ✅ Complete |
+| [04 - Ecosystem Expansion](./04-ecosystem-expansion/) | Seven practical additions to @hiecom | ✅ Complete |
 
 ---
 
@@ -30,9 +31,12 @@ brainstorming/
 ├── 02-bounty-research/
 │   ├── all-bounties-analysis.md        # Cross-bounty synthesis
 │   └── hiero-deep-dive.md              # Exhaustive Hiero ecosystem mapping
-└── 03-proposals/
-    ├── hiero-dx-proposals.md           # Novel DX-focused proposals
-    └── hiecom-unified-ecosystem.md     # Unified frontend ecosystem design
+├── 03-proposals/
+│   ├── hiero-dx-proposals.md           # Novel DX-focused proposals
+│   └── hiecom-unified-ecosystem.md     # Unified frontend ecosystem design
+└── 04-ecosystem-expansion/
+    ├── README.md                       # Seven practical additions overview
+    └── testing-prd.md                  # @hiecom/testing comprehensive PRD
 ```
 
 ---
@@ -151,6 +155,75 @@ A unified, community-driven frontend integration ecosystem covering **React, Sve
 
 ---
 
+### 04 - Ecosystem Expansion
+
+**Overview:** [`README.md`](./04-ecosystem-expansion/README.md)
+
+Seven strategic additions to the @hiecom ecosystem based on existing packages and research findings:
+
+| Package | Impact | Complexity | Time |
+|---------|--------|------------|------|
+| `@hiecom/testing` | ⭐⭐⭐⭐⭐ | Low | 6-8 days |
+| `@hiecom/scheduled` | ⭐⭐⭐⭐ | Medium | 7-9 days |
+| `@hiecom/devtools` | ⭐⭐⭐⭐⭐ | Medium | 8-10 days |
+| `@hiecom/mirror-realtime` | ⭐⭐⭐⭐ | Medium | 5-7 days |
+| `@hiecom/vault` | ⭐⭐⭐ | Medium | 5-7 days |
+| `@hiecom/mirror-vue` | ⭐⭐⭐ | Low | 3-4 days |
+| `@hiecom/cli` | ⭐⭐⭐ | Low | 4-5 days |
+
+#### @hiecom/testing PRD
+
+**File:** [`testing-prd.md`](./04-ecosystem-expansion/testing-prd.md)
+
+Comprehensive Product Requirements Document for `@hiecom/testing`:
+
+- Mock Mirror Node server using MSW
+- Pre-built test fixtures for all entities
+- React testing utilities with proper wrappers
+- Custom Vitest matchers for Hiero entities
+- Time and network simulation utilities
+
+**Dependencies Specified:**
+- `msw@^2.7.0` - Mock Service Worker for HTTP mocking
+- `@testing-library/react@^16.1.0` - React testing utilities
+- `@testing-library/user-event@^14.5.0` - User interaction simulation
+- `happy-dom@^15.11.6` - Fast DOM environment
+- `vitest@^3.2.0` - Test runner
+
+**Key Features:**
+
+```typescript
+// Zero-config mock server
+import { setupMirrorMock } from '@hiecom/testing/vitest'
+
+const { server } = setupMirrorMock({
+  network: 'testnet',
+  onUnhandledRequest: 'error'
+})
+
+// Test fixtures
+import { mockAccount, mockTransaction } from '@hiecom/testing/fixtures'
+
+const account = mockAccount({ balance: 1000 })
+const transactions = mockTransaction.list(10)
+
+// React utilities
+import { renderHook, createTestWrapper } from '@hiecom/testing/react'
+
+const { result } = renderHook(
+  () => useAccountBalance('0.0.1234'),
+  { wrapper: createTestWrapper() }
+)
+
+// Custom matchers
+import '@hiecom/testing/matchers'
+
+expect(account).toHaveHbarBalance(1000)
+expect(tx).toBeSuccessfulTransaction()
+```
+
+---
+
 ## Research Methodology
 
 All research was conducted using:
@@ -223,7 +296,7 @@ When adding new research:
 ## Metadata
 
 **Created:** February 22, 2026
-**Last Updated:** February 22, 2026
+**Last Updated:** February 25, 2026
 **Authors:** @pow
 **License:** MIT (for documentation structure)
 
