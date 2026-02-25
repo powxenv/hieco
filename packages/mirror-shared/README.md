@@ -24,11 +24,7 @@ Utilities are re-exported by framework packages, so you can import them directly
 
 ```typescript
 // When using @hiecom/mirror-react
-import {
-  createNetworkConfig,
-  mirrorNodeKeys,
-  isValidEntityId,
-} from "@hiecom/mirror-react";
+import { createNetworkConfig, mirrorNodeKeys, isValidEntityId } from "@hiecom/mirror-react";
 ```
 
 ## Entity ID Utilities
@@ -66,11 +62,7 @@ const [shard, realm, num] = parseEntityIdParts("0.0.123");
 ## Network Configuration
 
 ```typescript
-import {
-  createNetworkConfig,
-  getNetworkUrl,
-  isDefaultNetwork,
-} from "@hiecom/mirror-shared";
+import { createNetworkConfig, getNetworkUrl, isDefaultNetwork } from "@hiecom/mirror-shared";
 
 const networkConfig = createNetworkConfig({
   defaultNetwork: "mainnet",
@@ -141,11 +133,7 @@ if (isApiError(result)) {
 ## Query Helpers
 
 ```typescript
-import {
-  prefetchQuery,
-  invalidateQueries,
-  EntityType,
-} from "@hiecom/mirror-shared";
+import { prefetchQuery, invalidateQueries, EntityType } from "@hiecom/mirror-shared";
 import { QueryClient } from "@tanstack/react-query";
 
 // Prefetch a query

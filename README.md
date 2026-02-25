@@ -10,6 +10,7 @@ Type-safe SDK for interacting with Hedera Mirror Node API across multiple framew
 | [`@hiecom/mirror-react`](packages/mirror-react) | React hooks with TanStack Query | React |
 | [`@hiecom/mirror-solid`](packages/mirror-solid) | SolidJS hooks with TanStack Query | SolidJS |
 | [`@hiecom/mirror-preact`](packages/mirror-preact) | Preact hooks with TanStack Query | Preact |
+| [`@hiecom/testing`](packages/testing) | Testing utilities with MSW fixtures | Testing |
 
 ## License
 
