@@ -23,7 +23,8 @@
       "Bash(bun fmt:*)",
       "Bash(find:*)",
       "Bash(grep:*)",
-      "Bash(tail:*)"
+      "Bash(tail:*)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

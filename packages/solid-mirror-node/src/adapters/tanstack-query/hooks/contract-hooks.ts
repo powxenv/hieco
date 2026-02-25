@@ -1,4 +1,4 @@
-import { useQuery, useInfiniteQuery } from "@tanstack/solid-query";
+import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
 import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hiecom/mirror-node";
 import type {
@@ -17,6 +17,7 @@ import type { PaginatedResponse } from "@hiecom/mirror-node";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../../../solid/hooks";
 import { mirrorNodeKeys } from "../query-keys";
+import { createMirrorNodeInfiniteQuery } from "../utils";
 
 export type {
   ContractListParams,
@@ -255,32 +256,23 @@ export function createContractsInfinite(
   const client = useMirrorNodeClient();
   const { network } = useNetwork();
 
-  return useInfiniteQuery<
-    ApiResult<PaginatedResponse<ContractInfo>>,
-    ApiError,
-    ApiResult<PaginatedResponse<ContractInfo>>,
-    readonly ["mirror-node", string, "contracts", "list"],
-    string | undefined
-  >(() => {
-    const opts = options();
-    return {
-      queryKey: mirrorNodeKeys.contract.list(network()),
-      queryFn: async ({ pageParam }) => {
-        if (pageParam) {
-          return client().contract.listPaginatedPageByUrl(pageParam);
-        }
-        return client().contract.listPaginatedPage({
-          ...opts.params,
-          limit: opts.params?.limit ?? 25,
-        });
-      },
-      getNextPageParam: (lastPage) => {
-        if (!lastPage.success) return undefined;
-        return lastPage.data.links.next ?? undefined;
-      },
-      initialPageParam: undefined,
-    };
-  });
+  return createMirrorNodeInfiniteQuery(
+    mirrorNodeKeys.contract.list(network()),
+    options,
+    (pageParam, opts) => {
+      if (pageParam) {
+        return client().contract.listPaginatedPageByUrl(pageParam);
+      }
+      return client().contract.listPaginatedPage({
+        ...opts.params,
+        limit: opts.params?.limit ?? 25,
+      });
+    },
+    (lastPage) => {
+      if (!lastPage.success) return undefined;
+      return lastPage.data.links.next ?? undefined;
+    },
+  );
 }
 
 export interface CreateContractAllResultsOptions {

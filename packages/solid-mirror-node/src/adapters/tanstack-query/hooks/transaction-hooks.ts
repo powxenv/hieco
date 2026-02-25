@@ -1,10 +1,11 @@
-import { useQuery, useInfiniteQuery } from "@tanstack/solid-query";
+import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
 import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hiecom/mirror-node";
 import type { PaginatedResponse } from "@hiecom/mirror-node";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../../../solid/hooks";
 import { mirrorNodeKeys } from "../query-keys";
+import { createMirrorNodeInfiniteQuery } from "../utils";
 
 export type { TransactionListParams, TransactionsByAccountParams } from "@hiecom/mirror-node";
 
@@ -119,30 +120,21 @@ export function createTransactionsInfinite(
   const client = useMirrorNodeClient();
   const { network } = useNetwork();
 
-  return useInfiniteQuery<
-    ApiResult<PaginatedResponse<any>>,
-    ApiError,
-    ApiResult<PaginatedResponse<any>>,
-    readonly ["mirror-node", string, "transactions", "list"],
-    string | undefined
-  >(() => {
-    const opts = options();
-    return {
-      queryKey: mirrorNodeKeys.transaction.list(network()),
-      queryFn: async ({ pageParam }) => {
-        if (pageParam) {
-          return client().transaction.listPaginatedPageByUrl(pageParam);
-        }
-        return client().transaction.listPaginatedPage({
-          ...opts.params,
-          limit: opts.params?.limit ?? 25,
-        });
-      },
-      getNextPageParam: (lastPage) => {
-        if (!lastPage.success) return undefined;
-        return lastPage.data.links.next ?? undefined;
-      },
-      initialPageParam: undefined,
-    };
-  });
+  return createMirrorNodeInfiniteQuery(
+    mirrorNodeKeys.transaction.list(network()),
+    options,
+    (pageParam, opts) => {
+      if (pageParam) {
+        return client().transaction.listPaginatedPageByUrl(pageParam);
+      }
+      return client().transaction.listPaginatedPage({
+        ...opts.params,
+        limit: opts.params?.limit ?? 25,
+      });
+    },
+    (lastPage) => {
+      if (!lastPage.success) return undefined;
+      return lastPage.data.links.next ?? undefined;
+    },
+  );
 }

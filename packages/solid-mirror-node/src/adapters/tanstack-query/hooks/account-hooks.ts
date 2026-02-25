@@ -1,4 +1,4 @@
-import { useQuery, useInfiniteQuery } from "@tanstack/solid-query";
+import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
 import type {
   ApiResult,
@@ -21,6 +21,7 @@ import type { PaginatedResponse } from "@hiecom/mirror-node";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../../../solid/hooks";
 import { mirrorNodeKeys } from "../query-keys";
+import { createMirrorNodeInfiniteQuery } from "../utils";
 
 export type { AccountListParams, AccountNftsParams } from "@hiecom/mirror-node";
 
@@ -312,32 +313,23 @@ export function createAccountsInfinite(
   const client = useMirrorNodeClient();
   const { network } = useNetwork();
 
-  return useInfiniteQuery<
-    ApiResult<PaginatedResponse<AccountInfo>>,
-    ApiError,
-    ApiResult<PaginatedResponse<AccountInfo>>,
-    readonly ["mirror-node", string, "accounts", "list"],
-    string | undefined
-  >(() => {
-    const opts = options();
-    return {
-      queryKey: mirrorNodeKeys.account.list(network()),
-      queryFn: async ({ pageParam }) => {
-        if (pageParam) {
-          return client().account.listPaginatedPageByUrl(pageParam);
-        }
-        return client().account.listPaginatedPage({
-          ...opts.params,
-          limit: opts.params?.limit ?? 25,
-        });
-      },
-      getNextPageParam: (lastPage) => {
-        if (!lastPage.success) return undefined;
-        return lastPage.data.links.next ?? undefined;
-      },
-      initialPageParam: undefined,
-    };
-  });
+  return createMirrorNodeInfiniteQuery(
+    mirrorNodeKeys.account.list(network()),
+    options,
+    (pageParam, opts) => {
+      if (pageParam) {
+        return client().account.listPaginatedPageByUrl(pageParam);
+      }
+      return client().account.listPaginatedPage({
+        ...opts.params,
+        limit: opts.params?.limit ?? 25,
+      });
+    },
+    (lastPage) => {
+      if (!lastPage.success) return undefined;
+      return lastPage.data.links.next ?? undefined;
+    },
+  );
 }
 
 export interface CreateAccountOutstandingAirdropsOptions {

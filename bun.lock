@@ -4,9 +4,6 @@
   "workspaces": {
     "": {
       "name": "hiecom",
-      "dependencies": {
-        "@tanstack/solid-query": "^5.90.23",
-      },
     },
     "packages/mirror-node": {
       "name": "@hiecom/mirror-node",
