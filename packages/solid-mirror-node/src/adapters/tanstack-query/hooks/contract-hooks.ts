@@ -332,7 +332,10 @@ export interface CreateContractAllLogsOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateContractAllLogsResult = UseQueryResult<ApiResult<ContractLog[]>, ApiError>;
+export type CreateContractAllLogsResult = UseQueryResult<
+  ApiResult<PaginatedResponse<ContractLog>>,
+  ApiError
+>;
 
 export function createContractAllResults(
   options: Accessor<CreateContractAllResultsOptions> = () => ({}),

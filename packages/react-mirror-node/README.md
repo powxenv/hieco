@@ -75,9 +75,20 @@ function NetworkSelector() {
 
 ## Pagination
 
-The Hedera Mirror Node API uses cursor-based pagination. The hooks handle this automatically.
+The Hedera Mirror Node API uses cursor-based pagination with forward-only navigation.
 
-### List Queries
+### Paginated Response Format
+
+```typescript
+interface PaginatedResponse<T> {
+  links: {
+    next?: string;
+  };
+  data: T[];
+}
+```
+
+### List Queries (Auto-Fetch All)
 
 List hooks fetch all items across all pages by default:
 
@@ -94,7 +105,7 @@ function TokenList() {
 
   return (
     <div>
-      <p>Showing {data.data.length} tokens</p>
+      <p>Total: {data.data.length} tokens</p>
       <ul>
         {data.data.map((token) => (
           <li key={token.token_id}>{token.name}</li>
@@ -105,28 +116,23 @@ function TokenList() {
 }
 ```
 
-The `limit` parameter controls how many items per page to fetch from the API. The hooks automatically follow the pagination cursor (`links.next`) to fetch all pages and combine the results.
+### Infinite Queries (Load More)
 
-### Infinite Queries
-
-For infinite scroll with manual page-by-page loading:
+For "Load More" button or infinite scroll:
 
 ```tsx
 import { useTokensInfinite } from "@hiecom/react-mirror-node";
 
-function TokenInfiniteList() {
+function TokenList() {
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useTokensInfinite();
-
-  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div>
-      {data?.pages.map((page, index) => (
-        <div key={index}>
-          {page.success &&
-            page.data.data.map((token) => <div key={token.token_id}>{token.name}</div>)}
-        </div>
-      ))}
+      {data?.pages.map(
+        (page) =>
+          page.success &&
+          page.data.data.map((token) => <div key={token.token_id}>{token.name}</div>),
+      )}
       {hasNextPage && (
         <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
           {isFetchingNextPage ? "Loading..." : "Load More"}
@@ -137,12 +143,12 @@ function TokenInfiniteList() {
 }
 ```
 
-Available return values:
+### Infinite Query Return Values
 
 - `data.pages` - Array of fetched pages
-- `fetchNextPage()` - Call to fetch the next page
-- `hasNextPage` - Boolean indicating if more pages exist
-- `isFetchingNextPage` - Boolean indicating if next page is loading
+- `fetchNextPage()` - Fetch next page
+- `hasNextPage` - More pages available
+- `isFetchingNextPage` - Next page loading
 
 ## Available Hooks
 

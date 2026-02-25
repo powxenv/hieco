@@ -118,6 +118,10 @@ client.schedule.listPaginated({ limit: 25 });
 client.network.getExchangeRate();
 client.network.getFees();
 client.network.getNodes();
+client.network.listPaginated({ limit: 25 });
+client.network.listPaginatedPage({ limit: 25 });
+client.network.listPaginatedPageByUrl("https://...");
+client.network.createNetworkNodesPaginator({ limit: 25 });
 client.network.getStake();
 client.network.getSupply();
 ```
@@ -135,6 +139,86 @@ client.block.getBlock("0.0.456");
 client.block.getBlock("123456");
 client.block.getBlocks({ limit: 50 });
 ```
+
+## Cursor Pagination
+
+The Hedera Mirror Node API uses cursor-based pagination with forward-only navigation.
+
+### Paginated Response Format
+
+```typescript
+interface PaginatedResponse<T> {
+  links: {
+    next?: string;
+  };
+  data: T[];
+}
+```
+
+### Fetch All Pages
+
+Automatically follows `links.next` to fetch all pages:
+
+```typescript
+const result = await client.token.listPaginated({ limit: 100 });
+
+if (result.success) {
+  const tokens = result.data;
+  console.log(`Fetched ${tokens.length} total tokens`);
+}
+```
+
+### Fetch Single Page
+
+Get one page with metadata:
+
+```typescript
+const result = await client.token.listPaginatedPage({ limit: 25 });
+
+if (result.success) {
+  const page = result.data;
+  console.log(`Items: ${page.data.length}`);
+  console.log(`Next: ${page.links.next ?? "none"}`);
+}
+```
+
+### Fetch by URL
+
+Navigate using a previously returned `links.next` URL:
+
+```typescript
+let nextUrl: string | undefined = initialUrl;
+
+while (nextUrl) {
+  const result = await client.token.listPaginatedPageByUrl(nextUrl);
+
+  if (result.success) {
+    const { data, links } = result.data;
+    for (const item of data) {
+      // Process item
+    }
+    nextUrl = links.next;
+  }
+}
+```
+
+### Async Iterator
+
+```typescript
+const paginator = client.token.createTokenPaginator({ limit: 100 });
+
+for await (const token of paginator) {
+  console.log(token.name);
+}
+```
+
+### Framework Packages
+
+For React, Preact, and SolidJS, use the framework-specific packages:
+
+- `@hiecom/react-mirror-node` - React hooks with TanStack Query
+- `@hiecom/preact-mirror-node` - Preact hooks with TanStack Query
+- `@hiecom/solid-mirror-node` - SolidJS hooks with TanStack Query
 
 ## Response Format
 

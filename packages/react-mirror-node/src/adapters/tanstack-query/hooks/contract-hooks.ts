@@ -313,10 +313,7 @@ export type UseContractResultOpcodesResult = UseQueryResult<
 >;
 
 export interface UseContractAllLogsOptions extends Omit<
-  UseQueryOptions<
-    ContractQueryFnData<{ logs: ContractLog[]; links: { next?: string } }>,
-    ContractQueryError
-  >,
+  UseQueryOptions<ContractQueryFnData<PaginatedResponse<ContractLog>>, ContractQueryError>,
   "queryKey" | "queryFn"
 > {
   params?: {
@@ -328,7 +325,7 @@ export interface UseContractAllLogsOptions extends Omit<
 }
 
 export type UseContractAllLogsResult = UseQueryResult<
-  ContractQueryFnData<{ logs: ContractLog[]; links: { next?: string } }>,
+  ContractQueryFnData<PaginatedResponse<ContractLog>>,
   ContractQueryError
 >;
 
