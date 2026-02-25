@@ -14,6 +14,7 @@ import type {
 } from "@hiecom/mirror-node";
 import type { Nft, TokenDistribution, TokenInfo } from "@hiecom/mirror-node";
 import type { Transaction } from "@hiecom/mirror-node";
+import type { PaginatedResponse } from "@hiecom/mirror-node";
 import { useMirrorNodeClient, useNetwork } from "../../../preact/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
@@ -98,14 +99,14 @@ export interface UseTokensOptions extends Omit<
 export type UseTokensResult = UseQueryResult<TokenQueryFnData<TokenInfo[]>, TokenQueryError>;
 
 export interface UseTokensInfiniteOptions extends Omit<
-  UseInfiniteQueryOptions<TokenQueryFnData<TokenInfo[]>, TokenQueryError>,
+  UseInfiniteQueryOptions<TokenQueryFnData<PaginatedResponse<TokenInfo>>, TokenQueryError>,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
   params?: { limit?: number; order?: "asc" | "desc" };
 }
 
 export type UseTokensInfiniteResult = UseInfiniteQueryResult<
-  TokenQueryFnData<TokenInfo[]>,
+  TokenQueryFnData<PaginatedResponse<TokenInfo>>,
   TokenQueryError
 >;
 
@@ -201,22 +202,19 @@ export function useTokensInfinite(options: UseTokensInfiniteOptions): UseTokensI
   return useInfiniteQuery({
     ...options,
     queryKey: mirrorNodeKeys.token.list(network),
-    queryFn: async () => {
-      const params = {
+    queryFn: async ({ pageParam }) => {
+      if (typeof pageParam === "string") {
+        return client.token.listPaginatedPageByUrl(pageParam);
+      }
+      return client.token.listPaginatedPage({
         ...options.params,
         limit: options.params?.limit ?? 25,
-      };
-
-      const result = await client.token.listPaginated(params);
-
-      return result;
+      });
     },
     getNextPageParam: (lastPage) => {
-      if (!lastPage.success || lastPage.data.length === 0) {
-        return undefined;
-      }
-      return lastPage.data.length;
+      if (!lastPage.success) return undefined;
+      return lastPage.data.links.next ?? undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: null,
   });
 }

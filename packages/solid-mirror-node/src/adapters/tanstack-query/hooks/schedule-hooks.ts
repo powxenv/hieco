@@ -35,7 +35,10 @@ export interface CreateSchedulesInfiniteOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateSchedulesInfiniteResult = UseInfiniteQueryResult<ApiResult<PaginatedResponse<Schedule>>, ApiError>;
+export type CreateSchedulesInfiniteResult = UseInfiniteQueryResult<
+  ApiResult<PaginatedResponse<Schedule>>,
+  ApiError
+>;
 
 export function createScheduleInfo(
   options: Accessor<CreateScheduleInfoOptions>,
@@ -83,13 +86,19 @@ export function createSchedulesInfinite(
   const client = useMirrorNodeClient();
   const { network } = useNetwork();
 
-  return useInfiniteQuery(() => {
+  return useInfiniteQuery<
+    ApiResult<PaginatedResponse<Schedule>>,
+    ApiError,
+    ApiResult<PaginatedResponse<Schedule>>,
+    readonly ["mirror-node", string, "schedules", "list"],
+    string | undefined
+  >(() => {
     const opts = options();
     return {
       queryKey: mirrorNodeKeys.schedule.list(network()),
       queryFn: async ({ pageParam }) => {
-        if (pageParam !== undefined) {
-          return client().schedule.listPaginatedPageByUrl(pageParam as string);
+        if (pageParam) {
+          return client().schedule.listPaginatedPageByUrl(pageParam);
         }
         return client().schedule.listPaginatedPage({
           ...opts.params,

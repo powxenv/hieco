@@ -48,7 +48,10 @@ export interface CreateTopicsInfiniteOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTopicsInfiniteResult = UseInfiniteQueryResult<ApiResult<PaginatedResponse<any>>, ApiError>;
+export type CreateTopicsInfiniteResult = UseInfiniteQueryResult<
+  ApiResult<PaginatedResponse<any>>,
+  ApiError
+>;
 
 export function createTopicInfo(options: Accessor<CreateTopicInfoOptions>): CreateTopicInfoResult {
   const client = useMirrorNodeClient();
@@ -134,13 +137,19 @@ export function createTopicsInfinite(
   const client = useMirrorNodeClient();
   const { network } = useNetwork();
 
-  return useInfiniteQuery(() => {
+  return useInfiniteQuery<
+    ApiResult<PaginatedResponse<any>>,
+    ApiError,
+    ApiResult<PaginatedResponse<any>>,
+    readonly ["mirror-node", string, "topics", "list"],
+    string | undefined
+  >(() => {
     const opts = options();
     return {
       queryKey: mirrorNodeKeys.topic.list(network()),
       queryFn: async ({ pageParam }) => {
-        if (pageParam !== undefined) {
-          return client().topic.listPaginatedPageByUrl(pageParam as string);
+        if (pageParam) {
+          return client().topic.listPaginatedPageByUrl(pageParam);
         }
         return client().topic.listPaginatedPage({
           ...opts.params,
@@ -151,7 +160,7 @@ export function createTopicsInfinite(
         if (!lastPage.success) return undefined;
         return lastPage.data.links.next ?? undefined;
       },
-      initialPageParam: null,
+      initialPageParam: undefined,
     };
   });
 }

@@ -10,7 +10,7 @@ import type {
   TokenAirdropsResponse,
 } from "../../types/entities/account";
 import type { EntityId } from "../../types/rest-api";
-import type { CursorPaginator } from "../builders";
+import type { CursorPaginator, PaginatedResponse } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface AccountListParams extends PaginationParams {
@@ -294,6 +294,16 @@ export class AccountApi extends BaseApi {
 
   async listPaginated(params?: AccountListParams): Promise<ApiResult<AccountInfo[]>> {
     return this.getAllPaginated<AccountInfo>("accounts", this.buildAccountListParams(params));
+  }
+
+  async listPaginatedPage(
+    params?: AccountListParams,
+  ): Promise<ApiResult<PaginatedResponse<AccountInfo>>> {
+    return this.getSinglePage<AccountInfo>("accounts", this.buildAccountListParams(params));
+  }
+
+  async listPaginatedPageByUrl(url: string): Promise<ApiResult<PaginatedResponse<AccountInfo>>> {
+    return this.getSinglePageByUrl<AccountInfo>(url);
   }
 
   createAccountPaginator(params?: AccountListParams): CursorPaginator<AccountInfo> {

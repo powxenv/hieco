@@ -7,6 +7,7 @@ import type {
 } from "@tanstack/react-query";
 import type { ApiResult, ApiError, EntityId, QueryOperator } from "@hiecom/mirror-node";
 import type { Schedule } from "@hiecom/mirror-node";
+import type { PaginatedResponse } from "@hiecom/mirror-node";
 import { useMirrorNodeClient, useNetwork } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
@@ -47,14 +48,14 @@ export type UseSchedulesResult = UseQueryResult<
 >;
 
 export interface UseSchedulesInfiniteOptions extends Omit<
-  UseInfiniteQueryOptions<ScheduleQueryFnData<Schedule[]>, ScheduleQueryError>,
+  UseInfiniteQueryOptions<ScheduleQueryFnData<PaginatedResponse<Schedule>>, ScheduleQueryError>,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
   params?: { limit?: number; order?: "asc" | "desc" };
 }
 
 export type UseSchedulesInfiniteResult = UseInfiniteQueryResult<
-  ScheduleQueryFnData<Schedule[]>,
+  ScheduleQueryFnData<PaginatedResponse<Schedule>>,
   ScheduleQueryError
 >;
 
@@ -94,22 +95,19 @@ export function useSchedulesInfinite(
   return useInfiniteQuery({
     ...options,
     queryKey: mirrorNodeKeys.schedule.list(network),
-    queryFn: async () => {
-      const params = {
+    queryFn: async ({ pageParam }) => {
+      if (typeof pageParam === "string") {
+        return client.schedule.listPaginatedPageByUrl(pageParam);
+      }
+      return client.schedule.listPaginatedPage({
         ...options.params,
         limit: options.params?.limit ?? 25,
-      };
-
-      const result = await client.schedule.listPaginated(params);
-
-      return result;
+      });
     },
     getNextPageParam: (lastPage) => {
-      if (!lastPage.success || lastPage.data.length === 0) {
-        return undefined;
-      }
-      return lastPage.data.length;
+      if (!lastPage.success) return undefined;
+      return lastPage.data.links.next ?? undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: null,
   });
 }

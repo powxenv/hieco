@@ -48,7 +48,10 @@ export interface CreateTransactionsInfiniteOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTransactionsInfiniteResult = UseInfiniteQueryResult<ApiResult<PaginatedResponse<any>>, ApiError>;
+export type CreateTransactionsInfiniteResult = UseInfiniteQueryResult<
+  ApiResult<PaginatedResponse<any>>,
+  ApiError
+>;
 
 export function createTransaction(
   options: Accessor<CreateTransactionOptions>,
@@ -116,7 +119,13 @@ export function createTransactionsInfinite(
   const client = useMirrorNodeClient();
   const { network } = useNetwork();
 
-  return useInfiniteQuery<ApiResult<PaginatedResponse<any>>, ApiError, ApiResult<PaginatedResponse<any>>, readonly ["mirror-node", string, "transactions", "list"], string | undefined>(() => {
+  return useInfiniteQuery<
+    ApiResult<PaginatedResponse<any>>,
+    ApiError,
+    ApiResult<PaginatedResponse<any>>,
+    readonly ["mirror-node", string, "transactions", "list"],
+    string | undefined
+  >(() => {
     const opts = options();
     return {
       queryKey: mirrorNodeKeys.transaction.list(network()),

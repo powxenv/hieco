@@ -255,13 +255,19 @@ export function createContractsInfinite(
   const client = useMirrorNodeClient();
   const { network } = useNetwork();
 
-  return useInfiniteQuery(() => {
+  return useInfiniteQuery<
+    ApiResult<PaginatedResponse<ContractInfo>>,
+    ApiError,
+    ApiResult<PaginatedResponse<ContractInfo>>,
+    readonly ["mirror-node", string, "contracts", "list"],
+    string | undefined
+  >(() => {
     const opts = options();
     return {
       queryKey: mirrorNodeKeys.contract.list(network()),
       queryFn: async ({ pageParam }) => {
-        if (pageParam !== undefined) {
-          return client().contract.listPaginatedPageByUrl(pageParam as string);
+        if (pageParam) {
+          return client().contract.listPaginatedPageByUrl(pageParam);
         }
         return client().contract.listPaginatedPage({
           ...opts.params,

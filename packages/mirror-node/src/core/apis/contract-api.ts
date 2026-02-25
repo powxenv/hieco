@@ -12,7 +12,7 @@ import type {
   ContractOpcodesResponse,
 } from "../../types/entities/contract";
 import type { EntityId } from "../../types/rest-api";
-import type { CursorPaginator } from "../builders";
+import type { CursorPaginator, PaginatedResponse } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface ContractListParams extends PaginationParams {
@@ -331,6 +331,16 @@ export class ContractApi extends BaseApi {
 
   async listPaginated(params?: ContractListParams): Promise<ApiResult<ContractInfo[]>> {
     return this.getAllPaginated<ContractInfo>("contracts", this.buildContractListParams(params));
+  }
+
+  async listPaginatedPage(
+    params?: ContractListParams,
+  ): Promise<ApiResult<PaginatedResponse<ContractInfo>>> {
+    return this.getSinglePage<ContractInfo>("contracts", this.buildContractListParams(params));
+  }
+
+  async listPaginatedPageByUrl(url: string): Promise<ApiResult<PaginatedResponse<ContractInfo>>> {
+    return this.getSinglePageByUrl<ContractInfo>(url);
   }
 
   createContractPaginator(params?: ContractListParams): CursorPaginator<ContractInfo> {

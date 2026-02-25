@@ -18,6 +18,7 @@ import type {
   ContractAction,
   ContractOpcodesResponse,
 } from "@hiecom/mirror-node";
+import type { PaginatedResponse } from "@hiecom/mirror-node";
 import { useMirrorNodeClient, useNetwork } from "../../../preact/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
@@ -125,14 +126,14 @@ export type UseContractsResult = UseQueryResult<
 >;
 
 export interface UseContractsInfiniteOptions extends Omit<
-  UseInfiniteQueryOptions<ContractQueryFnData<ContractInfo[]>, ContractQueryError>,
+  UseInfiniteQueryOptions<ContractQueryFnData<PaginatedResponse<ContractInfo>>, ContractQueryError>,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
   params?: { limit?: number; order?: "asc" | "desc" };
 }
 
 export type UseContractsInfiniteResult = UseInfiniteQueryResult<
-  ContractQueryFnData<ContractInfo[]>,
+  ContractQueryFnData<PaginatedResponse<ContractInfo>>,
   ContractQueryError
 >;
 
@@ -236,23 +237,20 @@ export function useContractsInfinite(
   return useInfiniteQuery({
     ...options,
     queryKey: mirrorNodeKeys.contract.list(network),
-    queryFn: async () => {
-      const params = {
+    queryFn: async ({ pageParam }) => {
+      if (typeof pageParam === "string") {
+        return client.contract.listPaginatedPageByUrl(pageParam);
+      }
+      return client.contract.listPaginatedPage({
         ...options.params,
         limit: options.params?.limit ?? 25,
-      };
-
-      const result = await client.contract.listPaginated(params);
-
-      return result;
+      });
     },
     getNextPageParam: (lastPage) => {
-      if (!lastPage.success || lastPage.data.length === 0) {
-        return undefined;
-      }
-      return lastPage.data.length;
+      if (!lastPage.success) return undefined;
+      return lastPage.data.links.next ?? undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: null,
   });
 }
 

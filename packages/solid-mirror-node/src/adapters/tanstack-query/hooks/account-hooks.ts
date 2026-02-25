@@ -312,7 +312,13 @@ export function createAccountsInfinite(
   const client = useMirrorNodeClient();
   const { network } = useNetwork();
 
-  return useInfiniteQuery<ApiResult<PaginatedResponse<AccountInfo>>, ApiError, ApiResult<PaginatedResponse<AccountInfo>>, readonly ["mirror-node", string, "accounts", "list"], string | undefined>(() => {
+  return useInfiniteQuery<
+    ApiResult<PaginatedResponse<AccountInfo>>,
+    ApiError,
+    ApiResult<PaginatedResponse<AccountInfo>>,
+    readonly ["mirror-node", string, "accounts", "list"],
+    string | undefined
+  >(() => {
     const opts = options();
     return {
       queryKey: mirrorNodeKeys.account.list(network()),

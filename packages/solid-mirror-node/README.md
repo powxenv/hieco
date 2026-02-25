@@ -121,6 +121,7 @@ The `limit` parameter controls how many items per page to fetch from the API. Th
 All hooks use `create` prefix and accept reactive `Accessor<T>` options.
 
 ### Accounts
+
 - `createAccountInfo` - Get account details
 - `createAccountBalances` - Get account balances
 - `createAccountTokens` - Get associated tokens
@@ -128,17 +129,20 @@ All hooks use `create` prefix and accept reactive `Accessor<T>` options.
 - `createAccounts` - List accounts (with pagination)
 
 ### Tokens
+
 - `createTokenInfo` - Get token details
 - `createTokenBalances` - Get token balances
 - `createTokenNfts` - Get token NFTs
 - `createTokens` - List tokens (with pagination)
 
 ### Transactions
+
 - `createTransaction` - Get transaction details
 - `createTransactions` - List transactions (with pagination)
 - `createPollTransaction` - Poll for transaction confirmation
 
 ### Contracts
+
 - `createContractInfo` - Get contract details
 - `createContractCall` - Call contract function
 - `createContractState` - Get contract state
@@ -146,15 +150,18 @@ All hooks use `create` prefix and accept reactive `Accessor<T>` options.
 - `createContracts` - List contracts (with pagination)
 
 ### Topics
+
 - `createTopicInfo` - Get topic details
 - `createTopicMessages` - Get topic messages
 - `createTopics` - List topics (with pagination)
 
 ### Schedules
+
 - `createScheduleInfo` - Get schedule details
 - `createSchedules` - List schedules (with pagination)
 
 ### Network
+
 - `createNetworkExchangeRate` - Get HBAR exchange rates
 - `createNetworkFees` - Get network fees
 - `createNetworkNodes` - Get network nodes

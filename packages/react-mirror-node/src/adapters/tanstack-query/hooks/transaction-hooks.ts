@@ -7,6 +7,7 @@ import type {
 } from "@tanstack/react-query";
 import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hiecom/mirror-node";
 import type { Transaction, TransactionDetails } from "@hiecom/mirror-node";
+import type { PaginatedResponse } from "@hiecom/mirror-node";
 import { useMirrorNodeClient, useNetwork } from "../../../react/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
@@ -66,14 +67,17 @@ export type UseTransactionsResult = UseQueryResult<
 >;
 
 export interface UseTransactionsInfiniteOptions extends Omit<
-  UseInfiniteQueryOptions<TransactionQueryFnData<Transaction[]>, TransactionQueryError>,
+  UseInfiniteQueryOptions<
+    TransactionQueryFnData<PaginatedResponse<Transaction>>,
+    TransactionQueryError
+  >,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
   params?: { limit?: number; order?: "asc" | "desc" };
 }
 
 export type UseTransactionsInfiniteResult = UseInfiniteQueryResult<
-  TransactionQueryFnData<Transaction[]>,
+  TransactionQueryFnData<PaginatedResponse<Transaction>>,
   TransactionQueryError
 >;
 
@@ -129,22 +133,19 @@ export function useTransactionsInfinite(
   return useInfiniteQuery({
     ...options,
     queryKey: mirrorNodeKeys.transaction.list(network),
-    queryFn: async () => {
-      const params = {
+    queryFn: async ({ pageParam }) => {
+      if (typeof pageParam === "string") {
+        return client.transaction.listPaginatedPageByUrl(pageParam);
+      }
+      return client.transaction.listPaginatedPage({
         ...options.params,
         limit: options.params?.limit ?? 25,
-      };
-
-      const result = await client.transaction.listPaginated(params);
-
-      return result;
+      });
     },
     getNextPageParam: (lastPage) => {
-      if (!lastPage.success || lastPage.data.length === 0) {
-        return undefined;
-      }
-      return lastPage.data.length;
+      if (!lastPage.success) return undefined;
+      return lastPage.data.links.next ?? undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: null,
   });
 }

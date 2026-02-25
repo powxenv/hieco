@@ -110,6 +110,7 @@ The `limit` parameter controls how many items per page to fetch from the API. Th
 ## Available Hooks
 
 ### Accounts
+
 - `useAccountInfo` - Get account details
 - `useAccountBalances` - Get account balances
 - `useAccountTokens` - Get associated tokens
@@ -117,17 +118,20 @@ The `limit` parameter controls how many items per page to fetch from the API. Th
 - `useAccounts` - List accounts (with pagination)
 
 ### Tokens
+
 - `useTokenInfo` - Get token details
 - `useTokenBalances` - Get token balances
 - `useTokenNfts` - Get token NFTs
 - `useTokens` - List tokens (with pagination)
 
 ### Transactions
+
 - `useTransaction` - Get transaction details
 - `useTransactions` - List transactions (with pagination)
 - `usePollTransaction` - Poll for transaction confirmation
 
 ### Contracts
+
 - `useContractInfo` - Get contract details
 - `useContractCall` - Call contract function
 - `useContractState` - Get contract state
@@ -135,15 +139,18 @@ The `limit` parameter controls how many items per page to fetch from the API. Th
 - `useContracts` - List contracts (with pagination)
 
 ### Topics
+
 - `useTopicInfo` - Get topic details
 - `useTopicMessages` - Get topic messages
 - `useTopics` - List topics (with pagination)
 
 ### Schedules
+
 - `useScheduleInfo` - Get schedule details
 - `useSchedules` - List schedules (with pagination)
 
 ### Network
+
 - `useNetworkExchangeRate` - Get HBAR exchange rates
 - `useNetworkFees` - Get network fees
 - `useNetworkNodes` - Get network nodes

@@ -2,7 +2,7 @@ import type { ApiResult, PaginationParams, QueryOperator, Timestamp } from "../.
 import type { Nft, TokenDistribution, TokenInfo } from "../../types/entities/token";
 import type { Transaction } from "../../types/entities/transaction";
 import type { EntityId } from "../../types/rest-api";
-import type { CursorPaginator } from "../builders";
+import type { CursorPaginator, PaginatedResponse } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface TokenListParams extends PaginationParams {
@@ -143,6 +143,16 @@ export class TokenApi extends BaseApi {
 
   async listPaginated(params?: TokenListParams): Promise<ApiResult<TokenInfo[]>> {
     return this.getAllPaginated<TokenInfo>("tokens", this.buildTokenListParams(params));
+  }
+
+  async listPaginatedPage(
+    params?: TokenListParams,
+  ): Promise<ApiResult<PaginatedResponse<TokenInfo>>> {
+    return this.getSinglePage<TokenInfo>("tokens", this.buildTokenListParams(params));
+  }
+
+  async listPaginatedPageByUrl(url: string): Promise<ApiResult<PaginatedResponse<TokenInfo>>> {
+    return this.getSinglePageByUrl<TokenInfo>(url);
   }
 
   createTokenPaginator(params?: TokenListParams): CursorPaginator<TokenInfo> {

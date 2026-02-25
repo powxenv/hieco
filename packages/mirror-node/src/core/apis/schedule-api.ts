@@ -1,7 +1,7 @@
 import type { ApiResult, PaginationParams, QueryOperator, Timestamp } from "../../types/rest-api";
 import type { Schedule } from "../../types/entities/schedule";
 import type { EntityId } from "../../types/rest-api";
-import type { CursorPaginator } from "../builders";
+import type { CursorPaginator, PaginatedResponse } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface ScheduleListParams extends PaginationParams {
@@ -65,6 +65,16 @@ export class ScheduleApi extends BaseApi {
 
   async listPaginated(params?: ScheduleListParams): Promise<ApiResult<Schedule[]>> {
     return this.getAllPaginated<Schedule>("schedules", this.buildScheduleListParams(params));
+  }
+
+  async listPaginatedPage(
+    params?: ScheduleListParams,
+  ): Promise<ApiResult<PaginatedResponse<Schedule>>> {
+    return this.getSinglePage<Schedule>("schedules", this.buildScheduleListParams(params));
+  }
+
+  async listPaginatedPageByUrl(url: string): Promise<ApiResult<PaginatedResponse<Schedule>>> {
+    return this.getSinglePageByUrl<Schedule>(url);
   }
 
   createSchedulePaginator(params?: ScheduleListParams): CursorPaginator<Schedule> {

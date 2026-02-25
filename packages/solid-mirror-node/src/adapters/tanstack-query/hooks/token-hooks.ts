@@ -80,7 +80,10 @@ export interface CreateTokensInfiniteOptions {
   readonly enabled?: boolean;
 }
 
-export type CreateTokensInfiniteResult = UseInfiniteQueryResult<ApiResult<PaginatedResponse<any>>, ApiError>;
+export type CreateTokensInfiniteResult = UseInfiniteQueryResult<
+  ApiResult<PaginatedResponse<any>>,
+  ApiError
+>;
 
 export function createTokenInfo(options: Accessor<CreateTokenInfoOptions>): CreateTokenInfoResult {
   const client = useMirrorNodeClient();
@@ -202,7 +205,13 @@ export function createTokensInfinite(
   const client = useMirrorNodeClient();
   const { network } = useNetwork();
 
-  return useInfiniteQuery<ApiResult<PaginatedResponse<any>>, ApiError, ApiResult<PaginatedResponse<any>>, readonly ["mirror-node", string, "tokens", "list"], string | undefined>(() => {
+  return useInfiniteQuery<
+    ApiResult<PaginatedResponse<any>>,
+    ApiError,
+    ApiResult<PaginatedResponse<any>>,
+    readonly ["mirror-node", string, "tokens", "list"],
+    string | undefined
+  >(() => {
     const opts = options();
     return {
       queryKey: mirrorNodeKeys.token.list(network()),

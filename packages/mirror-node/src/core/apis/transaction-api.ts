@@ -1,7 +1,7 @@
 import type { ApiResult, PaginationParams, QueryOperator, Timestamp } from "../../types/rest-api";
 import type { Transaction, TransactionDetails } from "../../types/entities/transaction";
 import type { EntityId } from "../../types/rest-api";
-import type { CursorPaginator } from "../builders";
+import type { CursorPaginator, PaginatedResponse } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface TransactionListParams extends PaginationParams {
@@ -135,6 +135,16 @@ export class TransactionApi extends BaseApi {
       "transactions",
       this.buildTransactionListParams(params),
     );
+  }
+
+  async listPaginatedPage(
+    params?: TransactionListParams,
+  ): Promise<ApiResult<PaginatedResponse<Transaction>>> {
+    return this.getSinglePage<Transaction>("transactions", this.buildTransactionListParams(params));
+  }
+
+  async listPaginatedPageByUrl(url: string): Promise<ApiResult<PaginatedResponse<Transaction>>> {
+    return this.getSinglePageByUrl<Transaction>(url);
   }
 
   createTransactionPaginator(params?: TransactionListParams): CursorPaginator<Transaction> {

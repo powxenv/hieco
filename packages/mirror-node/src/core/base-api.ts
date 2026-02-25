@@ -79,4 +79,16 @@ export class BaseApi {
 
     return CursorPaginator.create<T>(url, fetchFn);
   }
+
+  protected async getSinglePage<T>(
+    path: string,
+    params?: Record<string, string>,
+  ): Promise<ApiResult<PaginatedResponse<T>>> {
+    return this.client.get<PaginatedResponse<T>>(path, params);
+  }
+
+  protected async getSinglePageByUrl<T>(url: string): Promise<ApiResult<PaginatedResponse<T>>> {
+    const relativePath = url.replace(`${this.client.baseUrl}/api/v1/`, "");
+    return this.client.get<PaginatedResponse<T>>(relativePath);
+  }
 }

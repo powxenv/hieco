@@ -7,6 +7,7 @@ import type {
 } from "@tanstack/preact-query";
 import type { ApiResult, ApiError, EntityId, PaginationParams } from "@hiecom/mirror-node";
 import type { Topic, TopicMessage } from "@hiecom/mirror-node";
+import type { PaginatedResponse } from "@hiecom/mirror-node";
 import { useMirrorNodeClient, useNetwork } from "../../../preact/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
@@ -62,14 +63,14 @@ export interface UseTopicsOptions extends Omit<
 export type UseTopicsResult = UseQueryResult<TopicQueryFnData<Topic[]>, TopicQueryError>;
 
 export interface UseTopicsInfiniteOptions extends Omit<
-  UseInfiniteQueryOptions<TopicQueryFnData<Topic[]>, TopicQueryError>,
+  UseInfiniteQueryOptions<TopicQueryFnData<PaginatedResponse<Topic>>, TopicQueryError>,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
   params?: { limit?: number; order?: "asc" | "desc" };
 }
 
 export type UseTopicsInfiniteResult = UseInfiniteQueryResult<
-  TopicQueryFnData<Topic[]>,
+  TopicQueryFnData<PaginatedResponse<Topic>>,
   TopicQueryError
 >;
 
@@ -132,23 +133,20 @@ export function useTopicsInfinite(options: UseTopicsInfiniteOptions): UseTopicsI
   return useInfiniteQuery({
     ...options,
     queryKey: mirrorNodeKeys.topic.list(network),
-    queryFn: async () => {
-      const params = {
+    queryFn: async ({ pageParam }) => {
+      if (typeof pageParam === "string") {
+        return client.topic.listPaginatedPageByUrl(pageParam);
+      }
+      return client.topic.listPaginatedPage({
         ...options.params,
         limit: options.params?.limit ?? 25,
-      };
-
-      const result = await client.topic.listPaginated(params);
-
-      return result;
+      });
     },
     getNextPageParam: (lastPage) => {
-      if (!lastPage.success || lastPage.data.length === 0) {
-        return undefined;
-      }
-      return lastPage.data.length;
+      if (!lastPage.success) return undefined;
+      return lastPage.data.links.next ?? undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: null,
   });
 }
 

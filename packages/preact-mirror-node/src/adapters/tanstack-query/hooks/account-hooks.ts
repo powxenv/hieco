@@ -22,6 +22,7 @@ import type {
   TokenAllowance,
   TokenAirdropsResponse,
 } from "@hiecom/mirror-node";
+import type { PaginatedResponse } from "@hiecom/mirror-node";
 import { useMirrorNodeClient, useNetwork } from "../../../preact/hooks";
 import { mirrorNodeKeys } from "../query-keys";
 
@@ -159,14 +160,14 @@ export type UseAccountsResult = UseQueryResult<
 >;
 
 export interface UseAccountsInfiniteOptions extends Omit<
-  UseInfiniteQueryOptions<AccountQueryFnData<AccountInfo[]>, AccountQueryError>,
+  UseInfiniteQueryOptions<AccountQueryFnData<PaginatedResponse<AccountInfo>>, AccountQueryError>,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
   readonly params?: { readonly limit?: number; readonly order?: "asc" | "desc" };
 }
 
 export type UseAccountsInfiniteResult = UseInfiniteQueryResult<
-  AccountQueryFnData<AccountInfo[]>,
+  AccountQueryFnData<PaginatedResponse<AccountInfo>>,
   AccountQueryError
 >;
 
@@ -304,23 +305,21 @@ export function useAccountsInfinite(
   return useInfiniteQuery({
     ...options,
     queryKey: mirrorNodeKeys.account.list(network),
-    queryFn: async () => {
+    queryFn: async ({ pageParam }) => {
+      if (typeof pageParam === "string") {
+        return client.account.listPaginatedPageByUrl(pageParam);
+      }
       const params = {
         ...options.params,
         limit: options.params?.limit ?? 25,
       };
-
-      const result = await client.account.listPaginated(params);
-
-      return result;
+      return client.account.listPaginatedPage(params);
     },
     getNextPageParam: (lastPage) => {
-      if (!lastPage.success || lastPage.data.length === 0) {
-        return undefined;
-      }
-      return lastPage.data.length;
+      if (!lastPage.success) return undefined;
+      return lastPage.data.links.next ?? undefined;
     },
-    initialPageParam: 0,
+    initialPageParam: null,
   });
 }
 
