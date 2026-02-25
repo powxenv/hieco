@@ -85,16 +85,10 @@ This runs linting, type checking, and formatting in sequence.
 To run quality checks for a specific package:
 
 ```bash
-bun run lint:mirror-core && bun run typecheck:mirror-core && bun run fmt:mirror-core
+bun run lint:mirror-js && bun run typecheck:mirror-js && bun run fmt:mirror-js
 bun run lint:mirror-react && bun run typecheck:mirror-react && bun run fmt:mirror-react
 bun run lint:mirror-solid && bun run typecheck:mirror-solid && bun run fmt:mirror-solid
 bun run lint:mirror-preact && bun run typecheck:mirror-preact && bun run fmt:mirror-preact
+bun run lint:mirror-shared && bun run typecheck:mirror-shared && bun run fmt:mirror-shared
 ```
 
-Or individually:
-
-```bash
-bun run lint:mirror-core
-bun run typecheck:mirror-react
-bun run fmt:mirror-solid
-```

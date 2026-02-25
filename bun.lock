@@ -5,8 +5,8 @@
     "": {
       "name": "hiecom",
     },
-    "packages/mirror-node": {
-      "name": "@hiecom/mirror-node",
+    "packages/mirror-js": {
+      "name": "@hiecom/mirror-js",
       "version": "0.0.1",
       "dependencies": {
         "ky": "^1.14.3",
@@ -20,8 +20,8 @@
         "oxlint-tsgolint": "^0.14.2",
       },
     },
-    "packages/preact-mirror-node": {
-      "name": "@hiecom/preact-mirror-node",
+    "packages/mirror-preact": {
+      "name": "@hiecom/mirror-preact",
       "version": "0.0.1",
       "devDependencies": {
         "@typescript/native-preview": "^7.0.0-dev.20260222.1",
@@ -32,13 +32,14 @@
         "preact": "^10.0.0",
       },
       "peerDependencies": {
-        "@hiecom/mirror-node": "workspace:*",
+        "@hiecom/mirror-js": "workspace:*",
+        "@hiecom/mirror-shared": "workspace:*",
         "@tanstack/preact-query": "^5.0.0",
         "preact": ">=10",
       },
     },
-    "packages/react-mirror-node": {
-      "name": "@hiecom/react-mirror-node",
+    "packages/mirror-react": {
+      "name": "@hiecom/mirror-react",
       "version": "0.0.1",
       "devDependencies": {
         "@types/react": "^18.2.0",
@@ -52,14 +53,33 @@
         "react-dom": "^18.2.0",
       },
       "peerDependencies": {
-        "@hiecom/mirror-node": "workspace:*",
+        "@hiecom/mirror-js": "workspace:*",
+        "@hiecom/mirror-shared": "workspace:*",
         "@tanstack/react-query": "^5.0.0",
         "react": ">=18",
         "react-dom": ">=18",
       },
     },
-    "packages/solid-mirror-node": {
-      "name": "@hiecom/solid-mirror-node",
+    "packages/mirror-shared": {
+      "name": "@hiecom/mirror-shared",
+      "version": "0.0.1",
+      "dependencies": {
+        "@hiecom/mirror-js": "workspace:*",
+      },
+      "devDependencies": {
+        "@tanstack/query-core": "^5.67.1",
+        "@typescript/native-preview": "^7.0.0-dev.20260222.1",
+        "bun-types": "^1.3.9",
+        "oxfmt": "^0.34.0",
+        "oxlint": "^1.49.0",
+        "oxlint-tsgolint": "^0.14.2",
+      },
+      "peerDependencies": {
+        "@tanstack/query-core": "^5.67.1",
+      },
+    },
+    "packages/mirror-solid": {
+      "name": "@hiecom/mirror-solid",
       "version": "0.0.1",
       "devDependencies": {
         "@typescript/native-preview": "^7.0.0-dev.20260222.1",
@@ -69,20 +89,23 @@
         "oxlint-tsgolint": "^0.14.2",
       },
       "peerDependencies": {
-        "@hiecom/mirror-node": "workspace:*",
+        "@hiecom/mirror-js": "workspace:*",
+        "@hiecom/mirror-shared": "workspace:*",
         "@tanstack/solid-query": "^5.0.0",
         "solid-js": ">=1.8",
       },
     },
   },
   "packages": {
-    "@hiecom/mirror-node": ["@hiecom/mirror-node@workspace:packages/mirror-node"],
+    "@hiecom/mirror-js": ["@hiecom/mirror-js@workspace:packages/mirror-js"],
 
-    "@hiecom/preact-mirror-node": ["@hiecom/preact-mirror-node@workspace:packages/preact-mirror-node"],
+    "@hiecom/mirror-preact": ["@hiecom/mirror-preact@workspace:packages/mirror-preact"],
 
-    "@hiecom/react-mirror-node": ["@hiecom/react-mirror-node@workspace:packages/react-mirror-node"],
+    "@hiecom/mirror-react": ["@hiecom/mirror-react@workspace:packages/mirror-react"],
 
-    "@hiecom/solid-mirror-node": ["@hiecom/solid-mirror-node@workspace:packages/solid-mirror-node"],
+    "@hiecom/mirror-shared": ["@hiecom/mirror-shared@workspace:packages/mirror-shared"],
+
+    "@hiecom/mirror-solid": ["@hiecom/mirror-solid@workspace:packages/mirror-solid"],
 
     "@oxfmt/binding-android-arm-eabi": ["@oxfmt/binding-android-arm-eabi@0.34.0", "", { "os": "android", "cpu": "arm" }, "sha512-sqkqjh/Z38l+duOb1HtVqJTAj1grt2ttkobCopC/72+a4Xxz4xUgZPFyQ4HxrYMvyqO/YA0tvM1QbfOu70Gk1Q=="],
 
