@@ -66,7 +66,10 @@ export class TokenApi extends BaseApi {
     return this.getList<TokenDistribution>(`tokens/${tokenId}/balances`, builder.build());
   }
 
-  async getNfts(tokenId: EntityId, params?: TokenNftsParams): Promise<ApiResult<Nft[]>> {
+  async getNfts(
+    tokenId: EntityId,
+    params?: TokenNftsParams,
+  ): Promise<ApiResult<PaginatedResponse<Nft>>> {
     const builder = this.createQueryBuilder();
 
     if (params) {
@@ -80,12 +83,7 @@ export class TokenApi extends BaseApi {
       }
     }
 
-    const result = await this.client.get<NftsResponse>(`tokens/${tokenId}/nfts`, builder.build());
-
-    if (!result.success) {
-      return { success: false, error: result.error };
-    }
-    return { success: true, data: result.data.nfts };
+    return this.getSinglePage<Nft>(`tokens/${tokenId}/nfts`, builder.build());
   }
 
   async getNft(tokenId: EntityId, serialNumber: number): Promise<ApiResult<Nft>> {
@@ -158,11 +156,4 @@ export class TokenApi extends BaseApi {
   createTokenPaginator(params?: TokenListParams): CursorPaginator<TokenInfo> {
     return super.createPaginator<TokenInfo>("tokens", this.buildTokenListParams(params));
   }
-}
-
-interface NftsResponse {
-  nfts: Nft[];
-  links: {
-    next?: string;
-  };
 }

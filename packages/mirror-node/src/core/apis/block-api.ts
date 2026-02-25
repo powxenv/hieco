@@ -1,6 +1,6 @@
 import type { ApiResult, PaginationParams, Timestamp } from "../../types/rest-api";
 import type { BlocksResponse, Block } from "../../types/entities/network";
-import type { CursorPaginator } from "../builders";
+import type { CursorPaginator, PaginatedResponse } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface BlocksListParams extends PaginationParams {
@@ -32,6 +32,18 @@ export class BlockApi extends BaseApi {
 
   async getBlock(hashOrNumber: string): Promise<ApiResult<Block>> {
     return this.getSingle<Block>(`blocks/${hashOrNumber}`);
+  }
+
+  async listPaginated(params?: BlocksListParams): Promise<ApiResult<Block[]>> {
+    return this.getAllPaginated<Block>("blocks", this.buildBlocksParams(params));
+  }
+
+  async listPaginatedPage(params?: BlocksListParams): Promise<ApiResult<PaginatedResponse<Block>>> {
+    return this.getSinglePage<Block>("blocks", this.buildBlocksParams(params));
+  }
+
+  async listPaginatedPageByUrl(url: string): Promise<ApiResult<PaginatedResponse<Block>>> {
+    return this.getSinglePageByUrl<Block>(url);
   }
 
   createBlocksPaginator(params?: BlocksListParams): CursorPaginator<Block> {

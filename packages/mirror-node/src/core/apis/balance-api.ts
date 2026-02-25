@@ -1,6 +1,6 @@
 import type { ApiResult, PaginationParams, QueryOperator, Timestamp } from "../../types/rest-api";
 import type { BalancesResponse, AccountBalance } from "../../types/entities/network";
-import type { CursorPaginator } from "../builders";
+import type { CursorPaginator, PaginatedResponse } from "../builders";
 import { BaseApi } from "../base-api";
 
 export interface BalancesListParams extends PaginationParams {
@@ -36,6 +36,20 @@ export class BalanceApi extends BaseApi {
 
   async getBalances(params?: BalancesListParams): Promise<ApiResult<BalancesResponse>> {
     return this.getSingle<BalancesResponse>("balances", this.buildBalancesParams(params));
+  }
+
+  async listPaginated(params?: BalancesListParams): Promise<ApiResult<AccountBalance[]>> {
+    return this.getAllPaginated<AccountBalance>("balances", this.buildBalancesParams(params));
+  }
+
+  async listPaginatedPage(
+    params?: BalancesListParams,
+  ): Promise<ApiResult<PaginatedResponse<AccountBalance>>> {
+    return this.getSinglePage<AccountBalance>("balances", this.buildBalancesParams(params));
+  }
+
+  async listPaginatedPageByUrl(url: string): Promise<ApiResult<PaginatedResponse<AccountBalance>>> {
+    return this.getSinglePageByUrl<AccountBalance>(url);
   }
 
   createBalancesPaginator(params?: BalancesListParams): CursorPaginator<AccountBalance> {
