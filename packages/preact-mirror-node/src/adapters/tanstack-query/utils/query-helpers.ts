@@ -170,7 +170,7 @@ const METHOD_MAPPINGS: readonly MethodMapping[] = [
   },
   {
     apiProperty: "contract",
-    methodName: "callContract",
+    methodName: "call",
     entityName: "contract",
     resourceKeyPattern: ["call"],
   },

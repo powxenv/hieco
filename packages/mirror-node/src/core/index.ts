@@ -1,6 +1,7 @@
 export { MirrorNodeClient, createMirrorNodeClient } from "./mirror-client";
 export type { MirrorNodeConfig } from "../types/rest-api";
 export type { PaginatedResponse } from "./builders";
+export type { CursorPaginator } from "./builders";
 
 export { AccountApi, type AccountListParams, type AccountNftsParams } from "./apis/account-api";
 export {
