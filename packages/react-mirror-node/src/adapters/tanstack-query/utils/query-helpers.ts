@@ -350,9 +350,8 @@ export async function prefetchQuery(
   const { mapping, args } = result;
 
   const api = client[mapping.apiProperty];
-  const method = (api as unknown as Record<string, (...args: unknown[]) => unknown>)[
-    mapping.methodName
-  ];
+  const apiMethods = api as unknown as Record<string, unknown>;
+  const method = apiMethods[mapping.methodName];
 
   if (typeof method !== "function") {
     throw new Error(`Method ${mapping.methodName} not found on ${mapping.apiProperty}`);

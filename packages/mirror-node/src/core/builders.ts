@@ -62,10 +62,10 @@ export class QueryBuilder {
 }
 
 export interface PaginatedResponse<T> {
-  links: {
-    next?: string;
+  readonly links: {
+    readonly next?: string;
   };
-  data: T[];
+  readonly data: readonly T[];
 }
 
 export class CursorPaginator<T> implements AsyncIterable<T> {

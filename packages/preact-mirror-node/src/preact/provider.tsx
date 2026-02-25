@@ -15,11 +15,10 @@ export interface NetworkConfig<T extends string = string, U extends NetworkType 
   networks?: Record<T, string>;
 }
 
-export function createNetworkConfig<T extends string, U extends NetworkType = NetworkType>(config: {
-  defaultNetwork: U | T;
-  networks: Record<T, string>;
-}): NetworkConfig<T, U> {
-  return config as NetworkConfig<T, U>;
+export function createNetworkConfig<T extends string, U extends NetworkType = NetworkType>(
+  config: NetworkConfig<T, U>,
+): NetworkConfig<T, U> {
+  return config;
 }
 
 export interface NetworkState {

@@ -44,9 +44,13 @@ export function parseEntityIdParts(id: EntityId): [shard: number, realm: number,
     throw new Error(`Invalid EntityId format: ${id}`);
   }
 
-  const shard = match[1]!;
-  const realm = match[2]!;
-  const num = match[3]!;
+  const shard = match[1];
+  const realm = match[2];
+  const num = match[3];
+
+  if (shard === undefined || realm === undefined || num === undefined) {
+    throw new Error(`Invalid EntityId format: ${id}`);
+  }
 
   return [parseInt(shard, 10), parseInt(realm, 10), parseInt(num, 10)];
 }
