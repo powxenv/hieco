@@ -78,13 +78,30 @@ server.use(...handlers);
 Create default handlers with custom fixtures:
 
 ```typescript
-import { createFixtureHandlers } from "@hiecom/testing";
+import { createFixtureHandlers, mockAccount } from "@hiecom/testing";
 
 const handlers = createFixtureHandlers({
-  accounts: [mockAccount({ accountId: "0.0.123" })],
-  tokens: [mockToken({ tokenId: "0.0.456" })],
+  network: "testnet",
+  accounts: [mockAccount.build({ account: "0.0.123" })],
 });
 ```
+
+### NETWORK_URLS
+
+```typescript
+import { NETWORK_URLS } from "@hiecom/testing";
+
+NETWORK_URLS.mainnet; // "https://mainnet.mirrornode.hedera.com"
+NETWORK_URLS.testnet; // "https://testnet.mirrornode.hedera.com"
+NETWORK_URLS.previewnet; // "https://previewnet.mirrornode.hedera.com"
+```
+
+## Fixtures
+
+tokens: [mockToken({ tokenId: "0.0.456" })],
+});
+
+````
 
 ## Fixtures
 
@@ -96,11 +113,10 @@ Available fixtures for all Hedera entities:
 import { mockAccount, type AccountFixtureOptions } from "@hiecom/testing/fixtures";
 
 const account = mockAccount({
-  accountId: "0.0.123",
-  balance: 1000,
-  tokens: [{ token_id: "0.0.456", balance: 100 }],
+  account: "0.0.123",
+  hbar: 1000,
 });
-```
+````
 
 ### Transaction
 
@@ -108,8 +124,7 @@ const account = mockAccount({
 import { mockTransaction, type TransactionFixtureOptions } from "@hiecom/testing/fixtures";
 
 const tx = mockTransaction({
-  transactionId: "0.0.123@1234567890.000000001",
-  consensusTimestamp: "1234567890.000000001",
+  transaction_id: "0.0.123@1234567890.000000001",
   result: "SUCCESS",
 });
 ```
@@ -120,11 +135,37 @@ const tx = mockTransaction({
 import { mockToken, type TokenFixtureOptions } from "@hiecom/testing/fixtures";
 
 const token = mockToken({
-  tokenId: "0.0.456",
+  token_id: "0.0.456",
   name: "Test Token",
   symbol: "TT",
   decimals: 8,
-  totalSupply: 1000000,
+  total_supply: 1000000,
+});
+```
+
+### NFT
+
+```typescript
+import { mockNft, type NftFixtureOptions } from "@hiecom/testing/fixtures";
+
+const nft = mockNft({
+  token_id: "0.0.456",
+  serial_number: 1,
+  account: "0.0.123",
+  metadata: "test-metadata",
+});
+
+const nfts = mockNft.buildList(5, { token_id: "0.0.456" });
+```
+
+### Token Relationship
+
+```typescript
+import { mockTokenRelationship } from "@hiecom/testing/fixtures";
+
+const relationship = mockTokenRelationship.build("0.0.123", {
+  token_id: "0.0.456",
+  balance: 100,
 });
 ```
 
@@ -134,7 +175,7 @@ const token = mockToken({
 import { mockBalance, type BalanceFixtureOptions } from "@hiecom/testing/fixtures";
 
 const balance = mockBalance({
-  accountId: "0.0.123",
+  account: "0.0.123",
   hbar: 1000,
   tokens: [{ token_id: "0.0.456", balance: 100 }],
 });
@@ -146,9 +187,7 @@ const balance = mockBalance({
 import { mockContract, type ContractFixtureOptions } from "@hiecom/testing/fixtures";
 
 const contract = mockContract({
-  contractId: "0.0.789",
-  bytecode: "0x...",
-  runtimeBytecode: "0x...",
+  contract_id: "0.0.789",
 });
 ```
 
@@ -158,14 +197,14 @@ const contract = mockContract({
 import { mockTopic, mockTopicMessage, type TopicFixtureOptions } from "@hiecom/testing/fixtures";
 
 const topic = mockTopic({
-  topicId: "0.0.111",
-  sequenceNumber: 1,
+  topic_id: "0.0.111",
+  sequence_number: 1,
 });
 
 const message = mockTopicMessage({
-  topicId: "0.0.111",
-  sequenceNumber: 1,
-  message: "Hello world",
+  topic_id: "0.0.111",
+  sequence_number: 1,
+  message: "SGVsbG8gV29ybGQ=",
 });
 ```
 
@@ -175,8 +214,7 @@ const message = mockTopicMessage({
 import { mockSchedule, type ScheduleFixtureOptions } from "@hiecom/testing/fixtures";
 
 const schedule = mockSchedule({
-  scheduleId: "0.0.222",
-  scheduledTransactionId: "0.0.123@1234567890.000000001",
+  schedule_id: "0.0.222",
 });
 ```
 
@@ -187,8 +225,7 @@ import { mockBlock, type BlockFixtureOptions } from "@hiecom/testing/fixtures";
 
 const block = mockBlock({
   number: 123,
-  hash: "0xabc123",
-  timestamp: "1234567890.000000001",
+  hash: "abc123",
 });
 ```
 
@@ -198,33 +235,30 @@ const block = mockBlock({
 import { mockExchangeRate, mockNetworkNode, mockNetworkSupply } from "@hiecom/testing/fixtures";
 
 const exchangeRate = mockExchangeRate({
-  hbarEquiv: 3000,
-  centEquiv: 1,
+  current_rate: {
+    hbar_equiv: 30000,
+    cent_equiv: 1,
+  },
 });
 
 const node = mockNetworkNode({
-  nodeId: 1,
-  accountId: "0.0.3",
+  node_id: 1,
+  account_id: "0.0.3",
 });
 
 const supply = mockNetworkSupply({
-  totalHbar: 5000000000000000000,
+  total_coin: 5000000000000000000,
 });
 ```
 
 ### Staking
 
 ```typescript
-import {
-  mockStakedAccount,
-  stakingAccountBuilder,
-  type StakingInfoFixtureOptions,
-} from "@hiecom/testing/fixtures";
+import { mockStakedAccount, type StakingInfoFixtureOptions } from "@hiecom/testing/fixtures";
 
 const staking = mockStakedAccount({
-  accountId: "0.0.123",
-  stakedAccountId: "0.0.456",
-  stakePeriodStart: "1234567890.000000001",
+  staked_account_id: "0.0.456",
+  stake_period_start: "1234567890.000000001",
 });
 ```
 
@@ -235,15 +269,50 @@ const staking = mockStakedAccount({
 ```typescript
 import { transactionBuilder } from "@hiecom/testing/builders";
 
-const tx = transactionBuilder()
-  .withTransactionId("0.0.123@1234567890.000000001")
-  .withNodeAccountId("0.0.3")
-  .withFee(100000)
-  .withType("CRYPTOTRANSFER")
-  .build();
+const tx = transactionBuilder.cryptoTransfer({
+  hbarTransfers: [
+    { accountId: "0.0.123", amount: 100 },
+    { accountId: "0.0.456", amount: -100 },
+  ],
+});
+
+const tokenTx = transactionBuilder.transferToken({
+  tokenId: "0.0.456",
+  from: "0.0.123",
+  to: "0.0.789",
+  amount: 10,
+});
+
+const nftTx = transactionBuilder.transferNft({
+  tokenId: "0.0.456",
+  from: "0.0.123",
+  to: "0.0.789",
+  serialNumber: 1,
+});
 ```
 
 ## Utils
+
+### createTestSetup, withAutoCleanup
+
+```typescript
+import { createTestSetup, withAutoCleanup } from "@hiecom/testing";
+
+const setup = createTestSetup({
+  network: "testnet",
+  resetState: true,
+  onUnhandledRequest: "error",
+});
+
+beforeAll(() => setup.start());
+afterAll(() => setup.stop());
+
+it("test", async () => {
+  await withAutoCleanup(async ({ server }) => {
+    server.use(/* custom handlers */);
+  });
+});
+```
 
 ### withMirrorServer
 

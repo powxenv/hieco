@@ -23,6 +23,9 @@ const state = {
   get topicSequence(): number {
     return topicSequence;
   },
+  get messageSequence(): number {
+    return messageSequence;
+  },
   get scheduleSequence(): number {
     return scheduleSequence;
   },

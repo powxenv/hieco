@@ -1,6 +1,11 @@
 export { mockAccount, type Factory, type AccountFixtureOptions } from "./account.js";
 export { mockTransaction, type TransactionFixtureOptions } from "./transaction.js";
 export { mockToken, type TokenFixtureOptions } from "./token.js";
+export { mockNft, type NftFixtureOptions } from "./nft.js";
+export {
+  mockTokenRelationship,
+  type TokenRelationshipFixtureOptions,
+} from "./token-relationship.js";
 export { mockBalance, type BalanceFixtureOptions, type TokenBalance } from "./balance.js";
 export { mockContract, type ContractFixtureOptions } from "./contract.js";
 export {
