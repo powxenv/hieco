@@ -6,16 +6,12 @@ This file contains instructions for AI agents working on this project.
 
 **Every time a user asks a question or requests code changes, you MUST use the following tools:**
 
-- Web search (via exa mcp tools):
-  - `exa_web_search_exa` - General web search
-  - `exa_crawling_exa` - Fetch full content from a specific URL
-  - `exa_people_search_exa` - Find professional profiles
-  - `exa_company_research_exa` - Research company information
-  - `exa_deep_researcher_start` / `exa_deep_researcher_check` - AI-powered deep research
-  - `exa_web_search_advanced_exa` - Advanced search with filters
-  - `exa_get_code_context_exa` - Find code examples and documentation
-  - `webfetch` - Fetch URL content (markdown/text/html)
-  - `codesearch` - Search for programming solutions
+- Web search (via tavily mcp tools):
+  - `tavily_tavily_search` - Web search with filters
+  - `tavily_tavily_extract` - Extract content from URLs
+  - `tavily_tavily_crawl` - Crawl website with depth control
+  - `tavily_tavily_map` - Map website structure
+  - `tavily_tavily_research` - AI-powered deep research
 - Context7 documentation:
   - `context7_resolve-library-id` - Resolve package name to Context7 library ID
   - `context7_query-docs` - Query official documentation with examples
@@ -91,4 +87,3 @@ bun run lint:mirror-solid && bun run typecheck:mirror-solid && bun run fmt:mirro
 bun run lint:mirror-preact && bun run typecheck:mirror-preact && bun run fmt:mirror-preact
 bun run lint:mirror-shared && bun run typecheck:mirror-shared && bun run fmt:mirror-shared
 ```
-

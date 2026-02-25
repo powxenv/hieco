@@ -32,28 +32,31 @@ A single, cohesive ecosystem where frontend developers can integrate Hiero using
 ### Alignment with Official Hiero Bounty Requirements
 
 **Official Bounty Statement:**
+
 > "Build a Hiero-ready open-source library that makes it easier for developers to interact with Hiero networks—a reusable set of utilities (not an app) that improves developer experience and can realistically be adopted by the ecosystem."
 
 **How @hiecom Exceeds Requirements:**
 
-| Requirement | Official Spec | @hiecom Delivery |
-|-------------|---------------|------------------|
-| **Open-source library** | ✅ Public repo + clear license | ✅ MIT license, 7 packages |
-| **Clean library API** | ✅ Basic structure | ✅ Production-ready, idiomatic per framework |
-| **Tests** | ✅ Basic tests | ✅ 90%+ coverage, unit + integration + E2E |
-| **CI** | ✅ CI/CD | ✅ GitHub Actions + automated releases |
-| **README + quickstart** | ✅ Install + examples | ✅ Full documentation site (VitePress) |
-| **Contribution hygiene** | ✅ CONTRIBUTING + DCO | ✅ Full monorepo standards + Changesets |
-| **Reference implementation** | hiero-enterprise-java | ✅ @hiecom/react as reference pattern |
+| Requirement                  | Official Spec                  | @hiecom Delivery                             |
+| ---------------------------- | ------------------------------ | -------------------------------------------- |
+| **Open-source library**      | ✅ Public repo + clear license | ✅ MIT license, 7 packages                   |
+| **Clean library API**        | ✅ Basic structure             | ✅ Production-ready, idiomatic per framework |
+| **Tests**                    | ✅ Basic tests                 | ✅ 90%+ coverage, unit + integration + E2E   |
+| **CI**                       | ✅ CI/CD                       | ✅ GitHub Actions + automated releases       |
+| **README + quickstart**      | ✅ Install + examples          | ✅ Full documentation site (VitePress)       |
+| **Contribution hygiene**     | ✅ CONTRIBUTING + DCO          | ✅ Full monorepo standards + Changesets      |
+| **Reference implementation** | hiero-enterprise-java          | ✅ @hiecom/react as reference pattern        |
 
 **Beyond Basic Examples:**
 
 The official examples mention:
+
 - ❌ TypeScript Mirror Node client
 - ❌ Scheduled transactions helper
 - ❌ React/Next.js integration kit
 
 **@hiecom transcends these by providing:**
+
 - ✅ **Multi-framework ecosystem** (React as reference → Svelte, Vue, Solid, Qwik replicate pattern)
 - ✅ **Type-safe Mirror Node client** with automatic pagination
 - ✅ **Scheduled transactions** as first-class feature across all frameworks
@@ -86,12 +89,14 @@ The official examples mention:
 **Core Philosophy:** Every feature must demonstrate **genuine utility** and **intuitive developer experience**.
 
 **Utility Validation:**
+
 - ❌ "Would be nice to have" → Rejected
 - ✅ "Solves a daily pain point" → Accepted
 - ✅ "Reduces boilerplate by 80%" → Accepted
 - ✅ "Prevents common bugs" → Accepted
 
 **DX Validation:**
+
 - ❌ Requires reading 50+ docs to use → Rejected
 - ✅ Works in 5 minutes with quickstart → Accepted
 - ✅ TypeScript autocomplete for everything → Accepted
@@ -99,37 +104,41 @@ The official examples mention:
 
 ### Required Deliverables Mapping
 
-| Official Requirement | @hiecom Implementation |
-|---------------------|------------------------|
-| **Public repo + clear license** | `github.com/hiecom/ecosystem` with MIT license |
-| **Clean library API** | Idiomatic React hooks → replicated patterns |
-| **Basic tests** | Vitest with 90%+ coverage + Playwright E2E |
-| **CI** | GitHub Actions (lint, test, build, release) |
-| **README + quickstart** | Full VitePress docs + interactive examples |
-| **Contribution hygiene** | CONTRIBUTING.md, DCO sign-offs, Changesets |
-| **Reference implementation** | hiero-enterprise-java patterns adapted for frontend |
+| Official Requirement            | @hiecom Implementation                              |
+| ------------------------------- | --------------------------------------------------- |
+| **Public repo + clear license** | `github.com/hiecom/ecosystem` with MIT license      |
+| **Clean library API**           | Idiomatic React hooks → replicated patterns         |
+| **Basic tests**                 | Vitest with 90%+ coverage + Playwright E2E          |
+| **CI**                          | GitHub Actions (lint, test, build, release)         |
+| **README + quickstart**         | Full VitePress docs + interactive examples          |
+| **Contribution hygiene**        | CONTRIBUTING.md, DCO sign-offs, Changesets          |
+| **Reference implementation**    | hiero-enterprise-java patterns adapted for frontend |
 
 ### Judging Criteria Alignment
 
 **Integration (15%) - How integrated is it?**
+
 - Uses Mirror Node REST API (transactions, accounts, tokens, contracts)
 - Wraps Hiero SDK client operations
 - Leverages Hedera Consensus Service for agent/event coordination
 - Type-safe integration with all major Hiero services
 
 **Innovation (10%) - New capabilities for ecosystem**
+
 - First multi-framework Hiero integration (React + 4 others)
 - Type-safe Mirror Node client (doesn't exist)
 - Unified type definitions across all frameworks
 - Shared testing infrastructure (doesn't exist)
 
 **Execution (20%) - MVP quality**
+
 - Working React implementation (reference)
 - Production-ready: error handling, caching, retries
 - Comprehensive tests (unit + integration + E2E)
 - Full documentation with live examples
 
 **Success (20%) - Impact on ecosystem**
+
 - Lowers barrier to entry: 5 min to first Hiero dApp
 - Enables rapid prototyping: 80% less boilerplate
 - Type safety prevents bugs: TypeScript throughout
@@ -144,6 +153,7 @@ The official examples mention:
 **React as Reference Pattern:**
 
 All framework adapters follow the **React reference implementation**. This ensures:
+
 1. **Proven patterns**: React implementation is battle-tested first
 2. **Clear migration path**: Framework adapters copy established patterns
 3. **Shared mental model**: Developers switching frameworks recognize similar APIs
@@ -191,6 +201,7 @@ All framework adapters follow the **React reference implementation**. This ensur
 The core package contains **framework-agnostic business logic** that all framework adapters consume.
 
 **Key Principles:**
+
 1. **No framework dependencies** (pure TypeScript)
 2. **Full type safety** (strict mode enabled)
 3. **Production-ready** (error handling, retries, caching)
@@ -200,23 +211,23 @@ The core package contains **framework-agnostic business logic** that all framewo
 
 ```typescript
 // Client management
-export { createClient, ClientConfig } from './client';
-export { HieroClient } from './client/hiero-client';
+export { createClient, ClientConfig } from "./client";
+export { HieroClient } from "./client/hiero-client";
 
 // Mirror Node integration (type-safe)
-export { MirrorNodeClient } from './mirror-node/client';
+export { MirrorNodeClient } from "./mirror-node/client";
 
 // Transaction builders
-export { TransactionBuilder } from './builders/transaction';
-export { ContractCallBuilder } from './builders/contract';
+export { TransactionBuilder } from "./builders/transaction";
+export { ContractCallBuilder } from "./builders/contract";
 
 // Type definitions
-export * from './types';
+export * from "./types";
 
 // Utilities
-export { formatHbar, parseHbar } from './utils/hbar';
-export { estimateFee } from './utils/fees';
-export { retryWithBackoff } from './utils/retry';
+export { formatHbar, parseHbar } from "./utils/hbar";
+export { estimateFee } from "./utils/fees";
+export { retryWithBackoff } from "./utils/retry";
 ```
 
 ### Example: HieroClient (Framework-Agnostic)
@@ -246,23 +257,21 @@ export class HieroClient {
   // Transaction execution
   async sendTransaction(
     transaction: Transaction,
-    options?: { timeout?: number }
+    options?: { timeout?: number },
   ): Promise<TransactionReceipt> {
     const tx = transaction.freezeWith(this.client);
     const response = await tx.execute(this.client);
 
     // Get receipt with timeout
     const receipt = await response.getReceipt(this.client, {
-      timeout: options?.timeout || 60000
+      timeout: options?.timeout || 60000,
     });
 
     return receipt;
   }
 
   // Contract interactions
-  async callContract(
-    request: ContractCallRequest
-  ): Promise<ContractFunctionResult> {
+  async callContract(request: ContractCallRequest): Promise<ContractFunctionResult> {
     const query = new ContractCallQuery()
       .setContractId(request.contractId)
       .setGas(request.gas)
@@ -274,10 +283,7 @@ export class HieroClient {
   // Mirror Node client
   get mirrorNode(): MirrorNodeClient {
     if (!this._mirrorClient) {
-      this._mirrorClient = new MirrorNodeClient(
-        this.config.network,
-        this.config.mirrorNode
-      );
+      this._mirrorClient = new MirrorNodeClient(this.config.network, this.config.mirrorNode);
     }
     return this._mirrorClient;
   }
@@ -291,16 +297,16 @@ export class HieroClient {
 export class MirrorNodeClient {
   constructor(
     private network: Network,
-    private config?: { apiKey?: string; baseUrl?: string }
+    private config?: { apiKey?: string; baseUrl?: string },
   ) {}
 
   private get baseUrl(): string {
     if (this.config?.baseUrl) return this.config.baseUrl;
 
     const endpoints = {
-      mainnet: 'https://mainnet.mirrornode.hedera.com',
-      testnet: 'https://testnet.mirrornode.hedera.com',
-      previewnet: 'https://previewnet.mirrornode.hedera.com',
+      mainnet: "https://mainnet.mirrornode.hedera.com",
+      testnet: "https://testnet.mirrornode.hedera.com",
+      previewnet: "https://previewnet.mirrornode.hedera.com",
     };
 
     return endpoints[this.network];
@@ -308,9 +314,7 @@ export class MirrorNodeClient {
 
   // Type-safe account queries
   async getAccount(accountId: string): Promise<MirrorAccount> {
-    const response = await fetch(
-      `${this.baseUrl}/api/v1/accounts/${accountId}`
-    );
+    const response = await fetch(`${this.baseUrl}/api/v1/accounts/${accountId}`);
 
     if (!response.ok) {
       throw new MirrorNodeError(`Failed to fetch account: ${response.statusText}`);
@@ -325,9 +329,7 @@ export class MirrorNodeClient {
   }
 
   // Automatic pagination
-  async getTransactions(
-    filters: TransactionFilters
-  ): Promise<PaginatedResults<Transaction>> {
+  async getTransactions(filters: TransactionFilters): Promise<PaginatedResults<Transaction>> {
     const results: Transaction[] = [];
     let link = `${this.baseUrl}/api/v1/transactions?${this.buildQueryString(filters)}`;
 
@@ -347,9 +349,7 @@ export class MirrorNodeClient {
 
   // Contract queries
   async getContract(contractId: string): Promise<MirrorContract> {
-    const response = await fetch(
-      `${this.baseUrl}/api/v1/contracts/${contractId}`
-    );
+    const response = await fetch(`${this.baseUrl}/api/v1/contracts/${contractId}`);
 
     if (!response.ok) {
       throw new MirrorNodeError(`Failed to fetch contract: ${response.statusText}`);
@@ -360,15 +360,15 @@ export class MirrorNodeClient {
 
   async getContractResults(
     contractId: string,
-    options?: { limit?: number; order?: 'asc' | 'desc' }
+    options?: { limit?: number; order?: "asc" | "desc" },
   ): Promise<ContractResult[]> {
     const params = new URLSearchParams({
       limit: (options?.limit || 25).toString(),
-      order: options?.order || 'desc',
+      order: options?.order || "desc",
     });
 
     const response = await fetch(
-      `${this.baseUrl}/api/v1/contracts/${contractId}/results?${params}`
+      `${this.baseUrl}/api/v1/contracts/${contractId}/results?${params}`,
     );
 
     if (!response.ok) {
@@ -390,6 +390,7 @@ export class MirrorNodeClient {
 **Reference Implementation Philosophy:**
 
 Every React hook must:
+
 1. **Handle all edge cases** (loading, errors, retries)
 2. **Provide TypeScript autocomplete** for all parameters
 3. **Return consistent shapes** (data, loading, error, actions)
@@ -445,6 +446,7 @@ export function useClient(): HieroClient {
 **Demonstrates Genuine Utility:**
 
 **Before @hiecom:**
+
 ```typescript
 // 30+ lines of boilerplate every time
 const [balance, setBalance] = useState<Hbar | null>(null);
@@ -465,6 +467,7 @@ useEffect(() => {
 ```
 
 **After @hiecom:**
+
 ```typescript
 // 2 lines, handles all edge cases
 const { balance, loading, error, refetch } = useAccountBalance(accountId);
@@ -472,11 +475,11 @@ const { balance, loading, error, refetch } = useAccountBalance(accountId);
 
 **Implementation:**
 
-```typescript
+````typescript
 // @hiecom/react/src/hooks/useAccountBalance.ts
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useClient } from './useClient';
-import { AccountId, Hbar } from '@hashgraph/sdk';
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useClient } from "./useClient";
+import { AccountId, Hbar } from "@hashgraph/sdk";
 
 interface UseAccountBalanceOptions {
   refetchInterval?: number;
@@ -505,16 +508,16 @@ interface UseAccountBalanceResult {
  */
 export function useAccountBalance(
   accountId: AccountId | string,
-  options: UseAccountBalanceOptions = {}
+  options: UseAccountBalanceOptions = {},
 ): UseAccountBalanceResult {
   const client = useClient();
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ['accountBalance', accountId.toString()],
+    queryKey: ["accountBalance", accountId.toString()],
     queryFn: async () => {
       return await client.getAccountBalance(
-        typeof accountId === 'string' ? AccountId.fromString(accountId) : accountId
+        typeof accountId === "string" ? AccountId.fromString(accountId) : accountId,
       );
     },
     refetchInterval: options.refetchInterval,
@@ -526,26 +529,27 @@ export function useAccountBalance(
     balance: query.data ?? null,
     loading: query.isLoading,
     error: query.error ?? null,
-    refetch: () => queryClient.refetchQueries(['accountBalance']),
+    refetch: () => queryClient.refetchQueries(["accountBalance"]),
   };
 }
-```
+````
 
 ### Hook: UseContractRead
 
 **Demonstrates Intuitive DX:**
 
 **Features:**
+
 - Auto-infers return type from ABI
 - Caches results by contract + function + args
 - Handles loading/error states automatically
 - Supports manual refetch
 
-```typescript
+````typescript
 // @hiecom/react/src/hooks/useContractRead.ts
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useClient } from './useClient';
-import { ContractId, Hbar } from '@hashgraph/sdk';
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useClient } from "./useClient";
+import { ContractId, Hbar } from "@hashgraph/sdk";
 
 interface ContractCallOptions<TArgs extends unknown[]> {
   contractId: ContractId | string;
@@ -581,17 +585,16 @@ interface UseContractReadResult<TData> {
  * ```
  */
 export function useContractRead<TArgs extends unknown[], TData = unknown>(
-  options: ContractCallOptions<TArgs>
+  options: ContractCallOptions<TArgs>,
 ): UseContractReadResult<TData> {
   const client = useClient();
   const queryClient = useQueryClient();
 
-  const contractId = typeof options.contractId === 'string'
-    ? options.contractId
-    : options.contractId.toString();
+  const contractId =
+    typeof options.contractId === "string" ? options.contractId : options.contractId.toString();
 
   const query = useQuery({
-    queryKey: ['contractRead', contractId, options.functionName, options.args],
+    queryKey: ["contractRead", contractId, options.functionName, options.args],
     queryFn: async () => {
       const result = await client.callContract({
         contractId: options.contractId,
@@ -611,27 +614,28 @@ export function useContractRead<TArgs extends unknown[], TData = unknown>(
     data: query.data ?? null,
     loading: query.isLoading,
     error: query.error ?? null,
-    refetch: () => queryClient.refetchQueries(['contractRead']),
+    refetch: () => queryClient.refetchQueries(["contractRead"]),
   };
 }
-```
+````
 
 ### Hook: UseTransferHbar
 
 **Demonstrates Real Production Value:**
 
 **Features:**
+
 - Automatic fee estimation
 - Transaction submission with loading states
 - Receipt polling until confirmation
 - Error handling with helpful messages
 - Optimistic updates (optional)
 
-```typescript
+````typescript
 // @hiecom/react/src/hooks/useTransferHbar.ts
-import { useState, useCallback } from 'react';
-import { useClient } from './useClient';
-import { AccountId, Hbar, TransferTransaction } from '@hashgraph/sdk';
+import { useState, useCallback } from "react";
+import { useClient } from "./useClient";
+import { AccountId, Hbar, TransferTransaction } from "@hashgraph/sdk";
 
 interface TransferHbarOptions {
   onSuccess?: (receipt: TransactionReceipt) => void;
@@ -640,7 +644,7 @@ interface TransferHbarOptions {
 
 interface UseTransferHbarResult {
   transfer: (to: AccountId | string, amount: number | Hbar) => Promise<void>;
-  status: 'idle' | 'pending' | 'success' | 'error';
+  status: "idle" | "pending" | "success" | "error";
   error: Error | null;
   reset: () => void;
 }
@@ -668,63 +672,64 @@ interface UseTransferHbarResult {
  * }
  * ```
  */
-export function useTransferHbar(
-  options: TransferHbarOptions = {}
-): UseTransferHbarResult {
+export function useTransferHbar(options: TransferHbarOptions = {}): UseTransferHbarResult {
   const client = useClient();
-  const [status, setStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<"idle" | "pending" | "success" | "error">("idle");
   const [error, setError] = useState<Error | null>(null);
 
-  const transfer = useCallback(async (to: AccountId | string, amount: number | Hbar) => {
-    try {
-      setStatus('pending');
-      setError(null);
+  const transfer = useCallback(
+    async (to: AccountId | string, amount: number | Hbar) => {
+      try {
+        setStatus("pending");
+        setError(null);
 
-      const toAccountId = typeof to === 'string' ? AccountId.fromString(to) : to;
-      const hbarAmount = typeof amount === 'number' ? Hbar.from(amount) : amount;
+        const toAccountId = typeof to === "string" ? AccountId.fromString(to) : to;
+        const hbarAmount = typeof amount === "number" ? Hbar.from(amount) : amount;
 
-      // Build transaction
-      const transaction = new TransferTransaction()
-        .addHbarTransfer(client.operatorAccountId!, hbarAmount.negate())
-        .addHbarTransfer(toAccountId, hbarAmount)
-        .freezeWith(client);
+        // Build transaction
+        const transaction = new TransferTransaction()
+          .addHbarTransfer(client.operatorAccountId!, hbarAmount.negate())
+          .addHbarTransfer(toAccountId, hbarAmount)
+          .freezeWith(client);
 
-      // Estimate fee
-      const estimatedFee = await transaction.getHbarFee(client);
-      console.log(`Estimated fee: ${estimatedFee.toString()}`);
+        // Estimate fee
+        const estimatedFee = await transaction.getHbarFee(client);
+        console.log(`Estimated fee: ${estimatedFee.toString()}`);
 
-      // Execute
-      const receipt = await client.sendTransaction(transaction);
+        // Execute
+        const receipt = await client.sendTransaction(transaction);
 
-      setStatus('success');
-      options.onSuccess?.(receipt);
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Transfer failed');
-      setStatus('error');
-      setError(error);
-      options.onError?.(error);
-      throw error;
-    }
-  }, [client, options]);
+        setStatus("success");
+        options.onSuccess?.(receipt);
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error("Transfer failed");
+        setStatus("error");
+        setError(error);
+        options.onError?.(error);
+        throw error;
+      }
+    },
+    [client, options],
+  );
 
   const reset = useCallback(() => {
-    setStatus('idle');
+    setStatus("idle");
     setError(null);
   }, []);
 
   return { transfer, status, error, reset };
 }
-```
+````
 
 ### Hook: UseMirrorNodeAccount
 
 **Demonstrates Type-Safe Mirror Node Integration:**
 
-```typescript
+````typescript
 // @hiecom/react/src/hooks/useMirrorNodeAccount.ts
-import { useQuery } from '@tanstack/react-query';
-import { useClient } from './useClient';
-import type { MirrorAccount } from '@hiecom/types';
+import { useQuery } from "@tanstack/react-query";
+import { useClient } from "./useClient";
+import type { MirrorAccount } from "@hiecom/types";
 
 interface UseMirrorNodeAccountResult {
   account: MirrorAccount | null;
@@ -755,13 +760,11 @@ interface UseMirrorNodeAccountResult {
  * }
  * ```
  */
-export function useMirrorNodeAccount(
-  accountId: string
-): UseMirrorNodeAccountResult {
+export function useMirrorNodeAccount(accountId: string): UseMirrorNodeAccountResult {
   const client = useClient();
 
   const query = useQuery({
-    queryKey: ['mirrorNodeAccount', accountId],
+    queryKey: ["mirrorNodeAccount", accountId],
     queryFn: async () => {
       return await client.mirrorNode.getAccount(accountId);
     },
@@ -775,7 +778,7 @@ export function useMirrorNodeAccount(
     refetch: () => query.refetch(),
   };
 }
-```
+````
 
 ### Complete Real-World Example
 
@@ -847,13 +850,10 @@ function WalletDashboard() {
 // React: useAccountBalance(accountId)
 // Svelte: accountBalance(accountId) → store
 
-import { readable, derived } from 'svelte/store';
-import { HieroClient } from '@hiecom/core';
+import { readable, derived } from "svelte/store";
+import { HieroClient } from "@hiecom/core";
 
-export function createAccountBalanceStore(
-  client: HieroClient,
-  accountId: string
-) {
+export function createAccountBalanceStore(client: HieroClient, accountId: string) {
   const { subscribe, set, update } = readable<Hbar | null>(null, (set) => {
     let interval: ReturnType<typeof setInterval>;
 
@@ -891,8 +891,8 @@ export function createAccountBalanceStore(
 // React: useAccountBalance(accountId)
 // Vue: useAccountBalance(accountId) → composable
 
-import { ref, onMounted, onUnmounted } from 'vue';
-import { HieroClient } from '@hiecom/core';
+import { ref, onMounted, onUnmounted } from "vue";
+import { HieroClient } from "@hiecom/core";
 
 export function useAccountBalance(accountId: string) {
   const balance = ref<Hbar | null>(null);
@@ -1024,9 +1024,10 @@ function BalanceDisplay() {
 **Problem:** Untyped Mirror Node responses cause runtime errors
 
 **Before @hiecom:**
+
 ```typescript
 // Manual fetch - no type safety
-const response = await fetch('/api/v1/accounts/0.0.1000');
+const response = await fetch("/api/v1/accounts/0.0.1000");
 const data = await response.json();
 
 // Runtime error: property name typo
@@ -1037,9 +1038,10 @@ const balance = data.balance.balance; // Could be string or number
 ```
 
 **After @hiecom:**
+
 ```typescript
 // With @hiecom - full type safety
-const { account } = useMirrorNodeAccount('0.0.1000');
+const { account } = useMirrorNodeAccount("0.0.1000");
 
 // TypeScript catches typos at compile time
 console.log(account.ballance.balance); // ❌ Type error!
@@ -1055,6 +1057,7 @@ const balance: Hbar = account.balance.balance; // ✅ Correct type
 **Problem:** Manual implementations miss edge cases
 
 **Before @hiecom:**
+
 ```typescript
 // ❌ What if network request fails?
 // ❌ What if transaction times out?
@@ -1065,6 +1068,7 @@ const balance: Hbar = account.balance.balance; // ✅ Correct type
 ```
 
 **After @hiecom:**
+
 ```typescript
 // ✅ All edge cases handled automatically
 const { balance, loading, error, refetch } = useAccountBalance(accountId);
@@ -1084,6 +1088,7 @@ const { balance, loading, error, refetch } = useAccountBalance(accountId);
 **Problem:** Learning different APIs for each framework
 
 **Before @hiecom:**
+
 ```typescript
 // React (some library)
 const { balance } = useBalance(accountId);
@@ -1099,6 +1104,7 @@ const [balance] = createBalance(accountId);
 ```
 
 **After @hiecom:**
+
 ```typescript
 // React - @hiecom/react
 const { balance, loading, error } = useAccountBalance(accountId);
@@ -1127,6 +1133,7 @@ const { balance, loading, error } = useAccountBalance(accountId);
 **Goal:** Set up monorepo and implement `@hiecom/core` + `@hiecom/react` (reference)
 
 **Tasks:**
+
 - [x] Initialize Turborepo + pnpm workspace
 - [ ] Configure TypeScript, ESLint, Prettier
 - [ ] Set up Vitest for testing
@@ -1153,6 +1160,7 @@ const { balance, loading, error } = useAccountBalance(accountId);
 **Goal:** Production-ready documentation site with live examples
 
 **Tasks:**
+
 - [ ] Set up VitePress documentation site
 - [ ] Write quickstart guide (<5 min to first use)
 - [ ] Create 5+ real-world examples:
@@ -1172,6 +1180,7 @@ const { balance, loading, error } = useAccountBalance(accountId);
 **Goal:** Implement Svelte, Vue adapters following React pattern
 
 **Tasks:**
+
 - [ ] `@hiecom/svelte`:
   - [ ] Port all React hooks to Svelte stores
   - [ ] Create 3 Svelte examples
@@ -1188,6 +1197,7 @@ const { balance, loading, error } = useAccountBalance(accountId);
 **Goal:** Implement Solid, Qwik adapters
 
 **Tasks:**
+
 - [ ] `@hiecom/solid`:
   - [ ] Port all React hooks to Solid signals
   - [ ] Create 2 Solid examples
@@ -1204,6 +1214,7 @@ const { balance, loading, error } = useAccountBalance(accountId);
 **Goal:** Finalize for hackathon submission
 
 **Tasks:**
+
 - [ ] Bundle size optimization
 - [ ] Performance benchmarking
 - [ ] Record demo video (5-10 min)
@@ -1228,6 +1239,7 @@ const { balance, loading, error } = useAccountBalance(accountId);
 **Location:** `github.com/hiecom/ecosystem`
 
 **Structure:**
+
 ```
 hiecom/ecosystem
 ├── packages/
@@ -1249,6 +1261,7 @@ hiecom/ecosystem
 ### 2. Clean Library API
 
 **Example Installation:**
+
 ```bash
 npm install @hiecom/react @hiecom/core
 # or
@@ -1258,6 +1271,7 @@ yarn add @hiecom/react @hiecom/core
 ```
 
 **Example Usage:**
+
 ```typescript
 // Quickstart - < 5 minutes to working dApp
 import { ClientProvider } from '@hiecom/react';
@@ -1291,30 +1305,31 @@ function Wallet() {
 **Coverage Target:** 90%+ for core, 80%+ for adapters
 
 **Test Structure:**
+
 ```typescript
 // packages/core/test/client/hiero-client.test.ts
-import { describe, it, expect, beforeEach } from 'vitest';
-import { HieroClient } from '../src/client/hiero-client';
+import { describe, it, expect, beforeEach } from "vitest";
+import { HieroClient } from "../src/client/hiero-client";
 
-describe('HieroClient', () => {
+describe("HieroClient", () => {
   let client: HieroClient;
 
   beforeEach(() => {
     client = new HieroClient({
-      network: 'testnet',
-      operator: { accountId: '0.0.1000', privateKey: '0x...' }
+      network: "testnet",
+      operator: { accountId: "0.0.1000", privateKey: "0x..." },
     });
   });
 
-  describe('getAccountBalance', () => {
-    it('should return account balance', async () => {
-      const balance = await client.getAccountBalance('0.0.1000');
+  describe("getAccountBalance", () => {
+    it("should return account balance", async () => {
+      const balance = await client.getAccountBalance("0.0.1000");
       expect(balance).toBeDefined();
       expect(balance.toTinybars()).toBeGreaterThan(0n);
     });
 
-    it('should throw for invalid account ID', async () => {
-      await expect(client.getAccountBalance('invalid')).rejects.toThrow();
+    it("should throw for invalid account ID", async () => {
+      await expect(client.getAccountBalance("invalid")).rejects.toThrow();
     });
   });
 });
@@ -1323,6 +1338,7 @@ describe('HieroClient', () => {
 ### 4. CI/CD
 
 **GitHub Actions Workflow:**
+
 ```yaml
 # .github/workflows/test.yml
 name: Test
@@ -1345,6 +1361,7 @@ jobs:
 ### 5. README with Quickstart
 
 **Sections:**
+
 - Project title + description
 - Installation instructions
 - Quickstart example (<5 min)
@@ -1355,6 +1372,7 @@ jobs:
 ### 6. Contribution Hygiene
 
 **Files:**
+
 - `CONTRIBUTING.md`: PR guidelines, DCO sign-offs
 - `.github/PULL_REQUEST_TEMPLATE.md`: PR template
 - `.github/ISSUE_TEMPLATE/`: Bug report, feature request
@@ -1374,6 +1392,7 @@ Most libraries pick one framework. We support **5** from day one.
 **2. Production-Ready Patterns**
 
 Inspired by `hiero-enterprise-java`, but for frontend:
+
 - Error handling
 - Retry logic
 - Caching
@@ -1383,6 +1402,7 @@ Inspired by `hiero-enterprise-java`, but for frontend:
 **3. Zero Duplication**
 
 70% code reuse via shared core:
+
 - Type definitions shared
 - Client logic shared
 - Testing utilities shared
@@ -1391,6 +1411,7 @@ Inspired by `hiero-enterprise-java`, but for frontend:
 **4. Developer Experience Obsession**
 
 Every decision prioritizes DX:
+
 - 5-minute quickstart
 - Full TypeScript autocomplete
 - Helpful error messages
@@ -1400,6 +1421,7 @@ Every decision prioritizes DX:
 **5. Community-Driven Namespace**
 
 `@hiecom/*` signals:
+
 - Not vendor-controlled
 - Community-maintained
 - Open to contributions
@@ -1431,7 +1453,7 @@ This isn't just a library—it's the **foundation for Hiero's frontend ecosystem
 
 ---
 
-*Document Version: 2.0*
-*Last Updated: 2026-02-22*
-*Author: @abinovalfauzi*
-*License: MIT (for documentation structure)*
+_Document Version: 2.0_
+_Last Updated: 2026-02-22_
+_Author: @abinovalfauzi_
+_License: MIT (for documentation structure)_

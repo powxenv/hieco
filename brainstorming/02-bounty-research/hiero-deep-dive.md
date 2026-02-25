@@ -44,15 +44,15 @@ This document provides an exhaustive analysis of the Hiero ecosystem to identify
 
 ### Official Hiero SDKs
 
-| SDK                | Language              | GitHub Stars | Status     | Last Updated |
-| ------------------ | --------------------- | ------------ | ---------- | ------------ |
-| `@hiero-ledger/sdk`   | JavaScript/TypeScript | Active       | Production | Feb 2026     |
-| `hiero-sdk-java`   | Java                  | Active       | Production | Feb 2026     |
-| `hiero-sdk-python` | Python                | Active       | Production | Oct 2024     |
-| `hiero-sdk-go`     | Go                    | Active       | Production | Ongoing      |
-| `hiero-sdk-rust`   | Rust                  | Active       | Production | Ongoing      |
-| `hiero-sdk-swift`  | Swift                 | Active       | Production | Ongoing      |
-| `hiero-sdk-cpp`    | C++                   | Active       | Production | Ongoing      |
+| SDK                 | Language              | GitHub Stars | Status     | Last Updated |
+| ------------------- | --------------------- | ------------ | ---------- | ------------ |
+| `@hiero-ledger/sdk` | JavaScript/TypeScript | Active       | Production | Feb 2026     |
+| `hiero-sdk-java`    | Java                  | Active       | Production | Feb 2026     |
+| `hiero-sdk-python`  | Python                | Active       | Production | Oct 2024     |
+| `hiero-sdk-go`      | Go                    | Active       | Production | Ongoing      |
+| `hiero-sdk-rust`    | Rust                  | Active       | Production | Ongoing      |
+| `hiero-sdk-swift`   | Swift                 | Active       | Production | Ongoing      |
+| `hiero-sdk-cpp`     | C++                   | Active       | Production | Ongoing      |
 
 **Source:** [Hiero SDKs Documentation](https://docs.hiero.org/sdks)
 
@@ -400,13 +400,13 @@ Scheduled transactions are powerful but complex:
 ```typescript
 // Template system
 const scheduledTx = new ScheduledTransactionBuilder()
-    .type("MULTISIG_ESCROW")
-    .participants(["0.0.11111", "0.0.22222", "0.0.33333"])
-    .threshold(2) // 2 of 3 signatures required
-    .transaction(tokenTransfer)
-    .expiry(Duration.hours(24))
-    .onStatusChange((status) => webhook.send(status))
-    .build();
+  .type("MULTISIG_ESCROW")
+  .participants(["0.0.11111", "0.0.22222", "0.0.33333"])
+  .threshold(2) // 2 of 3 signatures required
+  .transaction(tokenTransfer)
+  .expiry(Duration.hours(24))
+  .onStatusChange((status) => webhook.send(status))
+  .build();
 
 // Signature collection
 await scheduledTx.addSignature(signature1);
@@ -418,18 +418,18 @@ await scheduledTx.executeWhenReady();
 // Or manual execution
 const status = await scheduledTx.getStatus();
 if (status === "ready") {
-    await scheduledTx.execute();
+  await scheduledTx.execute();
 }
 ```
 
 #### Unique Selling Points
 
 1. **Template library** - Pre-built patterns for common use cases
-    - Multi-sig escrow
-    - Time-lock vault
-    - Vesting schedule
-    - Atomic swap
-    - Cross-wallet trade
+   - Multi-sig escrow
+   - Time-lock vault
+   - Vesting schedule
+   - Atomic swap
+   - Cross-wallet trade
 
 2. **Signature coordination** - Abstract multi-party signature collection
 3. **Status tracking** - Polling or webhook-based status updates
@@ -441,31 +441,31 @@ if (status === "ready") {
 ```typescript
 // 1. Escrow Template
 const escrow = EscrowTemplate.create({
-    buyer: "0.0.11111",
-    seller: "0.0.22222",
-    arbitrator: "0.0.33333",
-    amount: 100, // HBAR
-    threshold: 2, // Any 2 of 3 can release funds
+  buyer: "0.0.11111",
+  seller: "0.0.22222",
+  arbitrator: "0.0.33333",
+  amount: 100, // HBAR
+  threshold: 2, // Any 2 of 3 can release funds
 });
 
 // 2. Time-Lock Template
 const timelock = TimeLockTemplate.create({
-    recipient: "0.0.11111",
-    amount: 1000,
-    releaseDate: new Date("2026-12-31"),
-    creator: "0.0.22222",
+  recipient: "0.0.11111",
+  amount: 1000,
+  releaseDate: new Date("2026-12-31"),
+  creator: "0.0.22222",
 });
 
 // 3. Vesting Template
 const vesting = VestingTemplate.create({
-    beneficiary: "0.0.11111",
-    totalAmount: 10000,
-    schedule: [
-        { date: "2026-03-01", percentage: 25 },
-        { date: "2026-06-01", percentage: 25 },
-        { date: "2026-09-01", percentage: 25 },
-        { date: "2026-12-01", percentage: 25 },
-    ],
+  beneficiary: "0.0.11111",
+  totalAmount: 10000,
+  schedule: [
+    { date: "2026-03-01", percentage: 25 },
+    { date: "2026-06-01", percentage: 25 },
+    { date: "2026-09-01", percentage: 25 },
+    { date: "2026-12-01", percentage: 25 },
+  ],
 });
 ```
 
@@ -816,10 +816,10 @@ function Page() {
 - [ ] Public GitHub repository with Apache 2.0 or MIT license
 - [ ] TypeScript with strict mode enabled
 - [ ] Template library with 3+ templates
-    - [ ] Multi-sig escrow
-    - [ ] Time-lock vault
-    - [ ] Vesting schedule
-    - [ ] Atomic swap (bonus)
+  - [ ] Multi-sig escrow
+  - [ ] Time-lock vault
+  - [ ] Vesting schedule
+  - [ ] Atomic swap (bonus)
 - [ ] Signature collection workflow
 - [ ] Status tracking (polling or webhook)
 - [ ] Expiry management
@@ -837,17 +837,17 @@ function Page() {
 - [ ] Public GitHub repository with Apache 2.0 or MIT license
 - [ ] TypeScript with strict mode enabled
 - [ ] React 18+ hooks (5+ hooks)
-    - [ ] `useWalletConnection`
-    - [ ] `useAccountBalance`
-    - [ ] `useTransferHbar`
-    - [ ] `useTransferToken`
-    - [ ] `useContractRead`
-    - [ ] `useContractWrite`
-    - [ ] `useNetworkSwitch` (bonus)
+  - [ ] `useWalletConnection`
+  - [ ] `useAccountBalance`
+  - [ ] `useTransferHbar`
+  - [ ] `useTransferToken`
+  - [ ] `useContractRead`
+  - [ ] `useContractWrite`
+  - [ ] `useNetworkSwitch` (bonus)
 - [ ] UI components (3+ components)
-    - [ ] `<WalletConnectButton />`
-    - [ ] `<AccountBalance />`
-    - [ ] `<TransactionButton />`
+  - [ ] `<WalletConnectButton />`
+  - [ ] `<AccountBalance />`
+  - [ ] `<TransactionButton />`
 - [ ] SSR-compatible (Next.js App Router)
 - [ ] Unit tests (React Testing Library)
 - [ ] Integration tests

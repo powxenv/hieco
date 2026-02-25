@@ -466,8 +466,8 @@ import { HieroProfiler } from "@hiero/observability";
 
 // 1. Auto-instrument transactions
 const profiler = new HieroProfiler({
-    apiKey: "your-project-key",
-    network: "mainnet",
+  apiKey: "your-project-key",
+  network: "mainnet",
 });
 
 // Wrap your client
@@ -481,8 +481,8 @@ const client = profiler.wrap(new Client());
 
 // 2. Smart contract profiling
 const contractProfits = await profiler.analyzeContract({
-    contractId: "0.0.1000",
-    range: "7d",
+  contractId: "0.0.1000",
+  range: "7d",
 });
 
 console.log(contractProfits);
@@ -508,14 +508,14 @@ console.log(contractProfits);
 
 // 4. Alerting
 profiler.on("error-rate", (threshold) => {
-    if (threshold > 0.05) {
-        // 5% error rate
-        alert(`Error rate spiked to ${threshold * 100}%`);
-    }
+  if (threshold > 0.05) {
+    // 5% error rate
+    alert(`Error rate spiked to ${threshold * 100}%`);
+  }
 });
 
 profiler.on("gas-spend", (stats) => {
-    console.log(`Gas cost: ${stats.daily} per day`);
+  console.log(`Gas cost: ${stats.daily} per day`);
 });
 ```
 
@@ -607,8 +607,8 @@ profiler.on("gas-spend", (stats) => {
 import { instrumentClient } from "@hiero/observability/sdk";
 
 const client = instrumentClient(new Client(), {
-    projectName: "my-dapp",
-    environment: "production",
+  projectName: "my-dapp",
+  environment: "production",
 });
 
 // All calls are now tracked:
@@ -629,9 +629,9 @@ const client = instrumentClient(new Client(), {
 ```typescript
 // Which functions cost the most gas?
 await profiler.profileContract({
-    contractId: "0.0.1000",
-    duration: "7d",
-    granularity: "function",
+  contractId: "0.0.1000",
+  duration: "7d",
+  granularity: "function",
 });
 ```
 
@@ -640,9 +640,9 @@ await profiler.profileContract({
 ```typescript
 // Follow a user's journey through your dApp
 await profiler.traceUser(userId, {
-    duration: "session",
-    events: true, // Contract calls, transactions
-    errors: true, // Failed operations
+  duration: "session",
+  events: true, // Contract calls, transactions
+  errors: true, // Failed operations
 });
 ```
 

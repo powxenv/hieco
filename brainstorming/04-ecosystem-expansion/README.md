@@ -24,13 +24,13 @@ Based on the existing `@hiecom/mirror-*` packages and research findings, seven s
 
 ### Current Foundation
 
-| Package | Purpose | Status |
-|---------|---------|--------|
-| `@hiecom/mirror-js` | Core Mirror Node REST client | ✅ Built |
-| `@hiecom/mirror-react` | React hooks with TanStack Query | ✅ Built |
-| `@hiecom/mirror-preact` | Preact adapter | ✅ Built |
-| `@hiecom/mirror-solid` | Solid.js adapter | ✅ Built |
-| `@hiecom/mirror-shared` | Shared utilities | ✅ Built |
+| Package                 | Purpose                         | Status   |
+| ----------------------- | ------------------------------- | -------- |
+| `@hiecom/mirror-js`     | Core Mirror Node REST client    | ✅ Built |
+| `@hiecom/mirror-react`  | React hooks with TanStack Query | ✅ Built |
+| `@hiecom/mirror-preact` | Preact adapter                  | ✅ Built |
+| `@hiecom/mirror-solid`  | Solid.js adapter                | ✅ Built |
+| `@hiecom/mirror-shared` | Shared utilities                | ✅ Built |
 
 ---
 
@@ -41,30 +41,32 @@ Based on the existing `@hiecom/mirror-*` packages and research findings, seven s
 **Impact:** ⭐⭐⭐⭐⭐ | **Complexity:** Low | **Time:** 6-8 days
 
 **Problem Solved:**
+
 - Testing against live testnet is slow and unreliable
 - No good mocking solutions for Mirror Node API
 - Developers write boilerplate for every test
 
 **Key Features:**
+
 - Mock Mirror Node server using MSW
 - Test utilities for React hooks
 - Pre-built test data fixtures
 - Coverage reporting integration
 
 ```typescript
-import { setupMirrorMock, renderHook } from '@hiecom/testing';
+import { setupMirrorMock, renderHook } from "@hiecom/testing";
 
 const { server } = setupMirrorMock({
-  network: 'testnet',
+  network: "testnet",
   handlers: {
     accountBalance: {
-      '0.0.1234': Hbar.from(1000)
-    }
-  }
+      "0.0.1234": Hbar.from(1000),
+    },
+  },
 });
 
-test('useAccountBalance', async () => {
-  const { result } = renderHook(() => useAccountBalance('0.0.1234'));
+test("useAccountBalance", async () => {
+  const { result } = renderHook(() => useAccountBalance("0.0.1234"));
   await waitFor(() => expect(result.current.balance).toEqual(Hbar.from(1000)));
 });
 ```
@@ -76,25 +78,27 @@ test('useAccountBalance', async () => {
 **Impact:** ⭐⭐⭐⭐ | **Complexity:** Medium | **Time:** 7-9 days
 
 **Problem Solved:**
+
 - Multi-party signature coordination is complex
 - No template library for common patterns
 - Status tracking requires manual polling
 
 **Key Features:**
+
 - Template library (escrow, time-lock, vesting, atomic swap)
 - Multi-party signature collection
 - Status tracking with webhook support
 - React hooks integration
 
 ```typescript
-import { EscrowTemplate } from '@hiecom/scheduled';
+import { EscrowTemplate } from "@hiecom/scheduled";
 
 const escrow = EscrowTemplate.create({
-  buyer: '0.0.1111',
-  seller: '0.0.2222',
-  arbitrator: '0.0.3333',
+  buyer: "0.0.1111",
+  seller: "0.0.2222",
+  arbitrator: "0.0.3333",
   amount: Hbar.from(100),
-  threshold: 2
+  threshold: 2,
 });
 
 await escrow.addSignature(buyerSignature);
@@ -109,27 +113,28 @@ await escrow.execute(); // Auto-executes when threshold reached
 **Impact:** ⭐⭐⭐⭐⭐ | **Complexity:** Medium | **Time:** 8-10 days
 
 **Problem Solved:**
+
 - Building complex transactions requires deep SDK knowledge
 - Debugging failures is painful
 - Cryptic error messages
 
 **Key Features:**
+
 - Chainable, type-safe transaction builder
 - Dry-run simulation without network submission
 - Fee prediction before execution
 - Visual transaction inspector
 
 ```typescript
-import { TransactionBuilder, Debugger } from '@hiecom/devtools';
+import { TransactionBuilder, Debugger } from "@hiecom/devtools";
 
-const tx = TransactionBuilder
-  .tokenTransfer()
-  .tokenId('0.0.4567')
-  .from('0.0.1234')
-  .to('0.0.9876', 100)
+const tx = TransactionBuilder.tokenTransfer()
+  .tokenId("0.0.4567")
+  .from("0.0.1234")
+  .to("0.0.9876", 100)
   .build();
 
-const report = await Debugger.simulate(tx, { network: 'testnet' });
+const report = await Debugger.simulate(tx, { network: "testnet" });
 // Returns: { valid, estimatedFee, warnings, requiredSignatures }
 ```
 
@@ -140,24 +145,26 @@ const report = await Debugger.simulate(tx, { network: 'testnet' });
 **Impact:** ⭐⭐⭐⭐ | **Complexity:** Medium | **Time:** 5-7 days
 
 **Problem Solved:**
+
 - Mirror Node REST API is polling-only
 - No real-time updates for transactions/balances
 - Manual polling is inefficient
 
 **Key Features:**
+
 - WebSocket subscription client
 - Account transaction streaming
 - Token transfer notifications
 - Auto-reconnect with exponential backoff
 
 ```typescript
-import { MirrorRealtimeClient } from '@hiecom/mirror-realtime';
+import { MirrorRealtimeClient } from "@hiecom/mirror-realtime";
 
-const client = new MirrorRealtimeClient('testnet');
+const client = new MirrorRealtimeClient("testnet");
 
-client.subscribe.accountTransactions('0.0.1234', {
-  onTransaction: (tx) => console.log('New tx:', tx),
-  onError: (err) => console.error(err)
+client.subscribe.accountTransactions("0.0.1234", {
+  onTransaction: (tx) => console.log("New tx:", tx),
+  onError: (err) => console.error(err),
 });
 ```
 
@@ -168,24 +175,26 @@ client.subscribe.accountTransactions('0.0.1234', {
 **Impact:** ⭐⭐⭐ | **Complexity:** Medium | **Time:** 5-7 days
 
 **Problem Solved:**
+
 - Private keys in .env files leak
 - No secure abstraction for signing operations
 - Hardware wallet integration missing
 
 **Key Features:**
+
 - Unified key management interface
 - Environment variable support
 - Keystore file support
 - Ledger hardware wallet integration
 
 ```typescript
-import { Vault, KeyLocation } from '@hiecom/vault';
+import { Vault, KeyLocation } from "@hiecom/vault";
 
 const vault = Vault.create();
-vault.addKey(KeyLocation.env('MY_PRIVATE_KEY'));
+vault.addKey(KeyLocation.env("MY_PRIVATE_KEY"));
 vault.addKey(KeyLocation.ledger());
 
-const signed = await vault.sign(transaction, { accountId: '0.0.1234' });
+const signed = await vault.sign(transaction, { accountId: "0.0.1234" });
 ```
 
 ---
@@ -195,18 +204,20 @@ const signed = await vault.sign(transaction, { accountId: '0.0.1234' });
 **Impact:** ⭐⭐⭐ | **Complexity:** Low | **Time:** 3-4 days
 
 **Problem Solved:**
+
 - Vue developers need Mirror Node integration
 - Inconsistent API across frameworks
 
 **Key Features:**
+
 - Vue 3 composables mirroring React hooks
 - Nuxt 3 integration
 - TypeScript support
 
 ```typescript
-import { useAccountBalance, useContractRead } from '@hiecom/mirror-vue';
+import { useAccountBalance, useContractRead } from "@hiecom/mirror-vue";
 
-const { balance, loading } = useAccountBalance('0.0.1234');
+const { balance, loading } = useAccountBalance("0.0.1234");
 ```
 
 ---
@@ -216,10 +227,12 @@ const { balance, loading } = useAccountBalance('0.0.1234');
 **Impact:** ⭐⭐⭐ | **Complexity:** Low | **Time:** 4-5 days
 
 **Problem Solved:**
+
 - Common operations require writing scripts
 - No unified developer tool
 
 **Key Features:**
+
 - Account management
 - Transaction building (interactive)
 - Monitoring and watch mode
@@ -237,25 +250,25 @@ hiecom monitor:account 0.0.1234 --watch
 
 ### Phase 1: Foundation (Weeks 1-2)
 
-| Package | Rationale |
-|---------|-----------|
-| `@hiecom/testing` | Enables better development of all other packages |
-| `@hiecom/scheduled` | Fills documented gap, unique in ecosystem |
-| `@hiecom/devtools` | Maximum DX improvement |
+| Package             | Rationale                                        |
+| ------------------- | ------------------------------------------------ |
+| `@hiecom/testing`   | Enables better development of all other packages |
+| `@hiecom/scheduled` | Fills documented gap, unique in ecosystem        |
+| `@hiecom/devtools`  | Maximum DX improvement                           |
 
 ### Phase 2: Realtime & Security (Weeks 3-4)
 
-| Package | Rationale |
-|---------|-----------|
-| `@hiecom/mirror-realtime` | Critical for modern dApp UX |
-| `@hiecom/vault` | Production security requirement |
+| Package                   | Rationale                       |
+| ------------------------- | ------------------------------- |
+| `@hiecom/mirror-realtime` | Critical for modern dApp UX     |
+| `@hiecom/vault`           | Production security requirement |
 
 ### Phase 3: Framework Expansion (Week 5)
 
-| Package | Rationale |
-|---------|-----------|
-| `@hiecom/mirror-vue` | Vue has 20%+ market share |
-| `@hiecom/cli` | Developer productivity booster |
+| Package              | Rationale                      |
+| -------------------- | ------------------------------ |
+| `@hiecom/mirror-vue` | Vue has 20%+ market share      |
+| `@hiecom/cli`        | Developer productivity booster |
 
 ---
 
@@ -263,19 +276,19 @@ hiecom monitor:account 0.0.1234 --watch
 
 ### Testing Landscape (2025-2026)
 
-| Framework | Speed | TypeScript | DX | Ecosystem |
-|-----------|-------|------------|-----|-----------|
-| Vitest | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Growing |
-| Bun Test | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Built-in |
-| Jest | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | Mature |
+| Framework | Speed      | TypeScript | DX         | Ecosystem |
+| --------- | ---------- | ---------- | ---------- | --------- |
+| Vitest    | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Growing   |
+| Bun Test  | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   | ⭐⭐⭐⭐   | Built-in  |
+| Jest      | ⭐⭐       | ⭐⭐⭐     | ⭐⭐⭐     | Mature    |
 
 ### Mock Server Comparison
 
-| Tool | Browser | Node | Client Agnostic | Type Safety |
-|------|---------|------|-----------------|-------------|
-| MSW | ✅ | ✅ | ✅ | ⭐⭐⭐⭐⭐ |
-| Nock | ❌ | ✅ | Partial | ⭐⭐⭐ |
-| Polly | ✅ | ✅ | ✅ | ⭐⭐⭐ |
+| Tool  | Browser | Node | Client Agnostic | Type Safety |
+| ----- | ------- | ---- | --------------- | ----------- |
+| MSW   | ✅      | ✅   | ✅              | ⭐⭐⭐⭐⭐  |
+| Nock  | ❌      | ✅   | Partial         | ⭐⭐⭐      |
+| Polly | ✅      | ✅   | ✅              | ⭐⭐⭐      |
 
 ---
 
@@ -305,7 +318,7 @@ hiecom monitor:account 0.0.1234 --watch
 
 ---
 
-*Document Version: 1.0*
-*Last Updated: 2026-02-25*
-*Author: @pow*
-*License: MIT*
+_Document Version: 1.0_
+_Last Updated: 2026-02-25_
+_Author: @pow_
+_License: MIT_

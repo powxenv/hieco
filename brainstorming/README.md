@@ -12,12 +12,12 @@ This directory contains comprehensive research, analysis, and proposals for the 
 
 ### Quick Navigation
 
-| Section                                       | Description                                   | Status      |
-| --------------------------------------------- | --------------------------------------------- | ----------- |
-| [01 - Hackathon Overview](./01-overview/)     | Comprehensive analysis of all 5 bounty tracks | ✅ Complete |
-| [02 - Bounty Research](./02-bounty-research/) | Deep-dive research on Hiero ecosystem         | ✅ Complete |
-| [03 - Proposals](./03-proposals/)             | Novel DX proposals and unified ecosystem      | ✅ Complete |
-| [04 - Ecosystem Expansion](./04-ecosystem-expansion/) | Seven practical additions to @hiecom | ✅ Complete |
+| Section                                               | Description                                   | Status      |
+| ----------------------------------------------------- | --------------------------------------------- | ----------- |
+| [01 - Hackathon Overview](./01-overview/)             | Comprehensive analysis of all 5 bounty tracks | ✅ Complete |
+| [02 - Bounty Research](./02-bounty-research/)         | Deep-dive research on Hiero ecosystem         | ✅ Complete |
+| [03 - Proposals](./03-proposals/)                     | Novel DX proposals and unified ecosystem      | ✅ Complete |
+| [04 - Ecosystem Expansion](./04-ecosystem-expansion/) | Seven practical additions to @hiecom          | ✅ Complete |
 
 ---
 
@@ -109,22 +109,22 @@ Exhaustive ecosystem mapping including:
 **Novel Developer Experience Proposals** (avoiding official hackathon examples):
 
 1. **`@hiero/devtools` - Visual Transaction Debugger**
-    - Inspect transaction bytes in human-readable format
-    - Dry-run simulation without network submission
-    - Fee prediction and validation
-    - Implementation: 12-15 days
+   - Inspect transaction bytes in human-readable format
+   - Dry-run simulation without network submission
+   - Fee prediction and validation
+   - Implementation: 12-15 days
 
 2. **`@hiero/hotswap` - Hot Reload Development Server**
-    - Instant contract redeployment without address changes
-    - Virtual faucet for unlimited test accounts
-    - State snapshots and time travel
-    - Implementation: 18-22 days
+   - Instant contract redeployment without address changes
+   - Virtual faucet for unlimited test accounts
+   - State snapshots and time travel
+   - Implementation: 18-22 days
 
 3. **`@hiero/observability` - Profiler & Monitoring Dashboard**
-    - Transaction tracing and visualization
-    - Smart contract profiling
-    - Error tracking and alerting
-    - Implementation: 20-25 days
+   - Transaction tracing and visualization
+   - Smart contract profiling
+   - Error tracking and alerting
+   - Implementation: 20-25 days
 
 **Differentiation:** All three address genuine pain points with zero existing solutions in the Hiero ecosystem.
 
@@ -161,15 +161,15 @@ A unified, community-driven frontend integration ecosystem covering **React, Sve
 
 Seven strategic additions to the @hiecom ecosystem based on existing packages and research findings:
 
-| Package | Impact | Complexity | Time |
-|---------|--------|------------|------|
-| `@hiecom/testing` | ⭐⭐⭐⭐⭐ | Low | 6-8 days |
-| `@hiecom/scheduled` | ⭐⭐⭐⭐ | Medium | 7-9 days |
-| `@hiecom/devtools` | ⭐⭐⭐⭐⭐ | Medium | 8-10 days |
-| `@hiecom/mirror-realtime` | ⭐⭐⭐⭐ | Medium | 5-7 days |
-| `@hiecom/vault` | ⭐⭐⭐ | Medium | 5-7 days |
-| `@hiecom/mirror-vue` | ⭐⭐⭐ | Low | 3-4 days |
-| `@hiecom/cli` | ⭐⭐⭐ | Low | 4-5 days |
+| Package                   | Impact     | Complexity | Time      |
+| ------------------------- | ---------- | ---------- | --------- |
+| `@hiecom/testing`         | ⭐⭐⭐⭐⭐ | Low        | 6-8 days  |
+| `@hiecom/scheduled`       | ⭐⭐⭐⭐   | Medium     | 7-9 days  |
+| `@hiecom/devtools`        | ⭐⭐⭐⭐⭐ | Medium     | 8-10 days |
+| `@hiecom/mirror-realtime` | ⭐⭐⭐⭐   | Medium     | 5-7 days  |
+| `@hiecom/vault`           | ⭐⭐⭐     | Medium     | 5-7 days  |
+| `@hiecom/mirror-vue`      | ⭐⭐⭐     | Low        | 3-4 days  |
+| `@hiecom/cli`             | ⭐⭐⭐     | Low        | 4-5 days  |
 
 #### @hiecom/testing PRD
 
@@ -184,6 +184,7 @@ Comprehensive Product Requirements Document for `@hiecom/testing`:
 - Time and network simulation utilities
 
 **Dependencies Specified:**
+
 - `msw@^2.7.0` - Mock Service Worker for HTTP mocking
 - `@testing-library/react@^16.1.0` - React testing utilities
 - `@testing-library/user-event@^14.5.0` - User interaction simulation
@@ -194,32 +195,31 @@ Comprehensive Product Requirements Document for `@hiecom/testing`:
 
 ```typescript
 // Zero-config mock server
-import { setupMirrorMock } from '@hiecom/testing/vitest'
+import { setupMirrorMock } from "@hiecom/testing/vitest";
 
 const { server } = setupMirrorMock({
-  network: 'testnet',
-  onUnhandledRequest: 'error'
-})
+  network: "testnet",
+  onUnhandledRequest: "error",
+});
 
 // Test fixtures
-import { mockAccount, mockTransaction } from '@hiecom/testing/fixtures'
+import { mockAccount, mockTransaction } from "@hiecom/testing/fixtures";
 
-const account = mockAccount({ balance: 1000 })
-const transactions = mockTransaction.list(10)
+const account = mockAccount({ balance: 1000 });
+const transactions = mockTransaction.list(10);
 
 // React utilities
-import { renderHook, createTestWrapper } from '@hiecom/testing/react'
+import { renderHook, createTestWrapper } from "@hiecom/testing/react";
 
-const { result } = renderHook(
-  () => useAccountBalance('0.0.1234'),
-  { wrapper: createTestWrapper() }
-)
+const { result } = renderHook(() => useAccountBalance("0.0.1234"), {
+  wrapper: createTestWrapper(),
+});
 
 // Custom matchers
-import '@hiecom/testing/matchers'
+import "@hiecom/testing/matchers";
 
-expect(account).toHaveHbarBalance(1000)
-expect(tx).toBeSuccessfulTransaction()
+expect(account).toHaveHbarBalance(1000);
+expect(tx).toBeSuccessfulTransaction();
 ```
 
 ---
@@ -253,18 +253,18 @@ All research was conducted using:
 ### Immediate (Pre-Implementation)
 
 1. **Finalize Proposal Choice**
-    - Evaluate: `@hiero/devtools` vs. `@hiecom` ecosystem
-    - Consider: Scope, timeline, community impact
+   - Evaluate: `@hiero/devtools` vs. `@hiecom` ecosystem
+   - Consider: Scope, timeline, community impact
 
 2. **Validate Feasibility**
-    - Test Hiero SDK capabilities locally
-    - Verify Mirror Node API availability
-    - Confirm framework integration patterns
+   - Test Hiero SDK capabilities locally
+   - Verify Mirror Node API availability
+   - Confirm framework integration patterns
 
 3. **Stakeholder Feedback**
-    - Present to Hedera/Hiero community
-    - Gather feedback on pain points
-    - Refine proposals based on responses
+   - Present to Hedera/Hiero community
+   - Gather feedback on pain points
+   - Refine proposals based on responses
 
 ### Implementation Phase
 

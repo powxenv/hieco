@@ -2063,8 +2063,7 @@ components:
           type: integer
         call_operation_type:
           description: The type of the call operation
-          enum:
-            [CALL, CALLCODE, CREATE, CREATE2, DELEGATECALL, STATICCALL, UNKNOWN]
+          enum: [CALL, CALLCODE, CREATE, CREATE2, DELEGATECALL, STATICCALL, UNKNOWN]
           example: CALL
           nullable: false
           type: string
@@ -3278,8 +3277,7 @@ components:
           example: "3q2+7wABAQMLqgMMwQ=="
         type:
           type: string
-          enum:
-            [CONTRACT, ED25519, RSA_3072, ECDSA_384, ECDSA_SECP256K1, UNKNOWN]
+          enum: [CONTRACT, ED25519, RSA_3072, ECDSA_384, ECDSA_SECP256K1, UNKNOWN]
           example: "ED25519"
     ServiceEndpoint:
       type: object

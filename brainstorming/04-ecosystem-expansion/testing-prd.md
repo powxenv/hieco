@@ -37,6 +37,7 @@ Developers building Hiero applications face these testing challenges:
 ### Solution
 
 A unified testing library that:
+
 - Mocks Mirror Node REST API with type-safe handlers
 - Provides pre-built test fixtures for common entities
 - Includes React testing utilities with proper wrappers
@@ -56,13 +57,13 @@ A unified testing library that:
 
 ### Success Metrics
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Test runtime | < 100ms per test | Benchmark suite |
-| Setup time | < 5 minutes | Time to first passing test |
-| Documentation coverage | 100% | All exports documented |
-| Type coverage | 100% | Strict TypeScript |
-| Adoption | 10+ projects | GitHub dependents |
+| Metric                 | Target           | Measurement                |
+| ---------------------- | ---------------- | -------------------------- |
+| Test runtime           | < 100ms per test | Benchmark suite            |
+| Setup time             | < 5 minutes      | Time to first passing test |
+| Documentation coverage | 100%             | All exports documented     |
+| Type coverage          | 100%             | Strict TypeScript          |
+| Adoption               | 10+ projects     | GitHub dependents          |
 
 ### Non-Goals
 
@@ -80,54 +81,54 @@ A unified testing library that:
 **Capability:** Mock all Mirror Node REST API endpoints using MSW
 
 ```typescript
-import { setupMirrorMock, http } from '@hiecom/testing/vitest'
+import { setupMirrorMock, http } from "@hiecom/testing/vitest";
 
 // Quick setup with defaults
-const { server, cleanup } = setupMirrorMock()
+const { server, cleanup } = setupMirrorMock();
 
 // Custom handlers
 const { server } = setupMirrorMock({
-  network: 'testnet',
+  network: "testnet",
   handlers: {
     accounts: {
-      '0.0.1234': {
+      "0.0.1234": {
         balance: 100000000000, // in tinybars
-        account: '0.0.1234',
+        account: "0.0.1234",
         expiry_timestamp: 1234567890,
-      }
+      },
     },
     transactions: (req) => {
       // Dynamic handler based on request
-      return HttpResponse.json({ transactions: [] })
-    }
-  }
-})
+      return HttpResponse.json({ transactions: [] });
+    },
+  },
+});
 
 // After tests
-cleanup()
+cleanup();
 ```
 
 **Mocked Endpoints:**
 
-| Endpoint | Methods | Notes |
-|----------|---------|-------|
-| `/api/v1/accounts` | GET | List with pagination |
-| `/api/v1/accounts/{id}` | GET | Single account details |
-| `/api/v1/accounts/{id}/allowances` | GET | Token allowances |
-| `/api/v1/balances` | GET | Account balances |
-| `/api/v1/transactions` | GET | List with filters |
-| `/api/v1/transactions/{id}` | GET | Transaction details |
-| `/api/v1/tokens` | GET | Token list |
-| `/api/v1/tokens/{id}` | GET | Token details |
-| `/api/v1/tokens/{id}/nfts` | GET | NFTs for token |
-| `/api/v1/topics` | GET | Topic list |
-| `/api/v1/topics/{id}/messages` | GET | Topic messages |
-| `/api/v1/contracts` | GET | Contract list |
-| `/api/v1/contracts/{id}` | GET | Contract details |
-| `/api/v1/contracts/{id}/results` | GET | Contract results |
-| `/api/v1/blocks` | GET | Block list |
-| `/api/v1/network` | GET | Network info |
-| `/api/v1/schedules` | GET | Scheduled transactions |
+| Endpoint                           | Methods | Notes                  |
+| ---------------------------------- | ------- | ---------------------- |
+| `/api/v1/accounts`                 | GET     | List with pagination   |
+| `/api/v1/accounts/{id}`            | GET     | Single account details |
+| `/api/v1/accounts/{id}/allowances` | GET     | Token allowances       |
+| `/api/v1/balances`                 | GET     | Account balances       |
+| `/api/v1/transactions`             | GET     | List with filters      |
+| `/api/v1/transactions/{id}`        | GET     | Transaction details    |
+| `/api/v1/tokens`                   | GET     | Token list             |
+| `/api/v1/tokens/{id}`              | GET     | Token details          |
+| `/api/v1/tokens/{id}/nfts`         | GET     | NFTs for token         |
+| `/api/v1/topics`                   | GET     | Topic list             |
+| `/api/v1/topics/{id}/messages`     | GET     | Topic messages         |
+| `/api/v1/contracts`                | GET     | Contract list          |
+| `/api/v1/contracts/{id}`           | GET     | Contract details       |
+| `/api/v1/contracts/{id}/results`   | GET     | Contract results       |
+| `/api/v1/blocks`                   | GET     | Block list             |
+| `/api/v1/network`                  | GET     | Network info           |
+| `/api/v1/schedules`                | GET     | Scheduled transactions |
 
 ### 3.2 Test Fixtures
 
@@ -143,29 +144,29 @@ import {
   mockTopic,
   mockBalance,
   mockBlock,
-  mockSchedule
-} from '@hiecom/testing/fixtures'
+  mockSchedule,
+} from "@hiecom/testing/fixtures";
 
 // Single entity
 const account = mockAccount({
-  accountId: '0.0.1234',
-  balance: Hbar.from(1000)
-})
+  accountId: "0.0.1234",
+  balance: Hbar.from(1000),
+});
 
 // Multiple entities
-const transactions = mockTransaction.list(10)
+const transactions = mockTransaction.list(10);
 
 // Custom generator
 const customToken = mockToken({
-  name: 'My Token',
-  symbol: 'MTK',
+  name: "My Token",
+  symbol: "MTK",
   decimals: 18,
   totalSupply: 1000000,
-  type: 'FUNGIBLE_COMMON'
-})
+  type: "FUNGIBLE_COMMON",
+});
 
 // Relationship-aware fixtures
-const tokenWithNFTs = mockToken.withNFTs(5)
+const tokenWithNFTs = mockToken.withNFTs(5);
 ```
 
 **Fixture API:**
@@ -259,44 +260,43 @@ import {
   renderWithProviders,
   createTestQueryClient,
   waitForHieroQuery,
-  waitForHieroMutation
-} from '@hiecom/testing/react'
+  waitForHieroMutation,
+} from "@hiecom/testing/react";
 
 // Test a custom hook
-test('useAccountBalance fetches balance', async () => {
-  const { result } = renderHook(() => useAccountBalance('0.0.1234'))
+test("useAccountBalance fetches balance", async () => {
+  const { result } = renderHook(() => useAccountBalance("0.0.1234"));
 
   await waitForHieroQuery(() => {
-    expect(result.current.balance).toEqual(Hbar.from(1000))
-    expect(result.current.isLoading).toBe(false)
-  })
-})
+    expect(result.current.balance).toEqual(Hbar.from(1000));
+    expect(result.current.isLoading).toBe(false);
+  });
+});
 
 // Test with custom QueryClient
 const customClient = createTestQueryClient({
   queries: {
     retry: false,
-    staleTime: 1000
-  }
-})
+    staleTime: 1000,
+  },
+});
 
-const { result } = renderHook(
-  () => useAccountBalance('0.0.1234'),
-  { wrapper: createQueryWrapper(customClient) }
-)
+const { result } = renderHook(() => useAccountBalance("0.0.1234"), {
+  wrapper: createQueryWrapper(customClient),
+});
 
 // Test mutation hooks
-test('useTransferHbar sends transaction', async () => {
-  const { result } = renderHook(() => useTransferHbar())
+test("useTransferHbar sends transaction", async () => {
+  const { result } = renderHook(() => useTransferHbar());
 
   await act(async () => {
-    await result.current.transfer('0.0.5678', 100)
-  })
+    await result.current.transfer("0.0.5678", 100);
+  });
 
   await waitForHieroMutation(() => {
-    expect(result.current.status).toBe('success')
-  })
-})
+    expect(result.current.status).toBe("success");
+  });
+});
 ```
 
 **Wrapper Components:**
@@ -331,93 +331,93 @@ const wrapper = createTestWrapper({
 **Capability:** Custom Jest/Vitest matchers for Hiero entities
 
 ```typescript
-import { expect, test } from 'vitest'
-import '@hiecom/testing/matchers' // Extends expect
+import { expect, test } from "vitest";
+import "@hiecom/testing/matchers"; // Extends expect
 
-test('account has sufficient balance', () => {
-  const account = mockAccount({ balance: 1000 })
+test("account has sufficient balance", () => {
+  const account = mockAccount({ balance: 1000 });
 
-  expect(account).toHaveHbarBalance(1000)
-  expect(account).toHaveHbarBalance.greaterThan(500)
-  expect(account).toBeValidAccountId()
-})
+  expect(account).toHaveHbarBalance(1000);
+  expect(account).toHaveHbarBalance.greaterThan(500);
+  expect(account).toBeValidAccountId();
+});
 
-test('transaction is successful', () => {
-  const tx = mockTransaction({ status: 'SUCCESS' })
+test("transaction is successful", () => {
+  const tx = mockTransaction({ status: "SUCCESS" });
 
-  expect(tx).toBeSuccessfulTransaction()
-  expect(tx).toHaveTransactionType('CRYPTOTRANSFER')
-  expect(tx).toHaveFee.lessThan(Hbar.from(1))
-})
+  expect(tx).toBeSuccessfulTransaction();
+  expect(tx).toHaveTransactionType("CRYPTOTRANSFER");
+  expect(tx).toHaveFee.lessThan(Hbar.from(1));
+});
 
-test('token is fungible', () => {
-  const token = mockToken({ type: 'FUNGIBLE_COMMON' })
+test("token is fungible", () => {
+  const token = mockToken({ type: "FUNGIBLE_COMMON" });
 
-  expect(token).toBeFungibleToken()
-  expect(token).toHaveDecimals(18)
-  expect(token).toHaveTotalSupply(1000000)
-})
+  expect(token).toBeFungibleToken();
+  expect(token).toHaveDecimals(18);
+  expect(token).toHaveTotalSupply(1000000);
+});
 
-test('NFT belongs to account', () => {
-  const nft = mockNFT({ accountId: '0.0.1234' })
+test("NFT belongs to account", () => {
+  const nft = mockNFT({ accountId: "0.0.1234" });
 
-  expect(nft).toBelongToAccount('0.0.1234')
-  expect(nft).toHaveMetadata.length.greaterThan(0)
-})
+  expect(nft).toBelongToAccount("0.0.1234");
+  expect(nft).toHaveMetadata.length.greaterThan(0);
+});
 ```
 
 **Available Matchers:**
 
-| Matcher | Description |
-|---------|-------------|
-| `toHaveHbarBalance(amount)` | Asserts HBAR balance |
-| `toBeValidAccountId()` | Validates account ID format |
+| Matcher                       | Description                 |
+| ----------------------------- | --------------------------- |
+| `toHaveHbarBalance(amount)`   | Asserts HBAR balance        |
+| `toBeValidAccountId()`        | Validates account ID format |
 | `toBeSuccessfulTransaction()` | Asserts tx status = SUCCESS |
-| `toHaveTransactionType(type)` | Asserts transaction type |
-| `toHaveFee(amount)` | Asserts transaction fee |
-| `toBeFungibleToken()` | Asserts token is fungible |
-| `toNonFungibleToken()` | Asserts token is NFT |
-| `toHaveDecimals(n)` | Asserts token decimals |
-| `toBelongToAccount(id)` | Asserts NFT ownership |
-| `toHaveMetadata()` | Asserts NFT has metadata |
-| `toHaveNonce(n)` | Asserts account nonce |
+| `toHaveTransactionType(type)` | Asserts transaction type    |
+| `toHaveFee(amount)`           | Asserts transaction fee     |
+| `toBeFungibleToken()`         | Asserts token is fungible   |
+| `toNonFungibleToken()`        | Asserts token is NFT        |
+| `toHaveDecimals(n)`           | Asserts token decimals      |
+| `toBelongToAccount(id)`       | Asserts NFT ownership       |
+| `toHaveMetadata()`            | Asserts NFT has metadata    |
+| `toHaveNonce(n)`              | Asserts account nonce       |
 
 ### 3.5 Timer & Network Utilities
 
 **Capability:** Control time and simulate network delays
 
 ```typescript
-import { advanceTime, freezeTime, restoreTime } from '@hiecom/testing/time'
-import { simulateNetworkDelay, setNetworkCondition } from '@hiecom/testing/network'
+import { advanceTime, freezeTime, restoreTime } from "@hiecom/testing/time";
+import { simulateNetworkDelay, setNetworkCondition } from "@hiecom/testing/network";
 
 // Time manipulation
-test('scheduled transaction executes after delay', async () => {
-  freezeTime(new Date('2026-01-01'))
+test("scheduled transaction executes after delay", async () => {
+  freezeTime(new Date("2026-01-01"));
 
-  const tx = await createScheduledTransaction({ delay: 3600 })
-  expect(tx.status).toBe('SCHEDULED')
+  const tx = await createScheduledTransaction({ delay: 3600 });
+  expect(tx.status).toBe("SCHEDULED");
 
-  advanceTime({ seconds: 3600 })
-  await waitFor(() => expect(tx.status).toBe('EXECUTED'))
+  advanceTime({ seconds: 3600 });
+  await waitFor(() => expect(tx.status).toBe("EXECUTED"));
 
-  restoreTime()
-})
+  restoreTime();
+});
 
 // Network simulation
-test('handles timeout', async () => {
-  setNetworkCondition({ latency: 1000, failureRate: 0.5 })
+test("handles timeout", async () => {
+  setNetworkCondition({ latency: 1000, failureRate: 0.5 });
 
-  const { result } = renderHook(() => useAccountBalance('0.0.1234'))
+  const { result } = renderHook(() => useAccountBalance("0.0.1234"));
   // May fail due to simulated network conditions
-})
+});
 
-test('slow connection', async () => {
-  simulateNetworkDelay(2000) // 2 second delay
+test("slow connection", async () => {
+  simulateNetworkDelay(2000); // 2 second delay
 
-  const start = Date.now()
-  await client.getAccountBalance('0.0.1234')
-  expect(Date.now() - start).toBeGreaterThanOrEqual(2000)
-})
+  const start = Date.now();
+  await client.getAccountBalance("0.0.1234");
+  expect(Date.now() - start).toBeGreaterThanOrEqual(2000);
+});
 ```
 
 ---
@@ -511,28 +511,28 @@ test('slow connection', async () => {
 
 **Why These Dependencies:**
 
-| Dependency | Purpose | Rationale |
-|------------|---------|-----------|
-| `msw@^2.7.0` | Mock HTTP server | Network-level interception, works with any fetch client |
-| `@testing-library/react@^16.1.0` | React testing | Industry standard, renderHook built-in |
-| `@testing-library/user-event@^14.5.0` | User interaction | Realistic event simulation |
-| `happy-dom@^15.11.6` | DOM environment | 10-100x faster than jsdom, sufficient for tests |
-| `@tanstack/react-query@^5.62.11` | Query testing | React Query integration for hooks |
+| Dependency                            | Purpose          | Rationale                                               |
+| ------------------------------------- | ---------------- | ------------------------------------------------------- |
+| `msw@^2.7.0`                          | Mock HTTP server | Network-level interception, works with any fetch client |
+| `@testing-library/react@^16.1.0`      | React testing    | Industry standard, renderHook built-in                  |
+| `@testing-library/user-event@^14.5.0` | User interaction | Realistic event simulation                              |
+| `happy-dom@^15.11.6`                  | DOM environment  | 10-100x faster than jsdom, sufficient for tests         |
+| `@tanstack/react-query@^5.62.11`      | Query testing    | React Query integration for hooks                       |
 
 ### 4.3 Module Exports
 
 ```typescript
 // Main entry point
-export * from './fixtures'
-export * from './time'
-export * from './network'
+export * from "./fixtures";
+export * from "./time";
+export * from "./network";
 
 // Vitest-specific
-export { setupMirrorMock, cleanupMirrorMock } from './vitest'
-export type { MirrorMockOptions, MirrorMockServer } from './vitest'
+export { setupMirrorMock, cleanupMirrorMock } from "./vitest";
+export type { MirrorMockOptions, MirrorMockServer } from "./vitest";
 
 // Bun-specific
-export { setupMirrorMock as setupMirrorMockBun } from './bun'
+export { setupMirrorMock as setupMirrorMockBun } from "./bun";
 
 // React utilities
 export {
@@ -542,16 +542,13 @@ export {
   HieroTestProvider,
   MirrorTestProvider,
   QueryTestProvider,
-} from './react'
+} from "./react";
 
-export {
-  waitForHieroQuery,
-  waitForHieroMutation,
-} from './react/wait-for'
+export { waitForHieroQuery, waitForHieroMutation } from "./react/wait-for";
 
 // Matchers (auto-registers when imported)
-export { registerHieroMatchers } from './matchers'
-export type { HieroMatchers } from './matchers'
+export { registerHieroMatchers } from "./matchers";
+export type { HieroMatchers } from "./matchers";
 ```
 
 ### 4.4 TypeScript Configuration
@@ -586,169 +583,163 @@ export type { HieroMatchers } from './matchers'
 **vitest.config.ts:**
 
 ```typescript
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: 'happy-dom',
-    setupFiles: ['./src/test/setup.ts'],
+    environment: "happy-dom",
+    setupFiles: ["./src/test/setup.ts"],
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.spec.{ts,tsx}']
-    }
-  }
-})
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: ["src/**/*.test.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
+    },
+  },
+});
 ```
 
 **src/test/setup.ts:**
 
 ```typescript
-import { beforeAll, afterEach, afterAll } from 'vitest'
-import { cleanup } from '@testing-library/react'
-import '@hiecom/testing/matchers'
-import { setupMirrorMock } from '@hiecom/testing/vitest'
+import { beforeAll, afterEach, afterAll } from "vitest";
+import { cleanup } from "@testing-library/react";
+import "@hiecom/testing/matchers";
+import { setupMirrorMock } from "@hiecom/testing/vitest";
 
 const { server } = setupMirrorMock({
-  network: 'testnet',
-  onUnhandledRequest: 'error' // Catch unexpected requests
-})
+  network: "testnet",
+  onUnhandledRequest: "error", // Catch unexpected requests
+});
 
-beforeAll(() => server.listen())
+beforeAll(() => server.listen());
 
 afterEach(() => {
-  server.resetHandlers()
-  cleanup()
-})
+  server.resetHandlers();
+  cleanup();
+});
 
-afterAll(() => server.close())
+afterAll(() => server.close());
 ```
 
 ### 5.2 Testing Mirror Node API Client
 
 ```typescript
-import { describe, it, expect } from 'vitest'
-import { MirrorNodeClient } from '@hiecom/mirror-js'
-import { mockAccount, mockTransaction } from '@hiecom/testing/fixtures'
+import { describe, it, expect } from "vitest";
+import { MirrorNodeClient } from "@hiecom/mirror-js";
+import { mockAccount, mockTransaction } from "@hiecom/testing/fixtures";
 
-describe('MirrorNodeClient', () => {
-  it('fetches account details', async () => {
-    const client = new MirrorNodeClient('testnet')
+describe("MirrorNodeClient", () => {
+  it("fetches account details", async () => {
+    const client = new MirrorNodeClient("testnet");
 
     // Mock is already set up in setup.ts
-    const account = await client.getAccount('0.0.1234')
+    const account = await client.getAccount("0.0.1234");
 
-    expect(account.account).toBe('0.0.1234')
-    expect(account.balance.balance).toBeGreaterThan(0)
-  })
+    expect(account.account).toBe("0.0.1234");
+    expect(account.balance.balance).toBeGreaterThan(0);
+  });
 
-  it('fetches transactions with pagination', async () => {
-    const client = new MirrorNodeClient('testnet')
+  it("fetches transactions with pagination", async () => {
+    const client = new MirrorNodeClient("testnet");
 
     const transactions = await client.getTransactions({
-      accountId: '0.0.1234',
-      limit: 10
-    })
+      accountId: "0.0.1234",
+      limit: 10,
+    });
 
-    expect(transactions.data).toHaveLength(10)
-    expect(transactions.data[0]).toHaveTransactionType('CRYPTOTRANSFER')
-  })
-})
+    expect(transactions.data).toHaveLength(10);
+    expect(transactions.data[0]).toHaveTransactionType("CRYPTOTRANSFER");
+  });
+});
 ```
 
 ### 5.3 Testing React Hooks
 
 ```typescript
-import { describe, it, expect } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
-import { useAccountBalance, useTransactions } from '@hiecom/mirror-react'
-import { mockAccount, mockTransaction } from '@hiecom/testing/fixtures'
-import { createTestWrapper } from '@hiecom/testing/react'
+import { describe, it, expect } from "vitest";
+import { renderHook, waitFor } from "@testing-library/react";
+import { useAccountBalance, useTransactions } from "@hiecom/mirror-react";
+import { mockAccount, mockTransaction } from "@hiecom/testing/fixtures";
+import { createTestWrapper } from "@hiecom/testing/react";
 
-describe('useAccountBalance', () => {
-  it('fetches and displays balance', async () => {
-    const { result } = renderHook(
-      () => useAccountBalance('0.0.1234'),
-      { wrapper: createTestWrapper() }
-    )
+describe("useAccountBalance", () => {
+  it("fetches and displays balance", async () => {
+    const { result } = renderHook(() => useAccountBalance("0.0.1234"), {
+      wrapper: createTestWrapper(),
+    });
 
-    expect(result.current.isLoading).toBe(true)
+    expect(result.current.isLoading).toBe(true);
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-      expect(result.current.balance).toBeDefined()
-      expect(result.current.balance.toTinybars()).toBeGreaterThan(0n)
-    })
-  })
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.balance).toBeDefined();
+      expect(result.current.balance.toTinybars()).toBeGreaterThan(0n);
+    });
+  });
 
-  it('handles errors gracefully', async () => {
+  it("handles errors gracefully", async () => {
     // Use one-time error handler
     server.use(
-      http.get('/api/v1/accounts/0.0.9999', () => {
-        return new HttpResponse(null, { status: 404 })
-      })
-    )
+      http.get("/api/v1/accounts/0.0.9999", () => {
+        return new HttpResponse(null, { status: 404 });
+      }),
+    );
 
-    const { result } = renderHook(
-      () => useAccountBalance('0.0.9999'),
-      { wrapper: createTestWrapper() }
-    )
+    const { result } = renderHook(() => useAccountBalance("0.0.9999"), {
+      wrapper: createTestWrapper(),
+    });
 
     await waitFor(() => {
-      expect(result.current.isError).toBe(true)
-      expect(result.current.error).toBeInstanceOf(Error)
-    })
-  })
-})
+      expect(result.current.isError).toBe(true);
+      expect(result.current.error).toBeInstanceOf(Error);
+    });
+  });
+});
 ```
 
 ### 5.4 Testing Mutations
 
 ```typescript
-import { describe, it, expect } from 'vitest'
-import { renderHook, waitFor, act } from '@testing-library/react'
-import { useTransferHbar } from '@hiecom/mirror-react'
-import { createTestWrapper } from '@hiecom/testing/react'
+import { describe, it, expect } from "vitest";
+import { renderHook, waitFor, act } from "@testing-library/react";
+import { useTransferHbar } from "@hiecom/mirror-react";
+import { createTestWrapper } from "@hiecom/testing/react";
 
-describe('useTransferHbar', () => {
-  it('executes transfer successfully', async () => {
-    const { result } = renderHook(
-      () => useTransferHbar(),
-      { wrapper: createTestWrapper() }
-    )
+describe("useTransferHbar", () => {
+  it("executes transfer successfully", async () => {
+    const { result } = renderHook(() => useTransferHbar(), { wrapper: createTestWrapper() });
 
-    expect(result.current.status).toBe('idle')
+    expect(result.current.status).toBe("idle");
 
     await act(async () => {
-      await result.current.transfer('0.0.5678', 100)
-    })
+      await result.current.transfer("0.0.5678", 100);
+    });
 
     await waitFor(() => {
-      expect(result.current.status).toBe('success')
-    })
-  })
+      expect(result.current.status).toBe("success");
+    });
+  });
 
-  it('shows pending state during transfer', async () => {
-    const { result } = renderHook(
-      () => useTransferHbar(),
-      { wrapper: createTestWrapper({ networkDelay: 1000 }) }
-    )
+  it("shows pending state during transfer", async () => {
+    const { result } = renderHook(() => useTransferHbar(), {
+      wrapper: createTestWrapper({ networkDelay: 1000 }),
+    });
 
     act(() => {
-      result.current.transfer('0.0.5678', 100)
-    })
+      result.current.transfer("0.0.5678", 100);
+    });
 
-    expect(result.current.status).toBe('pending')
+    expect(result.current.status).toBe("pending");
 
     await waitFor(() => {
-      expect(result.current.status).toBe('success')
-    })
-  })
-})
+      expect(result.current.status).toBe("success");
+    });
+  });
+});
 ```
 
 ### 5.5 Testing Components
@@ -800,6 +791,7 @@ describe('AccountBalance', () => {
 ### Phase 1: Foundation (Days 1-2)
 
 **Tasks:**
+
 - [ ] Initialize package structure
 - [ ] Configure TypeScript, Vitest, ESLint
 - [ ] Install dependencies (MSW, Testing Library)
@@ -811,6 +803,7 @@ describe('AccountBalance', () => {
 ### Phase 2: Mock Server (Days 2-3)
 
 **Tasks:**
+
 - [ ] Implement all Mirror Node REST API handlers
 - [ ] Create type-safe request/response handlers
 - [ ] Add support for dynamic responses
@@ -822,6 +815,7 @@ describe('AccountBalance', () => {
 ### Phase 3: Fixtures (Days 3-4)
 
 **Tasks:**
+
 - [ ] Complete all fixture generators
 - [ ] Add relationship support (token → NFTs)
 - [ ] Create factory pattern for custom data
@@ -832,6 +826,7 @@ describe('AccountBalance', () => {
 ### Phase 4: React Utilities (Days 4-6)
 
 **Tasks:**
+
 - [ ] Implement test provider components
 - [ ] Create wrapper factories
 - [ ] Add waitFor utilities
@@ -843,6 +838,7 @@ describe('AccountBalance', () => {
 ### Phase 5: Matchers & Time (Days 6-7)
 
 **Tasks:**
+
 - [ ] Implement custom Vitest matchers
 - [ ] Add time manipulation utilities
 - [ ] Create network simulation utilities
@@ -853,6 +849,7 @@ describe('AccountBalance', () => {
 ### Phase 6: Documentation & Examples (Days 7-8)
 
 **Tasks:**
+
 - [ ] Write comprehensive README
 - [ ] Create JSDoc comments for all exports
 - [ ] Build 5+ example test files
@@ -871,49 +868,49 @@ Since this is a testing library, we need to test the tests:
 
 ```typescript
 // __tests__/fixtures.test.ts - Tests for the fixtures
-describe('mockAccount', () => {
-  it('generates valid account structure', () => {
-    const account = mockAccount()
+describe("mockAccount", () => {
+  it("generates valid account structure", () => {
+    const account = mockAccount();
 
-    expect(account).toMatchSchema(MirrorAccountSchema)
-    expect(account.account).toMatch(/^0\.0\.\d+$/)
-  })
+    expect(account).toMatchSchema(MirrorAccountSchema);
+    expect(account.account).toMatch(/^0\.0\.\d+$/);
+  });
 
-  it('accepts custom options', () => {
+  it("accepts custom options", () => {
     const account = mockAccount({
-      accountId: '0.0.1234',
-      balance: 1000
-    })
+      accountId: "0.0.1234",
+      balance: 1000,
+    });
 
-    expect(account.account).toBe('0.0.1234')
-    expect(account.balance.balance).toBe(1000)
-  })
-})
+    expect(account.account).toBe("0.0.1234");
+    expect(account.balance.balance).toBe(1000);
+  });
+});
 
 // __tests__/server.test.ts - Tests for the mock server
-describe('setupMirrorMock', () => {
-  it('intercepts account requests', async () => {
-    const { server } = setupMirrorMock()
+describe("setupMirrorMock", () => {
+  it("intercepts account requests", async () => {
+    const { server } = setupMirrorMock();
 
-    const response = await fetch('http://localhost/api/v1/accounts/0.0.1234')
-    const data = await response.json()
+    const response = await fetch("http://localhost/api/v1/accounts/0.0.1234");
+    const data = await response.json();
 
-    expect(data).toBeDefined()
-    expect(data.account).toBe('0.0.1234')
-  })
-})
+    expect(data).toBeDefined();
+    expect(data.account).toBe("0.0.1234");
+  });
+});
 ```
 
 ### Test Coverage Targets
 
-| Module | Target Coverage |
-|--------|-----------------|
-| Fixtures | 95%+ |
-| Server utilities | 90%+ |
-| React utilities | 85%+ |
-| Matchers | 90%+ |
-| Time/Network | 85%+ |
-| **Overall** | **90%+** |
+| Module           | Target Coverage |
+| ---------------- | --------------- |
+| Fixtures         | 95%+            |
+| Server utilities | 90%+            |
+| React utilities  | 85%+            |
+| Matchers         | 90%+            |
+| Time/Network     | 85%+            |
+| **Overall**      | **90%+**        |
 
 ---
 
@@ -925,29 +922,38 @@ describe('setupMirrorMock', () => {
 # @hiecom/testing
 
 ## Quick Start
+
 ## Installation
+
 ## Setup
+
 ## Usage
-  - Mock Mirror Node API
-  - Test Fixtures
-  - React Testing
-  - Custom Matchers
-  - Time & Network
+
+- Mock Mirror Node API
+- Test Fixtures
+- React Testing
+- Custom Matchers
+- Time & Network
+
 ## API Reference
+
 ## Migration Guide
+
 ## Troubleshooting
+
 ## Contributing
 ```
 
 ### 8.2 API Documentation
 
 Every export must have:
+
 - JSDoc comment with description
 - `@example` usage block
 - `@see` cross-references
 - Type parameters documented
 
-```typescript
+````typescript
 /**
  * Creates a mock account with realistic test data.
  *
@@ -966,8 +972,8 @@ Every export must have:
  *
  * @see {@link mockTransaction} for related transaction fixtures
  */
-export function mockAccount(options?: AccountOptions): MirrorAccount
-```
+export function mockAccount(options?: AccountOptions): MirrorAccount;
+````
 
 ### 8.3 Example Tests
 
@@ -988,6 +994,7 @@ Create 5+ complete examples:
 **Issue:** Should we use faker.js for generating realistic data?
 
 **Options:**
+
 - A) Yes, use faker.js for names, addresses, etc.
 - B) No, keep fixtures simple and deterministic
 - C) Optional, allow faker.js as a peer dependency
@@ -999,6 +1006,7 @@ Create 5+ complete examples:
 **Issue:** Should we provide utilities for running Solo in tests?
 
 **Options:**
+
 - A) Yes, provide `setupSolo()` and `teardownSolo()`
 - B) No, Solo setup is too complex, document it separately
 - C) Provide a separate `@hiecom/testing-solo` package
@@ -1010,6 +1018,7 @@ Create 5+ complete examples:
 **Issue:** Should we include snapshot testing utilities?
 
 **Options:**
+
 - A) Yes, provide `toMatchSnapshot()` for fixtures
 - B) No, snapshot tests are brittle
 - C) Optional, export utility functions
@@ -1021,6 +1030,7 @@ Create 5+ complete examples:
 **Issue:** Mirror Node has GraphQL endpoints - should we mock them?
 
 **Options:**
+
 - A) Yes, include GraphQL mocking from day 1
 - B) No, REST is sufficient for now
 - C) Add in v2.0
@@ -1034,6 +1044,7 @@ Create 5+ complete examples:
 ### Alternative 1: Nock instead of MSW
 
 **Rejected because:**
+
 - Nock only works in Node.js
 - MSW works in browser tests too
 - MSW intercepts at network level (more realistic)
@@ -1042,6 +1053,7 @@ Create 5+ complete examples:
 ### Alternative 2: Solo-only testing
 
 **Rejected because:**
+
 - Solo requires 16GB+ RAM
 - 5+ minute startup time
 - Complex Kubernetes setup
@@ -1050,6 +1062,7 @@ Create 5+ complete examples:
 ### Alternative 3: No fixtures, use factories
 
 **Rejected because:**
+
 - Fixtures reduce boilerplate
 - Common patterns are reusable
 - Easier for newcomers
@@ -1074,11 +1087,13 @@ Create 5+ complete examples:
 ### A. Mirror Node API Reference
 
 **Base URLs:**
+
 - Mainnet: `https://mainnet.mirrornode.hedera.com/api/v1`
 - Testnet: `https://testnet.mirrornode.hedera.com/api/v1`
 - Previewnet: `https://previewnet.mirrornode.hedera.com/api/v1`
 
 **Rate Limits:**
+
 - Mainnet: 6 requests per second
 - Testnet: 24 requests per second
 
@@ -1087,11 +1102,13 @@ Create 5+ complete examples:
 Hiero account IDs follow the format `0.0.X` where X is a positive integer (shard.realm.num).
 
 **Valid Examples:**
+
 - `0.0.1000`
 - `0.0.12345`
 - `0.0.1`
 
 **Invalid Examples:**
+
 - `1.0.1000` (non-zero shard)
 - `0.1.1000` (non-zero realm)
 - `abc` (not numeric)
@@ -1101,8 +1118,8 @@ Hiero account IDs follow the format `0.0.X` where X is a positive integer (shard
 1 HBAR = 100,000,000 tinybars
 
 ```typescript
-const hbarToTinybars = (hbar: number): bigint => BigInt(hbar * 100_000_000)
-const tinybarsToHbar = (tinybars: bigint): number => Number(tinybars) / 100_000_000
+const hbarToTinybars = (hbar: number): bigint => BigInt(hbar * 100_000_000);
+const tinybarsToHbar = (tinybars: bigint): number => Number(tinybars) / 100_000_000;
 ```
 
 ---
