@@ -25,6 +25,7 @@ It provides:
 | [`@hiecom/mirror-react`](packages/mirror-react)     | React hooks with TanStack Query             |
 | [`@hiecom/mirror-preact`](packages/mirror-preact)   | Preact hooks with TanStack Query            |
 | [`@hiecom/mirror-solid`](packages/mirror-solid)     | SolidJS hooks with TanStack Query           |
+| [`@hiecom/mirror-cli`](packages/mirror-cli)         | CLI tool for Mirror Node REST API           |
 | [`@hiecom/realtime`](packages/realtime)             | WebSocket client for HIP-694 JSON-RPC Relay |
 | [`@hiecom/realtime-react`](packages/realtime-react) | React hooks for realtime                    |
 | [`@hiecom/testing`](packages/testing)               | Testing utilities with MSW fixtures         |
