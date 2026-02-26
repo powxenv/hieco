@@ -2,9 +2,21 @@
 
 Type-safe React hooks for Hedera Mirror Node API with TanStack Query.
 
+## Features
+
+- **Full API Coverage** - Hooks for accounts, tokens, transactions, contracts, topics, schedules, blocks, network
+- **Auto-pagination** - List hooks automatically fetch all pages
+- **Infinite Queries** - Support for infinite scroll and load-more patterns
+- **Network Switching** - Runtime network switching with automatic query refetch
+- **Type-Safe** - Full TypeScript support
+- **Optimistic Updates** - Prefetch and invalidate queries from anywhere
+
 ## Installation
 
 ```bash
+# bun
+bun add @hiecom/mirror-js @hiecom/mirror-react @tanstack/react-query
+
 # npm
 npm install @hiecom/mirror-js @hiecom/mirror-react @tanstack/react-query
 
@@ -13,9 +25,6 @@ pnpm add @hiecom/mirror-js @hiecom/mirror-react @tanstack/react-query
 
 # yarn
 yarn add @hiecom/mirror-js @hiecom/mirror-react @tanstack/react-query
-
-# bun
-bun add @hiecom/mirror-js @hiecom/mirror-react @tanstack/react-query
 ```
 
 ## Quick Start
@@ -63,44 +72,149 @@ function AccountBalance({ accountId }: { accountId: string }) {
 }
 ```
 
-## Switching Networks
+## API Reference
 
-Switch networks at runtime. All queries automatically refetch with the new network:
+### Provider Hooks
+
+#### useNetwork
+
+```typescript
+const { network, switchNetwork } = useNetwork();
+```
+
+- `network: string` - Current network name
+- `switchNetwork(network: string): void` - Switch to a different network
+
+#### useMirrorNodeClient
+
+```typescript
+const client = useMirrorNodeClient();
+```
+
+- Returns the underlying `MirrorNodeClient` instance
+
+### Account Hooks
+
+```typescript
+useAccountInfo({ accountId }: { accountId: string })
+useAccountBalances({ accountId }: { accountId: string })
+useAccountTokens({ accountId, params }: { accountId: string; params?: AccountNftsParams })
+useAccountNfts({ accountId, params }: { accountId: string; params?: AccountNftsParams })
+useAccountStakingRewards({ accountId, params }: { accountId: string; params?: PaginationParams })
+useAccountCryptoAllowances({ accountId }: { accountId: string })
+useAccountTokenAllowances({ accountId, params }: { accountId: string; params?: TokenAllowancesParams })
+useAccountNftAllowances({ accountId }: { accountId: string })
+useAccountOutstandingAirdrops({ accountId }: { accountId: string })
+useAccountPendingAirdrops({ accountId }: { accountId: string })
+useAccounts({ params }: { params?: AccountListParams })
+useAccountsInfinite({ params }: { params?: AccountListParams })
+```
+
+### Token Hooks
+
+```typescript
+useTokenInfo({ tokenId }: { tokenId: string })
+useTokenBalances({ tokenId, params }: { tokenId: string; params?: TokenBalancesParams })
+useTokenNfts({ tokenId }: { tokenId: string })
+useTokenNft({ tokenId, serialNumber }: { tokenId: string; serialNumber: number })
+useTokenNftTransactions({ tokenId, serialNumber }: { tokenId: string; serialNumber: number })
+useTokens({ params }: { params?: TokenListParams })
+useTokensInfinite({ params }: { params?: TokenListParams })
+```
+
+### Transaction Hooks
+
+```typescript
+useTransaction({ transactionId }: { transactionId: string })
+useTransactions({ params }: { params?: TransactionListParams })
+useTransactionsByAccount({ accountId, params }: { accountId: string; params?: TransactionsByAccountParams })
+useTransactionsInfinite({ params }: { params?: TransactionListParams })
+usePollTransaction({ transactionId, options }: { transactionId: string; options?: { refetchInterval?: number } })
+```
+
+### Contract Hooks
+
+```typescript
+useContractInfo({ contractId }: { contractId: string })
+useContractCall(params: ContractCallParams)
+useContractResults({ contractId }: { contractId: string })
+useContractResult({ contractId, resultId }: { contractId: string; resultId: string })
+useContractAllResults({ params }: { params?: ContractResultsParams })
+useContractResultByTransactionIdOrHash({ txIdOrHash }: { txIdOrHash: string })
+useContractResultActions({ resultId }: { resultId: string })
+useContractResultOpcodes({ resultId }: { resultId: string })
+useContractState({ contractId, params }: { contractId: string; params?: ContractStateParams })
+useContractLogs({ contractId }: { contractId: string })
+useContractAllLogs({ params }: { params?: ContractLogsParams })
+useContracts({ params }: { params?: ContractListParams })
+useContractsInfinite({ params }: { params?: ContractListParams })
+```
+
+### Topic Hooks
+
+```typescript
+useTopicInfo({ topicId }: { topicId: string })
+useTopicMessages({ topicId, params }: { topicId: string; params?: TopicMessagesParams })
+useTopicMessage({ topicId, sequenceNumber }: { topicId: string; sequenceNumber: number })
+useTopicMessageByTimestamp({ timestamp }: { timestamp: string })
+useTopics({ params }: { params?: PaginationParams })
+useTopicsInfinite({ params }: { params?: PaginationParams })
+```
+
+### Schedule Hooks
+
+```typescript
+useScheduleInfo({ scheduleId }: { scheduleId: string })
+useSchedules({ params }: { params?: ScheduleListParams })
+useSchedulesInfinite({ params }: { params?: ScheduleListParams })
+```
+
+### Block Hooks
+
+```typescript
+useBlock({ blockNumberOrHash }: { blockNumberOrHash: string | number })
+useBlocks({ params }: { params?: BlocksListParams })
+```
+
+### Balance Hooks
+
+```typescript
+useBalances({ params }: { params?: BalancesListParams })
+```
+
+### Network Hooks
+
+```typescript
+useNetworkExchangeRate({ params }: { params?: { timestamp?: Timestamp } })
+useNetworkFees({ params }: { params?: PaginationParams & { timestamp?: Timestamp } })
+useNetworkNodes({ params }: { params?: NetworkNodesParams })
+useNetworkStake()
+useNetworkSupply()
+```
+
+### Utility Hooks
+
+```typescript
+usePrefetchQuery()
+useInvalidateQueries()
+```
+
+## Query Options
+
+All hooks accept standard TanStack Query options:
 
 ```tsx
-import { useNetwork } from "@hiecom/mirror-react";
-
-function NetworkSelector() {
-  const { network, switchNetwork } = useNetwork();
-
-  return (
-    <div>
-      <span>Current: {network}</span>
-      <button onClick={() => switchNetwork("mainnet")}>Mainnet</button>
-      <button onClick={() => switchNetwork("testnet")}>Testnet</button>
-    </div>
-  );
-}
+const { data } = useAccountInfo({
+  accountId: "0.0.123",
+  enabled: true,
+  staleTime: 60000,
+  refetchOnWindowFocus: false,
+});
 ```
 
 ## Pagination
 
-The Hedera Mirror Node API uses cursor-based pagination with forward-only navigation.
-
-### Paginated Response Format
-
-```typescript
-interface PaginatedResponse<T> {
-  links: {
-    next?: string;
-  };
-  data: T[];
-}
-```
-
 ### List Queries (Auto-Fetch All)
-
-List hooks fetch all items across all pages by default:
 
 ```tsx
 import { useTokens } from "@hiecom/mirror-react";
@@ -126,22 +240,19 @@ function TokenList() {
 }
 ```
 
-### Infinite Queries (Load More)
-
-For "Load More" button or infinite scroll:
+### Infinite Queries
 
 ```tsx
 import { useTokensInfinite } from "@hiecom/mirror-react";
 
 function TokenList() {
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useTokensInfinite();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useTokensInfinite();
 
   return (
     <div>
-      {data?.pages.map(
-        (page) =>
-          page.success &&
-          page.data.data.map((token) => <div key={token.token_id}>{token.name}</div>),
+      {data?.pages.map((page) =>
+        page.success &&
+        page.data.data.map((token) => <div key={token.token_id}>{token.name}</div>),
       )}
       {hasNextPage && (
         <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
@@ -153,117 +264,30 @@ function TokenList() {
 }
 ```
 
-### Infinite Query Return Values
+## Examples
 
-- `data.pages` - Array of fetched pages
-- `fetchNextPage()` - Fetch next page
-- `hasNextPage` - More pages available
-- `isFetchingNextPage` - Next page loading
-
-## Available Hooks
-
-### Accounts
-
-- `useAccountInfo` - Get account details
-- `useAccountBalances` - Get account balances
-- `useAccountTokens` - Get associated tokens
-- `useAccountNfts` - Get associated NFTs
-- `useAccountStakingRewards` - Get staking rewards
-- `useAccountCryptoAllowances` - Get crypto allowances
-- `useAccountTokenAllowances` - Get token allowances
-- `useAccountNftAllowances` - Get NFT allowances
-- `useAccountOutstandingAirdrops` - Get outstanding airdrops
-- `useAccountPendingAirdrops` - Get pending airdrops
-- `useAccountOverview` - Get complete account overview
-- `useAccounts` - List accounts (with pagination)
-- `useAccountsInfinite` - Infinite scroll for accounts
-
-### Tokens
-
-- `useTokenInfo` - Get token details
-- `useTokenBalances` - Get token balances
-- `useTokenNfts` - Get token NFTs
-- `useTokenNft` - Get specific token NFT
-- `useTokenNftTransactions` - Get NFT transactions
-- `useTokens` - List tokens (with pagination)
-- `useTokensInfinite` - Infinite scroll for tokens
-
-### Transactions
-
-- `useTransaction` - Get transaction details
-- `useTransactions` - List transactions (with pagination)
-- `useTransactionsByAccount` - List transactions by account
-- `useTransactionsInfinite` - Infinite scroll for transactions
-- `usePollTransaction` - Poll for transaction confirmation
-
-### Contracts
-
-- `useContractInfo` - Get contract details
-- `useContractCall` - Call contract function
-- `useContractResults` - Get contract results
-- `useContractResult` - Get specific contract result
-- `useContractState` - Get contract state
-- `useContractLogs` - Get contract logs
-- `useContractAllResults` - Get all contract results
-- `useContractResultByTransactionIdOrHash` - Get result by transaction
-- `useContractResultActions` - Get result actions
-- `useContractResultOpcodes` - Get result opcodes
-- `useContractAllLogs` - Get all contract logs
-- `useContracts` - List contracts (with pagination)
-- `useContractsInfinite` - Infinite scroll for contracts
-
-### Topics
-
-- `useTopicInfo` - Get topic details
-- `useTopicMessages` - Get topic messages
-- `useTopicMessage` - Get specific topic message
-- `useTopicMessageByTimestamp` - Get message by timestamp
-- `useTopics` - List topics (with pagination)
-- `useTopicsInfinite` - Infinite scroll for topics
-
-### Schedules
-
-- `useScheduleInfo` - Get schedule details
-- `useSchedules` - List schedules (with pagination)
-- `useSchedulesInfinite` - Infinite scroll for schedules
-
-### Blocks
-
-- `useBlock` - Get block details
-- `useBlocks` - List blocks (with pagination)
-
-### Balances
-
-- `useBalances` - List balances (with pagination)
-
-### Network
-
-- `useNetworkExchangeRate` - Get HBAR exchange rates
-- `useNetworkFees` - Get network fees
-- `useNetworkNodes` - Get network nodes
-- `useNetworkStake` - Get network stake
-- `useNetworkSupply` - Get network supply
-
-## Query Options
-
-All hooks accept standard TanStack Query options:
+### Network Switching
 
 ```tsx
-const { data } = useAccountInfo({
-  accountId: "0.0.123",
-  enabled: true,
-  staleTime: 60000,
-  refetchOnWindowFocus: false,
-});
+import { useNetwork } from "@hiecom/mirror-react";
+
+function NetworkSelector() {
+  const { network, switchNetwork } = useNetwork();
+
+  return (
+    <div>
+      <span>Current: {network}</span>
+      <button onClick={() => switchNetwork("mainnet")}>Mainnet</button>
+      <button onClick={() => switchNetwork("testnet")}>Testnet</button>
+    </div>
+  );
+}
 ```
 
-## Utilities
-
-Prefetch and invalidate queries from anywhere in your app:
+### Prefetch and Invalidate
 
 ```tsx
 import { prefetchQuery, invalidateQueries, mirrorNodeKeys } from "@hiecom/mirror-react";
-import { useMirrorNodeClient } from "@hiecom/mirror-react";
 
 function MyComponent() {
   const client = useMirrorNodeClient();
@@ -278,15 +302,15 @@ function MyComponent() {
     });
   };
 
-  const refreshAllAccounts = async () => {
-    await invalidateQueries(queryClient, { entityType: "account" });
-  };
-
-  const refreshAll = async () => {
-    await invalidateQueries(queryClient, {});
-  };
+  return <button onClick={refreshAccount}>Refresh</button>;
 }
 ```
+
+## Related Packages
+
+- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - Core REST API client
+- [`@hiecom/mirror-shared`](https://github.com/powxenv/hiecom/tree/main/packages/mirror-shared) - Shared utilities (internal)
+- [`@hiecom/realtime`](https://www.npmjs.com/package/@hiecom/realtime) - WebSocket streaming client
 
 ## License
 

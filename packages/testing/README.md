@@ -1,8 +1,17 @@
 # @hiecom/testing
 
-Testing utilities for Hiero/Hedera development with MSW fixtures and helpers.
+Testing utilities for Hedera Mirror Node development with MSW fixtures and helpers.
 
-## Install
+## Features
+
+- **MSW Handlers** - Mock Service Worker handlers for Mirror Node API
+- **Fixtures** - Factory functions for all Hedera entities
+- **Test Setup** - Easy setup and teardown for test suites
+- **Transaction Builders** - Build test transactions
+- **Timestamp Utils** - Helper functions for timestamp manipulation
+- **State Management** - Unique ID generation for tests
+
+## Installation
 
 ```bash
 # bun
@@ -21,22 +30,12 @@ yarn add @hiecom/testing msw
 ## Quick Start
 
 ```typescript
-import { setupMirrorMock } from "@hiecom/testing";
+import { setupMirrorMock, mockAccount } from "@hiecom/testing";
 
-const { server, listen, resetHandlers, close } = setupMirrorMock({ network: "testnet" });
-
-beforeAll(() => listen());
-afterEach(() => resetHandlers());
-afterAll(() => close());
-```
-
-### Using Fixtures
-
-```typescript
-import { mockAccount, mockToken, mockTransaction } from "@hiecom/testing/fixtures";
-import { setupMirrorMock } from "@hiecom/testing";
-
-const { server, listen, resetHandlers, close } = setupMirrorMock({ network: "testnet" });
+const { server, listen, resetHandlers, close } = setupMirrorMock({
+  network: "testnet",
+  onUnhandledRequest: "error",
+});
 
 beforeAll(() => listen());
 afterEach(() => resetHandlers());
@@ -45,7 +44,7 @@ afterAll(() => close());
 it("gets account info", async () => {
   server.use(
     http.get("/api/v1/accounts/0.0.123", () => {
-      return HttpResponse.json(mockAccount({ accountId: "0.0.123" }));
+      return HttpResponse.json(mockAccount({ account: "0.0.123" }));
     }),
   );
 
@@ -55,235 +54,127 @@ it("gets account info", async () => {
 });
 ```
 
-## Server
+## API Reference
 
-### setupMirrorMock
+### Server Setup
 
 ```typescript
-import { setupMirrorMock } from "@hiecom/testing";
+// Setup mock server
+setupMirrorMock(config: {
+  network: "mainnet" | "testnet" | "previewnet";
+  onUnhandledRequest?: "error" | "warn" | "bypass";
+}): {
+  server: SetupServerApi;
+  listen: () => void;
+  resetHandlers: () => void;
+  close: () => void;
+}
 
-const { server, listen, resetHandlers, close, use } = setupMirrorMock({
-  network: "testnet", // "mainnet" | "testnet" | "previewnet"
-  onUnhandledRequest: "error", // "error" | "warn" | "bypass"
-});
-
-server.listen();
-server.resetHandlers();
-server.close();
-server.use(...handlers);
+// Network URLs
+NETWORK_URLS: {
+  mainnet: string;
+  testnet: string;
+  previewnet: string;
+}
 ```
 
-### createFixtureHandlers
+### Fixtures
 
-Create default handlers with custom fixtures:
+#### Account
 
 ```typescript
-import { createFixtureHandlers, mockAccount } from "@hiecom/testing";
-
-const handlers = createFixtureHandlers({
-  network: "testnet",
-  accounts: [mockAccount.build({ account: "0.0.123" })],
-});
+mockAccount({ account: "0.0.123" })
+mockAccount.build({ account: "0.0.123", balance: 1000 })
+mockAccount.buildList(5, { account: "0.0.123" })
 ```
 
-### NETWORK_URLS
+#### Transaction
 
 ```typescript
-import { NETWORK_URLS } from "@hiecom/testing";
-
-NETWORK_URLS.mainnet; // "https://mainnet.mirrornode.hedera.com"
-NETWORK_URLS.testnet; // "https://testnet.mirrornode.hedera.com"
-NETWORK_URLS.previewnet; // "https://previewnet.mirrornode.hedera.com"
+mockTransaction({ transaction_id: "0.0.123@1234567890.000000001" })
+mockTransaction.build({ result: "SUCCESS" })
+mockTransaction.buildList(10)
 ```
 
-## Fixtures
-
-tokens: [mockToken({ tokenId: "0.0.456" })],
-});
-
-````
-
-## Fixtures
-
-Available fixtures for all Hedera entities:
-
-### Account
+#### Token
 
 ```typescript
-import { mockAccount, type AccountFixtureOptions } from "@hiecom/testing/fixtures";
-
-const account = mockAccount({
-  account: "0.0.123",
-  hbar: 1000,
-});
-````
-
-### Transaction
-
-```typescript
-import { mockTransaction, type TransactionFixtureOptions } from "@hiecom/testing/fixtures";
-
-const tx = mockTransaction({
-  transaction_id: "0.0.123@1234567890.000000001",
-  result: "SUCCESS",
-});
+mockToken({ token_id: "0.0.456", name: "Test Token", symbol: "TT" })
+mockToken.build({ decimals: 8, total_supply: 1000000 })
 ```
 
-### Token
+#### NFT
 
 ```typescript
-import { mockToken, type TokenFixtureOptions } from "@hiecom/testing/fixtures";
-
-const token = mockToken({
-  token_id: "0.0.456",
-  name: "Test Token",
-  symbol: "TT",
-  decimals: 8,
-  total_supply: 1000000,
-});
+mockNft({ token_id: "0.0.456", serial_number: 1 })
+mockNft.buildList(5, { token_id: "0.0.456" })
 ```
 
-### NFT
+#### Token Relationship
 
 ```typescript
-import { mockNft, type NftFixtureOptions } from "@hiecom/testing/fixtures";
-
-const nft = mockNft({
-  token_id: "0.0.456",
-  serial_number: 1,
-  account: "0.0.123",
-  metadata: "test-metadata",
-});
-
-const nfts = mockNft.buildList(5, { token_id: "0.0.456" });
+mockTokenRelationship.build("0.0.123", { token_id: "0.0.456", balance: 100 })
 ```
 
-### Token Relationship
+#### Balance
 
 ```typescript
-import { mockTokenRelationship } from "@hiecom/testing/fixtures";
-
-const relationship = mockTokenRelationship.build("0.0.123", {
-  token_id: "0.0.456",
-  balance: 100,
-});
+mockBalance({ account: "0.0.123", hbar: 1000 })
+mockBalance.build({ account: "0.0.123", tokens: [{ token_id: "0.0.456", balance: 100 }] })
 ```
 
-### Balance
+#### Contract
 
 ```typescript
-import { mockBalance, type BalanceFixtureOptions } from "@hiecom/testing/fixtures";
-
-const balance = mockBalance({
-  account: "0.0.123",
-  hbar: 1000,
-  tokens: [{ token_id: "0.0.456", balance: 100 }],
-});
+mockContract({ contract_id: "0.0.789" })
+mockContract.build({ evm_address: "0x..." })
 ```
 
-### Contract
+#### Topic
 
 ```typescript
-import { mockContract, type ContractFixtureOptions } from "@hiecom/testing/fixtures";
-
-const contract = mockContract({
-  contract_id: "0.0.789",
-});
+mockTopic({ topic_id: "0.0.111" })
+mockTopicMessage({ topic_id: "0.0.111", sequence_number: 1 })
 ```
 
-### Topic
+#### Schedule
 
 ```typescript
-import { mockTopic, mockTopicMessage, type TopicFixtureOptions } from "@hiecom/testing/fixtures";
-
-const topic = mockTopic({
-  topic_id: "0.0.111",
-  sequence_number: 1,
-});
-
-const message = mockTopicMessage({
-  topic_id: "0.0.111",
-  sequence_number: 1,
-  message: "SGVsbG8gV29ybGQ=",
-});
+mockSchedule({ schedule_id: "0.0.222" })
 ```
 
-### Schedule
+#### Block
 
 ```typescript
-import { mockSchedule, type ScheduleFixtureOptions } from "@hiecom/testing/fixtures";
-
-const schedule = mockSchedule({
-  schedule_id: "0.0.222",
-});
+mockBlock({ number: 123, hash: "abc123" })
 ```
 
-### Block
+#### Network
 
 ```typescript
-import { mockBlock, type BlockFixtureOptions } from "@hiecom/testing/fixtures";
-
-const block = mockBlock({
-  number: 123,
-  hash: "abc123",
-});
+mockExchangeRate({ current_rate: { hbar_equiv: 30000, cent_equiv: 1 } })
+mockNetworkNode({ node_id: 1, account_id: "0.0.3" })
+mockNetworkSupply({ total_coin: 5000000000000000000 })
 ```
 
-### Network
+### Transaction Builders
 
 ```typescript
-import { mockExchangeRate, mockNetworkNode, mockNetworkSupply } from "@hiecom/testing/fixtures";
-
-const exchangeRate = mockExchangeRate({
-  current_rate: {
-    hbar_equiv: 30000,
-    cent_equiv: 1,
-  },
-});
-
-const node = mockNetworkNode({
-  node_id: 1,
-  account_id: "0.0.3",
-});
-
-const supply = mockNetworkSupply({
-  total_coin: 5000000000000000000,
-});
-```
-
-### Staking
-
-```typescript
-import { mockStakedAccount, type StakingInfoFixtureOptions } from "@hiecom/testing/fixtures";
-
-const staking = mockStakedAccount({
-  staked_account_id: "0.0.456",
-  stake_period_start: "1234567890.000000001",
-});
-```
-
-## Transaction Builders
-
-### transactionBuilder
-
-```typescript
-import { transactionBuilder } from "@hiecom/testing/builders";
-
-const tx = transactionBuilder.cryptoTransfer({
+transactionBuilder.cryptoTransfer({
   hbarTransfers: [
     { accountId: "0.0.123", amount: 100 },
     { accountId: "0.0.456", amount: -100 },
   ],
 });
 
-const tokenTx = transactionBuilder.transferToken({
+transactionBuilder.transferToken({
   tokenId: "0.0.456",
   from: "0.0.123",
   to: "0.0.789",
   amount: 10,
 });
 
-const nftTx = transactionBuilder.transferNft({
+transactionBuilder.transferNft({
   tokenId: "0.0.456",
   from: "0.0.123",
   to: "0.0.789",
@@ -291,95 +182,108 @@ const nftTx = transactionBuilder.transferNft({
 });
 ```
 
-## Utils
-
-### createTestSetup, withAutoCleanup
+### Test Setup Helpers
 
 ```typescript
-import { createTestSetup, withAutoCleanup } from "@hiecom/testing";
-
-const setup = createTestSetup({
+// Create test setup
+createTestSetup({
   network: "testnet",
   resetState: true,
   onUnhandledRequest: "error",
-});
+}): {
+  start: () => void;
+  stop: () => void;
+}
 
-beforeAll(() => setup.start());
-afterAll(() => setup.stop());
+// Auto-cleanup helper
+withAutoCleanup(async (callback) => {
+  // Runs in isolated context
+})
 
-it("test", async () => {
-  await withAutoCleanup(async ({ server }) => {
-    server.use(/* custom handlers */);
-  });
+// With mirror server helper
+withMirrorServer(async (server) => {
+  server.use(/* custom handlers */);
 });
 ```
 
-### withMirrorServer
-
-Integration test helper that automatically sets up and tears down the mock server:
+### Timestamp Utils
 
 ```typescript
-import { withMirrorServer } from "@hiecom/testing";
+timestampUtils.now()                      // "1234567890000000000"
+timestampUtils.fromMillis(1234567890000) // "1234567890000000000"
+timestampUtils.fromSeconds(1234567890)  // "1234567890000000000"
+timestampUtils.fromDate(new Date())       // "1234567890000000000"
+timestampUtils.addSeconds("1234567890.000000000", 10)  // "1234567900.000000000"
+timestampUtils.addMillis("1234567890.000000000", 1000)  // "1234567891.000000000"
+timestampUtils.toDate("1234567890.000000000")         // Date
+timestampUtils.compare(a, b)                                 // -1 | 0 | 1
+timestampUtils.equals(a, b)                                  // boolean
+timestampUtils.before(a, b)                                  // boolean
+timestampUtils.after(a, b)                                   // boolean
+```
 
-it("test", async () => {
-  const result = await withMirrorServer(async (server) => {
+### State Management
+
+```typescript
+state.incrementAccount()  // Returns 0, then 1, 2, ...
+state.incrementToken()    // Returns 0, then 1, 2, ...
+state.reset()             // Resets all counters
+```
+
+### Async Helpers
+
+```typescript
+await sleep(1000)
+await waitFor(condition, { timeout, interval })
+await assertThrows(async () => { throw new Error(); })
+```
+
+## Examples
+
+### With Test Framework
+
+```typescript
+import { setupMirrorMock, mockAccount } from "@hiecom/testing";
+
+describe("Account API", () => {
+  const { server, listen, resetHandlers, close } = setupMirrorMock({ network: "testnet" });
+
+  beforeAll(() => listen());
+  afterEach(() => resetHandlers());
+  afterAll(() => close());
+
+  it("fetches account info", async () => {
     server.use(
       http.get("/api/v1/accounts/0.0.123", () => {
-        return HttpResponse.json(mockAccount({ accountId: "0.0.123" }));
+        return HttpResponse.json(mockAccount({ account: "0.0.123", balance: 1000 }));
       }),
     );
-    // test code
+
+    const result = await client.account.getInfo("0.0.123");
+    expect(result.success).toBe(true);
+    expect(result.data.balance.balance).toBe(1000);
   });
 });
 ```
 
-### timestampUtils
+### With Custom Fixtures
 
 ```typescript
-import { timestampUtils } from "@hiecom/testing";
+import { createFixtureHandlers, mockAccount, mockToken } from "@hiecom/testing";
 
-timestampUtils.now(); // "1234567890000000000"
-timestampUtils.fromMillis(1234567890000); // "1234567890000000000"
-timestampUtils.fromSeconds(1234567890); // "1234567890000000000"
-timestampUtils.fromDate(new Date()); // "1234567890000000000"
-timestampUtils.addSeconds("1234567890.000000000", 10); // "1234567900.000000000"
-timestampUtils.addMillis("1234567890.000000000", 1000); // "1234567891.000000000"
-timestampUtils.toDate("1234567890.000000000"); // Date
-timestampUtils.compare("1234567890.000000001", "1234567890.000000002"); // -1
-timestampUtils.equals("1234567890.000000000", "1234567890.000000000"); // true
-timestampUtils.before("1234567890.000000000", "1234567891.000000000"); // true
-timestampUtils.after("1234567891.000000000", "1234567890.000000000"); // true
-```
-
-### State
-
-Generate unique IDs for fixtures:
-
-```typescript
-import { state } from "@hiecom/testing";
-
-state.incrementAccount(); // 0
-state.incrementAccount(); // 1
-state.incrementToken(); // 0
-state.reset(); // resets all counters
-```
-
-### sleep, waitFor, assertThrows
-
-```typescript
-import { sleep, waitFor, assertThrows } from "@hiecom/testing";
-
-await sleep(1000);
-
-const result = await waitFor(() => someAsyncCondition(), {
-  timeout: 5000,
-  interval: 100,
+const handlers = createFixtureHandlers({
+  network: "testnet",
+  accounts: [mockAccount.build({ account: "0.0.123" })],
+  tokens: [mockToken.build({ token_id: "0.0.456" })],
 });
 
-await assertThrows(async () => {
-  throw new Error("fail");
-});
+server.use(...handlers);
 ```
+
+## Related Packages
+
+- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - REST API client (for testing)
+- [`@hiecom/mirror-react`](https://www.npmjs.com/package/@hiecom/mirror-react) - React hooks
 
 ## License
 

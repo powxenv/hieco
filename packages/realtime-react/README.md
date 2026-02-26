@@ -2,7 +2,14 @@
 
 React hooks for `@hiecom/realtime` with automatic subscription management.
 
-## Install
+## Features
+
+- **Auto-Subscription Management** - Subscriptions automatically cleaned up on unmount
+- **Connection Management** - Connect, disconnect, and monitor connection state
+- **Real-time Updates** - Receive live contract logs and block headers
+- **Type-Safe** - Full TypeScript support
+
+## Installation
 
 ```bash
 # bun
@@ -42,7 +49,7 @@ export function App() {
 ### Step 2: Use hooks in your components
 
 ```tsx
-import { useContractLogs, useStreamState, useChainId } from "@hiecom/realtime-react";
+import { useContractLogs, useStreamState } from "@hiecom/realtime-react";
 
 function ContractLogs() {
   const { logs, isConnected, error } = useContractLogs({
@@ -51,7 +58,6 @@ function ContractLogs() {
   });
 
   const state = useStreamState();
-  const { result: chainId, getChainId } = useChainId();
 
   if (!isConnected) return <div>Connecting...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -59,8 +65,6 @@ function ContractLogs() {
   return (
     <div>
       <p>State: {state._tag}</p>
-      <button onClick={() => getChainId()}>Get Chain ID</button>
-      {chainId?.success && <p>Chain ID: {chainId.data}</p>}
       <ul>
         {logs.map((log, i) => (
           <li key={i}>{log.transactionHash}</li>
@@ -71,23 +75,70 @@ function ContractLogs() {
 }
 ```
 
-## Available Hooks
+## API Reference
 
-- `useRealtimeContext` - Access realtime context value
-- `useRealtimeClient` - Access client instance
-- `useStreamState` - Get current connection state
-- `useContractLogs` - Subscribe to contract event logs
-- `useChainId` - Get current chain ID
+### Provider
 
-## Connection Management
+```typescript
+<RealtimeProvider
+  config={{
+    network: NetworkType;
+    relayEndpoint: string;
+    reconnection?: ReconnectionConfig;
+  }}
+>
+  {children}
+</RealtimeProvider>
+```
 
-Manually connect and disconnect:
+### Context Hooks
+
+```typescript
+// Access full context value
+useRealtimeContext(): {
+  client: RelayWebSocketClient;
+  state: StreamState;
+  connect: () => Promise<void>;
+  disconnect: () => Promise<void>;
+}
+
+// Access client instance
+useRealtimeClient(): RelayWebSocketClient
+
+// Get current connection state
+useStreamState(): StreamState
+```
+
+### Subscription Hooks
+
+```typescript
+// Subscribe to contract logs
+useContractLogs(options: {
+  address?: string;
+  topics?: readonly string[];
+  enabled?: boolean;
+}): {
+  logs: LogResult[];
+  isConnected: boolean;
+  error: ApiError | null;
+}
+
+// Get chain ID
+useChainId(): {
+  result: ApiResult<string> | null;
+  getChainId: () => Promise<void>;
+}
+```
+
+## Examples
+
+### Connection Management
 
 ```tsx
 import { useRealtimeContext } from "@hiecom/realtime-react";
 
 function ConnectionControls() {
-  const { client, state, connect, disconnect } = useRealtimeContext();
+  const { state, connect, disconnect } = useRealtimeContext();
 
   return (
     <div>
@@ -99,83 +150,59 @@ function ConnectionControls() {
 }
 ```
 
-## Subscription Options
-
-### Contract Logs
-
-```tsx
-const { logs, isConnected, error } = useContractLogs({
-  address: "0x...",
-  topics: ["0x..."] as const,
-  enabled: true,
-});
-```
-
-### Automatic Cleanup
-
-All subscriptions are automatically cleaned up on unmount:
-
-```tsx
-function MyComponent() {
-  const { logs } = useContractLogs({ address: "0x..." });
-
-  return <div>{logs.length} logs received</div>;
-}
-// Subscription automatically unsubscribes when component unmounts
-```
-
-## Using Core Client Directly
-
-For advanced use cases, access the core client:
+### Custom Subscription
 
 ```tsx
 import { useRealtimeClient } from "@hiecom/realtime-react";
-import type { RelaySubscription } from "@hiecom/realtime";
 
 function CustomSubscription() {
   const client = useRealtimeClient();
+  const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
 
   const subscribe = async () => {
-    const { data } = await client.subscribe({ type: "newHeads", filter: {} }, (message) =>
-      console.log("New block:", message.result),
-    );
-    return data;
+    const { data } = await client.subscribe({ type: "newHeads", filter: {} }, (message) => {
+      console.log("New block:", message.result.number);
+    });
+    setSubscriptionId(data);
   };
 
-  return <button onClick={subscribe}>Subscribe to New Blocks</button>;
-}
-```
-
-## Connection Pool
-
-Use `@hiecom/realtime` connection pool with React:
-
-```tsx
-import { ConnectionPool } from "@hiecom/realtime";
-import { RealtimeProvider } from "@hiecom/realtime-react";
-
-const pool = new ConnectionPool({
-  network: "testnet",
-  endpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
-  poolSize: 3,
-  strategy: "least-loaded",
-});
-
-await pool.connect();
-
-export function App() {
   return (
-    <RealtimeProvider
-      config={{
-        network: "testnet",
-        relayEndpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
-      }}
-    >
-      <YourApp />
-    </RealtimeProvider>
+    <div>
+      <button onClick={subscribe} disabled={!subscriptionId}>
+        {subscriptionId ? "Subscribed" : "Subscribe"}
+      </button>
+    </div>
   );
 }
 ```
+
+## Configuration
+
+```typescript
+interface RealtimeConfig {
+  network: "mainnet" | "testnet" | "previewnet";
+  relayEndpoint: string;
+  reconnection?: {
+    maxAttempts: number;
+    initialDelay: number;
+    maxDelay: number;
+    backoffMultiplier: number;
+  };
+}
+```
+
+## Endpoints
+
+| Network    | WebSocket Endpoint                              |
+| ---------- | ------------------------------------------------ |
+| Mainnet    | `wss://mainnet.mirrornode.hedera.com/relay/ws`  |
+| Testnet    | `wss://testnet.mirrornode.hedera.com/relay/ws`  |
+| Previewnet | `wss://previewnet.mirrornode.hedera.com/relay/ws` |
+
+## Related Packages
+
+- [`@hiecom/realtime`](https://www.npmjs.com/package/@hiecom/realtime) - Core WebSocket client
+- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - REST API client
 
 ## License
 

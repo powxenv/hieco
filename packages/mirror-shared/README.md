@@ -2,64 +2,87 @@
 
 Shared utilities and types for Hedera Mirror Node packages.
 
-This is an internal package used by `@hiecom/mirror-js`, `@hiecom/mirror-react`, `@hiecom/mirror-preact`, and `@hiecom/mirror-solid`.
-
 ## Features
 
-- **Entity ID utilities** - Parse, validate, and format Hedera entity IDs (e.g., `0.0.123`)
-- **Network configuration** - Manage network URLs and switching between mainnet/testnet/custom
-- **Query keys factory** - TanStack Query keys for consistent caching
-- **Type guards** - Type-safe result checking
-- **Query helpers** - Prefetch and invalidate queries
+- **Entity ID Utilities** - Parse, validate, and format Hedera entity IDs (`0.0.123`)
+- **Network Configuration** - Manage network URLs and switch between networks
+- **Query Keys Factory** - TanStack Query keys for consistent caching
+- **Type Guards** - Type-safe result checking utilities
+- **Query Helpers** - Prefetch and invalidate queries
 
-## Usage
+## Installation
 
-This package is automatically installed as a dependency when using any of the framework packages:
+This package is automatically installed as a dependency when using framework packages:
 
 ```bash
+# With React
 npm install @hiecom/mirror-react  # includes @hiecom/mirror-shared
+
+# With Preact
+npm install @hiecom/mirror-preact  # includes @hiecom/mirror-shared
+
+# With SolidJS
+npm install @hiecom/mirror-solid  # includes @hiecom/mirror-shared
 ```
 
-Utilities are re-exported by framework packages, so you can import them directly:
+Utilities are re-exported by framework packages:
 
 ```typescript
-// When using @hiecom/mirror-react
 import { createNetworkConfig, mirrorNodeKeys, isValidEntityId } from "@hiecom/mirror-react";
 ```
 
-## Entity ID Utilities
+## API Reference
+
+### Entity ID Utilities
 
 ```typescript
-import {
-  isValidEntityId,
-  parseEntityId,
-  assertEntityId,
-  formatEntityId,
-  parseEntityIdParts,
-} from "@hiecom/mirror-shared";
+// Validate entity ID
+isValidEntityId(value: unknown): value is EntityId
 
-// Validate
-if (isValidEntityId("0.0.123")) {
-  // Handle valid entity ID
-}
+// Parse entity ID to parts
+parseEntityId(id: EntityId): { shard: number; realm: number; num: number } | null
 
-// Parse
-const parts = parseEntityId("0.0.123");
-// { shard: 0, realm: 0, num: 123 }
+// Assert entity ID (throws if invalid)
+assertEntityId(value: unknown): asserts value is EntityId
 
-// Assert (throws if invalid)
-assertEntityId("0.0.123");
+// Format entity ID from parts
+formatEntityId(shard: number, realm: number, num: number): EntityId
 
-// Format
-const id = formatEntityId(0, 0, 123);
-// "0.0.123"
-
-// Parse to tuple
-const [shard, realm, num] = parseEntityIdParts("0.0.123");
-// [0, 0, 123]
+// Parse entity ID to tuple
+parseEntityIdParts(id: EntityId): [shard: number, realm: number, num: number]
 ```
 
-## Network Configuration
+**Example:**
+
+```typescript
+import { isValidEntityId, parseEntityId, formatEntityId } from "@hiecom/mirror-shared";
+
+if (isValidEntityId("0.0.123")) {
+  const parts = parseEntityId("0.0.123");
+  // { shard: 0, realm: 0, num: 123 }
+}
+
+const id = formatEntityId(0, 0, 456);
+// "0.0.456"
+```
+
+### Network Configuration
+
+```typescript
+// Create network configuration
+createNetworkConfig(config: {
+  defaultNetwork: NetworkType;
+  networks?: Record<string, string>;
+}): NetworkConfig
+
+// Get network URL
+getNetworkUrl(network: NetworkType, networks: Record<string, string>): string
+
+// Check if default Hedera network
+isDefaultNetwork(network: string): boolean
+```
+
+**Example:**
 
 ```typescript
 import { createNetworkConfig, getNetworkUrl, isDefaultNetwork } from "@hiecom/mirror-shared";
@@ -72,71 +95,138 @@ const networkConfig = createNetworkConfig({
   },
 });
 
-// Check if default Hedera network
 isDefaultNetwork("mainnet"); // true
 isDefaultNetwork("custom"); // false
 
-// Get URL for network
 const url = getNetworkUrl("testnet", networkConfig.networks);
 ```
 
-## TanStack Query Keys
+### Query Keys Factory
 
 ```typescript
-import { mirrorNodeKeys } from "@hiecom/mirror-shared";
+mirrorNodeKeys.account.info(network: NetworkType, accountId: EntityId)
+mirrorNodeKeys.account.balances(network: NetworkType, accountId: EntityId)
+mirrorNodeKeys.account.tokens(network: NetworkType, accountId: EntityId, params?: AccountNftsParams)
+mirrorNodeKeys.account.nfts(network: NetworkType, accountId: EntityId, params?: AccountNftsParams)
+mirrorNodeKeys.account.stakingRewards(network: NetworkType, accountId: EntityId, params?: PaginationParams)
+mirrorNodeKeys.account.cryptoAllowances(network: NetworkType, accountId: EntityId)
+mirrorNodeKeys.account.tokenAllowances(network: NetworkType, accountId: EntityId, params?: TokenAllowancesParams)
+mirrorNodeKeys.account.nftAllowances(network: NetworkType, accountId: EntityId)
+mirrorNodeKeys.account.outstandingAirdrops(network: NetworkType, accountId: EntityId)
+mirrorNodeKeys.account.pendingAirdrops(network: NetworkType, accountId: EntityId)
+mirrorNodeKeys.account.list(network: NetworkType, params?: AccountListParams)
 
-// Account keys
-mirrorNodeKeys.account.info("mainnet", "0.0.123");
-mirrorNodeKeys.account.balances("mainnet", "0.0.123");
-mirrorNodeKeys.account.list("mainnet");
+mirrorNodeKeys.token.info(network: NetworkType, tokenId: EntityId)
+mirrorNodeKeys.token.balances(network: NetworkType, tokenId: EntityId, params?: TokenBalancesParams)
+mirrorNodeKeys.token.nfts(network: NetworkType, tokenId: EntityId)
+mirrorNodeKeys.token.list(network: NetworkType, params?: TokenListParams)
 
-// Token keys
-mirrorNodeKeys.token.info("mainnet", "0.0.456");
-mirrorNodeKeys.token.list("mainnet");
+mirrorNodeKeys.transaction.getById(network: NetworkType, transactionId: string)
+mirrorNodeKeys.transaction.list(network: NetworkType, params?: TransactionListParams)
+mirrorNodeKeys.transaction.listByAccount(network: NetworkType, accountId: EntityId, params?: TransactionsByAccountParams)
 
-// Transaction keys
-mirrorNodeKeys.transaction.getById("mainnet", "0.0.123@1234567890.123456789");
-mirrorNodeKeys.transaction.list("mainnet");
+mirrorNodeKeys.contract.info(network: NetworkType, contractId: EntityId)
+mirrorNodeKeys.contract.results(network: NetworkType, contractId: EntityId)
+mirrorNodeKeys.contract.result(network: NetworkType, contractId: EntityId, resultId: string)
+mirrorNodeKeys.contract.allResults(network: NetworkType, params?: ContractResultsParams)
+mirrorNodeKeys.contract.state(network: NetworkType, contractId: EntityId, params?: ContractStateParams)
+mirrorNodeKeys.contract.logs(network: NetworkType, contractId: EntityId)
+mirrorNodeKeys.contract.allLogs(network: NetworkType, params?: ContractLogsParams)
+mirrorNodeKeys.contract.list(network: NetworkType, params?: ContractListParams)
+
+mirrorNodeKeys.topic.info(network: NetworkType, topicId: EntityId)
+mirrorNodeKeys.topic.messages(network: NetworkType, topicId: EntityId, params?: TopicMessagesParams)
+mirrorNodeKeys.topic.list(network: NetworkType, params?: PaginationParams)
+
+mirrorNodeKeys.schedule.info(network: NetworkType, scheduleId: EntityId)
+mirrorNodeKeys.schedule.list(network: NetworkType, params?: ScheduleListParams)
+
+mirrorNodeKeys.network.exchangeRate(params?: { timestamp?: Timestamp })
+mirrorNodeKeys.network.fees(network: NetworkType, params?: PaginationParams & { timestamp?: Timestamp })
+mirrorNodeKeys.network.nodes(network: NetworkType, params?: NetworkNodesParams)
+mirrorNodeKeys.network.stake()
+mirrorNodeKeys.network.supply()
+
+mirrorNodeKeys.block.block(blockNumberOrHash: string | number)
+mirrorNodeKeys.block.blocks(params?: BlocksListParams)
+
+mirrorNodeKeys.balance.balances(network: NetworkType, params?: BalancesListParams)
 ```
 
-## Type Guards
+### Type Guards
 
 ```typescript
-import {
-  isSuccess,
-  isApiError,
-  isNetworkError,
-  isNotFoundError,
-  isRateLimitError,
-  isValidationError,
-} from "@hiecom/mirror-shared";
+// Check if result is successful
+isSuccess<T>(result: ApiResult<T>): result is { success: true; data: T }
+
+// Check if result is an error
+isApiError<T>(result: ApiResult<T>): result is { success: false; error: ApiError }
+
+// Specific error type guards
+isNetworkError(error: ApiError): error is ApiError & { _tag: "NetworkError" }
+isNotFoundError(error: ApiError): error is ApiError & { _tag: "NotFoundError" }
+isRateLimitError(error: ApiError): error is ApiError & { _tag: "RateLimitError" }
+isValidationError(error: ApiError): error is ApiError & { _tag: "ValidationError" }
+isUnknownError(error: ApiError): error is ApiError & { _tag: "UnknownError" }
+```
+
+**Example:**
+
+```typescript
+import { isSuccess, isNetworkError, isNotFoundError } from "@hiecom/mirror-shared";
 
 const result = await apiCall();
 
 if (isSuccess(result)) {
   console.log(result.data);
-}
-
-if (isApiError(result)) {
-  if (isNetworkError(result)) {
-    console.log("Network error");
-  } else if (isNotFoundError(result)) {
-    console.log("Not found");
-  } else if (isRateLimitError(result)) {
-    console.log("Rate limited");
-  } else if (isValidationError(result)) {
-    console.log("Validation failed");
-  }
+} else if (isNetworkError(result)) {
+  console.log("Network error - check connection");
+} else if (isNotFoundError(result)) {
+  console.log("Resource not found");
 }
 ```
 
-## Query Helpers
+### Query Helpers
 
 ```typescript
-import { prefetchQuery, invalidateQueries, EntityType } from "@hiecom/mirror-shared";
-import { QueryClient } from "@tanstack/react-query";
-
 // Prefetch a query
+prefetchQuery(
+  queryClient: QueryClient,
+  client: MirrorNodeClient,
+  key: readonly unknown[]
+): Promise<void>
+
+// Invalidate queries
+invalidateQueries(
+  queryClient: QueryClient,
+  options: {
+    exactKey?: readonly unknown[];
+    entityType?: EntityType;
+  }
+): Promise<void>
+```
+
+**Entity Types:**
+
+```typescript
+type EntityType =
+  | "account"
+  | "token"
+  | "transaction"
+  | "contract"
+  | "topic"
+  | "schedule"
+  | "block"
+  | "balance"
+  | "network";
+```
+
+**Example:**
+
+```typescript
+import { prefetchQuery, invalidateQueries, mirrorNodeKeys } from "@hiecom/mirror-shared";
+
+// Prefetch
 await prefetchQuery(queryClient, client, mirrorNodeKeys.account.info("mainnet", "0.0.123"));
 
 // Invalidate specific query
@@ -144,14 +234,19 @@ await invalidateQueries(queryClient, {
   exactKey: mirrorNodeKeys.account.info("mainnet", "0.0.123"),
 });
 
-// Invalidate all queries for an entity type
-await invalidateQueries(queryClient, {
-  entityType: EntityType.Account,
-});
+// Invalidate all account queries
+await invalidateQueries(queryClient, { entityType: "account" });
 
 // Invalidate all queries
 await invalidateQueries(queryClient, {});
 ```
+
+## Related Packages
+
+- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - REST API client
+- [`@hiecom/mirror-react`](https://www.npmjs.com/package/@hiecom/mirror-react) - React hooks
+- [`@hiecom/mirror-preact`](https://www.npmjs.com/package/@hiecom/mirror-preact) - Preact hooks
+- [`@hiecom/mirror-solid`](https://www.npmjs.com/package/@hiecom/mirror-solid) - SolidJS hooks
 
 ## License
 

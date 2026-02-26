@@ -1,8 +1,17 @@
 # @hiecom/realtime
 
-Real-time streaming client for Hedera Mirror Node data via WebSocket (HIP-694 JSON-RPC Relay).
+Real-time WebSocket client for Hedera Mirror Node HIP-694 JSON-RPC Relay.
 
-## Install
+## Features
+
+- **WebSocket Connection** - Real-time subscription to Hedera events
+- **Auto-Reconnection** - Automatic reconnection with exponential backoff
+- **Subscription Management** - Track and restore subscriptions across reconnections
+- **Connection Pool** - Distribute subscriptions across multiple connections
+- **Load Balancing** - Round-robin, least-loaded, or random strategies
+- **Type-Safe** - Full TypeScript support
+
+## Installation
 
 ```bash
 # bun
@@ -18,7 +27,7 @@ pnpm add @hiecom/realtime
 yarn add @hiecom/realtime
 ```
 
-## Usage
+## Quick Start
 
 ```typescript
 import { RelayWebSocketClient } from "@hiecom/realtime";
@@ -32,98 +41,126 @@ await client.connect();
 
 const { data: subscriptionId } = await client.subscribe(
   { type: "logs", filter: { address: "0x..." } },
-  (msg) => console.log("Log:", msg.result.transactionHash),
+  (message) => console.log("Log:", message.result.transactionHash),
 );
 
 await client.unsubscribe(subscriptionId);
 await client.disconnect();
 ```
 
-## Client
+## API Reference
+
+### StreamConfig
 
 ```typescript
-const client = new RelayWebSocketClient({
-  network: "mainnet",
-  endpoint: "wss://mainnet.mirrornode.hedera.com/relay/ws",
-  reconnection: {
-    maxAttempts: 5,
-    initialDelay: 1000,
-    maxDelay: 30000,
-    backoffMultiplier: 2,
-  },
-});
-
-const client = new RelayWebSocketClient({
-  network: "testnet",
-  endpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
-});
-
-const client = new RelayWebSocketClient({
-  network: "previewnet",
-  endpoint: "wss://previewnet.mirrornode.hedera.com/relay/ws",
-});
+interface StreamConfig {
+  readonly network: NetworkType;
+  readonly endpoint: string;
+  readonly reconnection?: {
+    readonly maxAttempts: number;
+    readonly initialDelay: number;
+    readonly maxDelay: number;
+    readonly backoffMultiplier: number;
+  };
+}
 ```
 
-### API Methods
+### RelayWebSocketClient
 
-**Connection**
+#### Constructor
 
 ```typescript
-await client.connect();
-await client.disconnect();
-client.getState();
-await client.getChainId();
+new RelayWebSocketClient(config: StreamConfig)
 ```
 
-**Subscriptions**
+#### Methods
 
 ```typescript
-client.subscribe({ type: "logs", filter: { address: "0x...", topics: ["0x..."] } }, (message) =>
-  console.log(message.result),
-);
+// Connect to WebSocket
+connect(): Promise<ApiResult<null>>
 
-client.subscribe({ type: "newHeads", filter: {} }, (message) => console.log(message.result));
+// Disconnect from WebSocket
+disconnect(): Promise<void>
 
-await client.unsubscribe(subscriptionId);
+// Subscribe to events
+subscribe(
+  subscription: RelaySubscription,
+  callback: (message: RelayMessage) => void
+): Promise<ApiResult<string>>
+
+// Unsubscribe from events
+unsubscribe(subscriptionId: string): Promise<ApiResult<boolean>>
+
+// Get current connection state
+getState(): StreamState
+
+// Get chain ID
+getChainId(): Promise<ApiResult<string>>
 ```
 
-## Connection Pool
+### ConnectionPool
 
-Distribute subscriptions across multiple WebSocket connections with load balancing:
+#### Constructor
 
 ```typescript
-import { ConnectionPool } from "@hiecom/realtime";
+new ConnectionPool(config: ConnectionPoolConfig)
+```
 
-const pool = new ConnectionPool({
-  network: "testnet",
-  endpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
-  poolSize: 3,
-  strategy: "least-loaded",
-});
+#### Configuration
 
-await pool.connect();
+```typescript
+interface ConnectionPoolConfig {
+  readonly network: NetworkType;
+  readonly endpoint: string;
+  readonly poolSize: number;
+  readonly strategy: LoadBalancingStrategy;
+  readonly reconnection?: {
+    readonly maxAttempts: number;
+    readonly initialDelay: number;
+    readonly maxDelay: number;
+    readonly backoffMultiplier: number;
+  };
+}
+```
 
-const { data: subscriptionId } = await pool.subscribe(
-  { type: "logs", filter: { address: "0x..." } },
-  (msg) => console.log("Log:", msg.result.transactionHash),
-);
+#### Methods
 
-console.log("Pool state:", pool.getPoolState());
-console.log("Total subscriptions:", pool.getTotalActiveSubscriptions());
+```typescript
+// Connect all connections in pool
+connect(): Promise<ApiResult<null>>
 
-await pool.unsubscribe(subscriptionId);
-await pool.disconnect();
+// Disconnect all connections
+disconnect(): Promise<void>
+
+// Subscribe (auto-routed to best connection)
+subscribe(
+  subscription: RelaySubscription,
+  callback: (message: RelayMessage) => void
+): Promise<ApiResult<string>>
+
+// Unsubscribe
+unsubscribe(subscriptionId: string): Promise<ApiResult<boolean>>
+
+// Get pool state
+getPoolState(): readonly {
+  connectionIndex: number;
+  state: StreamState;
+  activeSubscriptions: number;
+}[]
+
+// Get total active subscriptions
+getTotalActiveSubscriptions(): number
 ```
 
 ### Load Balancing Strategies
 
-- `round-robin` - Distribute subscriptions sequentially
-- `least-loaded` - Use connection with fewest active subscriptions
+- `round-robin` - Distribute subscriptions sequentially across connections
+- `least-loaded` - Route to connection with fewest active subscriptions
 - `random` - Distribute subscriptions randomly
 
 ## Subscription Types
 
-### Logs
+### Logs Subscription
 
 Subscribe to contract event logs:
 
@@ -132,7 +169,7 @@ await client.subscribe(
   {
     type: "logs",
     filter: {
-      address: "0x...",
+      address: "0x0000000000000000000000000000000001234",
       topics: ["0x..."] as const,
     },
   },
@@ -140,17 +177,38 @@ await client.subscribe(
 );
 ```
 
-### New Heads
+### New Heads Subscription
 
 Subscribe to new block headers:
 
 ```typescript
-await client.subscribe({ type: "newHeads", filter: {} }, (message) => console.log(message.result));
+await client.subscribe(
+  { type: "newHeads", filter: {} },
+  (message) => console.log("New block:", message.result.number),
+);
 ```
 
-## Auto-Reconnection
+## Stream State
 
-Subscriptions are automatically restored after reconnection:
+```typescript
+type StreamState =
+  | { readonly _tag: "Disconnected" }
+  | { readonly _tag: "Connecting" }
+  | { readonly _tag: "Connected"; readonly connectionId: string }
+  | { readonly _tag: "Error"; readonly error: ApiError };
+```
+
+## Endpoints
+
+| Network    | WebSocket Endpoint                              |
+| ---------- | ------------------------------------------------ |
+| Mainnet    | `wss://mainnet.mirrornode.hedera.com/relay/ws`  |
+| Testnet    | `wss://testnet.mirrornode.hedera.com/relay/ws`  |
+| Previewnet | `wss://previewnet.mirrornode.hedera.com/relay/ws` |
+
+## Examples
+
+### Auto-Reconnection
 
 ```typescript
 const client = new RelayWebSocketClient({
@@ -171,33 +229,39 @@ await client.subscribe({ type: "logs", filter: {} }, callback);
 // All subscriptions are automatically restored
 ```
 
-## Endpoints
-
-| Network    | WebSocket Endpoint                                |
-| ---------- | ------------------------------------------------- |
-| Mainnet    | `wss://mainnet.mirrornode.hedera.com/relay/ws`    |
-| Testnet    | `wss://testnet.mirrornode.hedera.com/relay/ws`    |
-| Previewnet | `wss://previewnet.mirrornode.hedera.com/relay/ws` |
-
-## Response Format
-
-Every method returns a typed result:
+### Connection Pool
 
 ```typescript
-const result = await client.subscribe({ type: "logs", filter: {} }, callback);
+import { ConnectionPool } from "@hiecom/realtime";
 
-if (result.success) {
-  console.log("Subscription ID:", result.data);
-} else {
-  console.error(result.error.message);
-}
+const pool = new ConnectionPool({
+  network: "testnet",
+  endpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
+  poolSize: 3,
+  strategy: "least-loaded",
+});
+
+await pool.connect();
+
+const { data: subscriptionId } = await pool.subscribe(
+  { type: "logs", filter: { address: "0x..." } },
+  (msg) => console.log("Log:", msg.result.transactionHash),
+);
+
+console.log("Pool state:", pool.getPoolState());
+console.log("Total subscriptions:", pool.getTotalActiveSubscriptions());
 ```
 
 ## Framework Packages
 
 For React, use the framework-specific package:
 
-- `@hiecom/realtime-react` - React hooks with automatic subscription management
+- [`@hiecom/realtime-react`](https://www.npmjs.com/package/@hiecom/realtime-react) - React hooks with automatic subscription management
+
+## Related Packages
+
+- [`@hiecom/types`](https://github.com/powxenv/hiecom/tree/main/packages/types) - Shared TypeScript types (internal)
+- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - REST API client
 
 ## License
 
