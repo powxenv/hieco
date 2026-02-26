@@ -54,3 +54,7 @@ export function parseEntityIdParts(id: EntityId): [shard: number, realm: number,
 
   return [parseInt(shard, 10), parseInt(realm, 10), parseInt(num, 10)];
 }
+
+export function asEntityId(id: string): EntityId {
+  return id as EntityId;
+}
