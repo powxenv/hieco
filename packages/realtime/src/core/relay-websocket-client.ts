@@ -14,7 +14,7 @@ import {
   isCloseErrorRecoverable,
 } from "./types/relay-types";
 import { createSubscriptionId } from "./types/common-types";
-import type { ApiResult } from "@hiecom/mirror-js";
+import type { ApiResult } from "@hiecom/types";
 
 interface PendingSubscribe {
   resolve: (result: ApiResult<string>) => void;
@@ -37,13 +37,15 @@ interface TrackedSubscription {
   callbacks: Set<(message: RelayMessage) => void>;
 }
 
-function isResponseWithId(
-  response: JsonRpcResponse,
-): response is JsonRpcResponse & { id: number } {
+function isResponseWithId(response: JsonRpcResponse): response is JsonRpcResponse & { id: number } {
   return typeof response.id === "number";
 }
 
-export class RelayWebSocketClient extends BaseStreamClient<RelayMessage, RelaySubscription, boolean> {
+export class RelayWebSocketClient extends BaseStreamClient<
+  RelayMessage,
+  RelaySubscription,
+  boolean
+> {
   private ws: WebSocket | null = null;
   private requestId: number = 0;
   private pendingSubscribes: Map<number, PendingSubscribe> = new Map();
@@ -323,7 +325,8 @@ export class RelayWebSocketClient extends BaseStreamClient<RelayMessage, RelaySu
       const pending = this.pendingSubscribes.get(id);
       if (pending) {
         this.pendingSubscribes.delete(id);
-        const localSubscriptionId = pending.localSubscriptionId ?? createSubscriptionId(response.result);
+        const localSubscriptionId =
+          pending.localSubscriptionId ?? createSubscriptionId(response.result);
 
         if (pending.isRestoration) {
           const tracked = this.trackedSubscriptions.get(localSubscriptionId);

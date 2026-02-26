@@ -5,10 +5,10 @@
   "keywords": [
     "hedera",
     "hip-694",
+    "hooks",
     "json-rpc-relay",
-    "realtime",
     "react",
-    "hooks"
+    "realtime"
   ],
   "license": "MIT",
   "files": [

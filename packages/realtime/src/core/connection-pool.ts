@@ -1,6 +1,6 @@
 import type { StreamState, RelaySubscription, RelayMessage, StreamConfig } from "./index";
 import { RelayWebSocketClient } from "./relay-websocket-client";
-import type { ApiResult } from "@hiecom/mirror-js";
+import type { ApiResult } from "@hiecom/types";
 
 export type LoadBalancingStrategy = "round-robin" | "least-loaded" | "random";
 
@@ -59,7 +59,10 @@ export class ConnectionPool {
     const results = await Promise.allSettled(connectPromises);
 
     for (const result of results) {
-      if (result.status === "rejected" || (result.status === "fulfilled" && !result.value.success)) {
+      if (
+        result.status === "rejected" ||
+        (result.status === "fulfilled" && !result.value.success)
+      ) {
         this.disconnect();
         return {
           success: false,

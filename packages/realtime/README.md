@@ -78,15 +78,11 @@ await client.getChainId();
 **Subscriptions**
 
 ```typescript
-client.subscribe(
-  { type: "logs", filter: { address: "0x...", topics: ["0x..."] } },
-  (message) => console.log(message.result),
+client.subscribe({ type: "logs", filter: { address: "0x...", topics: ["0x..."] } }, (message) =>
+  console.log(message.result),
 );
 
-client.subscribe(
-  { type: "newHeads", filter: {} },
-  (message) => console.log(message.result),
-);
+client.subscribe({ type: "newHeads", filter: {} }, (message) => console.log(message.result));
 
 await client.unsubscribe(subscriptionId);
 ```
@@ -149,10 +145,7 @@ await client.subscribe(
 Subscribe to new block headers:
 
 ```typescript
-await client.subscribe(
-  { type: "newHeads", filter: {} },
-  (message) => console.log(message.result),
-);
+await client.subscribe({ type: "newHeads", filter: {} }, (message) => console.log(message.result));
 ```
 
 ## Auto-Reconnection

@@ -1,4 +1,4 @@
-import type { ApiError } from "@hiecom/mirror-js";
+import type { ApiError } from "@hiecom/types";
 
 export interface RelaySubscription {
   readonly type: "logs" | "newHeads";
@@ -89,7 +89,10 @@ export function isChainIdResponse(value: unknown): value is ChainIdResponse {
     v.jsonrpc === "2.0" &&
     typeof v.id === "number" &&
     typeof v.result === "string" &&
-    (v.result === "0x127" || v.result === "0x128" || v.result === "0x129" || v.result.startsWith("0x"))
+    (v.result === "0x127" ||
+      v.result === "0x128" ||
+      v.result === "0x129" ||
+      v.result.startsWith("0x"))
   );
 }
 
@@ -132,19 +135,11 @@ export function isJsonRpcResponse(value: unknown): value is JsonRpcResponse {
 export function isSubscribeResponse(value: unknown): value is SubscribeResponse {
   if (typeof value !== "object" || value === null) return false;
   const v = value as Record<string, unknown>;
-  return (
-    v.jsonrpc === "2.0" &&
-    typeof v.id === "number" &&
-    typeof v.result === "string"
-  );
+  return v.jsonrpc === "2.0" && typeof v.id === "number" && typeof v.result === "string";
 }
 
 export function isUnsubscribeResponse(value: unknown): value is UnsubscribeResponse {
   if (typeof value !== "object" || value === null) return false;
   const v = value as Record<string, unknown>;
-  return (
-    v.jsonrpc === "2.0" &&
-    typeof v.id === "number" &&
-    typeof v.result === "boolean"
-  );
+  return v.jsonrpc === "2.0" && typeof v.id === "number" && typeof v.result === "boolean";
 }

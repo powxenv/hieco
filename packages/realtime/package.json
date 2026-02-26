@@ -41,6 +41,7 @@
     "oxlint-tsgolint": "^0.14.2"
   },
   "peerDependencies": {
+    "@hiecom/mirror-js": "workspace:*",
     "@hiecom/types": "workspace:*"
   }
 }

@@ -92,12 +92,8 @@ function ConnectionControls() {
   return (
     <div>
       <p>Status: {state._tag}</p>
-      {state._tag === "Disconnected" && (
-        <button onClick={() => connect()}>Connect</button>
-      )}
-      {state._tag === "Connected" && (
-        <button onClick={() => disconnect()}>Disconnect</button>
-      )}
+      {state._tag === "Disconnected" && <button onClick={() => connect()}>Connect</button>}
+      {state._tag === "Connected" && <button onClick={() => disconnect()}>Disconnect</button>}
     </div>
   );
 }
@@ -140,9 +136,8 @@ function CustomSubscription() {
   const client = useRealtimeClient();
 
   const subscribe = async () => {
-    const { data } = await client.subscribe(
-      { type: "newHeads", filter: {} },
-      (message) => console.log("New block:", message.result),
+    const { data } = await client.subscribe({ type: "newHeads", filter: {} }, (message) =>
+      console.log("New block:", message.result),
     );
     return data;
   };
