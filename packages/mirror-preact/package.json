@@ -9,22 +9,16 @@
     "preact",
     "tanstack-query"
   ],
+  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/mirror-preact",
+  "bugs": {
+    "url": "https://github.com/powxenv/hiecom/issues"
+  },
   "license": "MIT",
   "author": "pow <https://github.com/powxenv>",
   "repository": {
     "type": "git",
     "url": "https://github.com/powxenv/hiecom",
     "directory": "packages/mirror-preact"
-  },
-  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/mirror-preact",
-  "bugs": {
-    "url": "https://github.com/powxenv/hiecom/issues"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   },
   "files": [
     "dist",
@@ -41,6 +35,9 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external preact --external @tanstack/preact-query --external @hiecom/mirror-js && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
@@ -64,5 +61,8 @@
     "@hiecom/mirror-shared": "workspace:*",
     "@tanstack/preact-query": "^5.0.0",
     "preact": ">=10"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

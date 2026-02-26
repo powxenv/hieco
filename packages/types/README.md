@@ -128,8 +128,8 @@ interface Key {
 ```typescript
 import { NETWORK_CONFIGS } from "@hiecom/types";
 
-NETWORK_CONFIGS.mainnet;   // { mirrorNode: "https://mainnet.mirrornode.hedera.com" }
-NETWORK_CONFIGS.testnet;   // { mirrorNode: "https://testnet.mirrornode.hedera.com" }
+NETWORK_CONFIGS.mainnet; // { mirrorNode: "https://mainnet.mirrornode.hedera.com" }
+NETWORK_CONFIGS.testnet; // { mirrorNode: "https://testnet.mirrornode.hedera.com" }
 NETWORK_CONFIGS.previewnet; // { mirrorNode: "https://previewnet.mirrornode.hedera.com" }
 ```
 

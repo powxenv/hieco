@@ -210,9 +210,7 @@ function AccountComponent() {
 
   return (
     <div>
-      <Show when={query.data?.success}>
-        {(data) => <div>{data().data.balance.balance}</div>}
-      </Show>
+      <Show when={query.data?.success}>{(data) => <div>{data().data.balance.balance}</div>}</Show>
       <button onClick={() => setAccountId("0.0.456")}>Change Account</button>
     </div>
   );
@@ -233,11 +231,7 @@ function TokenList() {
       <For each={query.data?.pages ?? []}>
         {(page) => (
           <Show when={page.success}>
-            {(result) => (
-              <For each={result().data.data}>
-                {(token) => <div>{token.name}</div>}
-              </For>
-            )}
+            {(result) => <For each={result().data.data}>{(token) => <div>{token.name}</div>}</For>}
           </Show>
         )}
       </For>

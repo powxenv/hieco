@@ -182,9 +182,8 @@ await client.subscribe(
 Subscribe to new block headers:
 
 ```typescript
-await client.subscribe(
-  { type: "newHeads", filter: {} },
-  (message) => console.log("New block:", message.result.number),
+await client.subscribe({ type: "newHeads", filter: {} }, (message) =>
+  console.log("New block:", message.result.number),
 );
 ```
 
@@ -200,10 +199,10 @@ type StreamState =
 
 ## Endpoints
 
-| Network    | WebSocket Endpoint                              |
-| ---------- | ------------------------------------------------ |
-| Mainnet    | `wss://mainnet.mirrornode.hedera.com/relay/ws`  |
-| Testnet    | `wss://testnet.mirrornode.hedera.com/relay/ws`  |
+| Network    | WebSocket Endpoint                                |
+| ---------- | ------------------------------------------------- |
+| Mainnet    | `wss://mainnet.mirrornode.hedera.com/relay/ws`    |
+| Testnet    | `wss://testnet.mirrornode.hedera.com/relay/ws`    |
 | Previewnet | `wss://previewnet.mirrornode.hedera.com/relay/ws` |
 
 ## Examples

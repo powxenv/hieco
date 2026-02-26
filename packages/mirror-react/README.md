@@ -195,8 +195,8 @@ useNetworkSupply()
 ### Utility Hooks
 
 ```typescript
-usePrefetchQuery()
-useInvalidateQueries()
+usePrefetchQuery();
+useInvalidateQueries();
 ```
 
 ## Query Options
@@ -250,9 +250,10 @@ function TokenList() {
 
   return (
     <div>
-      {data?.pages.map((page) =>
-        page.success &&
-        page.data.data.map((token) => <div key={token.token_id}>{token.name}</div>),
+      {data?.pages.map(
+        (page) =>
+          page.success &&
+          page.data.data.map((token) => <div key={token.token_id}>{token.name}</div>),
       )}
       {hasNextPage && (
         <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>

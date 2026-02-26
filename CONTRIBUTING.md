@@ -193,21 +193,26 @@ refactor(types): extract common result types
 
 ```markdown
 ## Summary
+
 Brief description of changes
 
 ## Type
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation
 
 ## Changes
+
 - List key changes
 
 ## Testing
+
 - How was this tested?
 
 ## Related Issues
+
 Closes #issue-number
 ```
 

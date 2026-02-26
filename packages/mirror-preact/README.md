@@ -84,100 +84,100 @@ const client = useMirrorNodeClient();
 ### Account Hooks
 
 ```typescript
-useAccountInfo({ accountId })
-useAccountBalances({ accountId })
-useAccountTokens({ accountId, params })
-useAccountNfts({ accountId, params })
-useAccountStakingRewards({ accountId, params })
-useAccountCryptoAllowances({ accountId })
-useAccountTokenAllowances({ accountId, params })
-useAccountNftAllowances({ accountId })
-useAccountOutstandingAirdrops({ accountId })
-useAccountPendingAirdrops({ accountId })
-useAccounts({ params })
-useAccountsInfinite({ params })
+useAccountInfo({ accountId });
+useAccountBalances({ accountId });
+useAccountTokens({ accountId, params });
+useAccountNfts({ accountId, params });
+useAccountStakingRewards({ accountId, params });
+useAccountCryptoAllowances({ accountId });
+useAccountTokenAllowances({ accountId, params });
+useAccountNftAllowances({ accountId });
+useAccountOutstandingAirdrops({ accountId });
+useAccountPendingAirdrops({ accountId });
+useAccounts({ params });
+useAccountsInfinite({ params });
 ```
 
 ### Token Hooks
 
 ```typescript
-useTokenInfo({ tokenId })
-useTokenBalances({ tokenId, params })
-useTokenNfts({ tokenId })
-useTokenNft({ tokenId, serialNumber })
-useTokenNftTransactions({ tokenId, serialNumber })
-useTokens({ params })
-useTokensInfinite({ params })
+useTokenInfo({ tokenId });
+useTokenBalances({ tokenId, params });
+useTokenNfts({ tokenId });
+useTokenNft({ tokenId, serialNumber });
+useTokenNftTransactions({ tokenId, serialNumber });
+useTokens({ params });
+useTokensInfinite({ params });
 ```
 
 ### Transaction Hooks
 
 ```typescript
-useTransaction({ transactionId })
-useTransactions({ params })
-useTransactionsByAccount({ accountId, params })
-useTransactionsInfinite({ params })
-usePollTransaction({ transactionId, options })
+useTransaction({ transactionId });
+useTransactions({ params });
+useTransactionsByAccount({ accountId, params });
+useTransactionsInfinite({ params });
+usePollTransaction({ transactionId, options });
 ```
 
 ### Contract Hooks
 
 ```typescript
-useContractInfo({ contractId })
-useContractCall(params)
-useContractResults({ contractId })
-useContractResult({ contractId, resultId })
-useContractAllResults({ params })
-useContractResultByTransactionIdOrHash({ txIdOrHash })
-useContractResultActions({ resultId })
-useContractResultOpcodes({ resultId })
-useContractState({ contractId, params })
-useContractLogs({ contractId })
-useContractAllLogs({ params })
-useContracts({ params })
-useContractsInfinite({ params })
+useContractInfo({ contractId });
+useContractCall(params);
+useContractResults({ contractId });
+useContractResult({ contractId, resultId });
+useContractAllResults({ params });
+useContractResultByTransactionIdOrHash({ txIdOrHash });
+useContractResultActions({ resultId });
+useContractResultOpcodes({ resultId });
+useContractState({ contractId, params });
+useContractLogs({ contractId });
+useContractAllLogs({ params });
+useContracts({ params });
+useContractsInfinite({ params });
 ```
 
 ### Topic Hooks
 
 ```typescript
-useTopicInfo({ topicId })
-useTopicMessages({ topicId, params })
-useTopicMessage({ topicId, sequenceNumber })
-useTopicMessageByTimestamp({ timestamp })
-useTopics({ params })
-useTopicsInfinite({ params })
+useTopicInfo({ topicId });
+useTopicMessages({ topicId, params });
+useTopicMessage({ topicId, sequenceNumber });
+useTopicMessageByTimestamp({ timestamp });
+useTopics({ params });
+useTopicsInfinite({ params });
 ```
 
 ### Schedule Hooks
 
 ```typescript
-useScheduleInfo({ scheduleId })
-useSchedules({ params })
-useSchedulesInfinite({ params })
+useScheduleInfo({ scheduleId });
+useSchedules({ params });
+useSchedulesInfinite({ params });
 ```
 
 ### Block Hooks
 
 ```typescript
-useBlock({ blockNumberOrHash })
-useBlocks({ params })
+useBlock({ blockNumberOrHash });
+useBlocks({ params });
 ```
 
 ### Balance Hooks
 
 ```typescript
-useBalances({ params })
+useBalances({ params });
 ```
 
 ### Network Hooks
 
 ```typescript
-useNetworkExchangeRate({ params })
-useNetworkFees({ params })
-useNetworkNodes({ params })
-useNetworkStake()
-useNetworkSupply()
+useNetworkExchangeRate({ params });
+useNetworkFees({ params });
+useNetworkNodes({ params });
+useNetworkStake();
+useNetworkSupply();
 ```
 
 ## Examples
@@ -210,9 +210,10 @@ function TokenList() {
 
   return (
     <div>
-      {data?.pages.map((page) =>
-        page.success &&
-        page.data.data.map((token) => <div key={token.token_id}>{token.name}</div>),
+      {data?.pages.map(
+        (page) =>
+          page.success &&
+          page.data.data.map((token) => <div key={token.token_id}>{token.name}</div>),
       )}
       {hasNextPage && (
         <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>

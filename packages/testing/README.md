@@ -83,78 +83,78 @@ NETWORK_URLS: {
 #### Account
 
 ```typescript
-mockAccount({ account: "0.0.123" })
-mockAccount.build({ account: "0.0.123", balance: 1000 })
-mockAccount.buildList(5, { account: "0.0.123" })
+mockAccount({ account: "0.0.123" });
+mockAccount.build({ account: "0.0.123", balance: 1000 });
+mockAccount.buildList(5, { account: "0.0.123" });
 ```
 
 #### Transaction
 
 ```typescript
-mockTransaction({ transaction_id: "0.0.123@1234567890.000000001" })
-mockTransaction.build({ result: "SUCCESS" })
-mockTransaction.buildList(10)
+mockTransaction({ transaction_id: "0.0.123@1234567890.000000001" });
+mockTransaction.build({ result: "SUCCESS" });
+mockTransaction.buildList(10);
 ```
 
 #### Token
 
 ```typescript
-mockToken({ token_id: "0.0.456", name: "Test Token", symbol: "TT" })
-mockToken.build({ decimals: 8, total_supply: 1000000 })
+mockToken({ token_id: "0.0.456", name: "Test Token", symbol: "TT" });
+mockToken.build({ decimals: 8, total_supply: 1000000 });
 ```
 
 #### NFT
 
 ```typescript
-mockNft({ token_id: "0.0.456", serial_number: 1 })
-mockNft.buildList(5, { token_id: "0.0.456" })
+mockNft({ token_id: "0.0.456", serial_number: 1 });
+mockNft.buildList(5, { token_id: "0.0.456" });
 ```
 
 #### Token Relationship
 
 ```typescript
-mockTokenRelationship.build("0.0.123", { token_id: "0.0.456", balance: 100 })
+mockTokenRelationship.build("0.0.123", { token_id: "0.0.456", balance: 100 });
 ```
 
 #### Balance
 
 ```typescript
-mockBalance({ account: "0.0.123", hbar: 1000 })
-mockBalance.build({ account: "0.0.123", tokens: [{ token_id: "0.0.456", balance: 100 }] })
+mockBalance({ account: "0.0.123", hbar: 1000 });
+mockBalance.build({ account: "0.0.123", tokens: [{ token_id: "0.0.456", balance: 100 }] });
 ```
 
 #### Contract
 
 ```typescript
-mockContract({ contract_id: "0.0.789" })
-mockContract.build({ evm_address: "0x..." })
+mockContract({ contract_id: "0.0.789" });
+mockContract.build({ evm_address: "0x..." });
 ```
 
 #### Topic
 
 ```typescript
-mockTopic({ topic_id: "0.0.111" })
-mockTopicMessage({ topic_id: "0.0.111", sequence_number: 1 })
+mockTopic({ topic_id: "0.0.111" });
+mockTopicMessage({ topic_id: "0.0.111", sequence_number: 1 });
 ```
 
 #### Schedule
 
 ```typescript
-mockSchedule({ schedule_id: "0.0.222" })
+mockSchedule({ schedule_id: "0.0.222" });
 ```
 
 #### Block
 
 ```typescript
-mockBlock({ number: 123, hash: "abc123" })
+mockBlock({ number: 123, hash: "abc123" });
 ```
 
 #### Network
 
 ```typescript
-mockExchangeRate({ current_rate: { hbar_equiv: 30000, cent_equiv: 1 } })
-mockNetworkNode({ node_id: 1, account_id: "0.0.3" })
-mockNetworkSupply({ total_coin: 5000000000000000000 })
+mockExchangeRate({ current_rate: { hbar_equiv: 30000, cent_equiv: 1 } });
+mockNetworkNode({ node_id: 1, account_id: "0.0.3" });
+mockNetworkSupply({ total_coin: 5000000000000000000 });
 ```
 
 ### Transaction Builders
@@ -209,33 +209,35 @@ withMirrorServer(async (server) => {
 ### Timestamp Utils
 
 ```typescript
-timestampUtils.now()                      // "1234567890000000000"
-timestampUtils.fromMillis(1234567890000) // "1234567890000000000"
-timestampUtils.fromSeconds(1234567890)  // "1234567890000000000"
-timestampUtils.fromDate(new Date())       // "1234567890000000000"
-timestampUtils.addSeconds("1234567890.000000000", 10)  // "1234567900.000000000"
-timestampUtils.addMillis("1234567890.000000000", 1000)  // "1234567891.000000000"
-timestampUtils.toDate("1234567890.000000000")         // Date
-timestampUtils.compare(a, b)                                 // -1 | 0 | 1
-timestampUtils.equals(a, b)                                  // boolean
-timestampUtils.before(a, b)                                  // boolean
-timestampUtils.after(a, b)                                   // boolean
+timestampUtils.now(); // "1234567890000000000"
+timestampUtils.fromMillis(1234567890000); // "1234567890000000000"
+timestampUtils.fromSeconds(1234567890); // "1234567890000000000"
+timestampUtils.fromDate(new Date()); // "1234567890000000000"
+timestampUtils.addSeconds("1234567890.000000000", 10); // "1234567900.000000000"
+timestampUtils.addMillis("1234567890.000000000", 1000); // "1234567891.000000000"
+timestampUtils.toDate("1234567890.000000000"); // Date
+timestampUtils.compare(a, b); // -1 | 0 | 1
+timestampUtils.equals(a, b); // boolean
+timestampUtils.before(a, b); // boolean
+timestampUtils.after(a, b); // boolean
 ```
 
 ### State Management
 
 ```typescript
-state.incrementAccount()  // Returns 0, then 1, 2, ...
-state.incrementToken()    // Returns 0, then 1, 2, ...
-state.reset()             // Resets all counters
+state.incrementAccount(); // Returns 0, then 1, 2, ...
+state.incrementToken(); // Returns 0, then 1, 2, ...
+state.reset(); // Resets all counters
 ```
 
 ### Async Helpers
 
 ```typescript
-await sleep(1000)
-await waitFor(condition, { timeout, interval })
-await assertThrows(async () => { throw new Error(); })
+await sleep(1000);
+await waitFor(condition, { timeout, interval });
+await assertThrows(async () => {
+  throw new Error();
+});
 ```
 
 ## Examples
