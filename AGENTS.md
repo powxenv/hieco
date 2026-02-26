@@ -68,6 +68,23 @@ Before writing any code:
 - Explore the existing project.
 - Understand the directory layout, conventions, abstractions, and dependency patterns.
 
+## Shared Utilities
+
+Before creating utilities in any package:
+
+1. **Check existing shared packages:**
+   - `@hiecom/types` - Common types used across all packages
+   - `@hiecom/mirror-shared` - Mirror Node related utilities
+
+2. **Prevent duplication:**
+   - Search existing codebase before creating new utilities
+   - Reuse existing utilities from shared packages
+
+3. **Create shared packages when:**
+   - Utility is used across 2+ packages
+   - Domain-specific logic should be isolated
+   - Type definitions are shared between packages
+
 ## Quality Check
 
 Before committing or completing any task, run the quality check script:
@@ -81,6 +98,7 @@ This runs linting, type checking, and formatting in sequence.
 To run quality checks for a specific package:
 
 ```bash
+bun run lint:mirror-cli && bun run typecheck:mirror-cli && bun run fmt:mirror-cli
 bun run lint:mirror-js && bun run typecheck:mirror-js && bun run fmt:mirror-js
 bun run lint:mirror-react && bun run typecheck:mirror-react && bun run fmt:mirror-react
 bun run lint:mirror-preact && bun run typecheck:mirror-preact && bun run fmt:mirror-preact
