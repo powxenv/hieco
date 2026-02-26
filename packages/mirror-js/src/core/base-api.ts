@@ -24,11 +24,23 @@ export class BaseApi {
     path: string,
     params?: Record<string, string>,
   ): Promise<ApiResult<T[]>> {
-    const result = await this.client.get<{ data: T[] }>(path, params);
+    const result = await this.client.get<Record<string, unknown>>(path, params);
     if (!result.success) {
       return { success: false, error: result.error };
     }
-    return { success: true, data: result.data.data };
+
+    const data = result.data;
+
+    const arrayKey = Object.keys(data).find((key) => key !== "links" && Array.isArray(data[key]));
+
+    if (!arrayKey) {
+      return {
+        success: false,
+        error: { _tag: "UnknownError", message: "No array found in response" },
+      };
+    }
+
+    return { success: true, data: data[arrayKey] as T[] };
   }
 
   protected async getAllPaginated<T>(
@@ -44,7 +56,7 @@ export class BaseApi {
     }
 
     while (nextUrl) {
-      const result = await this.client.get<PaginatedResponse<T>>(
+      const result = await this.client.get<Record<string, unknown>>(
         nextUrl.replace(`${this.client.baseUrl}/api/v1/`, ""),
       );
 
@@ -55,10 +67,23 @@ export class BaseApi {
         return { success: true, data: items };
       }
 
-      items.push(...result.data.data);
-      nextUrl = result.data.links.next ?? "";
+      const data = result.data;
+      const links = data.links as { next?: string } | undefined;
 
-      if (!nextUrl || result.data.data.length === 0) break;
+      const arrayKey = Object.keys(data).find((key) => key !== "links" && Array.isArray(data[key]));
+
+      if (!arrayKey) {
+        return {
+          success: false,
+          error: { _tag: "UnknownError", message: "No array found in response" },
+        };
+      }
+
+      const pageItems = data[arrayKey] as T[];
+      items.push(...pageItems);
+      nextUrl = links?.next ? `${this.client.baseUrl}/api/v1/${links.next.replace(/^\//, "")}` : "";
+
+      if (!nextUrl || pageItems.length === 0) break;
     }
 
     return { success: true, data: items };

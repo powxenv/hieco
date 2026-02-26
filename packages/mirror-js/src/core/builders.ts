@@ -65,7 +65,7 @@ export interface PaginatedResponse<T> {
   readonly links: {
     readonly next?: string;
   };
-  readonly data: readonly T[];
+  readonly [K: string]: readonly T[] | { readonly next?: string } | undefined;
 }
 
 export class CursorPaginator<T> implements AsyncIterable<T> {
@@ -91,11 +91,20 @@ export class CursorPaginator<T> implements AsyncIterable<T> {
       const response = result.data;
       this.nextUrl = response.links.next ?? null;
 
-      for (const item of response.data) {
+      const arrayKey = Object.keys(response).find(
+        (key) => key !== "links" && Array.isArray(response[key]),
+      );
+
+      if (!arrayKey) {
+        throw new Error("No array found in paginated response");
+      }
+
+      const items = response[arrayKey] as readonly T[];
+      for (const item of items) {
         yield item;
       }
 
-      if (response.data.length === 0) {
+      if (items.length === 0) {
         break;
       }
     }
