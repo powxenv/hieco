@@ -1,0 +1,64 @@
+{
+  "name": "@hiecom/mirror-cli",
+  "version": "0.0.1",
+  "description": "CLI tool for Hedera Mirror Node REST API - query accounts, tokens, transactions, blocks, contracts, schedules, topics, and network state",
+  "keywords": [
+    "blockchain",
+    "cli",
+    "command-line",
+    "hbar",
+    "hedera",
+    "mirror-node",
+    "rest-api"
+  ],
+  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/mirror-cli",
+  "bugs": {
+    "url": "https://github.com/powxenv/hiecom/issues"
+  },
+  "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hiecom",
+    "directory": "packages/mirror-cli"
+  },
+  "bin": {
+    "hiecom": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap && { printf '%s\\n' '#!/usr/bin/env node' | cat - dist/index.js > dist/index.tmp && mv dist/index.tmp dist/index.js; } && chmod +x dist/index.js",
+    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch",
+    "typecheck": "tsgo --noEmit",
+    "lint": "oxlint --type-aware",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
+  },
+  "dependencies": {
+    "@hiecom/mirror-js": "workspace:*",
+    "@hiecom/mirror-shared": "workspace:*",
+    "@hiecom/types": "workspace:*",
+    "chalk": "^5.4.1",
+    "cli-table3": "^0.6.5",
+    "commander": "^13.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260222.1",
+    "bun-types": "^1.3.9",
+    "oxfmt": "^0.34.0",
+    "oxlint": "^1.49.0",
+    "oxlint-tsgolint": "^0.14.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
