@@ -1,16 +1,35 @@
 {
   "name": "@hiecom/mirror-preact",
   "version": "0.0.1",
-  "description": "Type-safe Preact hooks for Hedera Mirror Node",
+  "description": "Type-safe Preact hooks for Hedera Mirror Node with TanStack Query",
   "keywords": [
     "hedera",
     "hooks",
     "mirror-node",
-    "preact"
+    "preact",
+    "tanstack-query"
   ],
   "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hiecom",
+    "directory": "packages/mirror-preact"
+  },
+  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/mirror-preact",
+  "bugs": {
+    "url": "https://github.com/powxenv/hiecom/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
   "sideEffects": false,

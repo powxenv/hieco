@@ -1,9 +1,40 @@
 {
   "name": "@hiecom/testing",
   "version": "0.0.1",
-  "description": "Testing utilities for Hiero/Hedera development",
+  "description": "Testing utilities for Hedera Mirror Node development with MSW fixtures and helpers",
+  "keywords": [
+    "hedera",
+    "mirror-node",
+    "testing",
+    "test-utils",
+    "msw",
+    "mock-service-worker",
+    "fixtures"
+  ],
   "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hiecom",
+    "directory": "packages/testing"
+  },
+  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/testing",
+  "bugs": {
+    "url": "https://github.com/powxenv/hiecom/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -41,10 +72,5 @@
   },
   "peerDependencies": {
     "msw": "^2.7.0"
-  },
-  "peerDependenciesMeta": {
-    "msw": {
-      "optional": false
-    }
   }
 }

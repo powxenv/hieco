@@ -2,12 +2,22 @@
   "name": "@hiecom/mirror-shared",
   "version": "0.0.1",
   "private": true,
-  "description": "Shared utilities for Hedera Mirror Node SDK",
+  "description": "Shared utilities for Hedera Mirror Node SDK (internal use only)",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
     "typecheck": "tsgo --noEmit",

@@ -1,17 +1,37 @@
 {
   "name": "@hiecom/realtime",
   "version": "0.0.1",
-  "description": "Real-time streaming client for Hedera Mirror Node data via WebSocket",
+  "description": "Real-time streaming client for Hedera Mirror Node via HIP-694 JSON-RPC Relay",
   "keywords": [
     "hedera",
     "hip-694",
     "json-rpc-relay",
     "realtime",
-    "websocket"
+    "websocket",
+    "streaming",
+    "mirror-node"
   ],
   "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hiecom",
+    "directory": "packages/realtime"
+  },
+  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/realtime",
+  "bugs": {
+    "url": "https://github.com/powxenv/hiecom/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
   "sideEffects": false,

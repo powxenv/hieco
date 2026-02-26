@@ -1,16 +1,36 @@
 {
   "name": "@hiecom/mirror-js",
   "version": "0.0.1",
-  "description": "Hedera Mirror Node API client for Node.js",
+  "description": "Hedera Mirror Node REST API client for JavaScript/TypeScript",
   "keywords": [
     "api-client",
     "hedera",
     "mirror-node",
-    "rest-api"
+    "rest-api",
+    "hbar",
+    "cryptocurrency"
   ],
   "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hiecom",
+    "directory": "packages/mirror-js"
+  },
+  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/mirror-js",
+  "bugs": {
+    "url": "https://github.com/powxenv/hiecom/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
   "sideEffects": false,

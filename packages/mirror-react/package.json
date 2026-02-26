@@ -1,16 +1,36 @@
 {
   "name": "@hiecom/mirror-react",
   "version": "0.0.1",
-  "description": "Type-safe React hooks for Hedera Mirror Node",
+  "description": "Type-safe React hooks for Hedera Mirror Node with TanStack Query",
   "keywords": [
     "hedera",
     "hooks",
     "mirror-node",
-    "react"
+    "react",
+    "tanstack-query",
+    "react-query"
   ],
   "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hiecom",
+    "directory": "packages/mirror-react"
+  },
+  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/mirror-react",
+  "bugs": {
+    "url": "https://github.com/powxenv/hiecom/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
   "sideEffects": false,

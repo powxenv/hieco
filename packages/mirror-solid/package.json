@@ -1,16 +1,36 @@
 {
   "name": "@hiecom/mirror-solid",
   "version": "0.0.1",
-  "description": "Type-safe SolidJS hooks for Hedera Mirror Node",
+  "description": "Type-safe SolidJS hooks for Hedera Mirror Node with TanStack Query",
   "keywords": [
     "hedera",
     "hooks",
     "mirror-node",
-    "solidjs"
+    "solidjs",
+    "tanstack-query",
+    "solid-query"
   ],
   "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hiecom",
+    "directory": "packages/mirror-solid"
+  },
+  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/mirror-solid",
+  "bugs": {
+    "url": "https://github.com/powxenv/hiecom/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
   "sideEffects": false,
