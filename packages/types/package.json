@@ -1,13 +1,11 @@
 {
-  "name": "@hiecom/realtime",
+  "name": "@hiecom/types",
   "version": "0.0.1",
-  "description": "Real-time streaming client for Hedera Mirror Node data via WebSocket",
+  "description": "Shared TypeScript types for Hiecom packages",
   "keywords": [
     "hedera",
-    "hip-694",
-    "json-rpc-relay",
-    "realtime",
-    "websocket"
+    "types",
+    "typescript"
   ],
   "license": "MIT",
   "files": [
@@ -25,8 +23,8 @@
     }
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external @hiecom/mirror-js && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
-    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external @hiecom/mirror-js",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
+    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch",
     "typecheck": "tsgo --noEmit",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
@@ -39,8 +37,5 @@
     "oxfmt": "^0.34.0",
     "oxlint": "^1.49.0",
     "oxlint-tsgolint": "^0.14.2"
-  },
-  "peerDependencies": {
-    "@hiecom/types": "workspace:*"
   }
 }

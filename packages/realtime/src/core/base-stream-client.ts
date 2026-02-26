@@ -1,4 +1,4 @@
-import type { NetworkType, ApiResult, ApiError } from "@hiecom/mirror-js";
+import type { NetworkType, ApiResult, ApiError } from "@hiecom/types";
 
 export type StreamState =
   | { readonly _tag: "Disconnected" }

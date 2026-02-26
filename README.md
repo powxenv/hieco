@@ -4,14 +4,15 @@ Type-safe SDK for interacting with Hedera Mirror Node API across multiple framew
 
 ## Packages
 
-| Package                                             | Description                                      | Framework          |
-| --------------------------------------------------- | ------------------------------------------------ | ------------------ |
-| [`@hiecom/mirror-js`](packages/mirror-js)           | Core HTTP client with TypeScript types           | Framework-agnostic |
-| [`@hiecom/mirror-react`](packages/mirror-react)     | React hooks with TanStack Query                  | React              |
-| [`@hiecom/mirror-solid`](packages/mirror-solid)     | SolidJS hooks with TanStack Query                | SolidJS            |
-| [`@hiecom/mirror-preact`](packages/mirror-preact)   | Preact hooks with TanStack Query                 | Preact             |
-| [`@hiecom/realtime`](packages/realtime)             | WebSocket client for HIP-694 JSON-RPC Relay      | Framework-agnostic |
-| [`@hiecom/testing`](packages/testing)               | Testing utilities with MSW fixtures              | Testing            |
+| Package                                                 | Description                                      | Framework          |
+| ------------------------------------------------------- | ------------------------------------------------ | ------------------ |
+| [`@hiecom/mirror-js`](packages/mirror-js)             | Core HTTP client with TypeScript types           | Framework-agnostic |
+| [`@hiecom/mirror-react`](packages/mirror-react)       | React hooks with TanStack Query                  | React              |
+| [`@hiecom/mirror-solid`](packages/mirror-solid)       | SolidJS hooks with TanStack Query                | SolidJS            |
+| [`@hiecom/mirror-preact`](packages/mirror-preact)     | Preact hooks with TanStack Query                 | Preact             |
+| [`@hiecom/realtime`](packages/realtime)               | WebSocket client for HIP-694 JSON-RPC Relay      | Framework-agnostic |
+| [`@hiecom/realtime-react`](packages/realtime-react)   | React hooks for @hiecom/realtime                 | React              |
+| [`@hiecom/testing`](packages/testing)                 | Testing utilities with MSW fixtures              | Testing            |
 
 ## License
 

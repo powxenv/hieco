@@ -125,67 +125,6 @@ await pool.disconnect();
 - `least-loaded` - Use connection with fewest active subscriptions
 - `random` - Distribute subscriptions randomly
 
-## React
-
-### Step 1: Wrap your app with provider
-
-```tsx
-import { RealtimeProvider } from "@hiecom/realtime";
-
-export function App() {
-  return (
-    <RealtimeProvider
-      config={{
-        network: "testnet",
-        relayEndpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
-      }}
-    >
-      <YourApp />
-    </RealtimeProvider>
-  );
-}
-```
-
-### Step 2: Use hooks in your components
-
-```tsx
-import { useContractLogs, useStreamState, useChainId } from "@hiecom/realtime";
-
-function ContractLogs() {
-  const { logs, isConnected, error } = useContractLogs({
-    address: "0x...",
-    enabled: true,
-  });
-
-  const state = useStreamState();
-  const { result: chainId, getChainId } = useChainId();
-
-  if (!isConnected) return <div>Connecting...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
-  return (
-    <div>
-      <p>State: {state._tag}</p>
-      <button onClick={() => getChainId()}>Get Chain ID</button>
-      {chainId?.success && <p>Chain ID: {chainId.data}</p>}
-      <ul>
-        {logs.map((log, i) => (
-          <li key={i}>{log.transactionHash}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-```
-
-## Available Hooks
-
-- `useRealtimeContext` - Access realtime context value
-- `useRealtimeClient` - Access client instance
-- `useStreamState` - Get current connection state
-- `useContractLogs` - Subscribe to contract event logs
-- `useChainId` - Get current chain ID
-
 ## Subscription Types
 
 ### Logs
@@ -260,6 +199,12 @@ if (result.success) {
   console.error(result.error.message);
 }
 ```
+
+## Framework Packages
+
+For React, use the framework-specific package:
+
+- `@hiecom/realtime-react` - React hooks with automatic subscription management
 
 ## License
 

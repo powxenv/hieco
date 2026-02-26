@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRealtimeClient } from "../context-hooks";
-import type { RelaySubscription, RelayMessage } from "../../core/types/relay-types";
+import type { RelaySubscription, RelayMessage } from "@hiecom/realtime";
 import type { ApiResult } from "@hiecom/mirror-js";
 
 export interface UseContractLogsOptions {
