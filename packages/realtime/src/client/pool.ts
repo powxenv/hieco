@@ -1,6 +1,7 @@
-import type { StreamState, RelaySubscription, RelayMessage, StreamConfig } from "./index";
-import { RelayWebSocketClient } from "./relay-websocket-client";
+import type { StreamState, StreamConfig } from "../types/stream";
+import type { RelaySubscription, RelayMessage } from "../types/subscription";
 import type { ApiResult } from "@hiecom/types";
+import { RelayWebSocketClient } from "./relay";
 
 export type LoadBalancingStrategy = "round-robin" | "least-loaded" | "random";
 
