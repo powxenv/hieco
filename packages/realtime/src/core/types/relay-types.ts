@@ -82,6 +82,17 @@ export type ChainIdResponse = {
   readonly result: string;
 };
 
+export type JsonRpcErrorCode =
+  | -32700
+  | -32600
+  | -32601
+  | -32602
+  | -32603
+  | -32608
+  | 4001
+  | 4002
+  | 4003;
+
 export function isChainIdResponse(value: unknown): value is ChainIdResponse {
   if (typeof value !== "object" || value === null) return false;
   const v = value as Record<string, unknown>;
@@ -95,17 +106,6 @@ export function isChainIdResponse(value: unknown): value is ChainIdResponse {
       v.result.startsWith("0x"))
   );
 }
-
-export type JsonRpcErrorCode =
-  | -32700
-  | -32600
-  | -32601
-  | -32602
-  | -32603
-  | -32608
-  | 4001
-  | 4002
-  | 4003;
 
 export function mapJsonRpcErrorCode(code: number): ApiError["_tag"] {
   switch (code) {

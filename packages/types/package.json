@@ -1,7 +1,8 @@
 {
   "name": "@hiecom/types",
   "version": "0.0.1",
-  "description": "Shared TypeScript types for Hiecom packages",
+  "private": true,
+  "description": "Shared TypeScript types for Hiecom packages (internal use only)",
   "keywords": [
     "hedera",
     "types",
