@@ -1,9 +1,9 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../config/client";
+import { mirrorClient } from "../../mirror-client";
 import { asEntityId } from "@hiecom/mirror-shared";
-
-const entityIdSchema = z.string().regex(/^\d+\.\d+\.\d+$/);
+import { entityIdSchema, limitSchema, timestampSchema } from "../../schemas";
+import { handleApiResult } from "../../errors";
 
 export const getTopicInfo = createTool({
   id: "get-topic-info",
@@ -13,8 +13,7 @@ export const getTopicInfo = createTool({
   }),
   execute: async ({ topicId }) => {
     const result = await mirrorClient.topic.getInfo(asEntityId(topicId));
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getTopicInfo");
   },
 });
 
@@ -25,7 +24,7 @@ export const getTopicMessages = createTool({
     topicId: entityIdSchema.describe("Hedera topic ID in format 0.0.123"),
     encoding: z.enum(["base64", "utf-8"]).optional().describe("Message encoding format"),
     sequenceNumber: z.number().optional().describe("Filter by sequence number"),
-    timestamp: z.string().optional().describe("ISO timestamp filter"),
+    timestamp: timestampSchema.describe("ISO timestamp filter"),
     transactionId: z.string().optional().describe("Filter by transaction ID"),
     scheduled: z.boolean().optional().describe("Filter for scheduled transactions"),
   }),
@@ -37,8 +36,7 @@ export const getTopicMessages = createTool({
       transaction_id: transactionId,
       scheduled,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getTopicMessages");
   },
 });
 
@@ -51,8 +49,7 @@ export const getTopicMessage = createTool({
   }),
   execute: async ({ topicId, sequenceNumber }) => {
     const result = await mirrorClient.topic.getMessage(asEntityId(topicId), sequenceNumber);
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getTopicMessage");
   },
 });
 
@@ -64,8 +61,7 @@ export const getMessageByTimestamp = createTool({
   }),
   execute: async ({ timestamp }) => {
     const result = await mirrorClient.topic.getMessageByTimestamp(timestamp);
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getMessageByTimestamp");
   },
 });
 
@@ -73,12 +69,11 @@ export const listTopics = createTool({
   id: "list-topics",
   description: "List all Hedera consensus topics. Returns all results.",
   inputSchema: z.object({
-    limit: z.number().optional().describe("Maximum number of results to return"),
+    limit: limitSchema.describe("Maximum number of results to return"),
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
   }),
   execute: async ({ limit, order }) => {
     const result = await mirrorClient.topic.listPaginated({ limit, order });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "listTopics");
   },
 });

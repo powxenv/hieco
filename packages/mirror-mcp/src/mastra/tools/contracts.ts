@@ -1,26 +1,22 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../config/client";
+import { mirrorClient } from "../../mirror-client";
 import { asEntityId } from "@hiecom/mirror-shared";
-
-const entityIdSchema = z.string().regex(/^\d+\.\d+\.\d+$/);
+import { entityIdSchema, limitSchema, timestampSchema, toApiParams } from "../../schemas";
+import { handleApiResult } from "../../errors";
 
 export const getContractInfo = createTool({
   id: "get-contract-info",
   description: "Get detailed information about a Hedera smart contract including bytecode and ABI",
   inputSchema: z.object({
     contractIdOrAddress: z.string().describe("Hedera contract ID (0.0.123) or EVM address (0x...)"),
-    timestamp: z
-      .string()
-      .optional()
-      .describe("ISO timestamp to query contract state at a specific time"),
+    timestamp: timestampSchema.describe("ISO timestamp to query contract state at a specific time"),
   }),
   execute: async ({ contractIdOrAddress, timestamp }) => {
     const result = await mirrorClient.contract.getInfo(contractIdOrAddress, {
       timestamp,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getContractInfo");
   },
 });
 
@@ -51,8 +47,7 @@ export const callContract = createTool({
     const result = await mirrorClient.contract.call(
       callParams as unknown as Parameters<typeof mirrorClient.contract.call>[0],
     );
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "callContract");
   },
 });
 
@@ -65,7 +60,7 @@ export const getContractResults = createTool({
     blockNumber: z.number().optional().describe("Filter by block number"),
     from: z.string().optional().describe("Filter by caller address"),
     internal: z.boolean().optional().describe("Filter for internal calls"),
-    timestamp: z.string().optional().describe("ISO timestamp filter"),
+    timestamp: timestampSchema.describe("ISO timestamp filter"),
     transactionIndex: z.number().optional().describe("Filter by transaction index"),
   }),
   execute: async ({
@@ -85,8 +80,7 @@ export const getContractResults = createTool({
       timestamp,
       transaction_index: transactionIndex,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getContractResults");
   },
 });
 
@@ -99,8 +93,7 @@ export const getContractResult = createTool({
   }),
   execute: async ({ contractId, timestamp }) => {
     const result = await mirrorClient.contract.getResult(asEntityId(contractId), timestamp);
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getContractResult");
   },
 });
 
@@ -110,15 +103,14 @@ export const getContractState = createTool({
   inputSchema: z.object({
     contractId: entityIdSchema.describe("Hedera contract ID in format 0.0.123"),
     slot: z.string().optional().describe("Filter by storage slot"),
-    timestamp: z.string().optional().describe("ISO timestamp to query state at a specific time"),
+    timestamp: timestampSchema.describe("ISO timestamp to query state at a specific time"),
   }),
   execute: async ({ contractId, slot, timestamp }) => {
     const result = await mirrorClient.contract.getState(asEntityId(contractId), {
       slot,
       timestamp,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getContractState");
   },
 });
 
@@ -128,7 +120,7 @@ export const getContractLogs = createTool({
   inputSchema: z.object({
     contractId: entityIdSchema.describe("Hedera contract ID in format 0.0.123"),
     index: z.number().optional().describe("Filter by log index"),
-    timestamp: z.string().optional().describe("ISO timestamp filter"),
+    timestamp: timestampSchema.describe("ISO timestamp filter"),
     topic0: z.string().optional().describe("Filter by event signature (topic 0)"),
     topic1: z.string().optional().describe("Filter by topic 1"),
     topic2: z.string().optional().describe("Filter by topic 2"),
@@ -154,8 +146,7 @@ export const getContractLogs = createTool({
       topic3,
       "transaction.hash": transactionHash,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getContractLogs");
   },
 });
 
@@ -167,7 +158,7 @@ export const getAllContractResults = createTool({
     blockHash: z.string().optional().describe("Filter by block hash"),
     blockNumber: z.number().optional().describe("Filter by block number"),
     internal: z.boolean().optional().describe("Filter for internal calls"),
-    timestamp: z.string().optional().describe("ISO timestamp filter"),
+    timestamp: timestampSchema.describe("ISO timestamp filter"),
     transactionIndex: z.number().optional().describe("Filter by transaction index"),
   }),
   execute: async ({ from, blockHash, blockNumber, internal, timestamp, transactionIndex }) => {
@@ -179,8 +170,7 @@ export const getAllContractResults = createTool({
       timestamp,
       transaction_index: transactionIndex,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getAllContractResults");
   },
 });
 
@@ -195,8 +185,7 @@ export const getResultByTransaction = createTool({
     const result = await mirrorClient.contract.getResultByTransactionIdOrHash(transactionIdOrHash, {
       nonce,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getResultByTransaction");
   },
 });
 
@@ -211,8 +200,7 @@ export const getResultActions = createTool({
     const result = await mirrorClient.contract.getResultActions(transactionIdOrHash, {
       index,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getResultActions");
   },
 });
 
@@ -231,8 +219,7 @@ export const getResultOpcodes = createTool({
       memory,
       storage,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getResultOpcodes");
   },
 });
 
@@ -242,19 +229,19 @@ export const listContracts = createTool({
   inputSchema: z.object({
     address: z.string().optional().describe("Filter by EVM address"),
     contractId: entityIdSchema.optional().describe("Filter by contract ID"),
-    limit: z.number().optional().describe("Maximum number of results to return"),
+    limit: limitSchema.describe("Maximum number of results to return"),
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
     smartContractId: entityIdSchema.optional().describe("Filter by smart contract ID"),
   }),
   execute: async (params) => {
-    const result = await mirrorClient.contract.listPaginated({
-      "contract.id": params.contractId as `${number}.${number}.${number}` | undefined,
+    const apiParams = toApiParams({
+      contractId: params.contractId,
       address: params.address,
       limit: params.limit,
       order: params.order,
-      smart_contract_id: params.smartContractId as `${number}.${number}.${number}` | undefined,
+      smartContractId: params.smartContractId,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    const result = await mirrorClient.contract.listPaginated(apiParams);
+    return handleApiResult(result, "listContracts");
   },
 });

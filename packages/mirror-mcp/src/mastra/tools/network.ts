@@ -1,20 +1,18 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../config/client";
+import { mirrorClient } from "../../mirror-client";
+import { limitSchema, nodeIdSchema, timestampSchema } from "../../schemas";
+import { handleApiResult } from "../../errors";
 
 export const getExchangeRate = createTool({
   id: "get-exchange-rate",
   description: "Get the current HBAR to USD exchange rate from the Hedera network",
   inputSchema: z.object({
-    timestamp: z
-      .string()
-      .optional()
-      .describe("ISO timestamp to query exchange rate at a specific time"),
+    timestamp: timestampSchema.describe("ISO timestamp to query exchange rate at a specific time"),
   }),
   execute: async ({ timestamp }) => {
     const result = await mirrorClient.network.getExchangeRate({ timestamp });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getExchangeRate");
   },
 });
 
@@ -22,9 +20,9 @@ export const getNetworkFees = createTool({
   id: "get-network-fees",
   description: "Get current network fee schedules for different transaction types",
   inputSchema: z.object({
-    limit: z.number().optional().describe("Maximum number of results to return"),
+    limit: limitSchema.describe("Maximum number of results to return"),
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
-    timestamp: z.string().optional().describe("ISO timestamp to query fees at a specific time"),
+    timestamp: timestampSchema.describe("ISO timestamp to query fees at a specific time"),
   }),
   execute: async ({ timestamp, limit, order }) => {
     const result = await mirrorClient.network.getFees({
@@ -32,8 +30,7 @@ export const getNetworkFees = createTool({
       limit,
       order,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getNetworkFees");
   },
 });
 
@@ -42,8 +39,8 @@ export const getNetworkNodes = createTool({
   description: "Get information about Hedera network nodes (consensus nodes)",
   inputSchema: z.object({
     fileId: z.number().optional().describe("Filter by file ID"),
-    limit: z.number().optional().describe("Maximum number of results to return"),
-    nodeId: z.number().optional().describe("Filter by node ID"),
+    limit: limitSchema.describe("Maximum number of results to return"),
+    nodeId: nodeIdSchema.describe("Filter by node ID"),
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
   }),
   execute: async ({ fileId, nodeId, limit, order }) => {
@@ -53,8 +50,7 @@ export const getNetworkNodes = createTool({
       limit,
       order,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getNetworkNodes");
   },
 });
 
@@ -64,8 +60,7 @@ export const getNetworkStake = createTool({
   inputSchema: z.object({}),
   execute: async () => {
     const result = await mirrorClient.network.getStake();
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getNetworkStake");
   },
 });
 
@@ -75,8 +70,7 @@ export const getNetworkSupply = createTool({
   inputSchema: z.object({}),
   execute: async () => {
     const result = await mirrorClient.network.getSupply();
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getNetworkSupply");
   },
 });
 
@@ -85,8 +79,8 @@ export const listNetworkNodes = createTool({
   description: "List all Hedera network nodes. Returns all results.",
   inputSchema: z.object({
     fileId: z.number().optional().describe("Filter by file ID"),
-    limit: z.number().optional().describe("Maximum number of results to return"),
-    nodeId: z.number().optional().describe("Filter by node ID"),
+    limit: limitSchema.describe("Maximum number of results to return"),
+    nodeId: nodeIdSchema.describe("Filter by node ID"),
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
   }),
   execute: async ({ fileId, nodeId, limit, order }) => {
@@ -96,7 +90,6 @@ export const listNetworkNodes = createTool({
       limit,
       order,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "listNetworkNodes");
   },
 });

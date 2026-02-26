@@ -17,7 +17,7 @@
   "scripts": {
     "build": "bun build ./src/mastra/index.ts --outdir ./dist --target node --format esm --sourcemap && { printf '%s\\n' '#!/usr/bin/env node' | cat - dist/index.js > dist/index.tmp && mv dist/index.tmp dist/index.js; } && chmod +x dist/index.js",
     "dev": "bun build ./src/mastra/index.ts --outdir ./dist --target node --format esm --watch",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsgo --noEmit",
     "lint": "oxlint --type-aware",
     "fmt": "oxfmt",
     "inspect": "bunx @modelcontextprotocol/inspector node dist/index.js"
@@ -25,16 +25,17 @@
   "dependencies": {
     "@hiecom/mirror-js": "workspace:*",
     "@hiecom/mirror-shared": "workspace:*",
+    "@hiecom/types": "workspace:*",
     "@mastra/core": "^1.0.0",
     "@mastra/mcp": "^1.0.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {
     "@types/node": "^25.3.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260222.1",
     "oxfmt": "^0.34.0",
     "oxlint": "^1.49.0",
-    "oxlint-tsgolint": "^0.15.0",
-    "typescript": "^5.9.3"
+    "oxlint-tsgolint": "^0.15.0"
   },
   "engines": {
     "node": ">=22.13.0"

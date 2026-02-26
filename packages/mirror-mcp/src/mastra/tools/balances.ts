@@ -1,6 +1,8 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../config/client";
+import { mirrorClient } from "../../mirror-client";
+import { limitSchema } from "../../schemas";
+import { handleApiResult } from "../../errors";
 
 export const getBalances = createTool({
   id: "get-balances",
@@ -9,7 +11,7 @@ export const getBalances = createTool({
   inputSchema: z.object({
     account: z.string().optional().describe("Filter by account ID"),
     accountBalance: z.number().optional().describe("Filter by account balance"),
-    limit: z.number().optional().describe("Maximum number of results to return"),
+    limit: limitSchema.describe("Maximum number of results to return"),
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
     publicKey: z.string().optional().describe("Filter by public key"),
     timestamp: z.string().optional().describe("ISO timestamp to query balances at a specific time"),
@@ -23,8 +25,7 @@ export const getBalances = createTool({
       public_key: publicKey,
       timestamp,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getBalances");
   },
 });
 
@@ -34,7 +35,7 @@ export const listBalances = createTool({
   inputSchema: z.object({
     account: z.string().optional().describe("Filter by account ID"),
     accountBalance: z.number().optional().describe("Filter by account balance"),
-    limit: z.number().optional().describe("Maximum number of results to return"),
+    limit: limitSchema.describe("Maximum number of results to return"),
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
     publicKey: z.string().optional().describe("Filter by public key"),
     timestamp: z.string().optional().describe("ISO timestamp to query balances at a specific time"),
@@ -48,7 +49,6 @@ export const listBalances = createTool({
       public_key: publicKey,
       timestamp,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "listBalances");
   },
 });

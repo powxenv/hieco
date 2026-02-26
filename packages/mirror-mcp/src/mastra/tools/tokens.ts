@@ -1,9 +1,15 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../config/client";
+import { mirrorClient } from "../../mirror-client";
 import { asEntityId } from "@hiecom/mirror-shared";
-
-const entityIdSchema = z.string().regex(/^\d+\.\d+\.\d+$/);
+import {
+  entityIdSchema,
+  limitSchema,
+  serialNumberSchema,
+  timestampSchema,
+  toApiParams,
+} from "../../schemas";
+import { handleApiResult } from "../../errors";
 
 export const getTokenInfo = createTool({
   id: "get-token-info",
@@ -11,15 +17,11 @@ export const getTokenInfo = createTool({
     "Get detailed information about a Hedera token including name, symbol, total supply, and type",
   inputSchema: z.object({
     tokenId: entityIdSchema.describe("Hedera token ID in format 0.0.123"),
-    timestamp: z
-      .string()
-      .optional()
-      .describe("ISO timestamp to query token state at a specific time"),
+    timestamp: timestampSchema.describe("ISO timestamp to query token state at a specific time"),
   }),
   execute: async ({ tokenId, timestamp }) => {
     const result = await mirrorClient.token.getInfo(asEntityId(tokenId), { timestamp });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getTokenInfo");
   },
 });
 
@@ -31,7 +33,7 @@ export const getTokenBalances = createTool({
     accountId: entityIdSchema.optional().describe("Filter by account ID"),
     accountBalance: z.number().optional().describe("Filter by account balance"),
     accountPublicKey: z.string().optional().describe("Filter by account public key"),
-    timestamp: z.string().optional().describe("ISO timestamp to query balances at a specific time"),
+    timestamp: timestampSchema.describe("ISO timestamp to query balances at a specific time"),
   }),
   execute: async ({ tokenId, accountId, accountBalance, accountPublicKey, timestamp }) => {
     const result = await mirrorClient.token.getBalances(asEntityId(tokenId), {
@@ -40,8 +42,7 @@ export const getTokenBalances = createTool({
       "account.publickey": accountPublicKey,
       timestamp,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getTokenBalances");
   },
 });
 
@@ -51,15 +52,14 @@ export const getTokenNfts = createTool({
   inputSchema: z.object({
     tokenId: entityIdSchema.describe("Hedera token ID in format 0.0.123"),
     accountId: entityIdSchema.optional().describe("Filter by account ID"),
-    serialNumber: z.number().optional().describe("Filter by serial number"),
+    serialNumber: serialNumberSchema.describe("Filter by serial number"),
   }),
   execute: async ({ tokenId, accountId, serialNumber }) => {
     const result = await mirrorClient.token.getNfts(asEntityId(tokenId), {
       "account.id": accountId ? asEntityId(accountId) : undefined,
       serial_number: serialNumber,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getTokenNfts");
   },
 });
 
@@ -72,8 +72,7 @@ export const getNftBySerial = createTool({
   }),
   execute: async ({ tokenId, serialNumber }) => {
     const result = await mirrorClient.token.getNft(asEntityId(tokenId), serialNumber);
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getNftBySerial");
   },
 });
 
@@ -83,17 +82,13 @@ export const getNftTransactions = createTool({
   inputSchema: z.object({
     tokenId: entityIdSchema.describe("Hedera token ID in format 0.0.123"),
     serialNumber: z.number().describe("NFT serial number"),
-    timestamp: z
-      .string()
-      .optional()
-      .describe("ISO timestamp to query transactions at a specific time"),
+    timestamp: timestampSchema.describe("ISO timestamp to query transactions at a specific time"),
   }),
   execute: async ({ tokenId, serialNumber, timestamp }) => {
     const result = await mirrorClient.token.getNftTransactions(asEntityId(tokenId), serialNumber, {
       timestamp,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getNftTransactions");
   },
 });
 
@@ -103,7 +98,7 @@ export const listTokens = createTool({
   inputSchema: z.object({
     accountId: entityIdSchema.optional().describe("Filter by account ID"),
     tokenId: entityIdSchema.optional().describe("Filter by token ID"),
-    limit: z.number().optional().describe("Maximum number of results to return"),
+    limit: limitSchema.describe("Maximum number of results to return"),
     name: z.string().optional().describe("Filter by token name"),
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
     publicKey: z.string().optional().describe("Filter by public key"),
@@ -113,16 +108,16 @@ export const listTokens = createTool({
       .describe("Filter by token type"),
   }),
   execute: async (params) => {
-    const result = await mirrorClient.token.listPaginated({
-      "account.id": params.accountId as `${number}.${number}.${number}` | undefined,
-      "token.id": params.tokenId as `${number}.${number}.${number}` | undefined,
+    const apiParams = toApiParams({
+      accountId: params.accountId,
+      tokenId: params.tokenId,
       limit: params.limit,
       name: params.name,
       order: params.order,
-      public_key: params.publicKey,
+      publicKey: params.publicKey,
       type: params.type,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    const result = await mirrorClient.token.listPaginated(apiParams);
+    return handleApiResult(result, "listTokens");
   },
 });

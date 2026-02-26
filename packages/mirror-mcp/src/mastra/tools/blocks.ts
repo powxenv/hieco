@@ -1,13 +1,15 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../config/client";
+import { mirrorClient } from "../../mirror-client";
+import { limitSchema } from "../../schemas";
+import { handleApiResult } from "../../errors";
 
 export const getBlocks = createTool({
   id: "get-blocks",
   description: "Get block information with optional filters. Returns aggregated block data.",
   inputSchema: z.object({
     blockNumber: z.number().optional().describe("Filter by block number"),
-    limit: z.number().optional().describe("Maximum number of results to return"),
+    limit: limitSchema.describe("Maximum number of results to return"),
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
     timestamp: z.string().optional().describe("ISO timestamp filter"),
   }),
@@ -18,8 +20,7 @@ export const getBlocks = createTool({
       order,
       timestamp,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getBlocks");
   },
 });
 
@@ -31,8 +32,7 @@ export const getBlock = createTool({
   }),
   execute: async ({ hashOrNumber }) => {
     const result = await mirrorClient.block.getBlock(hashOrNumber);
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getBlock");
   },
 });
 
@@ -41,7 +41,7 @@ export const listBlocks = createTool({
   description: "List all Hedera blocks. Returns all results.",
   inputSchema: z.object({
     blockNumber: z.number().optional().describe("Filter by block number"),
-    limit: z.number().optional().describe("Maximum number of results to return"),
+    limit: limitSchema.describe("Maximum number of results to return"),
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
     timestamp: z.string().optional().describe("ISO timestamp filter"),
   }),
@@ -52,7 +52,6 @@ export const listBlocks = createTool({
       order,
       timestamp,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "listBlocks");
   },
 });

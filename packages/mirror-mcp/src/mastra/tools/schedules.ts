@@ -1,9 +1,9 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../config/client";
+import { mirrorClient } from "../../mirror-client";
 import { asEntityId } from "@hiecom/mirror-shared";
-
-const entityIdSchema = z.string().regex(/^\d+\.\d+\.\d+$/);
+import { entityIdSchema, limitSchema, toApiParams } from "../../schemas";
+import { handleApiResult } from "../../errors";
 
 export const getScheduleInfo = createTool({
   id: "get-schedule-info",
@@ -13,8 +13,7 @@ export const getScheduleInfo = createTool({
   }),
   execute: async ({ scheduleId }) => {
     const result = await mirrorClient.schedule.getInfo(asEntityId(scheduleId));
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    return handleApiResult(result, "getScheduleInfo");
   },
 });
 
@@ -28,7 +27,7 @@ export const listSchedules = createTool({
     deleted: z.boolean().optional().describe("Filter for deleted schedules"),
     executedTimestamp: z.string().optional().describe("Filter by executed timestamp"),
     expirationTimestamp: z.string().optional().describe("Filter by expiration timestamp"),
-    limit: z.number().optional().describe("Maximum number of results to return"),
+    limit: limitSchema.describe("Maximum number of results to return"),
     memo: z.string().optional().describe("Filter by memo"),
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
     payerAccountId: entityIdSchema.optional().describe("Filter by payer account ID"),
@@ -36,23 +35,21 @@ export const listSchedules = createTool({
     waitForExpiryExpiration: z.string().optional().describe("Filter by wait for expiry expiration"),
   }),
   execute: async (params) => {
-    const result = await mirrorClient.schedule.listPaginated({
-      "account.id": params.accountId ? asEntityId(params.accountId) : undefined,
-      "creator.account.id": params.creatorAccountId
-        ? asEntityId(params.creatorAccountId)
-        : undefined,
-      "payer.account.id": params.payerAccountId ? asEntityId(params.payerAccountId) : undefined,
-      schedule_id: params.scheduleId ? asEntityId(params.scheduleId) : undefined,
-      admin_key: params.adminKey,
+    const apiParams = toApiParams({
+      accountId: params.accountId,
+      creatorAccountId: params.creatorAccountId,
+      payerAccountId: params.payerAccountId,
+      scheduleId: params.scheduleId,
+      adminKey: params.adminKey,
       deleted: params.deleted,
-      executed_timestamp: params.executedTimestamp,
-      expiration_timestamp: params.expirationTimestamp,
+      executedTimestamp: params.executedTimestamp,
+      expirationTimestamp: params.expirationTimestamp,
       limit: params.limit,
       memo: params.memo,
       order: params.order,
-      wait_for_expiry_expiration: params.waitForExpiryExpiration,
+      waitForExpiryExpiration: params.waitForExpiryExpiration,
     });
-    if (!result.success) throw new Error(result.error.message);
-    return result.data;
+    const result = await mirrorClient.schedule.listPaginated(apiParams);
+    return handleApiResult(result, "listSchedules");
   },
 });
