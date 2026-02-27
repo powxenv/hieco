@@ -106,6 +106,6 @@ bun run lint:mirror-solid && bun run typecheck:mirror-solid && bun run fmt:mirro
 bun run lint:realtime && bun run typecheck:realtime && bun run fmt:realtime
 bun run lint:realtime-react && bun run typecheck:realtime-react && bun run fmt:realtime-react
 bun run lint:testing && bun run typecheck:testing && bun run fmt:testing
-bun run lint:types && bun run typecheck:types && bun run fmt:types
-bun run lint:mirror-shared && bun run typecheck:mirror-shared && bun run fmt:mirror-shared
+bun run lint:types && bun run typecheck:types && bun run fmt:types && bun --filter '@hiecom/types' test
+bun run lint:mirror-shared && bun run typecheck:mirror-shared && bun run fmt:mirror-shared && bun --filter '@hiecom/mirror-shared' test
 ```

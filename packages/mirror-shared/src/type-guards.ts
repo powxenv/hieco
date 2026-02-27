@@ -1,4 +1,4 @@
-import type { ApiResult, ApiError } from "@hiecom/mirror-js";
+import type { ApiResult, ApiError } from "@hiecom/types";
 
 export function isSuccess<T>(
   result: ApiResult<T>,

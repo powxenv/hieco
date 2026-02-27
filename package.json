@@ -56,7 +56,9 @@
     "build:realtime-react": "bun --filter '@hiecom/realtime-react' build",
     "build:types": "bun --filter '@hiecom/types' build",
     "test": "bun --filter '*' test",
-    "test:testing": "bun --filter '@hiecom/testing' test"
+    "test:testing": "bun --filter '@hiecom/testing' test",
+    "test:mirror-shared": "bun --filter '@hiecom/mirror-shared' test",
+    "test:types": "bun --filter '@hiecom/types' test"
   },
   "devDependencies": {
     "oxfmt": "^0.34.0",

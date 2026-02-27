@@ -404,7 +404,7 @@ export function invalidateQueries(
 
       if (!isValidMirrorNodeKey(key)) return false;
 
-      const [, entity] = key;
+      const [, , entity] = key;
 
       if (entity !== entityType) return false;
 
