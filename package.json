@@ -56,7 +56,8 @@
     "build:realtime-react": "bun --filter '@hiecom/realtime-react' build",
     "build:types": "bun --filter '@hiecom/types' build",
     "test": "bun --filter '*' test",
-    "test:testing": "bun --filter '@hiecom/testing' test"
+    "test:testing": "bun --filter '@hiecom/testing' test",
+    "dev:web": "bun --filter '@hieco/web' dev"
   },
   "devDependencies": {
     "oxfmt": "^0.34.0",
