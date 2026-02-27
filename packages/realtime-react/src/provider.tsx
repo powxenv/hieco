@@ -1,6 +1,6 @@
 import { createContext, useCallback, useMemo, useState, type ReactNode } from "react";
-import type { NetworkType } from "@hiecom/mirror-js";
-import { RelayWebSocketClient, type StreamState } from "@hiecom/realtime";
+import type { NetworkType } from "@hieco/mirror-js";
+import { RelayWebSocketClient, type StreamState } from "@hieco/realtime";
 
 export type RealtimeClient = RelayWebSocketClient;
 

@@ -1,5 +1,5 @@
 {
-  "name": "@hiecom/mirror-js",
+  "name": "@hieco/mirror-js",
   "version": "0.0.1",
   "description": "Hedera Mirror Node REST API client for JavaScript/TypeScript",
   "keywords": [
@@ -10,15 +10,15 @@
     "mirror-node",
     "rest-api"
   ],
-  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/mirror-js",
+  "homepage": "https://github.com/powxenv/hieco/tree/main/packages/mirror-js",
   "bugs": {
-    "url": "https://github.com/powxenv/hiecom/issues"
+    "url": "https://github.com/powxenv/hieco/issues"
   },
   "license": "MIT",
   "author": "pow <https://github.com/powxenv>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/powxenv/hiecom",
+    "url": "https://github.com/powxenv/hieco",
     "directory": "packages/mirror-js"
   },
   "files": [
@@ -50,7 +50,7 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hiecom/types": "workspace:*",
+    "@hieco/types": "workspace:*",
     "ky": "^1.14.3",
     "p-limit": "^7.3.0"
   },

@@ -1,4 +1,4 @@
-# @hiecom/mirror-shared
+# @hieco/mirror-shared
 
 Shared utilities and types for Hedera Mirror Node packages.
 
@@ -16,19 +16,19 @@ This package is automatically installed as a dependency when using framework pac
 
 ```bash
 # With React
-npm install @hiecom/mirror-react  # includes @hiecom/mirror-shared
+npm install @hieco/mirror-react  # includes @hieco/mirror-shared
 
 # With Preact
-npm install @hiecom/mirror-preact  # includes @hiecom/mirror-shared
+npm install @hieco/mirror-preact  # includes @hieco/mirror-shared
 
 # With SolidJS
-npm install @hiecom/mirror-solid  # includes @hiecom/mirror-shared
+npm install @hieco/mirror-solid  # includes @hieco/mirror-shared
 ```
 
 Utilities are re-exported by framework packages:
 
 ```typescript
-import { createNetworkConfig, mirrorNodeKeys, isValidEntityId } from "@hiecom/mirror-react";
+import { createNetworkConfig, mirrorNodeKeys, isValidEntityId } from "@hieco/mirror-react";
 ```
 
 ## API Reference
@@ -55,7 +55,7 @@ parseEntityIdParts(id: EntityId): [shard: number, realm: number, num: number]
 **Example:**
 
 ```typescript
-import { isValidEntityId, parseEntityId, formatEntityId } from "@hiecom/mirror-shared";
+import { isValidEntityId, parseEntityId, formatEntityId } from "@hieco/mirror-shared";
 
 if (isValidEntityId("0.0.123")) {
   const parts = parseEntityId("0.0.123");
@@ -85,7 +85,7 @@ isDefaultNetwork(network: string): boolean
 **Example:**
 
 ```typescript
-import { createNetworkConfig, getNetworkUrl, isDefaultNetwork } from "@hiecom/mirror-shared";
+import { createNetworkConfig, getNetworkUrl, isDefaultNetwork } from "@hieco/mirror-shared";
 
 const networkConfig = createNetworkConfig({
   defaultNetwork: "mainnet",
@@ -173,7 +173,7 @@ isUnknownError(error: ApiError): error is ApiError & { _tag: "UnknownError" }
 **Example:**
 
 ```typescript
-import { isSuccess, isNetworkError, isNotFoundError } from "@hiecom/mirror-shared";
+import { isSuccess, isNetworkError, isNotFoundError } from "@hieco/mirror-shared";
 
 const result = await apiCall();
 
@@ -224,7 +224,7 @@ type EntityType =
 **Example:**
 
 ```typescript
-import { prefetchQuery, invalidateQueries, mirrorNodeKeys } from "@hiecom/mirror-shared";
+import { prefetchQuery, invalidateQueries, mirrorNodeKeys } from "@hieco/mirror-shared";
 
 // Prefetch
 await prefetchQuery(queryClient, client, mirrorNodeKeys.account.info("mainnet", "0.0.123"));
@@ -243,10 +243,10 @@ await invalidateQueries(queryClient, {});
 
 ## Related Packages
 
-- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - REST API client
-- [`@hiecom/mirror-react`](https://www.npmjs.com/package/@hiecom/mirror-react) - React hooks
-- [`@hiecom/mirror-preact`](https://www.npmjs.com/package/@hiecom/mirror-preact) - Preact hooks
-- [`@hiecom/mirror-solid`](https://www.npmjs.com/package/@hiecom/mirror-solid) - SolidJS hooks
+- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - REST API client
+- [`@hieco/mirror-react`](https://www.npmjs.com/package/@hieco/mirror-react) - React hooks
+- [`@hieco/mirror-preact`](https://www.npmjs.com/package/@hieco/mirror-preact) - Preact hooks
+- [`@hieco/mirror-solid`](https://www.npmjs.com/package/@hieco/mirror-solid) - SolidJS hooks
 
 ## License
 

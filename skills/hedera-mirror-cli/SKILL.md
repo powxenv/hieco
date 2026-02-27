@@ -10,8 +10,8 @@ Query Hedera Hashgraph blockchain data from Mirror Node REST API.
 ## Installation
 
 ```bash
-bunx @hiecom/mirror-cli <command> [options]
-npx @hiecom/mirror-cli <command> [options]
+bunx @hieco/mirror-cli <command> [options]
+npx @hieco/mirror-cli <command> [options]
 ```
 
 ## Commands
@@ -42,31 +42,31 @@ npx @hiecom/mirror-cli <command> [options]
 ### Account
 
 ```bash
-bunx @hiecom/mirror-cli account 0.0.123
-bunx @hiecom/mirror-cli balance 0.0.123
-bunx @hiecom/mirror-cli account:tokens 0.0.123
+bunx @hieco/mirror-cli account 0.0.123
+bunx @hieco/mirror-cli balance 0.0.123
+bunx @hieco/mirror-cli account:tokens 0.0.123
 ```
 
 ### Token
 
 ```bash
-bunx @hiecom/mirror-cli token 0.0.456
-bunx @hiecom/mirror-cli token:balances 0.0.456
-bunx @hiecom/mirror-cli token:nfts 0.0.456
+bunx @hieco/mirror-cli token 0.0.456
+bunx @hieco/mirror-cli token:balances 0.0.456
+bunx @hieco/mirror-cli token:nfts 0.0.456
 ```
 
 ### Transaction
 
 ```bash
-bunx @hiecom/mirror-cli transaction 0.0.123@1654321@987654321
-bunx @hiecom/mirror-cli transactions:account 0.0.123
+bunx @hieco/mirror-cli transaction 0.0.123@1654321@987654321
+bunx @hieco/mirror-cli transactions:account 0.0.123
 ```
 
 ### Network
 
 ```bash
-bunx @hiecom/mirror-cli network
-bunx @hiecom/mirror-cli network:exchange-rate
+bunx @hieco/mirror-cli network
+bunx @hieco/mirror-cli network:exchange-rate
 ```
 
 ## ID Formats

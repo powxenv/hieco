@@ -5,8 +5,8 @@
 Get contract information.
 
 ```bash
-bunx @hiecom/mirror-cli contract 0.0.789
-bunx @hiecom/mirror-cli contract 0x0000000000000000000000000000000000001234
+bunx @hieco/mirror-cli contract 0.0.789
+bunx @hieco/mirror-cli contract 0x0000000000000000000000000000000000001234
 ```
 
 | Parameter | Description                                  |
@@ -27,7 +27,7 @@ bunx @hiecom/mirror-cli contract 0x0000000000000000000000000000000000001234
 Execute read-only contract call.
 
 ```bash
-bunx @hiecom/mirror-cli contract:call 0.0.789 --data 0x70a08231...
+bunx @hieco/mirror-cli contract:call 0.0.789 --data 0x70a08231...
 ```
 
 | Option         | Description                        |
@@ -45,7 +45,7 @@ bunx @hiecom/mirror-cli contract:call 0.0.789 --data 0x70a08231...
 Get contract execution results.
 
 ```bash
-bunx @hiecom/mirror-cli contract:results 0.0.789 --limit 50
+bunx @hieco/mirror-cli contract:results 0.0.789 --limit 50
 ```
 
 | Option          | Description     |
@@ -58,7 +58,7 @@ bunx @hiecom/mirror-cli contract:results 0.0.789 --limit 50
 Get specific contract result.
 
 ```bash
-bunx @hiecom/mirror-cli contract:result 0.0.789 1654321.987654321
+bunx @hieco/mirror-cli contract:result 0.0.789 1654321.987654321
 ```
 
 | Parameter   | Description                         |
@@ -78,7 +78,7 @@ bunx @hiecom/mirror-cli contract:result 0.0.789 1654321.987654321
 Get contract storage state.
 
 ```bash
-bunx @hiecom/mirror-cli contract:state 0.0.789 --limit 100
+bunx @hieco/mirror-cli contract:state 0.0.789 --limit 100
 ```
 
 | Option          | Description     |
@@ -95,7 +95,7 @@ bunx @hiecom/mirror-cli contract:state 0.0.789 --limit 100
 Get event logs.
 
 ```bash
-bunx @hiecom/mirror-cli contract:logs 0.0.789 --limit 50
+bunx @hieco/mirror-cli contract:logs 0.0.789 --limit 50
 ```
 
 | Option          | Description     |
@@ -115,7 +115,7 @@ bunx @hiecom/mirror-cli contract:logs 0.0.789 --limit 50
 Get all contract results.
 
 ```bash
-bunx @hiecom/mirror-cli contracts:results --limit 100
+bunx @hieco/mirror-cli contracts:results --limit 100
 ```
 
 ## `contract:by-tx <txIdOrHash>`
@@ -123,7 +123,7 @@ bunx @hiecom/mirror-cli contracts:results --limit 100
 Get result by transaction.
 
 ```bash
-bunx @hiecom/mirror-cli contract:by-tx 0.0.123@1654321@987654321
+bunx @hieco/mirror-cli contract:by-tx 0.0.123@1654321@987654321
 ```
 
 ## `contract:actions <txIdOrHash>`
@@ -131,7 +131,7 @@ bunx @hiecom/mirror-cli contract:by-tx 0.0.123@1654321@987654321
 Get result actions.
 
 ```bash
-bunx @hiecom/mirror-cli contract:actions 0.0.123@1654321@987654321
+bunx @hieco/mirror-cli contract:actions 0.0.123@1654321@987654321
 ```
 
 | Output      | Description            |
@@ -147,7 +147,7 @@ bunx @hiecom/mirror-cli contract:actions 0.0.123@1654321@987654321
 Get result opcodes.
 
 ```bash
-bunx @hiecom/mirror-cli contract:opcodes 0.0.123@1654321@987654321
+bunx @hieco/mirror-cli contract:opcodes 0.0.123@1654321@987654321
 ```
 
 | Output      | Description               |
@@ -161,7 +161,7 @@ bunx @hiecom/mirror-cli contract:opcodes 0.0.123@1654321@987654321
 List all contracts.
 
 ```bash
-bunx @hiecom/mirror-cli contracts:list --limit 100
+bunx @hieco/mirror-cli contracts:list --limit 100
 ```
 
 | Option          | Description     |

@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
-import type { ApiResult, ApiError, QueryOperator, Timestamp } from "@hiecom/mirror-js";
-import type { BalancesResponse } from "@hiecom/mirror-js";
+import type { ApiResult, ApiError, QueryOperator, Timestamp } from "@hieco/mirror-js";
+import type { BalancesResponse } from "@hieco/mirror-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hiecom/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/mirror-shared";
 
-export type { BalancesListParams } from "@hiecom/mirror-js";
+export type { BalancesListParams } from "@hieco/mirror-js";
 
 type BalanceQueryFnData<T> = ApiResult<T>;
 type BalanceQueryError = ApiError;

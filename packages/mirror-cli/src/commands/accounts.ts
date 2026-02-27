@@ -1,6 +1,6 @@
-import { createMirrorNodeClient } from "@hiecom/mirror-js";
-import type { NetworkType } from "@hiecom/types";
-import { asEntityId } from "@hiecom/mirror-shared";
+import { createMirrorNodeClient } from "@hieco/mirror-js";
+import type { NetworkType } from "@hieco/types";
+import { asEntityId } from "@hieco/mirror-shared";
 import {
   formatOutput,
   formatError,
@@ -93,9 +93,9 @@ export async function getAccountBalance(
       "Token Balances":
         data.tokens.length > 0
           ? data.tokens.map((t) => ({
-              "Token ID": t.token_id,
-              Balance: t.balance,
-            }))
+            "Token ID": t.token_id,
+            Balance: t.balance,
+          }))
           : "No token balances",
     };
 

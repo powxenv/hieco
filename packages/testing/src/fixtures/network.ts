@@ -4,7 +4,7 @@ import type {
   NetworkSupply,
   TimestampRange,
   EntityId,
-} from "@hiecom/mirror-js";
+} from "@hieco/mirror-js";
 import type { Factory } from "./account.js";
 
 export type ExchangeRateFixtureOptions = {

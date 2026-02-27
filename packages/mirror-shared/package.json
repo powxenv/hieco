@@ -1,5 +1,5 @@
 {
-  "name": "@hiecom/mirror-shared",
+  "name": "@hieco/mirror-shared",
   "version": "0.0.1",
   "private": true,
   "description": "Shared utilities for Hedera Mirror Node SDK (internal use only)",
@@ -24,7 +24,7 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hiecom/mirror-js": "workspace:*"
+    "@hieco/mirror-js": "workspace:*"
   },
   "devDependencies": {
     "@tanstack/query-core": "^5.67.1",

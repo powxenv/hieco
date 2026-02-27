@@ -1,4 +1,4 @@
-# @hiecom/realtime
+# @hieco/realtime
 
 Real-time WebSocket client for Hedera Mirror Node HIP-694 JSON-RPC Relay.
 
@@ -15,22 +15,22 @@ Real-time WebSocket client for Hedera Mirror Node HIP-694 JSON-RPC Relay.
 
 ```bash
 # bun
-bun add @hiecom/realtime
+bun add @hieco/realtime
 
 # npm
-npm install @hiecom/realtime
+npm install @hieco/realtime
 
 # pnpm
-pnpm add @hiecom/realtime
+pnpm add @hieco/realtime
 
 # yarn
-yarn add @hiecom/realtime
+yarn add @hieco/realtime
 ```
 
 ## Quick Start
 
 ```typescript
-import { RelayWebSocketClient } from "@hiecom/realtime";
+import { RelayWebSocketClient } from "@hieco/realtime";
 
 const client = new RelayWebSocketClient({
   network: "testnet",
@@ -231,7 +231,7 @@ await client.subscribe({ type: "logs", filter: {} }, callback);
 ### Connection Pool
 
 ```typescript
-import { ConnectionPool } from "@hiecom/realtime";
+import { ConnectionPool } from "@hieco/realtime";
 
 const pool = new ConnectionPool({
   network: "testnet",
@@ -255,12 +255,12 @@ console.log("Total subscriptions:", pool.getTotalActiveSubscriptions());
 
 For React, use the framework-specific package:
 
-- [`@hiecom/realtime-react`](https://www.npmjs.com/package/@hiecom/realtime-react) - React hooks with automatic subscription management
+- [`@hieco/realtime-react`](https://www.npmjs.com/package/@hieco/realtime-react) - React hooks with automatic subscription management
 
 ## Related Packages
 
-- [`@hiecom/types`](https://github.com/powxenv/hiecom/tree/main/packages/types) - Shared TypeScript types (internal)
-- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - REST API client
+- [`@hieco/types`](https://github.com/powxenv/hieco/tree/main/packages/types) - Shared TypeScript types (internal)
+- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - REST API client
 
 ## License
 

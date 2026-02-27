@@ -1,21 +1,21 @@
 ---
-title: @hiecom Unified Frontend Ecosystem
+title: @hieco Unified Frontend Ecosystem
 description: React-first multi-framework unified frontend integration ecosystem for Hiero blockchain
 category: proposals
 created: 2026-02-22
 status: complete
-tags: [hiecom, ecosystem, react, multi-framework, monorepo]
+tags: [hieco, ecosystem, react, multi-framework, monorepo]
 related:
   - ../02-bounty-research/hiero-deep-dive.md
   - hiero-dx-proposals.md
 ---
 
-# @hiecom: Unified Hiero Community Frontend Ecosystem
+# @hieco: Unified Hiero Community Frontend Ecosystem
 
 **Hackathon:** Hedera Hello Future Apex Hackathon 2026
 **Bounty Pool:** $8,000 (Hiero Developer Tooling Track)
 **Project:** Community-driven unified frontend integration ecosystem
-**Namespace:** `@hiecom/*` (Hiero Community)
+**Namespace:** `@hieco/*` (Hiero Community)
 **Reference Implementation:** React
 **Timeline:** 5 weeks (February - March 2026)
 
@@ -23,7 +23,7 @@ related:
 
 ## Executive Summary
 
-The `@hiecom` ecosystem provides a **unified, community-driven frontend integration layer** for Hiero blockchain, built with React as the reference implementation and replicated across Svelte, Vue, Solid, and Qwik. This comprehensive monorepo eliminates duplication, establishes best practices, and accelerates Hiero dApp development with genuine utility and intuitive developer experience.
+The `@hieco` ecosystem provides a **unified, community-driven frontend integration layer** for Hiero blockchain, built with React as the reference implementation and replicated across Svelte, Vue, Solid, and Qwik. This comprehensive monorepo eliminates duplication, establishes best practices, and accelerates Hiero dApp development with genuine utility and intuitive developer experience.
 
 ### Vision
 
@@ -35,9 +35,9 @@ A single, cohesive ecosystem where frontend developers can integrate Hiero using
 
 > "Build a Hiero-ready open-source library that makes it easier for developers to interact with Hiero networks—a reusable set of utilities (not an app) that improves developer experience and can realistically be adopted by the ecosystem."
 
-**How @hiecom Exceeds Requirements:**
+**How @hieco Exceeds Requirements:**
 
-| Requirement                  | Official Spec                  | @hiecom Delivery                             |
+| Requirement                  | Official Spec                  | @hieco Delivery                              |
 | ---------------------------- | ------------------------------ | -------------------------------------------- |
 | **Open-source library**      | ✅ Public repo + clear license | ✅ MIT license, 7 packages                   |
 | **Clean library API**        | ✅ Basic structure             | ✅ Production-ready, idiomatic per framework |
@@ -45,7 +45,7 @@ A single, cohesive ecosystem where frontend developers can integrate Hiero using
 | **CI**                       | ✅ CI/CD                       | ✅ GitHub Actions + automated releases       |
 | **README + quickstart**      | ✅ Install + examples          | ✅ Full documentation site (VitePress)       |
 | **Contribution hygiene**     | ✅ CONTRIBUTING + DCO          | ✅ Full monorepo standards + Changesets      |
-| **Reference implementation** | hiero-enterprise-java          | ✅ @hiecom/react as reference pattern        |
+| **Reference implementation** | hiero-enterprise-java          | ✅ @hieco/react as reference pattern         |
 
 **Beyond Basic Examples:**
 
@@ -55,7 +55,7 @@ The official examples mention:
 - ❌ Scheduled transactions helper
 - ❌ React/Next.js integration kit
 
-**@hiecom transcends these by providing:**
+**@hieco transcends these by providing:**
 
 - ✅ **Multi-framework ecosystem** (React as reference → Svelte, Vue, Solid, Qwik replicate pattern)
 - ✅ **Type-safe Mirror Node client** with automatic pagination
@@ -84,7 +84,7 @@ The official examples mention:
 
 > "Build a Hiero-ready open-source library that makes it easier for developers to interact with Hiero networks—a reusable set of utilities (not an app) that improves developer experience and can realistically be adopted by the ecosystem."
 
-### @hiecom Solution Approach
+### @hieco Solution Approach
 
 **Core Philosophy:** Every feature must demonstrate **genuine utility** and **intuitive developer experience**.
 
@@ -104,9 +104,9 @@ The official examples mention:
 
 ### Required Deliverables Mapping
 
-| Official Requirement            | @hiecom Implementation                              |
+| Official Requirement            | @hieco Implementation                               |
 | ------------------------------- | --------------------------------------------------- |
-| **Public repo + clear license** | `github.com/hiecom/ecosystem` with MIT license      |
+| **Public repo + clear license** | `github.com/hieco/ecosystem` with MIT license       |
 | **Clean library API**           | Idiomatic React hooks → replicated patterns         |
 | **Basic tests**                 | Vitest with 90%+ coverage + Playwright E2E          |
 | **CI**                          | GitHub Actions (lint, test, build, release)         |
@@ -166,7 +166,7 @@ All framework adapters follow the **React reference implementation**. This ensur
 │                   Framework Adapters                         │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
-│  @hiecom/react (REFERENCE)  @hiecom/svelte  @hiecom/vue    │
+│  @hieco/react (REFERENCE)  @hieco/svelte  @hieco/vue    │
 │       ↓                          ↓             ↓             │
 │  Proven patterns              Replicate     Replicate        │
 │  Tested first                 same          same             │
@@ -175,7 +175,7 @@ All framework adapters follow the **React reference implementation**. This ensur
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
-│                      @hiecom/core                             │
+│                      @hieco/core                             │
 │  Shared utilities • Client wrappers • Types • Testing        │
 └─────────────────────────────────────────────────────────────┘
                               ↓
@@ -189,14 +189,14 @@ All framework adapters follow the **React reference implementation**. This ensur
 
 1. **React defines the contract**: Hook names, parameters, return types
 2. **Other frameworks replicate**: Use idiomatic equivalents (stores, composables, etc.)
-3. **Core stays framework-agnostic**: All business logic in `@hiecom/core`
+3. **Core stays framework-agnostic**: All business logic in `@hieco/core`
 4. **Testing cascades**: React tests validate core, others test adapter layer
 
 ---
 
 ## Core Package: Shared Utilities
 
-### `@hiecom/core` Architecture
+### `@hieco/core` Architecture
 
 The core package contains **framework-agnostic business logic** that all framework adapters consume.
 
@@ -233,7 +233,7 @@ export { retryWithBackoff } from "./utils/retry";
 ### Example: HieroClient (Framework-Agnostic)
 
 ```typescript
-// @hiecom/core/src/client/hiero-client.ts
+// @hieco/core/src/client/hiero-client.ts
 export class HieroClient {
   constructor(private config: ClientConfig) {
     this.client = Client.forName(config.network);
@@ -293,7 +293,7 @@ export class HieroClient {
 ### Example: MirrorNodeClient (Type-Safe)
 
 ```typescript
-// @hiecom/core/src/mirror-node/client.ts
+// @hieco/core/src/mirror-node/client.ts
 export class MirrorNodeClient {
   constructor(
     private network: Network,
@@ -400,9 +400,9 @@ Every React hook must:
 ### Client Provider Setup
 
 ```typescript
-// @hiecom/react/src/components/ClientProvider.tsx
+// @hieco/react/src/components/ClientProvider.tsx
 import { createContext, useContext, ReactNode } from 'react';
-import { HieroClient, ClientConfig } from '@hiecom/core';
+import { HieroClient, ClientConfig } from '@hieco/core';
 
 interface ClientContextValue {
   client: HieroClient | null;
@@ -445,7 +445,7 @@ export function useClient(): HieroClient {
 
 **Demonstrates Genuine Utility:**
 
-**Before @hiecom:**
+**Before @hieco:**
 
 ```typescript
 // 30+ lines of boilerplate every time
@@ -466,7 +466,7 @@ useEffect(() => {
 }, [account]);
 ```
 
-**After @hiecom:**
+**After @hieco:**
 
 ```typescript
 // 2 lines, handles all edge cases
@@ -476,7 +476,7 @@ const { balance, loading, error, refetch } = useAccountBalance(accountId);
 **Implementation:**
 
 ````typescript
-// @hiecom/react/src/hooks/useAccountBalance.ts
+// @hieco/react/src/hooks/useAccountBalance.ts
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useClient } from "./useClient";
 import { AccountId, Hbar } from "@hashgraph/sdk";
@@ -546,7 +546,7 @@ export function useAccountBalance(
 - Supports manual refetch
 
 ````typescript
-// @hiecom/react/src/hooks/useContractRead.ts
+// @hieco/react/src/hooks/useContractRead.ts
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useClient } from "./useClient";
 import { ContractId, Hbar } from "@hashgraph/sdk";
@@ -632,7 +632,7 @@ export function useContractRead<TArgs extends unknown[], TData = unknown>(
 - Optimistic updates (optional)
 
 ````typescript
-// @hiecom/react/src/hooks/useTransferHbar.ts
+// @hieco/react/src/hooks/useTransferHbar.ts
 import { useState, useCallback } from "react";
 import { useClient } from "./useClient";
 import { AccountId, Hbar, TransferTransaction } from "@hashgraph/sdk";
@@ -726,10 +726,10 @@ export function useTransferHbar(options: TransferHbarOptions = {}): UseTransferH
 **Demonstrates Type-Safe Mirror Node Integration:**
 
 ````typescript
-// @hiecom/react/src/hooks/useMirrorNodeAccount.ts
+// @hieco/react/src/hooks/useMirrorNodeAccount.ts
 import { useQuery } from "@tanstack/react-query";
 import { useClient } from "./useClient";
-import type { MirrorAccount } from "@hiecom/types";
+import type { MirrorAccount } from "@hieco/types";
 
 interface UseMirrorNodeAccountResult {
   account: MirrorAccount | null;
@@ -783,8 +783,8 @@ export function useMirrorNodeAccount(accountId: string): UseMirrorNodeAccountRes
 ### Complete Real-World Example
 
 ```typescript
-// Example dApp using @hiecom/react
-import { ClientProvider, useAccountBalance, useTransferHbar } from '@hiecom/react';
+// Example dApp using @hieco/react
+import { ClientProvider, useAccountBalance, useTransferHbar } from '@hieco/react';
 
 function App() {
   const config = {
@@ -845,13 +845,13 @@ function WalletDashboard() {
 ### Svelte Adapter Pattern
 
 ```typescript
-// @hiecom/svelte - Stores replicate React hooks
+// @hieco/svelte - Stores replicate React hooks
 
 // React: useAccountBalance(accountId)
 // Svelte: accountBalance(accountId) → store
 
 import { readable, derived } from "svelte/store";
-import { HieroClient } from "@hiecom/core";
+import { HieroClient } from "@hieco/core";
 
 export function createAccountBalanceStore(client: HieroClient, accountId: string) {
   const { subscribe, set, update } = readable<Hbar | null>(null, (set) => {
@@ -876,7 +876,7 @@ export function createAccountBalanceStore(client: HieroClient, accountId: string
 
 // Usage in Svelte component:
 // <script>
-//   import { accountBalance } from '@hiecom/svelte';
+//   import { accountBalance } from '@hieco/svelte';
 //   const balance = accountBalance(client, '0.0.1000');
 // </script>
 //
@@ -886,13 +886,13 @@ export function createAccountBalanceStore(client: HieroClient, accountId: string
 ### Vue Adapter Pattern
 
 ```typescript
-// @hiecom/vue - Composables replicate React hooks
+// @hieco/vue - Composables replicate React hooks
 
 // React: useAccountBalance(accountId)
 // Vue: useAccountBalance(accountId) → composable
 
 import { ref, onMounted, onUnmounted } from "vue";
-import { HieroClient } from "@hiecom/core";
+import { HieroClient } from "@hieco/core";
 
 export function useAccountBalance(accountId: string) {
   const balance = ref<Hbar | null>(null);
@@ -927,7 +927,7 @@ export function useAccountBalance(accountId: string) {
 
 // Usage in Vue component:
 // <script setup>
-//   import { useAccountBalance } from '@hiecom/vue';
+//   import { useAccountBalance } from '@hieco/vue';
 //   const { balance, loading } = useAccountBalance('0.0.1000');
 // </script>
 //
@@ -939,7 +939,7 @@ export function useAccountBalance(accountId: string) {
 
 ### Adapter Implementation Checklist
 
-For each framework adapter (`@hiecom/{svelte,vue,solid,qwik}`):
+For each framework adapter (`@hieco/{svelte,vue,solid,qwik}`):
 
 - [ ] **Provider component**: Wraps framework with `HieroClient`
 - [ ] **useClient hook**: Access client in components
@@ -956,10 +956,10 @@ For each framework adapter (`@hiecom/{svelte,vue,solid,qwik}`):
 
 ### Utility 1: Eliminates Boilerplate
 
-**Before @hiecom (50+ lines per component):**
+**Before @hieco (50+ lines per component):**
 
 ```typescript
-// Manual implementation without @hiecom
+// Manual implementation without @hieco
 function BalanceDisplay() {
   const [balance, setBalance] = useState<Hbar | null>(null);
   const [loading, setLoading] = useState(false);
@@ -1004,10 +1004,10 @@ function BalanceDisplay() {
 }
 ```
 
-**After @hiecom (3 lines):**
+**After @hieco (3 lines):**
 
 ```typescript
-// With @hiecom/react
+// With @hieco/react
 function BalanceDisplay() {
   const { balance, loading, error } = useAccountBalance('0.0.1000');
 
@@ -1023,7 +1023,7 @@ function BalanceDisplay() {
 
 **Problem:** Untyped Mirror Node responses cause runtime errors
 
-**Before @hiecom:**
+**Before @hieco:**
 
 ```typescript
 // Manual fetch - no type safety
@@ -1037,10 +1037,10 @@ console.log(data.ballance.balance); // Oops! "ballance" not "balance"
 const balance = data.balance.balance; // Could be string or number
 ```
 
-**After @hiecom:**
+**After @hieco:**
 
 ```typescript
-// With @hiecom - full type safety
+// With @hieco - full type safety
 const { account } = useMirrorNodeAccount("0.0.1000");
 
 // TypeScript catches typos at compile time
@@ -1056,7 +1056,7 @@ const balance: Hbar = account.balance.balance; // ✅ Correct type
 
 **Problem:** Manual implementations miss edge cases
 
-**Before @hiecom:**
+**Before @hieco:**
 
 ```typescript
 // ❌ What if network request fails?
@@ -1067,7 +1067,7 @@ const balance: Hbar = account.balance.balance; // ✅ Correct type
 // ❌ How to retry failed requests?
 ```
 
-**After @hiecom:**
+**After @hieco:**
 
 ```typescript
 // ✅ All edge cases handled automatically
@@ -1087,7 +1087,7 @@ const { balance, loading, error, refetch } = useAccountBalance(accountId);
 
 **Problem:** Learning different APIs for each framework
 
-**Before @hiecom:**
+**Before @hieco:**
 
 ```typescript
 // React (some library)
@@ -1103,22 +1103,22 @@ const { balance } = useBalance(accountId); // Different return shape!
 const [balance] = createBalance(accountId);
 ```
 
-**After @hiecom:**
+**After @hieco:**
 
 ```typescript
-// React - @hiecom/react
+// React - @hieco/react
 const { balance, loading, error } = useAccountBalance(accountId);
 
-// Svelte - @hiecom/svelte (same return shape)
+// Svelte - @hieco/svelte (same return shape)
 const { balance, loading, error } = accountBalance(accountId);
 
-// Vue - @hiecom/vue (same return shape)
+// Vue - @hieco/vue (same return shape)
 const { balance, loading, error } = useAccountBalance(accountId);
 
-// Solid - @hiecom/solid (same return shape)
+// Solid - @hieco/solid (same return shape)
 const { balance, loading, error } = createAccountBalance(accountId);
 
-// Qwik - @hiecom/qwik (same return shape)
+// Qwik - @hieco/qwik (same return shape)
 const { balance, loading, error } = useAccountBalance(accountId);
 ```
 
@@ -1130,20 +1130,20 @@ const { balance, loading, error } = useAccountBalance(accountId);
 
 ### Phase 1: Foundation (Week 1-2)
 
-**Goal:** Set up monorepo and implement `@hiecom/core` + `@hiecom/react` (reference)
+**Goal:** Set up monorepo and implement `@hieco/core` + `@hieco/react` (reference)
 
 **Tasks:**
 
 - [x] Initialize Turborepo + pnpm workspace
 - [ ] Configure TypeScript, ESLint, Prettier
 - [ ] Set up Vitest for testing
-- [ ] Implement `@hiecom/core`:
+- [ ] Implement `@hieco/core`:
   - [ ] `HieroClient` class
   - [ ] `MirrorNodeClient` class (type-safe)
   - [ ] Transaction builders
   - [ ] Type definitions
   - [ ] Utilities (retry, format, fee estimation)
-- [ ] Implement `@hiecom/react` reference:
+- [ ] Implement `@hieco/react` reference:
   - [ ] `ClientProvider` component
   - [ ] `useClient` hook
   - [ ] `useAccountBalance` hook
@@ -1181,11 +1181,11 @@ const { balance, loading, error } = useAccountBalance(accountId);
 
 **Tasks:**
 
-- [ ] `@hiecom/svelte`:
+- [ ] `@hieco/svelte`:
   - [ ] Port all React hooks to Svelte stores
   - [ ] Create 3 Svelte examples
   - [ ] Write Svelte-specific docs
-- [ ] `@hiecom/vue`:
+- [ ] `@hieco/vue`:
   - [ ] Port all React hooks to Vue composables
   - [ ] Create 3 Vue examples
   - [ ] Write Vue-specific docs
@@ -1198,11 +1198,11 @@ const { balance, loading, error } = useAccountBalance(accountId);
 
 **Tasks:**
 
-- [ ] `@hiecom/solid`:
+- [ ] `@hieco/solid`:
   - [ ] Port all React hooks to Solid signals
   - [ ] Create 2 Solid examples
   - [ ] Write Solid-specific docs
-- [ ] `@hiecom/qwik`:
+- [ ] `@hieco/qwik`:
   - [ ] Port all React hooks to Qwik loadables
   - [ ] Create 2 Qwik examples
   - [ ] Write Qwik-specific docs
@@ -1236,20 +1236,20 @@ const { balance, loading, error } = useAccountBalance(accountId);
 
 ### 1. Public Repository
 
-**Location:** `github.com/hiecom/ecosystem`
+**Location:** `github.com/hieco/ecosystem`
 
 **Structure:**
 
 ```
-hiecom/ecosystem
+hieco/ecosystem
 ├── packages/
-│   ├── core/           # @hiecom/core
-│   ├── types/          # @hiecom/types
-│   ├── react/          # @hiecom/react (REFERENCE)
-│   ├── svelte/         # @hiecom/svelte
-│   ├── vue/            # @hiecom/vue
-│   ├── solid/          # @hiecom/solid
-│   └── qwik/           # @hiecom/qwik
+│   ├── core/           # @hieco/core
+│   ├── types/          # @hieco/types
+│   ├── react/          # @hieco/react (REFERENCE)
+│   ├── svelte/         # @hieco/svelte
+│   ├── vue/            # @hieco/vue
+│   ├── solid/          # @hieco/solid
+│   └── qwik/           # @hieco/qwik
 ├── apps/
 │   ├── docs/           # VitePress documentation
 │   └── examples/       # Live example apps
@@ -1263,19 +1263,19 @@ hiecom/ecosystem
 **Example Installation:**
 
 ```bash
-npm install @hiecom/react @hiecom/core
+npm install @hieco/react @hieco/core
 # or
-pnpm add @hiecom/react @hiecom/core
+pnpm add @hieco/react @hieco/core
 # or
-yarn add @hiecom/react @hiecom/core
+yarn add @hieco/react @hieco/core
 ```
 
 **Example Usage:**
 
 ```typescript
 // Quickstart - < 5 minutes to working dApp
-import { ClientProvider } from '@hiecom/react';
-import { useAccountBalance, useTransferHbar } from '@hiecom/react';
+import { ClientProvider } from '@hieco/react';
+import { useAccountBalance, useTransferHbar } from '@hieco/react';
 
 function App() {
   return (
@@ -1383,7 +1383,7 @@ jobs:
 
 ## Beyond Bounty Requirements
 
-### What Makes @hiecom Special
+### What Makes @hieco Special
 
 **1. Multi-Framework First**
 
@@ -1420,7 +1420,7 @@ Every decision prioritizes DX:
 
 **5. Community-Driven Namespace**
 
-`@hiecom/*` signals:
+`@hieco/*` signals:
 
 - Not vendor-controlled
 - Community-maintained
@@ -1431,7 +1431,7 @@ Every decision prioritizes DX:
 
 ## Conclusion
 
-The `@hiecom` unified ecosystem delivers on the Hiero bounty's vision while **exceeding expectations**:
+The `@hieco` unified ecosystem delivers on the Hiero bounty's vision while **exceeding expectations**:
 
 - ✅ **Open-source library** (7 packages, MIT licensed)
 - ✅ **Clean API** (idiomatic per framework, React as reference)

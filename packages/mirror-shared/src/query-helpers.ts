@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/query-core";
-import type { MirrorNodeClient, EntityId } from "@hiecom/mirror-js";
+import type { MirrorNodeClient, EntityId } from "@hieco/mirror-js";
 
 type ApiProperty = Exclude<keyof MirrorNodeClient, "networkType" | "baseUrl" | "httpClient">;
 
@@ -384,9 +384,9 @@ export type EntityType =
 export type InvalidateFilters =
   | { readonly exactKey: readonly unknown[] }
   | {
-      readonly entityType: EntityType;
-      readonly resourceId?: EntityId | string;
-    };
+    readonly entityType: EntityType;
+    readonly resourceId?: EntityId | string;
+  };
 
 export function invalidateQueries(
   queryClient: QueryClient,

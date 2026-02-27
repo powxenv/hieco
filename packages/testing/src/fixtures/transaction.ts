@@ -1,4 +1,4 @@
-import type { Transaction, EntityId } from "@hiecom/mirror-js";
+import type { Transaction, EntityId } from "@hieco/mirror-js";
 import { state } from "../utils/state.js";
 import type { Factory } from "./account.js";
 
@@ -19,17 +19,17 @@ const createTransaction = (options: TransactionFixtureOptions = {}): Transaction
   const transfers =
     options.from && options.to
       ? [
-          {
-            account: options.from as EntityId,
-            amount: -(options.amount ?? 0),
-            is_approval: false,
-          },
-          {
-            account: options.to as EntityId,
-            amount: options.amount ?? 0,
-            is_approval: false,
-          },
-        ]
+        {
+          account: options.from as EntityId,
+          amount: -(options.amount ?? 0),
+          is_approval: false,
+        },
+        {
+          account: options.to as EntityId,
+          amount: options.amount ?? 0,
+          is_approval: false,
+        },
+      ]
       : [];
 
   return {

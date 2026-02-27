@@ -1,6 +1,6 @@
-# @hiecom/types
+# @hieco/types
 
-Shared TypeScript types for Hiecom packages.
+Shared TypeScript types for hieco packages.
 
 ## Features
 
@@ -13,19 +13,19 @@ Shared TypeScript types for Hiecom packages.
 
 ```bash
 # bun
-bun add @hiecom/types
+bun add @hieco/types
 
 # npm
-npm install @hiecom/types
+npm install @hieco/types
 
 # pnpm
-pnpm add @hiecom/types
+pnpm add @hieco/types
 
 # yarn
-yarn add @hiecom/types
+yarn add @hieco/types
 ```
 
-> **Note**: This package is automatically installed as a dependency when using other Hiecom packages.
+> **Note**: This package is automatically installed as a dependency when using other hieco packages.
 
 ## API Reference
 
@@ -126,7 +126,7 @@ interface Key {
 #### NETWORK_CONFIGS
 
 ```typescript
-import { NETWORK_CONFIGS } from "@hiecom/types";
+import { NETWORK_CONFIGS } from "@hieco/types";
 
 NETWORK_CONFIGS.mainnet; // { mirrorNode: "https://mainnet.mirrornode.hedera.com" }
 NETWORK_CONFIGS.testnet; // { mirrorNode: "https://testnet.mirrornode.hedera.com" }
@@ -138,7 +138,7 @@ NETWORK_CONFIGS.previewnet; // { mirrorNode: "https://previewnet.mirrornode.hede
 #### ApiErrorFactory
 
 ```typescript
-import { ApiErrorFactory } from "@hiecom/types";
+import { ApiErrorFactory } from "@hieco/types";
 
 ApiErrorFactory.network("Connection failed", 500);
 // { _tag: "NetworkError", message: "Connection failed", status: 500 }
@@ -159,7 +159,7 @@ ApiErrorFactory.unknown("Unknown error");
 ## Usage
 
 ```typescript
-import { ApiResult, ApiErrorFactory, EntityId } from "@hiecom/types";
+import { ApiResult, ApiErrorFactory, EntityId } from "@hieco/types";
 
 function fetchAccount(id: EntityId): ApiResult<Account> {
   // ... implementation
@@ -180,9 +180,9 @@ if (result.success) {
 
 ## Related Packages
 
-- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - Mirror Node REST API client
-- [`@hiecom/realtime`](https://www.npmjs.com/package/@hiecom/realtime) - WebSocket streaming client
-- [`@hiecom/mirror-shared`](https://github.com/powxenv/hiecom/tree/main/packages/mirror-shared) - Shared utilities (internal)
+- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - Mirror Node REST API client
+- [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - WebSocket streaming client
+- [`@hieco/mirror-shared`](https://github.com/powxenv/hieco/tree/main/packages/mirror-shared) - Shared utilities (internal)
 
 ## License
 

@@ -1,4 +1,4 @@
-# @hiecom/mirror-preact
+# @hieco/mirror-preact
 
 Type-safe Preact hooks for Hedera Mirror Node API with TanStack Query.
 
@@ -15,16 +15,16 @@ Type-safe Preact hooks for Hedera Mirror Node API with TanStack Query.
 
 ```bash
 # bun
-bun add @hiecom/mirror-js @hiecom/mirror-preact @tanstack/preact-query
+bun add @hieco/mirror-js @hieco/mirror-preact @tanstack/preact-query
 
 # npm
-npm install @hiecom/mirror-js @hiecom/mirror-preact @tanstack/preact-query
+npm install @hieco/mirror-js @hieco/mirror-preact @tanstack/preact-query
 
 # pnpm
-pnpm add @hiecom/mirror-js @hiecom/mirror-preact @tanstack/preact-query
+pnpm add @hieco/mirror-js @hieco/mirror-preact @tanstack/preact-query
 
 # yarn
-yarn add @hiecom/mirror-js @hiecom/mirror-preact @tanstack/preact-query
+yarn add @hieco/mirror-js @hieco/mirror-preact @tanstack/preact-query
 ```
 
 ## Quick Start
@@ -33,7 +33,7 @@ yarn add @hiecom/mirror-js @hiecom/mirror-preact @tanstack/preact-query
 
 ```tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/preact-query";
-import { MirrorNodeProvider, createNetworkConfig } from "@hiecom/mirror-preact";
+import { MirrorNodeProvider, createNetworkConfig } from "@hieco/mirror-preact";
 
 const queryClient = new QueryClient();
 
@@ -59,7 +59,7 @@ export function App() {
 ### Step 2: Use hooks in your components
 
 ```tsx
-import { useAccountInfo } from "@hiecom/mirror-preact";
+import { useAccountInfo } from "@hieco/mirror-preact";
 
 function AccountBalance({ accountId }: { accountId: string }) {
   const { data, isLoading, error } = useAccountInfo({ accountId });
@@ -185,7 +185,7 @@ useNetworkSupply();
 ### Network Switching
 
 ```tsx
-import { useNetwork } from "@hiecom/mirror-preact";
+import { useNetwork } from "@hieco/mirror-preact";
 
 function NetworkSelector() {
   const { network, switchNetwork } = useNetwork();
@@ -203,7 +203,7 @@ function NetworkSelector() {
 ### Infinite Scroll
 
 ```tsx
-import { useTokensInfinite } from "@hiecom/mirror-preact";
+import { useTokensInfinite } from "@hieco/mirror-preact";
 
 function TokenList() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useTokensInfinite();
@@ -227,9 +227,9 @@ function TokenList() {
 
 ## Related Packages
 
-- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - Core REST API client
-- [`@hiecom/mirror-shared`](https://github.com/powxenv/hiecom/tree/main/packages/mirror-shared) - Shared utilities (internal)
-- [`@hiecom/realtime`](https://www.npmjs.com/package/@hiecom/realtime) - WebSocket streaming client
+- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - Core REST API client
+- [`@hieco/mirror-shared`](https://github.com/powxenv/hieco/tree/main/packages/mirror-shared) - Shared utilities (internal)
+- [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - WebSocket streaming client
 
 ## License
 

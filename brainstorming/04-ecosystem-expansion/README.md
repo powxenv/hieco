@@ -1,42 +1,42 @@
 ---
-title: Hiecom Ecosystem Expansion Proposals
-description: Seven practical additions to the @hiecom ecosystem for superior Developer Experience
+title: hieco Ecosystem Expansion Proposals
+description: Seven practical additions to the @hieco ecosystem for superior Developer Experience
 category: proposals
 created: 2026-02-25
 status: complete
-tags: [hiecom, expansion, dx, testing, scheduled-transactions]
+tags: [hieco, expansion, dx, testing, scheduled-transactions]
 related:
   - ../02-bounty-research/hiero-deep-dive.md
-  - ../03-proposals/hiecom-unified-ecosystem.md
+  - ../03-proposals/hieco-unified-ecosystem.md
 ---
 
-# Hiecom Ecosystem Expansion Proposals
+# hieco Ecosystem Expansion Proposals
 
 **Date:** February 25, 2026
 **Status:** Research Complete
-**Focus:** Practical, high-utility additions to @hiecom ecosystem
+**Focus:** Practical, high-utility additions to @hieco ecosystem
 
 ---
 
 ## Executive Summary
 
-Based on the existing `@hiecom/mirror-*` packages and research findings, seven strategic additions are proposed to elevate the Hiero developer experience. Each package addresses documented pain points and offers genuine utility.
+Based on the existing `@hieco/mirror-*` packages and research findings, seven strategic additions are proposed to elevate the Hiero developer experience. Each package addresses documented pain points and offers genuine utility.
 
 ### Current Foundation
 
-| Package                 | Purpose                         | Status   |
-| ----------------------- | ------------------------------- | -------- |
-| `@hiecom/mirror-js`     | Core Mirror Node REST client    | ✅ Built |
-| `@hiecom/mirror-react`  | React hooks with TanStack Query | ✅ Built |
-| `@hiecom/mirror-preact` | Preact adapter                  | ✅ Built |
-| `@hiecom/mirror-solid`  | Solid.js adapter                | ✅ Built |
-| `@hiecom/mirror-shared` | Shared utilities                | ✅ Built |
+| Package                | Purpose                         | Status   |
+| ---------------------- | ------------------------------- | -------- |
+| `@hieco/mirror-js`     | Core Mirror Node REST client    | ✅ Built |
+| `@hieco/mirror-react`  | React hooks with TanStack Query | ✅ Built |
+| `@hieco/mirror-preact` | Preact adapter                  | ✅ Built |
+| `@hieco/mirror-solid`  | Solid.js adapter                | ✅ Built |
+| `@hieco/mirror-shared` | Shared utilities                | ✅ Built |
 
 ---
 
 ## Proposed Additions
 
-### 1. `@hiecom/testing` - Test Utilities & Mock Server
+### 1. `@hieco/testing` - Test Utilities & Mock Server
 
 **Impact:** ⭐⭐⭐⭐⭐ | **Complexity:** Low | **Time:** 6-8 days
 
@@ -54,7 +54,7 @@ Based on the existing `@hiecom/mirror-*` packages and research findings, seven s
 - Coverage reporting integration
 
 ```typescript
-import { setupMirrorMock, renderHook } from "@hiecom/testing";
+import { setupMirrorMock, renderHook } from "@hieco/testing";
 
 const { server } = setupMirrorMock({
   network: "testnet",
@@ -73,7 +73,7 @@ test("useAccountBalance", async () => {
 
 ---
 
-### 2. `@hiecom/scheduled` - Scheduled Transaction Toolkit
+### 2. `@hieco/scheduled` - Scheduled Transaction Toolkit
 
 **Impact:** ⭐⭐⭐⭐ | **Complexity:** Medium | **Time:** 7-9 days
 
@@ -91,7 +91,7 @@ test("useAccountBalance", async () => {
 - React hooks integration
 
 ```typescript
-import { EscrowTemplate } from "@hiecom/scheduled";
+import { EscrowTemplate } from "@hieco/scheduled";
 
 const escrow = EscrowTemplate.create({
   buyer: "0.0.1111",
@@ -108,7 +108,7 @@ await escrow.execute(); // Auto-executes when threshold reached
 
 ---
 
-### 3. `@hiecom/devtools` - Transaction Builder & Debugger
+### 3. `@hieco/devtools` - Transaction Builder & Debugger
 
 **Impact:** ⭐⭐⭐⭐⭐ | **Complexity:** Medium | **Time:** 8-10 days
 
@@ -126,7 +126,7 @@ await escrow.execute(); // Auto-executes when threshold reached
 - Visual transaction inspector
 
 ```typescript
-import { TransactionBuilder, Debugger } from "@hiecom/devtools";
+import { TransactionBuilder, Debugger } from "@hieco/devtools";
 
 const tx = TransactionBuilder.tokenTransfer()
   .tokenId("0.0.4567")
@@ -140,7 +140,7 @@ const report = await Debugger.simulate(tx, { network: "testnet" });
 
 ---
 
-### 4. `@hiecom/mirror-realtime` - WebSocket Subscription Client
+### 4. `@hieco/mirror-realtime` - WebSocket Subscription Client
 
 **Impact:** ⭐⭐⭐⭐ | **Complexity:** Medium | **Time:** 5-7 days
 
@@ -158,7 +158,7 @@ const report = await Debugger.simulate(tx, { network: "testnet" });
 - Auto-reconnect with exponential backoff
 
 ```typescript
-import { MirrorRealtimeClient } from "@hiecom/mirror-realtime";
+import { MirrorRealtimeClient } from "@hieco/mirror-realtime";
 
 const client = new MirrorRealtimeClient("testnet");
 
@@ -170,7 +170,7 @@ client.subscribe.accountTransactions("0.0.1234", {
 
 ---
 
-### 5. `@hiecom/vault` - Secure Key Management
+### 5. `@hieco/vault` - Secure Key Management
 
 **Impact:** ⭐⭐⭐ | **Complexity:** Medium | **Time:** 5-7 days
 
@@ -188,7 +188,7 @@ client.subscribe.accountTransactions("0.0.1234", {
 - Ledger hardware wallet integration
 
 ```typescript
-import { Vault, KeyLocation } from "@hiecom/vault";
+import { Vault, KeyLocation } from "@hieco/vault";
 
 const vault = Vault.create();
 vault.addKey(KeyLocation.env("MY_PRIVATE_KEY"));
@@ -199,7 +199,7 @@ const signed = await vault.sign(transaction, { accountId: "0.0.1234" });
 
 ---
 
-### 6. `@hiecom/mirror-vue` - Vue Adapter
+### 6. `@hieco/mirror-vue` - Vue Adapter
 
 **Impact:** ⭐⭐⭐ | **Complexity:** Low | **Time:** 3-4 days
 
@@ -215,14 +215,14 @@ const signed = await vault.sign(transaction, { accountId: "0.0.1234" });
 - TypeScript support
 
 ```typescript
-import { useAccountBalance, useContractRead } from "@hiecom/mirror-vue";
+import { useAccountBalance, useContractRead } from "@hieco/mirror-vue";
 
 const { balance, loading } = useAccountBalance("0.0.1234");
 ```
 
 ---
 
-### 7. `@hiecom/cli` - Developer CLI
+### 7. `@hieco/cli` - Developer CLI
 
 **Impact:** ⭐⭐⭐ | **Complexity:** Low | **Time:** 4-5 days
 
@@ -239,9 +239,9 @@ const { balance, loading } = useAccountBalance("0.0.1234");
 - Local development server
 
 ```bash
-hiecom account:create testnet
-hiecom tx:build --type token-transfer
-hiecom monitor:account 0.0.1234 --watch
+hieco account:create testnet
+hieco tx:build --type token-transfer
+hieco monitor:account 0.0.1234 --watch
 ```
 
 ---
@@ -250,25 +250,25 @@ hiecom monitor:account 0.0.1234 --watch
 
 ### Phase 1: Foundation (Weeks 1-2)
 
-| Package             | Rationale                                        |
-| ------------------- | ------------------------------------------------ |
-| `@hiecom/testing`   | Enables better development of all other packages |
-| `@hiecom/scheduled` | Fills documented gap, unique in ecosystem        |
-| `@hiecom/devtools`  | Maximum DX improvement                           |
+| Package            | Rationale                                        |
+| ------------------ | ------------------------------------------------ |
+| `@hieco/testing`   | Enables better development of all other packages |
+| `@hieco/scheduled` | Fills documented gap, unique in ecosystem        |
+| `@hieco/devtools`  | Maximum DX improvement                           |
 
 ### Phase 2: Realtime & Security (Weeks 3-4)
 
-| Package                   | Rationale                       |
-| ------------------------- | ------------------------------- |
-| `@hiecom/mirror-realtime` | Critical for modern dApp UX     |
-| `@hiecom/vault`           | Production security requirement |
+| Package                  | Rationale                       |
+| ------------------------ | ------------------------------- |
+| `@hieco/mirror-realtime` | Critical for modern dApp UX     |
+| `@hieco/vault`           | Production security requirement |
 
 ### Phase 3: Framework Expansion (Week 5)
 
-| Package              | Rationale                      |
-| -------------------- | ------------------------------ |
-| `@hiecom/mirror-vue` | Vue has 20%+ market share      |
-| `@hiecom/cli`        | Developer productivity booster |
+| Package             | Rationale                      |
+| ------------------- | ------------------------------ |
+| `@hieco/mirror-vue` | Vue has 20%+ market share      |
+| `@hieco/cli`        | Developer productivity booster |
 
 ---
 
@@ -313,8 +313,8 @@ hiecom monitor:account 0.0.1234 --watch
 ## Related Documents
 
 - [Hiero Bounty Deep-Dive](../02-bounty-research/hiero-deep-dive.md)
-- [Hiecom Unified Ecosystem](../03-proposals/hiecom-unified-ecosystem.md)
-- [Testing PRD](./testing-prd.md) - Detailed PRD for `@hiecom/testing`
+- [hieco Unified Ecosystem](../03-proposals/hieco-unified-ecosystem.md)
+- [Testing PRD](./testing-prd.md) - Detailed PRD for `@hieco/testing`
 
 ---
 

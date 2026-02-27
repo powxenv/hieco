@@ -1,4 +1,4 @@
-import type { ApiResult } from "@hiecom/types";
+import type { ApiResult } from "@hieco/types";
 import type { StreamConfig } from "../types/stream";
 import type { RelaySubscription, RelayMessage } from "../types/subscription";
 import type { JsonRpcRequest } from "../types/json-rpc";
@@ -255,8 +255,8 @@ export class RelayWebSocketClient extends BaseStreamClient<
         requestId,
         localId,
         subscription.subscription,
-        () => {},
-        () => {},
+        () => { },
+        () => { },
       );
 
       this.sendRequest(request);

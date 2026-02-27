@@ -1,17 +1,17 @@
 ---
-title: @hiecom/testing - Product Requirements Document
+title: @hieco/testing - Product Requirements Document
 description: Comprehensive testing utilities and mock server for Hiero/Hedera development
 category: proposals
 created: 2026-02-25
 status: complete
-tags: [hiecom, testing, prd, msw, vitest, developer-experience]
+tags: [hieco, testing, prd, msw, vitest, developer-experience]
 related:
   - ./README.md
   - ../../02-bounty-research/hiero-deep-dive.md
-  - ../../03-proposals/hiecom-unified-ecosystem.md
+  - ../../03-proposals/hieco-unified-ecosystem.md
 ---
 
-# @hiecom/testing - Product Requirements Document
+# @hieco/testing - Product Requirements Document
 
 **Version:** 1.0
 **Status:** Research Complete
@@ -22,7 +22,7 @@ related:
 
 ## 1. Executive Summary
 
-`@hiecom/testing` is a comprehensive testing utility library for Hiero/Hedera development. It provides mock Mirror Node servers, test fixtures, React testing utilities, and seamless integration with modern testing frameworks (Vitest, Bun Test).
+`@hieco/testing` is a comprehensive testing utility library for Hiero/Hedera development. It provides mock Mirror Node servers, test fixtures, React testing utilities, and seamless integration with modern testing frameworks (Vitest, Bun Test).
 
 ### Problem Statement
 
@@ -81,7 +81,7 @@ A unified testing library that:
 **Capability:** Mock all Mirror Node REST API endpoints using MSW
 
 ```typescript
-import { setupMirrorMock, http } from "@hiecom/testing/vitest";
+import { setupMirrorMock, http } from "@hieco/testing/vitest";
 
 // Quick setup with defaults
 const { server, cleanup } = setupMirrorMock();
@@ -145,7 +145,7 @@ import {
   mockBalance,
   mockBlock,
   mockSchedule,
-} from "@hiecom/testing/fixtures";
+} from "@hieco/testing/fixtures";
 
 // Single entity
 const account = mockAccount({
@@ -261,7 +261,7 @@ import {
   createTestQueryClient,
   waitForHieroQuery,
   waitForHieroMutation,
-} from "@hiecom/testing/react";
+} from "@hieco/testing/react";
 
 // Test a custom hook
 test("useAccountBalance fetches balance", async () => {
@@ -307,7 +307,7 @@ import {
   MirrorTestProvider,
   QueryTestProvider,
   createTestWrapper
-} from '@hiecom/testing/react'
+} from '@hieco/testing/react'
 
 // Combine all providers
 <HieroTestProvider config={{ network: 'testnet' }}>
@@ -332,7 +332,7 @@ const wrapper = createTestWrapper({
 
 ```typescript
 import { expect, test } from "vitest";
-import "@hiecom/testing/matchers"; // Extends expect
+import "@hieco/testing/matchers"; // Extends expect
 
 test("account has sufficient balance", () => {
   const account = mockAccount({ balance: 1000 });
@@ -387,8 +387,8 @@ test("NFT belongs to account", () => {
 **Capability:** Control time and simulate network delays
 
 ```typescript
-import { advanceTime, freezeTime, restoreTime } from "@hiecom/testing/time";
-import { simulateNetworkDelay, setNetworkCondition } from "@hiecom/testing/network";
+import { advanceTime, freezeTime, restoreTime } from "@hieco/testing/time";
+import { simulateNetworkDelay, setNetworkCondition } from "@hieco/testing/network";
 
 // Time manipulation
 test("scheduled transaction executes after delay", async () => {
@@ -427,7 +427,7 @@ test("slow connection", async () => {
 ### 4.1 Package Structure
 
 ```
-@hiecom/testing/
+@hieco/testing/
 ├── package.json
 ├── src/
 │   ├── index.ts                    # Main exports
@@ -484,8 +484,8 @@ test("slow connection", async () => {
 {
   "dependencies": {
     "msw": "^2.7.0",
-    "@hiecom/mirror-js": "workspace:*",
-    "@hiecom/mirror-shared": "workspace:*"
+    "@hieco/mirror-js": "workspace:*",
+    "@hieco/mirror-shared": "workspace:*"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5.0.0",
@@ -607,8 +607,8 @@ export default defineConfig({
 ```typescript
 import { beforeAll, afterEach, afterAll } from "vitest";
 import { cleanup } from "@testing-library/react";
-import "@hiecom/testing/matchers";
-import { setupMirrorMock } from "@hiecom/testing/vitest";
+import "@hieco/testing/matchers";
+import { setupMirrorMock } from "@hieco/testing/vitest";
 
 const { server } = setupMirrorMock({
   network: "testnet",
@@ -629,8 +629,8 @@ afterAll(() => server.close());
 
 ```typescript
 import { describe, it, expect } from "vitest";
-import { MirrorNodeClient } from "@hiecom/mirror-js";
-import { mockAccount, mockTransaction } from "@hiecom/testing/fixtures";
+import { MirrorNodeClient } from "@hieco/mirror-js";
+import { mockAccount, mockTransaction } from "@hieco/testing/fixtures";
 
 describe("MirrorNodeClient", () => {
   it("fetches account details", async () => {
@@ -662,9 +662,9 @@ describe("MirrorNodeClient", () => {
 ```typescript
 import { describe, it, expect } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { useAccountBalance, useTransactions } from "@hiecom/mirror-react";
-import { mockAccount, mockTransaction } from "@hiecom/testing/fixtures";
-import { createTestWrapper } from "@hiecom/testing/react";
+import { useAccountBalance, useTransactions } from "@hieco/mirror-react";
+import { mockAccount, mockTransaction } from "@hieco/testing/fixtures";
+import { createTestWrapper } from "@hieco/testing/react";
 
 describe("useAccountBalance", () => {
   it("fetches and displays balance", async () => {
@@ -706,8 +706,8 @@ describe("useAccountBalance", () => {
 ```typescript
 import { describe, it, expect } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
-import { useTransferHbar } from "@hiecom/mirror-react";
-import { createTestWrapper } from "@hiecom/testing/react";
+import { useTransferHbar } from "@hieco/mirror-react";
+import { createTestWrapper } from "@hieco/testing/react";
 
 describe("useTransferHbar", () => {
   it("executes transfer successfully", async () => {
@@ -749,8 +749,8 @@ import { describe, it, expect } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AccountBalance } from './AccountBalance'
-import { mockAccount } from '@hiecom/testing/fixtures'
-import { renderWithProviders } from '@hiecom/testing/react'
+import { mockAccount } from '@hieco/testing/fixtures'
+import { renderWithProviders } from '@hieco/testing/react'
 
 describe('AccountBalance', () => {
   it('displays balance', async () => {
@@ -919,7 +919,7 @@ describe("setupMirrorMock", () => {
 ### 8.1 README Sections
 
 ```markdown
-# @hiecom/testing
+# @hieco/testing
 
 ## Quick Start
 
@@ -1009,7 +1009,7 @@ Create 5+ complete examples:
 
 - A) Yes, provide `setupSolo()` and `teardownSolo()`
 - B) No, Solo setup is too complex, document it separately
-- C) Provide a separate `@hiecom/testing-solo` package
+- C) Provide a separate `@hieco/testing-solo` package
 
 **Recommendation:** Option B - Document Solo setup but keep this package focused on mocking
 

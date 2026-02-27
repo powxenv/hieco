@@ -1,14 +1,14 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, EntityId, QueryOperator } from "@hiecom/mirror-js";
-import type { Schedule } from "@hiecom/mirror-js";
-import type { PaginatedResponse } from "@hiecom/mirror-js";
+import type { ApiResult, ApiError, EntityId, QueryOperator } from "@hieco/mirror-js";
+import type { Schedule } from "@hieco/mirror-js";
+import type { PaginatedResponse } from "@hieco/mirror-js";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hiecom/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/mirror-shared";
 import { createMirrorNodeInfiniteQuery } from "../utils";
 
-export type { ScheduleListParams } from "@hiecom/mirror-js";
+export type { ScheduleListParams } from "@hieco/mirror-js";
 
 export interface CreateScheduleInfoOptions {
   readonly scheduleId: EntityId;

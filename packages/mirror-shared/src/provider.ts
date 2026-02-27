@@ -1,4 +1,4 @@
-import type { NetworkType } from "@hiecom/mirror-js";
+import type { NetworkType } from "@hieco/mirror-js";
 
 export const DEFAULT_MIRROR_NODE_URLS: Record<NetworkType, string> = {
   mainnet: "https://mainnet.mirrornode.hedera.com",

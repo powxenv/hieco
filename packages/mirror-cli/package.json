@@ -1,5 +1,5 @@
 {
-  "name": "@hiecom/mirror-cli",
+  "name": "@hieco/mirror-cli",
   "version": "0.0.1",
   "description": "CLI tool for Hedera Mirror Node REST API - query accounts, tokens, transactions, blocks, contracts, schedules, topics, and network state",
   "keywords": [
@@ -11,19 +11,19 @@
     "mirror-node",
     "rest-api"
   ],
-  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/mirror-cli",
+  "homepage": "https://github.com/powxenv/hieco/tree/main/packages/mirror-cli",
   "bugs": {
-    "url": "https://github.com/powxenv/hiecom/issues"
+    "url": "https://github.com/powxenv/hieco/issues"
   },
   "license": "MIT",
   "author": "pow <https://github.com/powxenv>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/powxenv/hiecom",
+    "url": "https://github.com/powxenv/hieco",
     "directory": "packages/mirror-cli"
   },
   "bin": {
-    "hiecom": "./dist/index.js"
+    "hieco": "./dist/index.js"
   },
   "files": [
     "dist",
@@ -43,9 +43,9 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hiecom/mirror-js": "workspace:*",
-    "@hiecom/mirror-shared": "workspace:*",
-    "@hiecom/types": "workspace:*",
+    "@hieco/mirror-js": "workspace:*",
+    "@hieco/mirror-shared": "workspace:*",
+    "@hieco/types": "workspace:*",
     "chalk": "^5.4.1",
     "cli-table3": "^0.6.5",
     "commander": "^13.1.0"

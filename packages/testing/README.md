@@ -1,4 +1,4 @@
-# @hiecom/testing
+# @hieco/testing
 
 Testing utilities for Hedera Mirror Node development with MSW fixtures and helpers.
 
@@ -15,22 +15,22 @@ Testing utilities for Hedera Mirror Node development with MSW fixtures and helpe
 
 ```bash
 # bun
-bun add @hiecom/testing msw
+bun add @hieco/testing msw
 
 # npm
-npm install @hiecom/testing msw
+npm install @hieco/testing msw
 
 # pnpm
-pnpm add @hiecom/testing msw
+pnpm add @hieco/testing msw
 
 # yarn
-yarn add @hiecom/testing msw
+yarn add @hieco/testing msw
 ```
 
 ## Quick Start
 
 ```typescript
-import { setupMirrorMock, mockAccount } from "@hiecom/testing";
+import { setupMirrorMock, mockAccount } from "@hieco/testing";
 
 const { server, listen, resetHandlers, close } = setupMirrorMock({
   network: "testnet",
@@ -245,7 +245,7 @@ await assertThrows(async () => {
 ### With Test Framework
 
 ```typescript
-import { setupMirrorMock, mockAccount } from "@hiecom/testing";
+import { setupMirrorMock, mockAccount } from "@hieco/testing";
 
 describe("Account API", () => {
   const { server, listen, resetHandlers, close } = setupMirrorMock({ network: "testnet" });
@@ -271,7 +271,7 @@ describe("Account API", () => {
 ### With Custom Fixtures
 
 ```typescript
-import { createFixtureHandlers, mockAccount, mockToken } from "@hiecom/testing";
+import { createFixtureHandlers, mockAccount, mockToken } from "@hieco/testing";
 
 const handlers = createFixtureHandlers({
   network: "testnet",
@@ -284,8 +284,8 @@ server.use(...handlers);
 
 ## Related Packages
 
-- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - REST API client (for testing)
-- [`@hiecom/mirror-react`](https://www.npmjs.com/package/@hiecom/mirror-react) - React hooks
+- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - REST API client (for testing)
+- [`@hieco/mirror-react`](https://www.npmjs.com/package/@hieco/mirror-react) - React hooks
 
 ## License
 

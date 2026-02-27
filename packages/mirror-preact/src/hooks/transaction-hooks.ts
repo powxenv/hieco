@@ -5,13 +5,13 @@ import type {
   UseQueryResult,
   UseInfiniteQueryResult,
 } from "@tanstack/preact-query";
-import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hiecom/mirror-js";
-import type { Transaction, TransactionDetails } from "@hiecom/mirror-js";
-import type { PaginatedResponse } from "@hiecom/mirror-js";
+import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hieco/mirror-js";
+import type { Transaction, TransactionDetails } from "@hieco/mirror-js";
+import type { PaginatedResponse } from "@hieco/mirror-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hiecom/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/mirror-shared";
 
-export type { TransactionListParams, TransactionsByAccountParams } from "@hiecom/mirror-js";
+export type { TransactionListParams, TransactionsByAccountParams } from "@hieco/mirror-js";
 
 type TransactionQueryFnData<T> = ApiResult<T>;
 type TransactionQueryError = ApiError;
