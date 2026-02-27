@@ -17,7 +17,7 @@ This directory contains comprehensive research, analysis, and proposals for the 
 | [01 - Hackathon Overview](./01-overview/)             | Comprehensive analysis of all 5 bounty tracks | ✅ Complete |
 | [02 - Bounty Research](./02-bounty-research/)         | Deep-dive research on Hiero ecosystem         | ✅ Complete |
 | [03 - Proposals](./03-proposals/)                     | Novel DX proposals and unified ecosystem      | ✅ Complete |
-| [04 - Ecosystem Expansion](./04-ecosystem-expansion/) | Seven practical additions to @hiecom          | ✅ Complete |
+| [04 - Ecosystem Expansion](./04-ecosystem-expansion/) | Seven practical additions to @hieco           | ✅ Complete |
 
 ---
 
@@ -33,10 +33,10 @@ brainstorming/
 │   └── hiero-deep-dive.md              # Exhaustive Hiero ecosystem mapping
 ├── 03-proposals/
 │   ├── hiero-dx-proposals.md           # Novel DX-focused proposals
-│   └── hiecom-unified-ecosystem.md     # Unified frontend ecosystem design
+│   └── hieco-unified-ecosystem.md     # Unified frontend ecosystem design
 └── 04-ecosystem-expansion/
     ├── README.md                       # Seven practical additions overview
-    └── testing-prd.md                  # @hiecom/testing comprehensive PRD
+    └── testing-prd.md                  # @hieco/testing comprehensive PRD
 ```
 
 ---
@@ -128,9 +128,9 @@ Exhaustive ecosystem mapping including:
 
 **Differentiation:** All three address genuine pain points with zero existing solutions in the Hiero ecosystem.
 
-#### @hiecom Unified Ecosystem
+#### @hieco Unified Ecosystem
 
-**File:** [`hiecom-unified-ecosystem.md`](./03-proposals/hiecom-unified-ecosystem.md)
+**File:** [`hieco-unified-ecosystem.md`](./03-proposals/hieco-unified-ecosystem.md)
 
 **Proposed Production-Ready Ecosystem:**
 
@@ -138,8 +138,8 @@ A unified, community-driven frontend integration ecosystem covering **React, Sve
 
 **Architecture:**
 
-- Shared core utilities (`@hiecom/core`)
-- Framework-specific packages (`@hiecom/react`, `@hiecom/svelte`, etc.)
+- Shared core utilities (`@hieco/core`)
+- Framework-specific packages (`@hieco/react`, `@hieco/svelte`, etc.)
 - Monorepo structure with Turborepo + pnpm
 - 13,000+ lines of code across 7 packages
 
@@ -159,23 +159,23 @@ A unified, community-driven frontend integration ecosystem covering **React, Sve
 
 **Overview:** [`README.md`](./04-ecosystem-expansion/README.md)
 
-Seven strategic additions to the @hiecom ecosystem based on existing packages and research findings:
+Seven strategic additions to the @hieco ecosystem based on existing packages and research findings:
 
-| Package                   | Impact     | Complexity | Time      |
-| ------------------------- | ---------- | ---------- | --------- |
-| `@hiecom/testing`         | ⭐⭐⭐⭐⭐ | Low        | 6-8 days  |
-| `@hiecom/scheduled`       | ⭐⭐⭐⭐   | Medium     | 7-9 days  |
-| `@hiecom/devtools`        | ⭐⭐⭐⭐⭐ | Medium     | 8-10 days |
-| `@hiecom/mirror-realtime` | ⭐⭐⭐⭐   | Medium     | 5-7 days  |
-| `@hiecom/vault`           | ⭐⭐⭐     | Medium     | 5-7 days  |
-| `@hiecom/mirror-vue`      | ⭐⭐⭐     | Low        | 3-4 days  |
-| `@hiecom/cli`             | ⭐⭐⭐     | Low        | 4-5 days  |
+| Package                  | Impact     | Complexity | Time      |
+| ------------------------ | ---------- | ---------- | --------- |
+| `@hieco/testing`         | ⭐⭐⭐⭐⭐ | Low        | 6-8 days  |
+| `@hieco/scheduled`       | ⭐⭐⭐⭐   | Medium     | 7-9 days  |
+| `@hieco/devtools`        | ⭐⭐⭐⭐⭐ | Medium     | 8-10 days |
+| `@hieco/mirror-realtime` | ⭐⭐⭐⭐   | Medium     | 5-7 days  |
+| `@hieco/vault`           | ⭐⭐⭐     | Medium     | 5-7 days  |
+| `@hieco/mirror-vue`      | ⭐⭐⭐     | Low        | 3-4 days  |
+| `@hieco/cli`             | ⭐⭐⭐     | Low        | 4-5 days  |
 
-#### @hiecom/testing PRD
+#### @hieco/testing PRD
 
 **File:** [`testing-prd.md`](./04-ecosystem-expansion/testing-prd.md)
 
-Comprehensive Product Requirements Document for `@hiecom/testing`:
+Comprehensive Product Requirements Document for `@hieco/testing`:
 
 - Mock Mirror Node server using MSW
 - Pre-built test fixtures for all entities
@@ -195,7 +195,7 @@ Comprehensive Product Requirements Document for `@hiecom/testing`:
 
 ```typescript
 // Zero-config mock server
-import { setupMirrorMock } from "@hiecom/testing/vitest";
+import { setupMirrorMock } from "@hieco/testing/vitest";
 
 const { server } = setupMirrorMock({
   network: "testnet",
@@ -203,20 +203,20 @@ const { server } = setupMirrorMock({
 });
 
 // Test fixtures
-import { mockAccount, mockTransaction } from "@hiecom/testing/fixtures";
+import { mockAccount, mockTransaction } from "@hieco/testing/fixtures";
 
 const account = mockAccount({ balance: 1000 });
 const transactions = mockTransaction.list(10);
 
 // React utilities
-import { renderHook, createTestWrapper } from "@hiecom/testing/react";
+import { renderHook, createTestWrapper } from "@hieco/testing/react";
 
 const { result } = renderHook(() => useAccountBalance("0.0.1234"), {
   wrapper: createTestWrapper(),
 });
 
 // Custom matchers
-import "@hiecom/testing/matchers";
+import "@hieco/testing/matchers";
 
 expect(account).toHaveHbarBalance(1000);
 expect(tx).toBeSuccessfulTransaction();
@@ -244,7 +244,7 @@ All research was conducted using:
 | Feb 22, 2026 | Chose Hiero bounty track              | Strongest fit for frontend/TypeScript expertise  |
 | Feb 22, 2026 | Pivoted from official examples        | Avoid duplication; focus on DX innovation        |
 | Feb 22, 2026 | Expanded to multi-framework ecosystem | Higher impact; addresses ecosystem fragmentation |
-| Feb 22, 2026 | Selected @hiecom namespace            | Community-driven; not vendor-controlled          |
+| Feb 22, 2026 | Selected @hieco namespace             | Community-driven; not vendor-controlled          |
 
 ---
 
@@ -253,7 +253,7 @@ All research was conducted using:
 ### Immediate (Pre-Implementation)
 
 1. **Finalize Proposal Choice**
-   - Evaluate: `@hiero/devtools` vs. `@hiecom` ecosystem
+   - Evaluate: `@hiero/devtools` vs. `@hieco` ecosystem
    - Consider: Scope, timeline, community impact
 
 2. **Validate Feasibility**

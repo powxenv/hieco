@@ -5,7 +5,7 @@
 Get transaction details.
 
 ```bash
-bunx @hiecom/mirror-cli transaction 0.0.123@1654321@987654321
+bunx @hieco/mirror-cli transaction 0.0.123@1654321@987654321
 ```
 
 | Output                 | Description                                            |
@@ -25,7 +25,7 @@ bunx @hiecom/mirror-cli transaction 0.0.123@1654321@987654321
 Get transactions for account.
 
 ```bash
-bunx @hiecom/mirror-cli transactions:account 0.0.123 --limit 20 --result SUCCESS
+bunx @hieco/mirror-cli transactions:account 0.0.123 --limit 20 --result SUCCESS
 ```
 
 | Option           | Description                      |
@@ -40,7 +40,7 @@ bunx @hiecom/mirror-cli transactions:account 0.0.123 --limit 20 --result SUCCESS
 List all transactions.
 
 ```bash
-bunx @hiecom/mirror-cli transactions:list --limit 50 --order desc
+bunx @hieco/mirror-cli transactions:list --limit 50 --order desc
 ```
 
 | Option           | Description      |

@@ -1,5 +1,5 @@
 {
-  "name": "@hiecom/testing",
+  "name": "@hieco/testing",
   "version": "0.0.1",
   "description": "Testing utilities for Hedera Mirror Node development with MSW fixtures and helpers",
   "keywords": [
@@ -11,15 +11,15 @@
     "test-utils",
     "testing"
   ],
-  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/testing",
+  "homepage": "https://github.com/powxenv/hieco/tree/main/packages/testing",
   "bugs": {
-    "url": "https://github.com/powxenv/hiecom/issues"
+    "url": "https://github.com/powxenv/hieco/issues"
   },
   "license": "MIT",
   "author": "pow <https://github.com/powxenv>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/powxenv/hiecom",
+    "url": "https://github.com/powxenv/hieco",
     "directory": "packages/testing"
   },
   "files": [
@@ -56,8 +56,8 @@
     "test:coverage": "bun test --coverage"
   },
   "dependencies": {
-    "@hiecom/mirror-js": "workspace:*",
-    "@hiecom/mirror-shared": "workspace:*"
+    "@hieco/mirror-js": "workspace:*",
+    "@hieco/mirror-shared": "workspace:*"
   },
   "devDependencies": {
     "@typescript/native-preview": "^7.0.0-dev.20260222.1",

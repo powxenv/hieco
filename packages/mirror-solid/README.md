@@ -1,4 +1,4 @@
-# @hiecom/mirror-solid
+# @hieco/mirror-solid
 
 Type-safe SolidJS hooks for Hedera Mirror Node API with TanStack Query.
 
@@ -15,16 +15,16 @@ Type-safe SolidJS hooks for Hedera Mirror Node API with TanStack Query.
 
 ```bash
 # bun
-bun add @hiecom/mirror-js @hiecom/mirror-solid @tanstack/solid-query
+bun add @hieco/mirror-js @hieco/mirror-solid @tanstack/solid-query
 
 # npm
-npm install @hiecom/mirror-js @hiecom/mirror-solid @tanstack/solid-query
+npm install @hieco/mirror-js @hieco/mirror-solid @tanstack/solid-query
 
 # pnpm
-pnpm add @hiecom/mirror-js @hiecom/mirror-solid @tanstack/solid-query
+pnpm add @hieco/mirror-js @hieco/mirror-solid @tanstack/solid-query
 
 # yarn
-yarn add @hiecom/mirror-js @hiecom/mirror-solid @tanstack/solid-query
+yarn add @hieco/mirror-js @hieco/mirror-solid @tanstack/solid-query
 ```
 
 ## Quick Start
@@ -33,7 +33,7 @@ yarn add @hiecom/mirror-js @hiecom/mirror-solid @tanstack/solid-query
 
 ```tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
-import { MirrorNodeProvider, createNetworkConfig } from "@hiecom/mirror-solid";
+import { MirrorNodeProvider, createNetworkConfig } from "@hieco/mirror-solid";
 
 const queryClient = new QueryClient();
 
@@ -59,7 +59,7 @@ export function App() {
 ### Step 2: Use hooks in your components
 
 ```tsx
-import { createAccountInfo } from "@hiecom/mirror-solid";
+import { createAccountInfo } from "@hieco/mirror-solid";
 
 function AccountBalance(props: { accountId: string }) {
   const query = createAccountInfo(() => ({
@@ -199,7 +199,7 @@ createNetworkSupply()
 ### Reactive Options
 
 ```tsx
-import { createAccountInfo } from "@hiecom/mirror-solid";
+import { createAccountInfo } from "@hieco/mirror-solid";
 
 function AccountComponent() {
   const [accountId, setAccountId] = createSignal("0.0.123");
@@ -220,7 +220,7 @@ function AccountComponent() {
 ### Infinite Scroll
 
 ```tsx
-import { createTokensInfinite } from "@hiecom/mirror-solid";
+import { createTokensInfinite } from "@hieco/mirror-solid";
 import { Show, For } from "solid-js";
 
 function TokenList() {
@@ -247,9 +247,9 @@ function TokenList() {
 
 ## Related Packages
 
-- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - Core REST API client
-- [`@hiecom/mirror-shared`](https://github.com/powxenv/hiecom/tree/main/packages/mirror-shared) - Shared utilities (internal)
-- [`@hiecom/realtime`](https://www.npmjs.com/package/@hiecom/realtime) - WebSocket streaming client
+- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - Core REST API client
+- [`@hieco/mirror-shared`](https://github.com/powxenv/hieco/tree/main/packages/mirror-shared) - Shared utilities (internal)
+- [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - WebSocket streaming client
 
 ## License
 

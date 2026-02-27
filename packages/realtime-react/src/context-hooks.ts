@@ -1,8 +1,8 @@
 import { useContext, useState } from "react";
 import { RealtimeContext } from "./provider";
 import type { RealtimeContextValue } from "./provider";
-import type { StreamState, RelayWebSocketClient } from "@hiecom/realtime";
-import type { ApiResult } from "@hiecom/mirror-js";
+import type { StreamState, RelayWebSocketClient } from "@hieco/realtime";
+import type { ApiResult } from "@hieco/mirror-js";
 
 export function useRealtimeContext(): RealtimeContextValue {
   const context = useContext(RealtimeContext);

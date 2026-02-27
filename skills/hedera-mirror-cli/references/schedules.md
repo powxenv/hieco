@@ -5,7 +5,7 @@
 Get scheduled transaction.
 
 ```bash
-bunx @hiecom/mirror-cli schedule 0.0.456
+bunx @hieco/mirror-cli schedule 0.0.456
 ```
 
 | Output           | Description                   |
@@ -23,7 +23,7 @@ bunx @hiecom/mirror-cli schedule 0.0.456
 List all scheduled transactions.
 
 ```bash
-bunx @hiecom/mirror-cli schedules:list --limit 100 --order desc
+bunx @hieco/mirror-cli schedules:list --limit 100 --order desc
 ```
 
 | Option          | Description     |

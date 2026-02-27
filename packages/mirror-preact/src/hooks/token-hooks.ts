@@ -11,14 +11,14 @@ import type {
   EntityId,
   PaginationParams,
   QueryOperator,
-} from "@hiecom/mirror-js";
-import type { Nft, TokenDistribution, TokenInfo } from "@hiecom/mirror-js";
-import type { Transaction } from "@hiecom/mirror-js";
-import type { PaginatedResponse } from "@hiecom/mirror-js";
+} from "@hieco/mirror-js";
+import type { Nft, TokenDistribution, TokenInfo } from "@hieco/mirror-js";
+import type { Transaction } from "@hieco/mirror-js";
+import type { PaginatedResponse } from "@hieco/mirror-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hiecom/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/mirror-shared";
 
-export type { TokenListParams, TokenBalancesParams, TokenNftsParams } from "@hiecom/mirror-js";
+export type { TokenListParams, TokenBalancesParams, TokenNftsParams } from "@hieco/mirror-js";
 
 type TokenQueryFnData<T> = ApiResult<T>;
 type TokenQueryError = ApiError;

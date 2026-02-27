@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, EntityId, PaginationParams } from "@hiecom/mirror-js";
-import type { PaginatedResponse, Topic, TopicMessage } from "@hiecom/mirror-js";
+import type { ApiResult, ApiError, EntityId, PaginationParams } from "@hieco/mirror-js";
+import type { PaginatedResponse, Topic, TopicMessage } from "@hieco/mirror-js";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hiecom/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/mirror-shared";
 import { createMirrorNodeInfiniteQuery } from "../utils";
 
-export type { TopicMessagesParams } from "@hiecom/mirror-js";
+export type { TopicMessagesParams } from "@hieco/mirror-js";
 
 export interface CreateTopicInfoOptions {
   readonly topicId: EntityId;

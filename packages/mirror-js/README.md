@@ -1,4 +1,4 @@
-# @hiecom/mirror-js
+# @hieco/mirror-js
 
 Hedera Mirror Node REST API client for JavaScript/TypeScript.
 
@@ -15,22 +15,22 @@ Hedera Mirror Node REST API client for JavaScript/TypeScript.
 
 ```bash
 # bun
-bun add @hiecom/mirror-js
+bun add @hieco/mirror-js
 
 # npm
-npm install @hiecom/mirror-js
+npm install @hieco/mirror-js
 
 # pnpm
-pnpm add @hiecom/mirror-js
+pnpm add @hieco/mirror-js
 
 # yarn
-yarn add @hiecom/mirror-js
+yarn add @hieco/mirror-js
 ```
 
 ## Quick Start
 
 ```typescript
-import { createMirrorNodeClient } from "@hiecom/mirror-js";
+import { createMirrorNodeClient } from "@hieco/mirror-js";
 
 const client = createMirrorNodeClient({ network: "mainnet" });
 
@@ -50,7 +50,7 @@ if (result.success) {
 #### createMirrorNodeClient
 
 ```typescript
-import { createMirrorNodeClient } from "@hiecom/mirror-js";
+import { createMirrorNodeClient } from "@hieco/mirror-js";
 
 // Predefined networks
 const mainnetClient = createMirrorNodeClient({ network: "mainnet" });
@@ -327,15 +327,15 @@ if (result.success) {
 
 For React, Preact, and SolidJS, use the framework-specific packages:
 
-- [`@hiecom/mirror-react`](https://www.npmjs.com/package/@hiecom/mirror-react) - React hooks with TanStack Query
-- [`@hiecom/mirror-preact`](https://www.npmjs.com/package/@hiecom/mirror-preact) - Preact hooks with TanStack Query
-- [`@hiecom/mirror-solid`](https://www.npmjs.com/package/@hiecom/mirror-solid) - SolidJS hooks with TanStack Query
+- [`@hieco/mirror-react`](https://www.npmjs.com/package/@hieco/mirror-react) - React hooks with TanStack Query
+- [`@hieco/mirror-preact`](https://www.npmjs.com/package/@hieco/mirror-preact) - Preact hooks with TanStack Query
+- [`@hieco/mirror-solid`](https://www.npmjs.com/package/@hieco/mirror-solid) - SolidJS hooks with TanStack Query
 
 ## Related Packages
 
-- [`@hiecom/types`](https://github.com/powxenv/hiecom/tree/main/packages/types) - Shared TypeScript types (internal)
-- [`@hiecom/mirror-shared`](https://github.com/powxenv/hiecom/tree/main/packages/mirror-shared) - Shared utilities (internal)
-- [`@hiecom/realtime`](https://www.npmjs.com/package/@hiecom/realtime) - WebSocket streaming client
+- [`@hieco/types`](https://github.com/powxenv/hieco/tree/main/packages/types) - Shared TypeScript types (internal)
+- [`@hieco/mirror-shared`](https://github.com/powxenv/hieco/tree/main/packages/mirror-shared) - Shared utilities (internal)
+- [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - WebSocket streaming client
 
 ## License
 

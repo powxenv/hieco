@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import type { EntityId } from "@hiecom/mirror-js";
-import type { AccountInfo, Balance, TokenRelationship } from "@hiecom/mirror-js";
+import type { EntityId } from "@hieco/mirror-js";
+import type { AccountInfo, Balance, TokenRelationship } from "@hieco/mirror-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys, isSuccess } from "@hiecom/mirror-shared";
+import { mirrorNodeKeys, isSuccess } from "@hieco/mirror-shared";
 
 export interface UseAccountOverviewOptions {
   readonly accountId: EntityId;

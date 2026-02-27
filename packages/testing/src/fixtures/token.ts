@@ -1,4 +1,4 @@
-import type { TokenInfo, CustomFees, EntityId } from "@hiecom/mirror-js";
+import type { TokenInfo, CustomFees, EntityId } from "@hieco/mirror-js";
 import { state } from "../utils/state.js";
 import type { Factory } from "./account.js";
 

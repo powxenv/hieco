@@ -1,4 +1,4 @@
-import type { NetworkType, ApiError } from "@hiecom/types";
+import type { NetworkType, ApiError } from "@hieco/types";
 
 export type StreamState =
   | { readonly _tag: "Disconnected" }

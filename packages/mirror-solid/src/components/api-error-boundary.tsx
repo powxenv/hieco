@@ -1,6 +1,6 @@
 import type { JSX } from "solid-js";
 import { ErrorBoundary, resetErrorBoundaries } from "solid-js";
-import type { ApiError } from "@hiecom/mirror-js";
+import type { ApiError } from "@hieco/mirror-js";
 
 export interface ApiErrorFallbackProps {
   error: ApiError;
@@ -30,9 +30,9 @@ export function ApiErrorBoundary(props: ApiErrorBoundaryProps): JSX.Element {
         const apiError: ApiError = isApiError(error)
           ? error
           : {
-              _tag: "UnknownError",
-              message: error instanceof Error ? error.message : "Unknown error occurred",
-            };
+            _tag: "UnknownError",
+            message: error instanceof Error ? error.message : "Unknown error occurred",
+          };
 
         return props.fallback({
           error: apiError,

@@ -5,7 +5,7 @@
 Get token information.
 
 ```bash
-bunx @hiecom/mirror-cli token 0.0.456
+bunx @hieco/mirror-cli token 0.0.456
 ```
 
 | Output       | Description                            |
@@ -28,7 +28,7 @@ bunx @hiecom/mirror-cli token 0.0.456
 Get balances for token.
 
 ```bash
-bunx @hiecom/mirror-cli token:balances 0.0.456 --limit 100
+bunx @hieco/mirror-cli token:balances 0.0.456 --limit 100
 ```
 
 | Option              | Description          |
@@ -47,7 +47,7 @@ bunx @hiecom/mirror-cli token:balances 0.0.456 --limit 100
 Get NFTs for token.
 
 ```bash
-bunx @hiecom/mirror-cli token:nfts 0.0.456 --account-id 0.0.789 --limit 50
+bunx @hieco/mirror-cli token:nfts 0.0.456 --account-id 0.0.789 --limit 50
 ```
 
 | Option              | Description          |
@@ -70,7 +70,7 @@ bunx @hiecom/mirror-cli token:nfts 0.0.456 --account-id 0.0.789 --limit 50
 Get specific NFT.
 
 ```bash
-bunx @hiecom/mirror-cli token:nft 0.0.456 123
+bunx @hieco/mirror-cli token:nft 0.0.456 123
 ```
 
 | Output             | Description             |
@@ -88,7 +88,7 @@ bunx @hiecom/mirror-cli token:nft 0.0.456 123
 Get NFT transaction history.
 
 ```bash
-bunx @hiecom/mirror-cli token:nft:transactions 0.0.456 123 --limit 50
+bunx @hieco/mirror-cli token:nft:transactions 0.0.456 123 --limit 50
 ```
 
 | Option          | Description     |
@@ -109,7 +109,7 @@ bunx @hiecom/mirror-cli token:nft:transactions 0.0.456 123 --limit 50
 List all tokens.
 
 ```bash
-bunx @hiecom/mirror-cli tokens:list --limit 50 --order desc
+bunx @hieco/mirror-cli tokens:list --limit 50 --order desc
 ```
 
 | Option          | Description     |

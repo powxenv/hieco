@@ -9,6 +9,6 @@ export type {
   EntityId,
   Timestamp,
   Key,
-} from "@hiecom/types";
+} from "@hieco/types";
 
-export { ApiErrorFactory, NETWORK_CONFIGS } from "@hiecom/types";
+export { ApiErrorFactory, NETWORK_CONFIGS } from "@hieco/types";

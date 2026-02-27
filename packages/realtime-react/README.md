@@ -1,6 +1,6 @@
-# @hiecom/realtime-react
+# @hieco/realtime-react
 
-React hooks for `@hiecom/realtime` with automatic subscription management.
+React hooks for `@hieco/realtime` with automatic subscription management.
 
 ## Features
 
@@ -13,16 +13,16 @@ React hooks for `@hiecom/realtime` with automatic subscription management.
 
 ```bash
 # bun
-bun add @hiecom/realtime @hiecom/realtime-react
+bun add @hieco/realtime @hieco/realtime-react
 
 # npm
-npm install @hiecom/realtime @hiecom/realtime-react
+npm install @hieco/realtime @hieco/realtime-react
 
 # pnpm
-pnpm add @hiecom/realtime @hiecom/realtime-react
+pnpm add @hieco/realtime @hieco/realtime-react
 
 # yarn
-yarn add @hiecom/realtime @hiecom/realtime-react
+yarn add @hieco/realtime @hieco/realtime-react
 ```
 
 ## Quick Start
@@ -30,7 +30,7 @@ yarn add @hiecom/realtime @hiecom/realtime-react
 ### Step 1: Wrap your app with provider
 
 ```tsx
-import { RealtimeProvider } from "@hiecom/realtime-react";
+import { RealtimeProvider } from "@hieco/realtime-react";
 
 export function App() {
   return (
@@ -49,7 +49,7 @@ export function App() {
 ### Step 2: Use hooks in your components
 
 ```tsx
-import { useContractLogs, useStreamState } from "@hiecom/realtime-react";
+import { useContractLogs, useStreamState } from "@hieco/realtime-react";
 
 function ContractLogs() {
   const { logs, isConnected, error } = useContractLogs({
@@ -135,7 +135,7 @@ useChainId(): {
 ### Connection Management
 
 ```tsx
-import { useRealtimeContext } from "@hiecom/realtime-react";
+import { useRealtimeContext } from "@hieco/realtime-react";
 
 function ConnectionControls() {
   const { state, connect, disconnect } = useRealtimeContext();
@@ -153,7 +153,7 @@ function ConnectionControls() {
 ### Custom Subscription
 
 ```tsx
-import { useRealtimeClient } from "@hiecom/realtime-react";
+import { useRealtimeClient } from "@hieco/realtime-react";
 
 function CustomSubscription() {
   const client = useRealtimeClient();
@@ -201,8 +201,8 @@ interface RealtimeConfig {
 
 ## Related Packages
 
-- [`@hiecom/realtime`](https://www.npmjs.com/package/@hiecom/realtime) - Core WebSocket client
-- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - REST API client
+- [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - Core WebSocket client
+- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - REST API client
 
 ## License
 

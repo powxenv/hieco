@@ -1,6 +1,6 @@
 import type { StreamState, StreamConfig } from "../types/stream";
 import type { RelaySubscription, RelayMessage } from "../types/subscription";
-import type { ApiResult } from "@hiecom/types";
+import type { ApiResult } from "@hieco/types";
 import { RelayWebSocketClient } from "./relay";
 
 export type LoadBalancingStrategy = "round-robin" | "least-loaded" | "random";

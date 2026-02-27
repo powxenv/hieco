@@ -1,10 +1,10 @@
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
-import type { ApiResult, ApiError, TransactionDetails } from "@hiecom/mirror-js";
-import type { EntityId } from "@hiecom/mirror-js";
+import type { ApiResult, ApiError, TransactionDetails } from "@hieco/mirror-js";
+import type { EntityId } from "@hieco/mirror-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys, isSuccess, isApiError } from "@hiecom/mirror-shared";
+import { mirrorNodeKeys, isSuccess, isApiError } from "@hieco/mirror-shared";
 
 export interface UsePollTransactionOptions extends Omit<
   UseQueryOptions<ApiResult<TransactionDetails>, ApiError>,

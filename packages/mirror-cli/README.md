@@ -1,4 +1,4 @@
-# @hiecom/mirror-cli
+# @hieco/mirror-cli
 
 CLI tool for querying Hedera Mirror Node REST API.
 
@@ -16,27 +16,27 @@ CLI tool for querying Hedera Mirror Node REST API.
 No installation required - use via **bunx** or **npx**:
 
 ```bash
-bunx @hiecom/mirror-cli <command> [options]
-npx @hiecom/mirror-cli <command> [options]
+bunx @hieco/mirror-cli <command> [options]
+npx @hieco/mirror-cli <command> [options]
 ```
 
 ## Quick Start
 
 ```bash
 # Check account balance
-bunx @hiecom/mirror-cli balance 0.0.123
+bunx @hieco/mirror-cli balance 0.0.123
 
 # Get transaction details
-bunx @hiecom/mirror-cli transaction 0.0.123@1654321@987654321
+bunx @hieco/mirror-cli transaction 0.0.123@1654321@987654321
 
 # Query token information
-bunx @hiecom/mirror-cli token 0.0.456
+bunx @hieco/mirror-cli token 0.0.456
 
 # Network status
-bunx @hiecom/mirror-cli network
+bunx @hieco/mirror-cli network
 
 # JSON output
-bunx @hiecom/mirror-cli account 0.0.123 --json
+bunx @hieco/mirror-cli account 0.0.123 --json
 ```
 
 ## Global Options
@@ -55,182 +55,182 @@ bunx @hiecom/mirror-cli account 0.0.123 --json
 
 ```bash
 # Account info
-bunx @hiecom/mirror-cli account <accountId>
+bunx @hieco/mirror-cli account <accountId>
 
 # Account balance
-bunx @hiecom/mirror-cli balance <accountId>
+bunx @hieco/mirror-cli balance <accountId>
 
 # Account balances with filters
-bunx @hiecom/mirror-cli balances --account <accountId>
+bunx @hieco/mirror-cli balances --account <accountId>
 
 # List all balances
-bunx @hiecom/mirror-cli balances:list
+bunx @hieco/mirror-cli balances:list
 
 # Account tokens
-bunx @hiecom/mirror-cli account:tokens <accountId>
+bunx @hieco/mirror-cli account:tokens <accountId>
 
 # Account NFTs
-bunx @hiecom/mirror-cli account:nfts <accountId>
+bunx @hieco/mirror-cli account:nfts <accountId>
 
 # Staking rewards
-bunx @hiecom/mirror-cli account:rewards <accountId>
+bunx @hieco/mirror-cli account:rewards <accountId>
 
 # HBAR allowances
-bunx @hiecom/mirror-cli account:crypto-allowances <accountId>
+bunx @hieco/mirror-cli account:crypto-allowances <accountId>
 
 # Token allowances
-bunx @hiecom/mirror-cli account:token-allowances <accountId>
+bunx @hieco/mirror-cli account:token-allowances <accountId>
 
 # NFT allowances
-bunx @hiecom/mirror-cli account:nft-allowances <accountId>
+bunx @hieco/mirror-cli account:nft-allowances <accountId>
 
 # Outstanding airdrops
-bunx @hiecom/mirror-cli account:airdrops:outstanding <accountId>
+bunx @hieco/mirror-cli account:airdrops:outstanding <accountId>
 
 # Pending airdrops
-bunx @hiecom/mirror-cli account:airdrops:pending <accountId>
+bunx @hieco/mirror-cli account:airdrops:pending <accountId>
 
 # List accounts
-bunx @hiecom/mirror-cli accounts:list --balance-gte 100000000000
+bunx @hieco/mirror-cli accounts:list --balance-gte 100000000000
 ```
 
 ### Tokens (6 commands)
 
 ```bash
 # Token info
-bunx @hiecom/mirror-cli token <tokenId>
+bunx @hieco/mirror-cli token <tokenId>
 
 # Token balances
-bunx @hiecom/mirror-cli token:balances <tokenId>
+bunx @hieco/mirror-cli token:balances <tokenId>
 
 # Token NFTs
-bunx @hiecom/mirror-cli token:nfts <tokenId>
+bunx @hieco/mirror-cli token:nfts <tokenId>
 
 # Specific NFT
-bunx @hiecom/mirror-cli token:nft <tokenId> <serial>
+bunx @hieco/mirror-cli token:nft <tokenId> <serial>
 
 # NFT transactions
-bunx @hiecom/mirror-cli token:nft:transactions <tokenId> <serial>
+bunx @hieco/mirror-cli token:nft:transactions <tokenId> <serial>
 
 # List tokens
-bunx @hiecom/mirror-cli tokens:list
+bunx @hieco/mirror-cli tokens:list
 ```
 
 ### Transactions (3 commands)
 
 ```bash
 # Transaction details
-bunx @hiecom/mirror-cli transaction <transactionId>
+bunx @hieco/mirror-cli transaction <transactionId>
 
 # Transactions by account
-bunx @hiecom/mirror-cli transactions:account <accountId>
+bunx @hieco/mirror-cli transactions:account <accountId>
 
 # List transactions
-bunx @hiecom/mirror-cli transactions:list
+bunx @hieco/mirror-cli transactions:list
 ```
 
 ### Blocks (3 commands)
 
 ```bash
 # Block info
-bunx @hiecom/mirror-cli block <hashOrNumber>
+bunx @hieco/mirror-cli block <hashOrNumber>
 
 # Query blocks
-bunx @hiecom/mirror-cli blocks
+bunx @hieco/mirror-cli blocks
 
 # List blocks
-bunx @hiecom/mirror-cli blocks:list
+bunx @hieco/mirror-cli blocks:list
 ```
 
 ### Contracts (12 commands)
 
 ```bash
 # Contract info
-bunx @hiecom/mirror-cli contract <contractId>
+bunx @hieco/mirror-cli contract <contractId>
 
 # Contract call
-bunx @hiecom/mirror-cli contract:call <contractId> --data <hex>
+bunx @hieco/mirror-cli contract:call <contractId> --data <hex>
 
 # Contract results
-bunx @hiecom/mirror-cli contract:results <contractId>
+bunx @hieco/mirror-cli contract:results <contractId>
 
 # Specific result
-bunx @hiecom/mirror-cli contract:result <contractId> <timestamp>
+bunx @hieco/mirror-cli contract:result <contractId> <timestamp>
 
 # Contract state
-bunx @hiecom/mirror-cli contract:state <contractId>
+bunx @hieco/mirror-cli contract:state <contractId>
 
 # Contract logs
-bunx @hiecom/mirror-cli contract:logs <contractId>
+bunx @hieco/mirror-cli contract:logs <contractId>
 
 # All contract results
-bunx @hiecom/mirror-cli contracts:results
+bunx @hieco/mirror-cli contracts:results
 
 # Result by transaction
-bunx @hiecom/mirror-cli contract:by-tx <transactionIdOrHash>
+bunx @hieco/mirror-cli contract:by-tx <transactionIdOrHash>
 
 # Result actions
-bunx @hiecom/mirror-cli contract:actions <transactionIdOrHash>
+bunx @hieco/mirror-cli contract:actions <transactionIdOrHash>
 
 # Result opcodes
-bunx @hiecom/mirror-cli contract:opcodes <transactionIdOrHash>
+bunx @hieco/mirror-cli contract:opcodes <transactionIdOrHash>
 
 # List contracts
-bunx @hiecom/mirror-cli contracts:list
+bunx @hieco/mirror-cli contracts:list
 ```
 
 ### Schedules (2 commands)
 
 ```bash
 # Schedule info
-bunx @hiecom/mirror-cli schedule <scheduleId>
+bunx @hieco/mirror-cli schedule <scheduleId>
 
 # List schedules
-bunx @hiecom/mirror-cli schedules:list
+bunx @hieco/mirror-cli schedules:list
 ```
 
 ### Topics (5 commands)
 
 ```bash
 # Topic info
-bunx @hiecom/mirror-cli topic <topicId>
+bunx @hieco/mirror-cli topic <topicId>
 
 # Topic messages
-bunx @hiecom/mirror-cli topic:messages <topicId>
+bunx @hieco/mirror-cli topic:messages <topicId>
 
 # Specific message
-bunx @hiecom/mirror-cli topic:message <topicId> <sequenceNumber>
+bunx @hieco/mirror-cli topic:message <topicId> <sequenceNumber>
 
 # Message by timestamp
-bunx @hiecom/mirror-cli topic:message-by-timestamp <timestamp>
+bunx @hieco/mirror-cli topic:message-by-timestamp <timestamp>
 
 # List topics
-bunx @hiecom/mirror-cli topics:list
+bunx @hieco/mirror-cli topics:list
 ```
 
 ### Network (7 commands)
 
 ```bash
 # Network information
-bunx @hiecom/mirror-cli network
+bunx @hieco/mirror-cli network
 
 # Exchange rate
-bunx @hiecom/mirror-cli network:exchange-rate
+bunx @hieco/mirror-cli network:exchange-rate
 
 # Network fees
-bunx @hiecom/mirror-cli network:fees
+bunx @hieco/mirror-cli network:fees
 
 # Network nodes
-bunx @hiecom/mirror-cli network:nodes
+bunx @hieco/mirror-cli network:nodes
 
 # Network stake
-bunx @hiecom/mirror-cli network:stake
+bunx @hieco/mirror-cli network:stake
 
 # Network supply
-bunx @hiecom/mirror-cli network:supply
+bunx @hieco/mirror-cli network:supply
 
 # List network nodes
-bunx @hiecom/mirror-cli network:nodes:list
+bunx @hieco/mirror-cli network:nodes:list
 ```
 
 ## ID Formats
@@ -279,10 +279,10 @@ AI agents can use this skill to query Hedera blockchain data by invoking CLI com
 
 ## Related Packages
 
-- [`@hiecom/mirror-js`](https://www.npmjs.com/package/@hiecom/mirror-js) - REST API client for programmatic access
-- [`@hiecom/mirror-react`](https://www.npmjs.com/package/@hiecom/mirror-react) - React hooks with TanStack Query
-- [`@hiecom/mirror-preact`](https://www.npmjs.com/package/@hiecom/mirror-preact) - Preact hooks with TanStack Query
-- [`@hiecom/mirror-solid`](https://www.npmjs.com/package/@hiecom/mirror-solid) - SolidJS hooks with TanStack Query
+- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - REST API client for programmatic access
+- [`@hieco/mirror-react`](https://www.npmjs.com/package/@hieco/mirror-react) - React hooks with TanStack Query
+- [`@hieco/mirror-preact`](https://www.npmjs.com/package/@hieco/mirror-preact) - Preact hooks with TanStack Query
+- [`@hieco/mirror-solid`](https://www.npmjs.com/package/@hieco/mirror-solid) - SolidJS hooks with TanStack Query
 
 ## License
 

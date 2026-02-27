@@ -5,7 +5,7 @@
 Get network information.
 
 ```bash
-bunx @hiecom/mirror-cli network
+bunx @hieco/mirror-cli network
 ```
 
 | Output       | Description                  |
@@ -19,7 +19,7 @@ bunx @hiecom/mirror-cli network
 Get HBAR to USD exchange rate.
 
 ```bash
-bunx @hiecom/mirror-cli network:exchange-rate
+bunx @hieco/mirror-cli network:exchange-rate
 ```
 
 | Output               | Description           |
@@ -32,7 +32,7 @@ bunx @hiecom/mirror-cli network:exchange-rate
 Get network fee schedules.
 
 ```bash
-bunx @hiecom/mirror-cli network:fees
+bunx @hieco/mirror-cli network:fees
 ```
 
 | Output           | Description            |
@@ -46,7 +46,7 @@ bunx @hiecom/mirror-cli network:fees
 Get network nodes.
 
 ```bash
-bunx @hiecom/mirror-cli network:nodes --limit 50
+bunx @hieco/mirror-cli network:nodes --limit 50
 ```
 
 | Option          | Description     |
@@ -65,7 +65,7 @@ bunx @hiecom/mirror-cli network:nodes --limit 50
 Get network staking information.
 
 ```bash
-bunx @hiecom/mirror-cli network:stake
+bunx @hieco/mirror-cli network:stake
 ```
 
 | Output                   | Description                 |
@@ -78,7 +78,7 @@ bunx @hiecom/mirror-cli network:stake
 Get HBAR token supply.
 
 ```bash
-bunx @hiecom/mirror-cli network:supply
+bunx @hieco/mirror-cli network:supply
 ```
 
 | Output             | Description             |
@@ -91,7 +91,7 @@ bunx @hiecom/mirror-cli network:supply
 List all network nodes.
 
 ```bash
-bunx @hiecom/mirror-cli network:nodes:list --limit 100
+bunx @hieco/mirror-cli network:nodes:list --limit 100
 ```
 
 | Option          | Description     |
@@ -126,5 +126,5 @@ bunx @hiecom/mirror-cli network:nodes:list --limit 100
 | Previewnet | `previewnet`        |
 
 ```bash
-bunx @hiecom/mirror-cli account 0.0.123 -n testnet
+bunx @hieco/mirror-cli account 0.0.123 -n testnet
 ```

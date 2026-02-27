@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, Timestamp } from "@hiecom/mirror-js";
-import type { BlocksResponse, Block } from "@hiecom/mirror-js";
+import type { ApiResult, ApiError, Timestamp } from "@hieco/mirror-js";
+import type { BlocksResponse, Block } from "@hieco/mirror-js";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hiecom/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/mirror-shared";
 
-export type { BlocksListParams } from "@hiecom/mirror-js";
+export type { BlocksListParams } from "@hieco/mirror-js";
 
 export interface CreateBlocksOptions {
   readonly params?: {

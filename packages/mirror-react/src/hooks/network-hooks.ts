@@ -1,15 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
-import type { ApiResult, ApiError } from "@hiecom/mirror-js";
+import type { ApiResult, ApiError } from "@hieco/mirror-js";
 import type {
   ExchangeRate,
   NetworkFee,
   NetworkNode,
   NetworkStake,
   NetworkSupply,
-} from "@hiecom/mirror-js";
+} from "@hieco/mirror-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hiecom/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/mirror-shared";
 
 type NetworkQueryFnData<T> = ApiResult<T>;
 type NetworkQueryError = ApiError;
@@ -17,7 +17,7 @@ type NetworkQueryError = ApiError;
 export interface UseNetworkExchangeRateOptions extends Omit<
   UseQueryOptions<NetworkQueryFnData<ExchangeRate>, NetworkQueryError>,
   "queryKey" | "queryFn"
-> {}
+> { }
 
 export type UseNetworkExchangeRateResult = UseQueryResult<
   NetworkQueryFnData<ExchangeRate>,
@@ -27,7 +27,7 @@ export type UseNetworkExchangeRateResult = UseQueryResult<
 export interface UseNetworkFeesOptions extends Omit<
   UseQueryOptions<NetworkQueryFnData<NetworkFee>, NetworkQueryError>,
   "queryKey" | "queryFn"
-> {}
+> { }
 
 export type UseNetworkFeesResult = UseQueryResult<
   NetworkQueryFnData<NetworkFee>,
@@ -37,7 +37,7 @@ export type UseNetworkFeesResult = UseQueryResult<
 export interface UseNetworkNodesOptions extends Omit<
   UseQueryOptions<NetworkQueryFnData<NetworkNode[]>, NetworkQueryError>,
   "queryKey" | "queryFn"
-> {}
+> { }
 
 export type UseNetworkNodesResult = UseQueryResult<
   NetworkQueryFnData<NetworkNode[]>,
@@ -47,7 +47,7 @@ export type UseNetworkNodesResult = UseQueryResult<
 export interface UseNetworkStakeOptions extends Omit<
   UseQueryOptions<NetworkQueryFnData<NetworkStake>, NetworkQueryError>,
   "queryKey" | "queryFn"
-> {}
+> { }
 
 export type UseNetworkStakeResult = UseQueryResult<
   NetworkQueryFnData<NetworkStake>,
@@ -57,7 +57,7 @@ export type UseNetworkStakeResult = UseQueryResult<
 export interface UseNetworkSupplyOptions extends Omit<
   UseQueryOptions<NetworkQueryFnData<NetworkSupply>, NetworkQueryError>,
   "queryKey" | "queryFn"
-> {}
+> { }
 
 export type UseNetworkSupplyResult = UseQueryResult<
   NetworkQueryFnData<NetworkSupply>,

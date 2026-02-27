@@ -5,7 +5,7 @@
 Get account details.
 
 ```bash
-bunx @hiecom/mirror-cli account 0.0.123
+bunx @hieco/mirror-cli account 0.0.123
 ```
 
 | Output         | Description                          |
@@ -22,7 +22,7 @@ bunx @hiecom/mirror-cli account 0.0.123
 Get account balances (HBAR + tokens).
 
 ```bash
-bunx @hiecom/mirror-cli balance 0.0.123
+bunx @hieco/mirror-cli balance 0.0.123
 ```
 
 | Output         | Description            |
@@ -36,7 +36,7 @@ bunx @hiecom/mirror-cli balance 0.0.123
 Query balances with filters.
 
 ```bash
-bunx @hiecom/mirror-cli balances --account-id 0.0.123 --limit 50
+bunx @hieco/mirror-cli balances --account-id 0.0.123 --limit 50
 ```
 
 | Option              | Description          |
@@ -50,7 +50,7 @@ bunx @hiecom/mirror-cli balances --account-id 0.0.123 --limit 50
 List all balances.
 
 ```bash
-bunx @hiecom/mirror-cli balances:list --limit 100
+bunx @hieco/mirror-cli balances:list --limit 100
 ```
 
 ## `account:tokens <id>`
@@ -58,7 +58,7 @@ bunx @hiecom/mirror-cli balances:list --limit 100
 Get all tokens for account.
 
 ```bash
-bunx @hiecom/mirror-cli account:tokens 0.0.123 --limit 50
+bunx @hieco/mirror-cli account:tokens 0.0.123 --limit 50
 ```
 
 | Output   | Description          |
@@ -72,7 +72,7 @@ bunx @hiecom/mirror-cli account:tokens 0.0.123 --limit 50
 Get NFTs held by account.
 
 ```bash
-bunx @hiecom/mirror-cli account:nfts 0.0.123 --limit 100
+bunx @hieco/mirror-cli account:nfts 0.0.123 --limit 100
 ```
 
 | Output        | Description          |
@@ -86,7 +86,7 @@ bunx @hiecom/mirror-cli account:nfts 0.0.123 --limit 100
 Get staking rewards.
 
 ```bash
-bunx @hiecom/mirror-cli account:rewards 0.0.123 --limit 50
+bunx @hieco/mirror-cli account:rewards 0.0.123 --limit 50
 ```
 
 | Output    | Description               |
@@ -100,7 +100,7 @@ bunx @hiecom/mirror-cli account:rewards 0.0.123 --limit 50
 Get HBAR allowances.
 
 ```bash
-bunx @hiecom/mirror-cli account:crypto-allowances 0.0.123
+bunx @hieco/mirror-cli account:crypto-allowances 0.0.123
 ```
 
 | Output  | Description               |
@@ -114,7 +114,7 @@ bunx @hiecom/mirror-cli account:crypto-allowances 0.0.123
 Get token allowances.
 
 ```bash
-bunx @hiecom/mirror-cli account:token-allowances 0.0.123
+bunx @hieco/mirror-cli account:token-allowances 0.0.123
 ```
 
 | Output   | Description              |
@@ -129,7 +129,7 @@ bunx @hiecom/mirror-cli account:token-allowances 0.0.123
 Get NFT allowances.
 
 ```bash
-bunx @hiecom/mirror-cli account:nft-allowances 0.0.123
+bunx @hieco/mirror-cli account:nft-allowances 0.0.123
 ```
 
 | Output        | Description              |
@@ -144,7 +144,7 @@ bunx @hiecom/mirror-cli account:nft-allowances 0.0.123
 Get outstanding NFT airdrops.
 
 ```bash
-bunx @hiecom/mirror-cli account:airdrops:outstanding 0.0.123
+bunx @hieco/mirror-cli account:airdrops:outstanding 0.0.123
 ```
 
 | Output        | Description             |
@@ -158,7 +158,7 @@ bunx @hiecom/mirror-cli account:airdrops:outstanding 0.0.123
 Get pending NFT airdrops.
 
 ```bash
-bunx @hiecom/mirror-cli account:airdrops:pending 0.0.123
+bunx @hieco/mirror-cli account:airdrops:pending 0.0.123
 ```
 
 ## `accounts:list`
@@ -166,7 +166,7 @@ bunx @hiecom/mirror-cli account:airdrops:pending 0.0.123
 List accounts with filters.
 
 ```bash
-bunx @hiecom/mirror-cli accounts:list --balance-gte 100000000000 --smart-contract --limit 50
+bunx @hieco/mirror-cli accounts:list --balance-gte 100000000000 --smart-contract --limit 50
 ```
 
 | Option                | Description               |

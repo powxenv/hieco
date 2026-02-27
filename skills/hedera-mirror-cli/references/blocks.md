@@ -5,8 +5,8 @@
 Get block by hash or number.
 
 ```bash
-bunx @hiecom/mirror-cli block 12345
-bunx @hiecom/mirror-cli block 0xabc123...
+bunx @hieco/mirror-cli block 12345
+bunx @hieco/mirror-cli block 0xabc123...
 ```
 
 | Parameter      | Description                                     |
@@ -28,7 +28,7 @@ bunx @hiecom/mirror-cli block 0xabc123...
 Query blocks with filters.
 
 ```bash
-bunx @hiecom/mirror-cli blocks --limit 50 --order desc
+bunx @hieco/mirror-cli blocks --limit 50 --order desc
 ```
 
 | Option          | Description     |
@@ -41,7 +41,7 @@ bunx @hiecom/mirror-cli blocks --limit 50 --order desc
 List all blocks.
 
 ```bash
-bunx @hiecom/mirror-cli blocks:list --limit 100
+bunx @hieco/mirror-cli blocks:list --limit 100
 ```
 
 | Option          | Description     |

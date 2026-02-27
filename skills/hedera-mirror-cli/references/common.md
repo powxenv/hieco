@@ -3,8 +3,8 @@
 ## Installation
 
 ```bash
-bunx @hiecom/mirror-cli <command> [options]
-npx @hiecom/mirror-cli <command> [options]
+bunx @hieco/mirror-cli <command> [options]
+npx @hieco/mirror-cli <command> [options]
 ```
 
 ## Global Options
@@ -31,21 +31,21 @@ npx @hiecom/mirror-cli <command> [options]
 ### Filter by balance
 
 ```bash
-bunx @hiecom/mirror-cli accounts:list --balance-gte 100000000000
-bunx @hiecom/mirror-cli accounts:list --smart-contract
+bunx @hieco/mirror-cli accounts:list --balance-gte 100000000000
+bunx @hieco/mirror-cli accounts:list --smart-contract
 ```
 
 ### Filter transactions
 
 ```bash
-bunx @hiecom/mirror-cli transactions:account 0.0.123 --result SUCCESS
-bunx @hiecom/mirror-cli transactions:account 0.0.123 --scheduled
+bunx @hieco/mirror-cli transactions:account 0.0.123 --result SUCCESS
+bunx @hieco/mirror-cli transactions:account 0.0.123 --scheduled
 ```
 
 ### Pagination
 
 ```bash
-bunx @hiecom/mirror-cli transactions:account 0.0.123 --limit 20 --order desc
+bunx @hieco/mirror-cli transactions:account 0.0.123 --limit 20 --order desc
 ```
 
 ## Output Formats

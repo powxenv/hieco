@@ -1,4 +1,4 @@
-# @hiecom
+# @hieco
 
 > Type-safe SDK for [Hiero](https://hiero.org) - Hedera Hashgraph Developer Ecosystem
 
@@ -13,22 +13,22 @@ It provides:
 - **JSON-RPC Relay** - Ethereum-compatible API (HIP-694)
 - **Local Node** - Local development environment
 
-## What is @hiecom?
+## What is @hieco?
 
-`@hiecom` is a community-driven, type-safe SDK for Hiero services with first-class JavaScript framework integrations.
+`@hieco` is a community-driven, type-safe SDK for Hiero services with first-class JavaScript framework integrations.
 
 ## Packages
 
-| Package                                             | Description                                 |
-| --------------------------------------------------- | ------------------------------------------- |
-| [`@hiecom/mirror-js`](packages/mirror-js)           | REST API client for Mirror Node             |
-| [`@hiecom/mirror-react`](packages/mirror-react)     | React hooks with TanStack Query             |
-| [`@hiecom/mirror-preact`](packages/mirror-preact)   | Preact hooks with TanStack Query            |
-| [`@hiecom/mirror-solid`](packages/mirror-solid)     | SolidJS hooks with TanStack Query           |
-| [`@hiecom/mirror-cli`](packages/mirror-cli)         | CLI tool for Mirror Node REST API           |
-| [`@hiecom/realtime`](packages/realtime)             | WebSocket client for HIP-694 JSON-RPC Relay |
-| [`@hiecom/realtime-react`](packages/realtime-react) | React hooks for realtime                    |
-| [`@hiecom/testing`](packages/testing)               | Testing utilities with MSW fixtures         |
+| Package                                            | Description                                 |
+| -------------------------------------------------- | ------------------------------------------- |
+| [`@hieco/mirror-js`](packages/mirror-js)           | REST API client for Mirror Node             |
+| [`@hieco/mirror-react`](packages/mirror-react)     | React hooks with TanStack Query             |
+| [`@hieco/mirror-preact`](packages/mirror-preact)   | Preact hooks with TanStack Query            |
+| [`@hieco/mirror-solid`](packages/mirror-solid)     | SolidJS hooks with TanStack Query           |
+| [`@hieco/mirror-cli`](packages/mirror-cli)         | CLI tool for Mirror Node REST API           |
+| [`@hieco/realtime`](packages/realtime)             | WebSocket client for HIP-694 JSON-RPC Relay |
+| [`@hieco/realtime-react`](packages/realtime-react) | React hooks for realtime                    |
+| [`@hieco/testing`](packages/testing)               | Testing utilities with MSW fixtures         |
 
 ## Documentation
 

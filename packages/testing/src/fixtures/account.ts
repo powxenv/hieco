@@ -1,4 +1,4 @@
-import type { AccountInfo, EntityId } from "@hiecom/mirror-js";
+import type { AccountInfo, EntityId } from "@hieco/mirror-js";
 import { state } from "../utils/state.js";
 
 export type AccountFixtureOptions = Partial<

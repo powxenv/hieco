@@ -10,14 +10,14 @@ import type {
   TokenInfo,
   Nft,
   Transaction,
-} from "@hiecom/mirror-js";
-import type { PaginatedResponse } from "@hiecom/mirror-js";
+} from "@hieco/mirror-js";
+import type { PaginatedResponse } from "@hieco/mirror-js";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hiecom/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/mirror-shared";
 import { createMirrorNodeInfiniteQuery } from "../utils";
 
-export type { TokenListParams, TokenBalancesParams, TokenNftsParams } from "@hiecom/mirror-js";
+export type { TokenListParams, TokenBalancesParams, TokenNftsParams } from "@hieco/mirror-js";
 
 export interface CreateTokenInfoOptions {
   readonly tokenId: EntityId;

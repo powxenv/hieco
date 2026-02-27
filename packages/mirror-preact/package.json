@@ -1,5 +1,5 @@
 {
-  "name": "@hiecom/mirror-preact",
+  "name": "@hieco/mirror-preact",
   "version": "0.0.1",
   "description": "Type-safe Preact hooks for Hedera Mirror Node with TanStack Query",
   "keywords": [
@@ -9,15 +9,15 @@
     "preact",
     "tanstack-query"
   ],
-  "homepage": "https://github.com/powxenv/hiecom/tree/main/packages/mirror-preact",
+  "homepage": "https://github.com/powxenv/hieco/tree/main/packages/mirror-preact",
   "bugs": {
-    "url": "https://github.com/powxenv/hiecom/issues"
+    "url": "https://github.com/powxenv/hieco/issues"
   },
   "license": "MIT",
   "author": "pow <https://github.com/powxenv>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/powxenv/hiecom",
+    "url": "https://github.com/powxenv/hieco",
     "directory": "packages/mirror-preact"
   },
   "files": [
@@ -40,8 +40,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external preact --external @tanstack/preact-query --external @hiecom/mirror-js && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
-    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external preact --external @tanstack/preact-query --external @hiecom/mirror-js",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external preact --external @tanstack/preact-query --external @hieco/mirror-js && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
+    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external preact --external @tanstack/preact-query --external @hieco/mirror-js",
     "typecheck": "tsgo --noEmit",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
@@ -57,8 +57,8 @@
     "preact": "^10.0.0"
   },
   "peerDependencies": {
-    "@hiecom/mirror-js": "workspace:*",
-    "@hiecom/mirror-shared": "workspace:*",
+    "@hieco/mirror-js": "workspace:*",
+    "@hieco/mirror-shared": "workspace:*",
     "@tanstack/preact-query": "^5.0.0",
     "preact": ">=10"
   },

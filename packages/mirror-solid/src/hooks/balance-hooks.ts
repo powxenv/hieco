@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, QueryOperator, Timestamp } from "@hiecom/mirror-js";
-import type { BalancesResponse } from "@hiecom/mirror-js";
+import type { ApiResult, ApiError, QueryOperator, Timestamp } from "@hieco/mirror-js";
+import type { BalancesResponse } from "@hieco/mirror-js";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hiecom/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/mirror-shared";
 
-export type { BalancesListParams } from "@hiecom/mirror-js";
+export type { BalancesListParams } from "@hieco/mirror-js";
 
 export interface CreateBalancesOptions {
   readonly params?: {

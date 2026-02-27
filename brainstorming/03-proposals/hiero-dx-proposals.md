@@ -7,7 +7,7 @@ status: complete
 tags: [hiero, dx, proposals, innovation]
 related:
   - ../02-bounty-research/hiero-deep-dive.md
-  - hiecom-unified-ecosystem.md
+  - hieco-unified-ecosystem.md
 ---
 
 # Hiero Bounty: Novel DX-Focused Library Proposals

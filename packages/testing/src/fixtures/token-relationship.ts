@@ -1,4 +1,4 @@
-import type { TokenRelationship, EntityId } from "@hiecom/mirror-js";
+import type { TokenRelationship, EntityId } from "@hieco/mirror-js";
 
 export type TokenRelationshipFixtureOptions = Partial<
   Pick<

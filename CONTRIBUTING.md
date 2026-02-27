@@ -1,6 +1,6 @@
-# Contributing to Hiecom
+# Contributing to hieco
 
-Thank you for your interest in contributing to Hiecom! We welcome contributions from everyone.
+Thank you for your interest in contributing to hieco! We welcome contributions from everyone.
 
 ## Table of Contents
 
@@ -33,8 +33,8 @@ We welcome many types of contributions:
 ### Clone & Install
 
 ```bash
-git clone https://github.com/powxenv/hiecom.git
-cd hiecom
+git clone https://github.com/powxenv/hieco.git
+cd hieco
 bun install
 ```
 
@@ -70,7 +70,7 @@ bun run build:testing
 ## Project Structure
 
 ```
-hiecom/
+hieco/
 ├── packages/
 │   ├── mirror-js/          # Core REST API client (framework-agnostic)
 │   ├── mirror-react/       # React hooks with TanStack Query
@@ -233,13 +233,13 @@ bun run test:testing
 - Tests are located in `__tests__` or `*.test.ts` files
 - Use **Bun** built-in test runner
 - Mock external dependencies (API calls, WebSocket)
-- Test utilities are in `@hiecom/testing`
+- Test utilities are in `@hieco/testing`
 
 ### Example
 
 ```typescript
 import { describe, it, expect } from "bun:test";
-import { mockAccount } from "@hiecom/testing";
+import { mockAccount } from "@hieco/testing";
 
 describe("Account API", () => {
   it("returns account balance", async () => {

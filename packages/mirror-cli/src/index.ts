@@ -62,7 +62,7 @@ import { version } from "../package.json";
 const program = new Command();
 
 program
-  .name("hiecom")
+  .name("hieco")
   .description("CLI tool for Hedera Mirror Node REST API")
   .version(version)
   .option("-n, --network <network>", "Network to query (mainnet, testnet, previewnet)", "mainnet")

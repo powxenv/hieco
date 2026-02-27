@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hiecom/mirror-js";
+import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hieco/mirror-js";
 import type {
   ContractCallParams,
   ContractCallResult,
@@ -12,11 +12,11 @@ import type {
   ContractResultsResponse,
   ContractAction,
   ContractOpcodesResponse,
-} from "@hiecom/mirror-js";
-import type { PaginatedResponse } from "@hiecom/mirror-js";
+} from "@hieco/mirror-js";
+import type { PaginatedResponse } from "@hieco/mirror-js";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hiecom/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/mirror-shared";
 import { createMirrorNodeInfiniteQuery } from "../utils";
 
 export type {
@@ -24,7 +24,7 @@ export type {
   ContractResultsParams,
   ContractStateParams,
   ContractLogsParams,
-} from "@hiecom/mirror-js";
+} from "@hieco/mirror-js";
 
 export interface CreateContractInfoOptions {
   readonly contractIdOrAddress: EntityId | string;

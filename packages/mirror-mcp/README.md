@@ -1,11 +1,11 @@
-# @hiecom/mirror-mcp
+# @hieco/mirror-mcp
 
 MCP server for Hedera Mirror Node REST API. Provides **55 tools** across 9 API modules for interacting with Hedera blockchain data.
 
 ## Installation
 
 ```bash
-bun add @hiecom/mirror-mcp
+bun add @hieco/mirror-mcp
 ```
 
 ## Quick Start
@@ -13,7 +13,7 @@ bun add @hiecom/mirror-mcp
 Run directly:
 
 ```bash
-bunx @hiecom/mirror-mcp
+bunx @hieco/mirror-mcp
 ```
 
 ## Environment Variables
@@ -39,7 +39,7 @@ bunx @hiecom/mirror-mcp
   "mcpServers": {
     "mirror-mcp": {
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"],
+      "args": ["@hieco/mirror-mcp"],
       "env": {
         "MIRROR_NETWORK": "mainnet"
       }
@@ -63,7 +63,7 @@ bunx @hiecom/mirror-mcp
   "mcp": {
     "mirror-mcp": {
       "type": "local",
-      "command": ["bunx", "@hiecom/mirror-mcp"],
+      "command": ["bunx", "@hieco/mirror-mcp"],
       "enabled": true,
       "environment": {
         "MIRROR_NETWORK": "mainnet"
@@ -83,7 +83,7 @@ bunx @hiecom/mirror-mcp
 ```toml
 [mcp_servers.mirror-mcp]
 command = "bunx"
-args = ["@hiecom/mirror-mcp"]
+args = ["@hieco/mirror-mcp"]
 env = { MIRROR_NETWORK = "mainnet" }
 ```
 
@@ -99,7 +99,7 @@ env = { MIRROR_NETWORK = "mainnet" }
   "mcpServers": {
     "mirror-mcp": {
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"],
+      "args": ["@hieco/mirror-mcp"],
       "env": {
         "MIRROR_NETWORK": "mainnet"
       }
@@ -122,7 +122,7 @@ env = { MIRROR_NETWORK = "mainnet" }
   "servers": {
     "mirror-mcp": {
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"],
+      "args": ["@hieco/mirror-mcp"],
       "env": {
         "MIRROR_NETWORK": "mainnet"
       }
@@ -149,7 +149,7 @@ env = { MIRROR_NETWORK = "mainnet" }
     "mirror-mcp": {
       "type": "stdio",
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"],
+      "args": ["@hieco/mirror-mcp"],
       "env": {
         "MIRROR_NETWORK": "mainnet"
       }
@@ -172,7 +172,7 @@ Access via: MCP Servers icon → Configure
   "mcpServers": {
     "mirror-mcp": {
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"],
+      "args": ["@hieco/mirror-mcp"],
       "env": {
         "MIRROR_NETWORK": "mainnet"
       }
@@ -195,7 +195,7 @@ Access via: MCP Servers icon → Configure
   "mcpServers": {
     "mirror-mcp": {
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"],
+      "args": ["@hieco/mirror-mcp"],
       "env": {
         "MIRROR_NETWORK": "mainnet"
       }
@@ -218,7 +218,7 @@ Or add via: Agent Panel → Settings → Add Custom Server
   "context_servers": {
     "mirror-mcp": {
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"],
+      "args": ["@hieco/mirror-mcp"],
       "env": {
         "MIRROR_NETWORK": "mainnet"
       }
@@ -239,7 +239,7 @@ Or add via: Agent Panel → Settings → Add Custom Server
   "rooCode.mcpServers": {
     "mirror-mcp": {
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"],
+      "args": ["@hieco/mirror-mcp"],
       "env": {
         "MIRROR_NETWORK": "mainnet"
       }
@@ -265,7 +265,7 @@ Or add via: Agent Panel → Settings → Add Custom Server
     "mirror-mcp": {
       "type": "stdio",
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"]
+      "args": ["@hieco/mirror-mcp"]
     }
   }
 }
@@ -285,7 +285,7 @@ Or add via: Agent Panel → Settings → Add Custom Server
   "mcpServers": {
     "mirror-mcp": {
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"],
+      "args": ["@hieco/mirror-mcp"],
       "env": {
         "MIRROR_NETWORK": "mainnet"
       }
@@ -308,7 +308,7 @@ Or add via: Agent Panel → Settings → Add Custom Server
   "mcpServers": {
     "mirror-mcp": {
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"],
+      "args": ["@hieco/mirror-mcp"],
       "env": {
         "MIRROR_NETWORK": "mainnet"
       }
@@ -332,7 +332,7 @@ Or add via: Agent Panel → Settings → Add Custom Server
     "mirror-mcp": {
       "type": "stdio",
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"],
+      "args": ["@hieco/mirror-mcp"],
       "env": {
         "MIRROR_NETWORK": "mainnet"
       }
@@ -379,7 +379,7 @@ extensions:
     enabled: true
     cmd: bunx
     args:
-      - "@hiecom/mirror-mcp"
+      - "@hieco/mirror-mcp"
     envs:
       MIRROR_NETWORK: mainnet
 ```
@@ -398,7 +398,7 @@ extensions:
   "mcpServers": {
     "mirror-mcp": {
       "command": "bunx",
-      "args": ["@hiecom/mirror-mcp"],
+      "args": ["@hieco/mirror-mcp"],
       "env": {
         "MIRROR_NETWORK": "mainnet"
       }

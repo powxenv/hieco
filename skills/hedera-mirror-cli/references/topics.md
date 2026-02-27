@@ -5,7 +5,7 @@
 Get topic information.
 
 ```bash
-bunx @hiecom/mirror-cli topic 0.0.654
+bunx @hieco/mirror-cli topic 0.0.654
 ```
 
 | Output          | Description                     |
@@ -22,7 +22,7 @@ bunx @hiecom/mirror-cli topic 0.0.654
 Get all messages from topic.
 
 ```bash
-bunx @hiecom/mirror-cli topic:messages 0.0.654 --limit 100
+bunx @hieco/mirror-cli topic:messages 0.0.654 --limit 100
 ```
 
 | Option          | Description     |
@@ -43,7 +43,7 @@ bunx @hiecom/mirror-cli topic:messages 0.0.654 --limit 100
 Get specific message.
 
 ```bash
-bunx @hiecom/mirror-cli topic:message 0.0.654 123
+bunx @hieco/mirror-cli topic:message 0.0.654 123
 ```
 
 | Parameter | Description             |
@@ -64,7 +64,7 @@ bunx @hiecom/mirror-cli topic:message 0.0.654 123
 Get message by timestamp.
 
 ```bash
-bunx @hiecom/mirror-cli topic:message-by-timestamp 1654321.987654321
+bunx @hieco/mirror-cli topic:message-by-timestamp 1654321.987654321
 ```
 
 | Parameter   | Description                         |
@@ -76,7 +76,7 @@ bunx @hiecom/mirror-cli topic:message-by-timestamp 1654321.987654321
 List all topics.
 
 ```bash
-bunx @hiecom/mirror-cli topics:list --limit 100
+bunx @hieco/mirror-cli topics:list --limit 100
 ```
 
 | Option          | Description     |

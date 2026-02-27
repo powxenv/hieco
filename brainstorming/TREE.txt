@@ -31,7 +31,7 @@ brainstorming/
     │   ├── @hiero/hotswap (Hot Reload Dev Server)
     │   └── @hiero/observability (Profiler & Monitoring)
     │
-    └── hiecom-unified-ecosystem.md     # Production-ready ecosystem design
+    └── hieco-unified-ecosystem.md     # Production-ready ecosystem design
         ├── Architecture (7 packages)
         ├── 5 Framework integrations
         ├── Monorepo setup (Turborepo + pnpm)
@@ -73,7 +73,7 @@ Quick Reference
 │ all-bounties-analysis.md        │ Cross-bounty         │ ~8K    │ ✅      │
 │ hiero-deep-dive.md              │ Ecosystem mapping    │ ~30K   │ ✅      │
 │ hiero-dx-proposals.md           │ 3 DX proposals       │ ~28K   │ ✅      │
-│ hiecom-unified-ecosystem.md     │ Multi-framework      │ ~50K   │ ✅      │
+│ hieco-unified-ecosystem.md     │ Multi-framework      │ ~50K   │ ✅      │
 │ README.md                       │ Index & guide        │ ~3K    │ ✅      │
 
 

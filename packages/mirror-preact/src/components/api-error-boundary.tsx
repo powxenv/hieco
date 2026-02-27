@@ -1,6 +1,6 @@
 import type { VNode } from "preact";
 import { useErrorBoundary } from "preact/hooks";
-import type { ApiError } from "@hiecom/mirror-js";
+import type { ApiError } from "@hieco/mirror-js";
 
 export interface ApiErrorFallbackProps {
   error: ApiError;
