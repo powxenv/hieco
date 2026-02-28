@@ -2,14 +2,12 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
     "declaration": true,
-    "declarationMap": true,
+    "emitDeclarationOnly": true,
     "noEmit": false,
-    "allowImportingTsExtensions": false,
-    "verbatimModuleSyntax": false,
-    "moduleResolution": "node"
+    "lib": ["ESNext", "DOM"],
+    "types": ["bun-types"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

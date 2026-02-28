@@ -1,4 +1,4 @@
-import type { Transaction, EntityId } from "@hieco/mirror-js";
+import type { Transaction, EntityId } from "@hieco/mirror";
 import { state } from "../utils/state.js";
 import type { Factory } from "./account.js";
 

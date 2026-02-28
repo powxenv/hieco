@@ -43,7 +43,7 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/mirror-js": "workspace:*",
+    "@hieco/mirror": "workspace:*",
     "@hieco/mirror-shared": "workspace:*",
     "@hieco/types": "workspace:*",
     "chalk": "^5.4.1",

@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/solid-query";
 import type { UseInfiniteQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, PaginatedResponse } from "@hieco/mirror-js";
+import type { ApiResult, ApiError, PaginatedResponse } from "@hieco/mirror";
 import type { Accessor } from "solid-js";
 
 type MirrorNodeListQueryKey = readonly ["mirror-node", string, string, "list"];

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRealtimeClient } from "../context-hooks";
 import type { RelaySubscription, RelayMessage } from "@hieco/realtime";
-import type { ApiResult } from "@hieco/mirror-js";
+import type { ApiResult } from "@hieco/mirror";
 
 export interface UseContractLogsOptions {
   readonly address?: string | readonly string[];

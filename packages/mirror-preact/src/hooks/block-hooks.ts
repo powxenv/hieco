@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/preact-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/preact-query";
-import type { ApiResult, ApiError, Timestamp } from "@hieco/mirror-js";
-import type { BlocksResponse, Block } from "@hieco/mirror-js";
+import type { ApiResult, ApiError, Timestamp } from "@hieco/mirror";
+import type { BlocksResponse, Block } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/mirror-shared";
 
-export type { BlocksListParams } from "@hieco/mirror-js";
+export type { BlocksListParams } from "@hieco/mirror";
 
 type BlockQueryFnData<T> = ApiResult<T>;
 type BlockQueryError = ApiError;

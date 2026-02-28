@@ -6,7 +6,7 @@ import {
   prefetchQuery,
 } from "../src/query-helpers";
 import type { QueryClient } from "@tanstack/query-core";
-import type { MirrorNodeClient } from "@hiecom/mirror-js";
+import type { MirrorNodeClient } from "@hieco/mirror";
 
 describe("isValidMirrorNodeKey", () => {
   test("returns true for valid key structure: mirror-node, network, entity", () => {

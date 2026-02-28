@@ -7,7 +7,7 @@ import {
   isRateLimitError,
   isValidationError,
 } from "../src/type-guards";
-import type { ApiResult, ApiError } from "@hiecom/types";
+import type { ApiResult, ApiError } from "@hieco/types";
 
 describe("isSuccess", () => {
   const successResult: ApiResult<string> = { success: true, data: "test data" };

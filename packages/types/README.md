@@ -180,7 +180,7 @@ if (result.success) {
 
 ## Related Packages
 
-- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - Mirror Node REST API client
+- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - Mirror Node REST API client
 - [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - WebSocket streaming client
 - [`@hieco/mirror-shared`](https://github.com/powxenv/hieco/tree/main/packages/mirror-shared) - Shared utilities (internal)
 

@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/preact-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/preact-query";
-import type { ApiResult, ApiError } from "@hieco/mirror-js";
+import type { ApiResult, ApiError } from "@hieco/mirror";
 import type {
   ExchangeRate,
   NetworkFee,
   NetworkNode,
   NetworkStake,
   NetworkSupply,
-} from "@hieco/mirror-js";
+} from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/mirror-shared";
 

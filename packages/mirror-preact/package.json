@@ -40,8 +40,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external preact --external @tanstack/preact-query --external @hieco/mirror-js && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
-    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external preact --external @tanstack/preact-query --external @hieco/mirror-js",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external preact --external @tanstack/preact-query --external @hieco/mirror && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
+    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external preact --external @tanstack/preact-query --external @hieco/mirror",
     "typecheck": "tsgo --noEmit",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
@@ -57,7 +57,7 @@
     "preact": "^10.0.0"
   },
   "peerDependencies": {
-    "@hieco/mirror-js": "workspace:*",
+    "@hieco/mirror": "workspace:*",
     "@hieco/mirror-shared": "workspace:*",
     "@tanstack/preact-query": "^5.0.0",
     "preact": ">=10"

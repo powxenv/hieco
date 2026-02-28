@@ -5,13 +5,13 @@ import type {
   UseQueryResult,
   UseInfiniteQueryResult,
 } from "@tanstack/preact-query";
-import type { ApiResult, ApiError, EntityId, QueryOperator } from "@hieco/mirror-js";
-import type { Schedule } from "@hieco/mirror-js";
-import type { PaginatedResponse } from "@hieco/mirror-js";
+import type { ApiResult, ApiError, EntityId, QueryOperator } from "@hieco/mirror";
+import type { Schedule } from "@hieco/mirror";
+import type { PaginatedResponse } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/mirror-shared";
 
-export type { ScheduleListParams } from "@hieco/mirror-js";
+export type { ScheduleListParams } from "@hieco/mirror";
 
 type ScheduleQueryFnData<T> = ApiResult<T>;
 type ScheduleQueryError = ApiError;

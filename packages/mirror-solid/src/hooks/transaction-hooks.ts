@@ -8,14 +8,14 @@ import type {
   Timestamp,
   TransactionDetails,
   Transaction,
-} from "@hieco/mirror-js";
-import type { PaginatedResponse } from "@hieco/mirror-js";
+} from "@hieco/mirror";
+import type { PaginatedResponse } from "@hieco/mirror";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/mirror-shared";
 import { createMirrorNodeInfiniteQuery } from "../utils";
 
-export type { TransactionListParams, TransactionsByAccountParams } from "@hieco/mirror-js";
+export type { TransactionListParams, TransactionsByAccountParams } from "@hieco/mirror";
 
 export interface CreateTransactionOptions {
   readonly transactionId: string;

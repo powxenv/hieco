@@ -2,16 +2,14 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "emitDeclarationOnly": true,
     "noEmit": false,
     "lib": ["ESNext", "DOM"],
     "types": ["bun-types"],
     "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    "skipLibCheck": true
+    "jsxImportSource": "solid-js"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "tests"]
+  "exclude": ["node_modules", "dist"]
 }

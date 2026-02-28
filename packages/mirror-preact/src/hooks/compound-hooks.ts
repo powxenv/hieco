@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/preact-query";
-import type { EntityId } from "@hieco/mirror-js";
-import type { AccountInfo, Balance, TokenRelationship } from "@hieco/mirror-js";
+import type { EntityId } from "@hieco/mirror";
+import type { AccountInfo, Balance, TokenRelationship } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys, isSuccess } from "@hieco/mirror-shared";
 

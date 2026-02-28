@@ -1,4 +1,4 @@
-# @hieco/mirror-js
+# @hieco/mirror
 
 Hedera Mirror Node REST API client for JavaScript/TypeScript.
 
@@ -15,22 +15,22 @@ Hedera Mirror Node REST API client for JavaScript/TypeScript.
 
 ```bash
 # bun
-bun add @hieco/mirror-js
+bun add @hieco/mirror
 
 # npm
-npm install @hieco/mirror-js
+npm install @hieco/mirror
 
 # pnpm
-pnpm add @hieco/mirror-js
+pnpm add @hieco/mirror
 
 # yarn
-yarn add @hieco/mirror-js
+yarn add @hieco/mirror
 ```
 
 ## Quick Start
 
 ```typescript
-import { createMirrorNodeClient } from "@hieco/mirror-js";
+import { createMirrorNodeClient } from "@hieco/mirror";
 
 const client = createMirrorNodeClient({ network: "mainnet" });
 
@@ -50,7 +50,7 @@ if (result.success) {
 #### createMirrorNodeClient
 
 ```typescript
-import { createMirrorNodeClient } from "@hieco/mirror-js";
+import { createMirrorNodeClient } from "@hieco/mirror";
 
 // Predefined networks
 const mainnetClient = createMirrorNodeClient({ network: "mainnet" });

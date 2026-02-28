@@ -17,19 +17,13 @@
         "astro": "^6.0.0-beta.6",
       },
     },
-    "packages/mirror-cli": {
-      "name": "@hieco/mirror-cli",
+    "packages/mirror": {
+      "name": "@hieco/mirror",
       "version": "0.0.1",
-      "bin": {
-        "hieco": "./dist/index.js",
-      },
       "dependencies": {
-        "@hieco/mirror-js": "workspace:*",
-        "@hieco/mirror-shared": "workspace:*",
         "@hieco/types": "workspace:*",
-        "chalk": "^5.4.1",
-        "cli-table3": "^0.6.5",
-        "commander": "^13.1.0",
+        "ky": "^1.14.3",
+        "p-limit": "^7.3.0",
       },
       "devDependencies": {
         "@typescript/native-preview": "catalog:",
@@ -39,13 +33,19 @@
         "oxlint-tsgolint": "catalog:",
       },
     },
-    "packages/mirror-js": {
-      "name": "@hieco/mirror-js",
+    "packages/mirror-cli": {
+      "name": "@hieco/mirror-cli",
       "version": "0.0.1",
+      "bin": {
+        "hieco": "./dist/index.js",
+      },
       "dependencies": {
+        "@hieco/mirror": "workspace:*",
+        "@hieco/mirror-shared": "workspace:*",
         "@hieco/types": "workspace:*",
-        "ky": "^1.14.3",
-        "p-limit": "^7.3.0",
+        "chalk": "^5.4.1",
+        "cli-table3": "^0.6.5",
+        "commander": "^13.1.0",
       },
       "devDependencies": {
         "@typescript/native-preview": "catalog:",
@@ -62,7 +62,7 @@
         "mirror-mcp": "./dist/index.js",
       },
       "dependencies": {
-        "@hieco/mirror-js": "workspace:*",
+        "@hieco/mirror": "workspace:*",
         "@hieco/mirror-shared": "workspace:*",
         "@hieco/types": "workspace:*",
         "@mastra/core": "^1.0.0",
@@ -89,7 +89,7 @@
         "preact": "^10.0.0",
       },
       "peerDependencies": {
-        "@hieco/mirror-js": "workspace:*",
+        "@hieco/mirror": "workspace:*",
         "@hieco/mirror-shared": "workspace:*",
         "@tanstack/preact-query": "^5.0.0",
         "preact": ">=10",
@@ -110,7 +110,7 @@
         "react-dom": "catalog:react",
       },
       "peerDependencies": {
-        "@hieco/mirror-js": "workspace:*",
+        "@hieco/mirror": "workspace:*",
         "@hieco/mirror-shared": "workspace:*",
         "@tanstack/react-query": "^5.0.0",
         "react": ">=18",
@@ -121,7 +121,8 @@
       "name": "@hieco/mirror-shared",
       "version": "0.0.1",
       "dependencies": {
-        "@hieco/mirror-js": "workspace:*",
+        "@hieco/mirror": "workspace:*",
+        "@hieco/types": "workspace:*",
       },
       "devDependencies": {
         "@tanstack/query-core": "^5.67.1",
@@ -146,7 +147,7 @@
         "oxlint-tsgolint": "catalog:",
       },
       "peerDependencies": {
-        "@hieco/mirror-js": "workspace:*",
+        "@hieco/mirror": "workspace:*",
         "@hieco/mirror-shared": "workspace:*",
         "@tanstack/solid-query": "^5.0.0",
         "solid-js": ">=1.8",
@@ -163,7 +164,7 @@
         "oxlint-tsgolint": "catalog:",
       },
       "peerDependencies": {
-        "@hieco/mirror-js": "workspace:*",
+        "@hieco/mirror": "workspace:*",
         "@hieco/types": "workspace:*",
       },
     },
@@ -182,7 +183,7 @@
         "react-dom": "catalog:react",
       },
       "peerDependencies": {
-        "@hieco/mirror-js": "workspace:*",
+        "@hieco/mirror": "workspace:*",
         "@hieco/realtime": "workspace:*",
         "react": ">=18",
         "react-dom": ">=18",
@@ -192,7 +193,7 @@
       "name": "@hieco/testing",
       "version": "0.0.1",
       "dependencies": {
-        "@hieco/mirror-js": "workspace:*",
+        "@hieco/mirror": "workspace:*",
         "@hieco/mirror-shared": "workspace:*",
       },
       "devDependencies": {
@@ -333,9 +334,9 @@
 
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.27.3", "", { "os": "win32", "cpu": "x64" }, "sha512-4uJGhsxuptu3OcpVAzli+/gWusVGwZZHTlS63hh++ehExkVT8SgiEf7/uC/PclrPPkLhZqGgCTjd0VWLo6xMqA=="],
 
-    "@hieco/mirror-cli": ["@hieco/mirror-cli@workspace:packages/mirror-cli"],
+    "@hieco/mirror": ["@hieco/mirror@workspace:packages/mirror"],
 
-    "@hieco/mirror-js": ["@hieco/mirror-js@workspace:packages/mirror-js"],
+    "@hieco/mirror-cli": ["@hieco/mirror-cli@workspace:packages/mirror-cli"],
 
     "@hieco/mirror-mcp": ["@hieco/mirror-mcp@workspace:packages/mirror-mcp"],
 

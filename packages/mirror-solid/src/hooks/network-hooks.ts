@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError } from "@hieco/mirror-js";
+import type { ApiResult, ApiError } from "@hieco/mirror";
 import type {
   ExchangeRate,
   NetworkFee,
   NetworkNode,
   NetworkStake,
   NetworkSupply,
-} from "@hieco/mirror-js";
+} from "@hieco/mirror";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/mirror-shared";

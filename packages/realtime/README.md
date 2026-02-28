@@ -260,7 +260,7 @@ For React, use the framework-specific package:
 ## Related Packages
 
 - [`@hieco/types`](https://github.com/powxenv/hieco/tree/main/packages/types) - Shared TypeScript types (internal)
-- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - REST API client
+- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - REST API client
 
 ## License
 

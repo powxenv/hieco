@@ -5,7 +5,7 @@ import type {
   UseQueryResult,
   UseInfiniteQueryResult,
 } from "@tanstack/preact-query";
-import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hieco/mirror-js";
+import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hieco/mirror";
 import type {
   ContractCallParams,
   ContractCallResult,
@@ -17,8 +17,8 @@ import type {
   ContractResultsResponse,
   ContractAction,
   ContractOpcodesResponse,
-} from "@hieco/mirror-js";
-import type { PaginatedResponse } from "@hieco/mirror-js";
+} from "@hieco/mirror";
+import type { PaginatedResponse } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/mirror-shared";
 
@@ -27,7 +27,7 @@ export type {
   ContractResultsParams,
   ContractStateParams,
   ContractLogsParams,
-} from "@hieco/mirror-js";
+} from "@hieco/mirror";
 
 type ContractQueryFnData<T> = ApiResult<T>;
 type ContractQueryError = ApiError;

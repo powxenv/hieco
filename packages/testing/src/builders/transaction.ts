@@ -1,5 +1,5 @@
-import type { Transaction, Transfer } from "@hieco/mirror-js";
-import type { EntityId } from "@hieco/mirror-js";
+import type { Transaction, Transfer } from "@hieco/mirror";
+import type { EntityId } from "@hieco/mirror";
 import { mockTransaction as createMockTransaction } from "../fixtures/transaction.js";
 
 interface HbarTransfer {

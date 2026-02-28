@@ -279,7 +279,7 @@ AI agents can use this skill to query Hedera blockchain data by invoking CLI com
 
 ## Related Packages
 
-- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - REST API client for programmatic access
+- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - REST API client for programmatic access
 - [`@hieco/mirror-react`](https://www.npmjs.com/package/@hieco/mirror-react) - React hooks with TanStack Query
 - [`@hieco/mirror-preact`](https://www.npmjs.com/package/@hieco/mirror-preact) - Preact hooks with TanStack Query
 - [`@hieco/mirror-solid`](https://www.npmjs.com/package/@hieco/mirror-solid) - SolidJS hooks with TanStack Query

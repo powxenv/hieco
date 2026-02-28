@@ -24,12 +24,6 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
-
-    // Path mappings for workspace packages
-    "paths": {
-      "@hiecom/types": ["./packages/types/src"],
-      "@hiecom/mirror-shared": ["./packages/mirror-shared/src"]
-    }
+    "noPropertyAccessFromIndexSignature": false
   }
 }

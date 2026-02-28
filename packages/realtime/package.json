@@ -42,8 +42,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external @hieco/mirror-js && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
-    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external @hieco/mirror-js",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external @hieco/mirror && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
+    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external @hieco/mirror",
     "typecheck": "tsgo --noEmit",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
@@ -58,7 +58,7 @@
     "oxlint-tsgolint": "catalog:"
   },
   "peerDependencies": {
-    "@hieco/mirror-js": "workspace:*",
+    "@hieco/mirror": "workspace:*",
     "@hieco/types": "workspace:*"
   },
   "engines": {

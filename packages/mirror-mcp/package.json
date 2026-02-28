@@ -23,7 +23,7 @@
     "inspect": "bunx @modelcontextprotocol/inspector node dist/index.js"
   },
   "dependencies": {
-    "@hieco/mirror-js": "workspace:*",
+    "@hieco/mirror": "workspace:*",
     "@hieco/mirror-shared": "workspace:*",
     "@hieco/types": "workspace:*",
     "@mastra/core": "^1.0.0",

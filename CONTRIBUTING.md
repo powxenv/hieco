@@ -61,7 +61,7 @@ bun run test
 
 ```bash
 # Work on specific package
-bun run fmt:mirror-js
+bun run fmt:mirror
 bun run lint:mirror-react
 bun run typecheck:realtime
 bun run build:testing
@@ -165,7 +165,7 @@ We follow conventional commits:
 ### Examples
 
 ```bash
-feat(mirror-js): add support for account balance queries
+feat(mirror): add support for account balance queries
 fix(realtime): handle reconnection on network loss
 docs(readme): update installation instructions
 refactor(types): extract common result types

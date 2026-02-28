@@ -1,4 +1,4 @@
-import type { AccountInfo, EntityId } from "@hieco/mirror-js";
+import type { AccountInfo, EntityId } from "@hieco/mirror";
 import type { Factory, AccountFixtureOptions } from "./account.js";
 import { mockAccount } from "./account.js";
 

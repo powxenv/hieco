@@ -1,5 +1,5 @@
 import { createContext, useCallback, useMemo, useState, type ReactNode } from "react";
-import { MirrorNodeClient, type NetworkType } from "@hieco/mirror-js";
+import { MirrorNodeClient, type NetworkType } from "@hieco/mirror";
 import {
   type AnyNetwork,
   type NetworkConfig,

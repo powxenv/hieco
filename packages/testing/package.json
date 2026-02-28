@@ -47,7 +47,7 @@
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external msw && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
     "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external msw",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
     "fmt": "oxfmt",
@@ -56,7 +56,7 @@
     "test:coverage": "bun test --coverage"
   },
   "dependencies": {
-    "@hieco/mirror-js": "workspace:*",
+    "@hieco/mirror": "workspace:*",
     "@hieco/mirror-shared": "workspace:*"
   },
   "devDependencies": {

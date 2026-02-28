@@ -1,5 +1,5 @@
 import { createContext, createSignal, type JSX, type Accessor } from "solid-js";
-import { MirrorNodeClient, type NetworkType } from "@hieco/mirror-js";
+import { MirrorNodeClient, type NetworkType } from "@hieco/mirror";
 import {
   type AnyNetwork,
   type NetworkConfig,

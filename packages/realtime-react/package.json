@@ -42,8 +42,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external react --external react-dom --external @hieco/mirror-js --external @hieco/realtime && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
-    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external react --external react-dom --external @hieco/mirror-js --external @hieco/realtime",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external react --external react-dom --external @hieco/mirror --external @hieco/realtime && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
+    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external react --external react-dom --external @hieco/mirror --external @hieco/realtime",
     "typecheck": "tsgo --noEmit",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
@@ -62,7 +62,7 @@
     "react-dom": "catalog:react"
   },
   "peerDependencies": {
-    "@hieco/mirror-js": "workspace:*",
+    "@hieco/mirror": "workspace:*",
     "@hieco/realtime": "workspace:*",
     "react": ">=18",
     "react-dom": ">=18"

@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/query-core";
-import type { MirrorNodeClient, EntityId } from "@hieco/mirror-js";
+import type { MirrorNodeClient, EntityId } from "@hieco/mirror";
 
 type ApiProperty = Exclude<keyof MirrorNodeClient, "networkType" | "baseUrl" | "httpClient">;
 

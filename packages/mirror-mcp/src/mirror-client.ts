@@ -1,4 +1,4 @@
-import { createMirrorNodeClient } from "@hieco/mirror-js";
+import { createMirrorNodeClient } from "@hieco/mirror";
 import type { NetworkType } from "@hieco/types";
 import { NETWORK_CONFIGS } from "@hieco/types";
 

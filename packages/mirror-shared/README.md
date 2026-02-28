@@ -243,7 +243,7 @@ await invalidateQueries(queryClient, {});
 
 ## Related Packages
 
-- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - REST API client
+- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - REST API client
 - [`@hieco/mirror-react`](https://www.npmjs.com/package/@hieco/mirror-react) - React hooks
 - [`@hieco/mirror-preact`](https://www.npmjs.com/package/@hieco/mirror-preact) - Preact hooks
 - [`@hieco/mirror-solid`](https://www.npmjs.com/package/@hieco/mirror-solid) - SolidJS hooks

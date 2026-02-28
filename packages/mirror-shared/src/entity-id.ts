@@ -1,4 +1,4 @@
-import type { EntityId } from "@hieco/mirror-js";
+import type { EntityId } from "@hieco/mirror";
 
 const ENTITY_ID_REGEX = /^(\d{1,10})\.(\d{1,10})\.(\d{1,10})$/;
 

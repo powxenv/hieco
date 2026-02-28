@@ -7,7 +7,7 @@ import {
   parseEntityIdParts,
   asEntityId,
 } from "../src/entity-id";
-import type { EntityId } from "@hiecom/types";
+import type { EntityId } from "@hieco/types";
 
 describe("isValidEntityId", () => {
   describe("happy path - valid formats", () => {

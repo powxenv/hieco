@@ -99,7 +99,7 @@ To run quality checks for a specific package:
 
 ```bash
 bun run lint:mirror-cli && bun run typecheck:mirror-cli && bun run fmt:mirror-cli
-bun run lint:mirror-js && bun run typecheck:mirror-js && bun run fmt:mirror-js
+bun run lint:mirror && bun run typecheck:mirror && bun run fmt:mirror
 bun run lint:mirror-react && bun run typecheck:mirror-react && bun run fmt:mirror-react
 bun run lint:mirror-preact && bun run typecheck:mirror-preact && bun run fmt:mirror-preact
 bun run lint:mirror-solid && bun run typecheck:mirror-solid && bun run fmt:mirror-solid

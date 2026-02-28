@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { MirrorNodeContext } from "./provider";
-import type { MirrorNodeClient } from "@hieco/mirror-js";
+import type { MirrorNodeClient } from "@hieco/mirror";
 import type { MirrorNodeContextValue, NetworkState, AnyNetwork } from "./provider";
 
 export function useMirrorNodeContext(): MirrorNodeContextValue {

@@ -1,4 +1,4 @@
-import type { AccountBalance, TokenBalance as MirrorTokenBalance } from "@hieco/mirror-js";
+import type { AccountBalance, TokenBalance as MirrorTokenBalance } from "@hieco/mirror";
 import type { Factory } from "./account.js";
 
 export type TokenBalance = Pick<MirrorTokenBalance, "token_id"> & {

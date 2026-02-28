@@ -1,6 +1,6 @@
 import { createContext, type VNode } from "preact";
 import { useCallback, useMemo, useState } from "preact/hooks";
-import { MirrorNodeClient, type NetworkType } from "@hieco/mirror-js";
+import { MirrorNodeClient, type NetworkType } from "@hieco/mirror";
 import {
   type AnyNetwork,
   type NetworkConfig,

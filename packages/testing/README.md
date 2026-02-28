@@ -284,7 +284,7 @@ server.use(...handlers);
 
 ## Related Packages
 
-- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - REST API client (for testing)
+- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - REST API client (for testing)
 - [`@hieco/mirror-react`](https://www.npmjs.com/package/@hieco/mirror-react) - React hooks
 
 ## License

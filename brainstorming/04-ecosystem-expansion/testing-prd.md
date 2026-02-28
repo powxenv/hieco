@@ -484,7 +484,7 @@ test("slow connection", async () => {
 {
   "dependencies": {
     "msw": "^2.7.0",
-    "@hieco/mirror-js": "workspace:*",
+    "@hieco/mirror": "workspace:*",
     "@hieco/mirror-shared": "workspace:*"
   },
   "peerDependencies": {
@@ -629,7 +629,7 @@ afterAll(() => server.close());
 
 ```typescript
 import { describe, it, expect } from "vitest";
-import { MirrorNodeClient } from "@hieco/mirror-js";
+import { MirrorNodeClient } from "@hieco/mirror";
 import { mockAccount, mockTransaction } from "@hieco/testing/fixtures";
 
 describe("MirrorNodeClient", () => {

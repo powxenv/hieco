@@ -1,4 +1,4 @@
-import type { ApiResult, ApiError } from "@hieco/mirror-js";
+import type { ApiResult, ApiError } from "@hieco/mirror";
 
 export function isSuccess<T>(result: ApiResult<T>): result is { readonly success: true; readonly data: T } {
     return result.success === true;

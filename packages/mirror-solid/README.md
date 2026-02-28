@@ -15,16 +15,16 @@ Type-safe SolidJS hooks for Hedera Mirror Node API with TanStack Query.
 
 ```bash
 # bun
-bun add @hieco/mirror-js @hieco/mirror-solid @tanstack/solid-query
+bun add @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
 
 # npm
-npm install @hieco/mirror-js @hieco/mirror-solid @tanstack/solid-query
+npm install @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
 
 # pnpm
-pnpm add @hieco/mirror-js @hieco/mirror-solid @tanstack/solid-query
+pnpm add @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
 
 # yarn
-yarn add @hieco/mirror-js @hieco/mirror-solid @tanstack/solid-query
+yarn add @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
 ```
 
 ## Quick Start
@@ -247,7 +247,7 @@ function TokenList() {
 
 ## Related Packages
 
-- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - Core REST API client
+- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - Core REST API client
 - [`@hieco/mirror-shared`](https://github.com/powxenv/hieco/tree/main/packages/mirror-shared) - Shared utilities (internal)
 - [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - WebSocket streaming client
 

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/solid-query";
 import { createSignal } from "solid-js";
 import type { Accessor } from "solid-js";
 import type { UseQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, EntityId, TransactionDetails } from "@hieco/mirror-js";
+import type { ApiResult, ApiError, EntityId, TransactionDetails } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/mirror-shared";
 

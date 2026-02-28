@@ -11,7 +11,7 @@ import type {
   EntityId,
   PaginationParams,
   QueryOperator,
-} from "@hieco/mirror-js";
+} from "@hieco/mirror";
 import type {
   AccountInfo,
   Balance,
@@ -21,12 +21,12 @@ import type {
   TokenRelationship,
   TokenAllowance,
   TokenAirdropsResponse,
-} from "@hieco/mirror-js";
-import type { PaginatedResponse } from "@hieco/mirror-js";
+} from "@hieco/mirror";
+import type { PaginatedResponse } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/mirror-shared";
 
-export type { AccountListParams, AccountNftsParams } from "@hieco/mirror-js";
+export type { AccountListParams, AccountNftsParams } from "@hieco/mirror";
 
 export interface AccountTokenAllowancesParams {
   readonly spender?: EntityId;

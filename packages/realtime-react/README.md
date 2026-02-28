@@ -202,7 +202,7 @@ interface RealtimeConfig {
 ## Related Packages
 
 - [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - Core WebSocket client
-- [`@hieco/mirror-js`](https://www.npmjs.com/package/@hieco/mirror-js) - REST API client
+- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - REST API client
 
 ## License
 

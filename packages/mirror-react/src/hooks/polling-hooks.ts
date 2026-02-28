@@ -1,8 +1,8 @@
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
-import type { ApiResult, ApiError, TransactionDetails } from "@hieco/mirror-js";
-import type { EntityId } from "@hieco/mirror-js";
+import type { ApiResult, ApiError, TransactionDetails } from "@hieco/mirror";
+import type { EntityId } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys, isSuccess, isApiError } from "@hieco/mirror-shared";
 

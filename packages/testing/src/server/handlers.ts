@@ -1,6 +1,6 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
 import type { NetworkType } from "../types/config.js";
-import type { AccountInfo, Transaction, TokenInfo, AccountBalance } from "@hieco/mirror-js";
+import type { AccountInfo, Transaction, TokenInfo, AccountBalance } from "@hieco/mirror";
 import { NETWORK_URLS } from "./constants.js";
 
 const buildUrl = (network: NetworkType, path: string): string =>

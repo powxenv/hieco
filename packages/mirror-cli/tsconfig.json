@@ -1,19 +1,13 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
+    "outDir": "./dist",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
     "lib": ["ESNext"],
-    "moduleResolution": "bundler",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "paths": {
-      "@hieco/mirror-js": ["../mirror-js/src"],
-      "@hieco/mirror-shared": ["../mirror-shared/src"],
-      "@hieco/types": ["../types/src"]
-    }
-  }
+    "types": ["bun-types"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

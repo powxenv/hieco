@@ -1,4 +1,4 @@
-import type { NetworkType } from "@hieco/mirror-js";
+import type { NetworkType } from "@hieco/mirror";
 
 export type { NetworkType };
 

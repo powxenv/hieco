@@ -26,7 +26,7 @@ Based on the existing `@hieco/mirror-*` packages and research findings, seven st
 
 | Package                | Purpose                         | Status   |
 | ---------------------- | ------------------------------- | -------- |
-| `@hieco/mirror-js`     | Core Mirror Node REST client    | ✅ Built |
+| `@hieco/mirror`     | Core Mirror Node REST client    | ✅ Built |
 | `@hieco/mirror-react`  | React hooks with TanStack Query | ✅ Built |
 | `@hieco/mirror-preact` | Preact adapter                  | ✅ Built |
 | `@hieco/mirror-solid`  | Solid.js adapter                | ✅ Built |

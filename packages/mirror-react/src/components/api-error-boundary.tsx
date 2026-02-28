@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode } from "react";
 import { Component } from "react";
-import type { ApiError } from "@hieco/mirror-js";
+import type { ApiError } from "@hieco/mirror";
 
 export interface ApiErrorFallbackProps {
   error: ApiError;

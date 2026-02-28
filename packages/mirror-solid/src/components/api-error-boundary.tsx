@@ -1,6 +1,6 @@
 import type { JSX } from "solid-js";
 import { ErrorBoundary, resetErrorBoundaries } from "solid-js";
-import type { ApiError } from "@hieco/mirror-js";
+import type { ApiError } from "@hieco/mirror";
 
 export interface ApiErrorFallbackProps {
   error: ApiError;
