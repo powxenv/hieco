@@ -49,11 +49,11 @@
     "fmt:check": "oxfmt --check"
   },
   "devDependencies": {
-    "@typescript/native-preview": "^7.0.0-dev.20260222.1",
-    "bun-types": "^1.3.9",
-    "oxfmt": "^0.34.0",
-    "oxlint": "^1.49.0",
-    "oxlint-tsgolint": "^0.14.2",
+    "@typescript/native-preview": "catalog:",
+    "bun-types": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
     "preact": "^10.0.0"
   },
   "peerDependencies": {

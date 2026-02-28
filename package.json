@@ -1,11 +1,28 @@
 {
     "name": "hieco",
     "private": true,
-    "workspaces": [
-        "packages/*",
-        "apps/*",
-        "examples/*"
-    ],
+    "workspaces": {
+        "packages": [
+            "packages/*",
+            "apps/*",
+            "examples/*"
+        ],
+        "catalog": {
+            "@typescript/native-preview": "^7.0.0-dev.20260222.1",
+            "bun-types": "^1.3.9",
+            "oxfmt": "^0.34.0",
+            "oxlint": "^1.49.0",
+            "oxlint-tsgolint": "^0.14.2"
+        },
+        "catalogs": {
+            "react": {
+                "react": "^18.2.0",
+                "react-dom": "^18.2.0",
+                "@types/react": "^18.2.0",
+                "@types/react-dom": "^18.2.0"
+            }
+        }
+    },
     "scripts": {
         "fmt": "oxfmt && bun --filter '*' fmt",
         "fmt:mirror-js": "bun --filter '@hieco/mirror-js' fmt",
@@ -62,8 +79,8 @@
         "test:types": "bun --filter '@hiecom/types' test"
     },
     "devDependencies": {
-        "oxfmt": "^0.34.0",
-        "oxlint": "^1.50.0",
-        "oxlint-tsgolint": "^0.15.0"
+        "oxfmt": "catalog:",
+        "oxlint": "catalog:",
+        "oxlint-tsgolint": "catalog:"
     }
 }

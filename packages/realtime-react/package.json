@@ -51,15 +51,15 @@
     "fmt:check": "oxfmt --check"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@typescript/native-preview": "^7.0.0-dev.20260222.1",
-    "bun-types": "^1.3.9",
-    "oxfmt": "^0.34.0",
-    "oxlint": "^1.49.0",
-    "oxlint-tsgolint": "^0.14.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@typescript/native-preview": "catalog:",
+    "bun-types": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "react": "catalog:react",
+    "react-dom": "catalog:react"
   },
   "peerDependencies": {
     "@hieco/mirror-js": "workspace:*",
