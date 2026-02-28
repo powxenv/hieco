@@ -18,6 +18,8 @@ This directory contains comprehensive research, analysis, and proposals for the 
 | [02 - Bounty Research](./02-bounty-research/)         | Deep-dive research on Hiero ecosystem         | ✅ Complete |
 | [03 - Proposals](./03-proposals/)                     | Novel DX proposals and unified ecosystem      | ✅ Complete |
 | [04 - Ecosystem Expansion](./04-ecosystem-expansion/) | Seven practical additions to @hieco           | ✅ Complete |
+| [05 - Additional Packages](./05-additional-packages-research.md) | Independent research on potential new packages | ✅ Complete |
+| [06 - Connect PRD](./06-connect-prd.md)               | Wallet Connection UI Kit - DX & UX focus      | ✅ Complete |
 
 ---
 
@@ -34,9 +36,10 @@ brainstorming/
 ├── 03-proposals/
 │   ├── hiero-dx-proposals.md           # Novel DX-focused proposals
 │   └── hieco-unified-ecosystem.md     # Unified frontend ecosystem design
-└── 04-ecosystem-expansion/
-    ├── README.md                       # Seven practical additions overview
-    └── testing-prd.md                  # @hieco/testing comprehensive PRD
+├── 04-ecosystem-expansion/
+│   ├── README.md                       # Seven practical additions overview
+│   └── testing-prd.md                  # @hieco/testing comprehensive PRD
+└── 05-additional-packages-research.md  # Independent research on new packages
 ```
 
 ---
@@ -224,6 +227,106 @@ expect(tx).toBeSuccessfulTransaction();
 
 ---
 
+### 05 - Additional Packages Research
+
+**File:** [`05-additional-packages-research.md`](./05-additional-packages-research.md)
+
+Independent research on potential new packages based on modern Web3 development trends and ecosystem gaps:
+
+**Research Methodology:**
+- Web search on wagmi, viem, RainbowKit, ConnectKit (modern Web3 standards)
+- Deep research on Web3 development trends for 2025-2026
+- Hedera/Hiero ecosystem gap analysis
+- Account Abstraction (ERC-4337) research
+- Meta-framework adoption (Next.js, Nuxt, SvelteKit, SolidStart, Astro)
+
+**Key Findings:**
+- wagmi + viem is now the standard (replacing ethers.js)
+- RainbowKit/ConnectKit dominate wallet connection UI
+- Account Abstraction has gone mainstream (200M+ wallets)
+- Meta-frameworks are gaining significant traction
+- No wagmi/viem-style adapters exist for Hedera
+
+**Proposed Packages (15 total):**
+
+**Tier 1 - High Impact:**
+- `@hieco/next` - Next.js Integration Kit (SSR, App Router)
+- `@hieco/connect` - Wallet Connection UI Kit (RainbowKit for Hedera)
+- `@hieco/components` - UI Component Library (20+ pre-built components)
+
+**Tier 2 - Medium Impact:**
+- `@hieco/smart-wallet` - Account Abstraction Layer
+- `@hieco/nuxt` - Nuxt Integration Kit
+- `@hieco/sveltekit` - SvelteKit Integration Kit
+
+**Tier 3 - Specialized Use Cases:**
+- `@hieco/nft` - NFT/SB Utilities
+- `@hieco/staking` - HBAR Staking Utilities
+- `@hieco/forms` - Form Validation Integration
+- `@hieco/docs` - Documentation Generator
+
+**Tier 4 - Infrastructure:**
+- `@hieco/relay` - Gasless Relayer
+- `@hieco/subgraph` - The Graph Integration
+- `@hieco/devtools-extension` - Browser DevTools Extension
+- `@hieco/solid-start` - SolidStart Integration
+- `@hieco/astro` - Astro Integration
+
+---
+
+### 06 - Connect PRD
+
+**File:** [`06-connect-prd.md`](./06-connect-prd.md)
+
+Comprehensive Product Requirements Document for `@hieco/connect` - Wallet Connection UI Kit:
+
+**Focus Areas:**
+
+**Developer Experience (DX):**
+- Setup in under 5 minutes from `npm install`
+- Full TypeScript support with helpful autocomplete
+- Sensible defaults with easy customization
+- Clear, actionable error messages
+- Comprehensive documentation with examples
+- Performance optimized (< 100KB gzipped)
+- Testing support with mock wallets
+
+**User Experience (UX):**
+- Instant visual feedback (loading states, animations)
+- Progressive disclosure (show info gradually)
+- Error recovery with actionable steps
+- Mobile-first design (bottom sheet on mobile)
+- Smart defaults (auto-detect installed wallets)
+- Simple network switching
+- Clear transaction signing flow
+
+**Key Features:**
+
+```typescript
+// Zero-config setup
+import { HederaConnect, ConnectButton } from '@hieco/connect';
+
+<HederaConnect network="testnet">
+  <ConnectButton />
+</HederaConnect>
+
+// React hooks
+import { useWallet } from '@hieco/connect';
+
+const { address, balance, isConnected, connect } = useWallet();
+```
+
+**Supported Wallets:**
+- HashPack (Browser Extension)
+- Blade Wallet (Browser Extension)
+- Kabila (Mobile)
+- MetaMask (via Hedera Snap)
+- WalletConnect v2 (Mobile protocol)
+
+**Implementation:** 8-10 days, with clear phase breakdown
+
+---
+
 ## Research Methodology
 
 All research was conducted using:
@@ -234,6 +337,8 @@ All research was conducted using:
 - **npm Registry:** Package landscape assessment
 - **Framework Documentation:** Vue, Solid, Qwik, Svelte integration patterns
 - **Monorepo Best Practices:** Turborepo, pnpm, Nx research (2025-2026)
+- **Web Search (Tavily MCP):** Modern Web3 tools (wagmi, viem, RainbowKit, ConnectKit)
+- **Deep Research:** Account Abstraction, meta-frameworks, NFT marketplace patterns
 
 ---
 
@@ -296,8 +401,8 @@ When adding new research:
 ## Metadata
 
 **Created:** February 22, 2026
-**Last Updated:** February 25, 2026
-**Authors:** @pow
+**Last Updated:** February 28, 2026
+**Authors:** @pow, @abinovalfauzi
 **License:** MIT (for documentation structure)
 
 ---
