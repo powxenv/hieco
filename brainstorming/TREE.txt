@@ -44,7 +44,9 @@ brainstorming/
 │
 ├── 05-additional-packages-research.md  # Independent research on new packages
 │
-└── 06-connect-prd.md                   # @hieco/connect PRD - Wallet UI Kit
+├── 06-connect-prd.md                   # @hieco/connect PRD - Wallet UI Kit
+│
+└── 07-headless-connect-prd.md          # @hieco/connect Headless PRD
 
 
 File Naming Conventions
@@ -85,8 +87,9 @@ Quick Reference
 │ README.md                       │ Index & guide        │ ~3K    │ ✅      │
 │ 05-additional-packages-research.md│ 15 new packages    │ ~35K   │ ✅      │
 │ 06-connect-prd.md               │ Wallet UI Kit PRD    │ ~25K   │ ✅      │
+│ 07-headless-connect-prd.md      │ Headless PRD         │ ~20K   │ ✅      │
 
 
-Total Word Count: ~204,000 words
-Total Documents: 8 files
+Total Word Count: ~224,000 words
+Total Documents: 9 files
 Total Research Time: February 22-28, 2026

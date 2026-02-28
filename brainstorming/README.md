@@ -20,6 +20,7 @@ This directory contains comprehensive research, analysis, and proposals for the 
 | [04 - Ecosystem Expansion](./04-ecosystem-expansion/) | Seven practical additions to @hieco           | ✅ Complete |
 | [05 - Additional Packages](./05-additional-packages-research.md) | Independent research on potential new packages | ✅ Complete |
 | [06 - Connect PRD](./06-connect-prd.md)               | Wallet Connection UI Kit - DX & UX focus      | ✅ Complete |
+| [07 - Headless Connect PRD](./07-headless-connect-prd.md) | Headless wallet connection for maximum UI flexibility | ✅ Complete |
 
 ---
 
@@ -324,6 +325,62 @@ const { address, balance, isConnected, connect } = useWallet();
 - WalletConnect v2 (Mobile protocol)
 
 **Implementation:** 8-10 days, with clear phase breakdown
+
+---
+
+### 07 - Headless Connect PRD
+
+**File:** [`07-headless-connect-prd.md`](./07-headless-connect-prd.md)
+
+Headless/Unstyled approach for `@hieco/connect` - maximum UI flexibility with minimum bundle size.
+
+**What is Headless?**
+
+A headless library provides all the **logic and functionality** but **no pre-built UI components**. You bring your own UI.
+
+**Benefits:**
+
+| Benefit | Description |
+|---------|-------------|
+| **Full Design Control** | Match your brand exactly, no fighting default styles |
+| **Smaller Bundle** | ~48KB vs ~115KB (58% smaller) |
+| **Framework Agnostic** | Works with any UI library (Tailwind, Chakra, MUI, etc.) |
+| **Composability** | Use with shadcn/ui, Radix UI, Ark UI, etc. |
+| **Future-Proof** | UI trends change, logic stays the same |
+
+**Core Hook Usage:**
+
+```typescript
+import { useWallet } from '@hieco/connect/headless';
+
+function MyConnectButton() {
+  const { isConnected, address, connect, disconnect } = useWallet();
+
+  return (
+    <button onClick={isConnected ? disconnect : () => connect('hashpack')}>
+      {isConnected ? address : 'Connect Wallet'}
+    </button>
+  );
+}
+```
+
+**Accessibility Built-In:**
+
+- ✅ ARIA attributes (auto-generated)
+- ✅ Keyboard navigation (built-in hooks)
+- ✅ Screen reader support
+- ✅ Focus management
+
+**Example Implementations Included:**
+
+- Tailwind CSS example
+- shadcn/ui example (Radix-style)
+- Chakra UI example
+- CSS Modules example
+- Svelte 5 (Runes) example
+- Vue 3 Composition API example
+
+**Recommendation:** Ship both headless and styled in one package. Let developers choose their adventure.
 
 ---
 
