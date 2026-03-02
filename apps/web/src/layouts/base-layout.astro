@@ -1,0 +1,82 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title?: string;
+	description?: string;
+	image?: string;
+	author?: string;
+	canonical?: string;
+	no_index?: boolean;
+	og_type?: 'website' | 'article';
+	twitter_card?: 'summary' | 'summary_large_image' | 'app' | 'player';
+}
+
+const {
+	title = 'Hieco',
+	description = 'Hieco - Hedera development, simplified',
+	image = '/og-image.png',
+	author = 'Hieco',
+	canonical,
+	no_index = false,
+	og_type = 'website',
+	twitter_card = 'summary_large_image'
+} = Astro.props;
+
+const full_title = title === 'Hieco' ? title : `${title} | Hieco`;
+const site_url = 'https://hieco.dev';
+const canonical_url = canonical ? new URL(canonical, site_url).href : new URL(Astro.url.pathname, site_url).href;
+const full_image_url = new URL(image, site_url).href;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<link rel="manifest" href="/manifest.json" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="generator" content={Astro.generator} />
+
+		<title>{full_title}</title>
+		<meta name="description" content={description} />
+		<meta name="author" content={author} />
+
+		<link rel="canonical" href={canonical_url} />
+
+		{no_index && <meta name="robots" content="noindex, nofollow" />}
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content={og_type} />
+		<meta property="og:url" content={canonical_url} />
+		<meta property="og:title" content={full_title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={full_image_url} />
+		<meta property="og:site_name" content="Hieco" />
+
+		<!-- Twitter -->
+		<meta name="twitter:card" content={twitter_card} />
+		<meta name="twitter:url" content={canonical_url} />
+		<meta name="twitter:title" content={full_title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={full_image_url} />
+
+		<!-- Additional SEO -->
+		<meta name="theme-color" content="#000000" />
+		<meta name="msapplication-TileColor" content="#000000" />
+
+		<script is:inline>
+			const theme = localStorage.getItem('theme') || 'system';
+			const prefers_dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+			if (theme === 'dark' || (theme === 'system' && prefers_dark)) {
+				document.documentElement.classList.add('dark');
+			}
+		</script>
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>
