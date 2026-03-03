@@ -21,6 +21,8 @@ This directory contains comprehensive research, analysis, and proposals for the 
 | [05 - Additional Packages](./05-additional-packages-research.md) | Independent research on potential new packages | ✅ Complete |
 | [06 - Connect PRD](./06-connect-prd.md)               | Wallet Connection UI Kit - DX & UX focus      | ✅ Complete |
 | [07 - Headless Connect PRD](./07-headless-connect-prd.md) | Headless wallet connection for maximum UI flexibility | ✅ Complete |
+| [08 - Hiero SDK Complete Research](./08-hiero-sdk-complete-research.md) | Complete API reference for all Hiero SDKs | ✅ Complete |
+| [08 - Hiero SDK Quick Reference](./08-hiero-sdk-quick-reference.md) | Quick reference guide for Hiero SDKs | ✅ Complete |
 
 ---
 
@@ -28,19 +30,23 @@ This directory contains comprehensive research, analysis, and proposals for the 
 
 ```
 brainstorming/
-├── README.md                           # This file
+├── README.md                               # This file
 ├── 01-overview/
-│   └── hackathon-overview.md           # All 5 bounty tracks analysis
+│   └── hackathon-overview.md               # All 5 bounty tracks analysis
 ├── 02-bounty-research/
-│   ├── all-bounties-analysis.md        # Cross-bounty synthesis
-│   └── hiero-deep-dive.md              # Exhaustive Hiero ecosystem mapping
+│   ├── all-bounties-analysis.md            # Cross-bounty synthesis
+│   └── hiero-deep-dive.md                  # Exhaustive Hiero ecosystem mapping
 ├── 03-proposals/
-│   ├── hiero-dx-proposals.md           # Novel DX-focused proposals
-│   └── hieco-unified-ecosystem.md     # Unified frontend ecosystem design
+│   ├── hiero-dx-proposals.md               # Novel DX-focused proposals
+│   └── hieco-unified-ecosystem.md          # Unified frontend ecosystem design
 ├── 04-ecosystem-expansion/
-│   ├── README.md                       # Seven practical additions overview
-│   └── testing-prd.md                  # @hieco/testing comprehensive PRD
-└── 05-additional-packages-research.md  # Independent research on new packages
+│   ├── README.md                           # Seven practical additions overview
+│   └── testing-prd.md                      # @hieco/testing comprehensive PRD
+├── 05-additional-packages-research.md      # Independent research on new packages
+├── 06-connect-prd.md                       # Wallet Connection UI Kit PRD
+├── 07-headless-connect-prd.md              # Headless Connect PRD
+├── 08-hiero-sdk-complete-research.md       # Complete Hiero SDK API reference
+└── 08-hiero-sdk-quick-reference.md         # Quick reference guide
 ```
 
 ---
@@ -384,6 +390,105 @@ function MyConnectButton() {
 
 ---
 
+### 08 - Hiero SDK Complete Research
+
+**File:** [`08-hiero-sdk-complete-research.md`](./08-hiero-sdk-complete-research.md)
+
+Comprehensive API reference and documentation for all Hiero SDKs across all supported languages.
+
+**Coverage:**
+
+- **JavaScript/TypeScript SDK** - Complete API reference, classes, methods, transactions, queries
+- **Java SDK** - Full Maven setup, transaction patterns, HCS operations
+- **Python SDK** - PyPI installation, environment setup, complete usage examples
+- **Go SDK** - Package management, client setup, token operations
+- **Rust SDK** - Cargo.toml setup, async operations, error handling
+- **Swift SDK** - SPM integration, iOS/macOS examples
+- **C++ SDK** - CMake setup, protobuf integration
+- **REST API** - Complete Mirror Node REST API reference with all endpoints
+- **DID SDKs** - Python and JavaScript DID SDK documentation
+
+**Key Features:**
+
+- Complete installation commands for each language
+- Network endpoints (mainnet, testnet, previewnet)
+- Client setup and operator configuration
+- All transaction types with examples
+- Query patterns and best practices
+- Error handling strategies
+- Mirror Node integration
+- Fee estimation and configuration
+- Migration notes (namespace changes)
+- Deprecation notices (AccountBalanceQuery removal July 2026)
+
+**Usage Examples:**
+
+```typescript
+// JavaScript/TypeScript
+import { Client, TransferTransaction, Hbar } from "@hiero-ledger/sdk";
+
+const client = Client.forTestnet();
+client.setOperator(accountId, privateKey);
+
+const tx = await new TransferTransaction()
+  .addHbarTransfer(senderId, Hbar.fromTinybars(-1000))
+  .addHbarTransfer(recipientId, Hbar.fromTinybars(1000))
+  .execute(client);
+```
+
+```python
+# Python
+from hiero_sdk_python import Network, Client, TransferTransaction, Hbar
+
+client = Client(Network("testnet"))
+client.set_operator(operator_id, operator_key)
+
+tx = TransferTransaction()
+    .add_hbar_transfer(sender_id, Hbar.from_tinybars(-1000))
+    .add_hbar_transfer(recipient_id, Hbar.from_tinybars(1000))
+    .execute(client)
+```
+
+**REST API Endpoints:**
+
+```
+GET /api/v1/accounts                          # List accounts
+GET /api/v1/accounts/{id}                      # Get account balance
+GET /api/v1/tokens/{tokenId}                   # Get token info
+GET /api/v1/transactions/{transactionId}       # Get transaction
+GET /api/v1/topics/{topicId}/messages          # Get topic messages
+```
+
+### 08 - Hiero SDK Quick Reference
+
+**File:** [`08-hiero-sdk-quick-reference.md`](./08-hiero-sdk-quick-reference.md)
+
+A condensed, developer-friendly quick reference guide for common Hiero SDK operations across all languages.
+
+**Contents:**
+
+- Installation commands (npm, pip, go get, Cargo.toml, SPM)
+- Network endpoints (quick lookup table)
+- Client setup patterns (all languages)
+- Common transactions (transfer, create token, HCS)
+- Query patterns (account balance, token info)
+- Key management (generate, recover from mnemonic)
+- REST API quick reference
+- Error handling patterns
+- Configuration tips
+- SDK versions & migration notes
+- Important deprecation notices
+
+**Use Case:**
+
+Designed for developers who need quick code snippets without reading the full documentation. Perfect for:
+- Quick lookups during development
+- Copy-paste examples
+- Language comparison
+- API pattern reference
+
+---
+
 ## Research Methodology
 
 All research was conducted using:
@@ -396,6 +501,16 @@ All research was conducted using:
 - **Monorepo Best Practices:** Turborepo, pnpm, Nx research (2025-2026)
 - **Web Search (Tavily MCP):** Modern Web3 tools (wagmi, viem, RainbowKit, ConnectKit)
 - **Deep Research:** Account Abstraction, meta-frameworks, NFT marketplace patterns
+- **Tavily MCP Tools:**
+  - `tavily_tavily_research` - AI-powered deep research on Hiero SDKs
+  - `tavily_tavily_search` - SDK-specific searches
+  - `tavily_tavily_crawl` - Documentation site crawling
+  - `tavily_tavily_extract` - Content extraction from docs
+- **GitHub Grep:** Real-world code examples from SDK repositories
+- **Official Documentation:**
+  - docs.hiero.org
+  - docs.hedera.com
+  - GitHub repositories (hiero-ledger, hashgraph)
 
 ---
 
@@ -458,7 +573,7 @@ When adding new research:
 ## Metadata
 
 **Created:** February 22, 2026
-**Last Updated:** February 28, 2026
+**Last Updated:** March 3, 2026
 **Authors:** @pow, @abinovalfauzi
 **License:** MIT (for documentation structure)
 
