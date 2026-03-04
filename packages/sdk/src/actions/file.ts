@@ -8,21 +8,24 @@ import type {
   SdkResult,
   ActionDeps,
 } from "../types.ts";
-import { requireOperatorKey } from "../types.ts";
+import { requireSigningContext } from "../types.ts";
 import { executeTransaction } from "../pipeline/executor.ts";
 
 export async function createFile(
   deps: ActionDeps,
   params: CreateFileParams,
 ): Promise<SdkResult<FileReceipt>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   const result = await executeTransaction(
     deps.nativeClient,
     "createFile",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,
@@ -58,14 +61,17 @@ export async function appendFile(
   deps: ActionDeps,
   params: AppendFileParams,
 ): Promise<SdkResult<TransactionReceiptData>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   return executeTransaction(
     deps.nativeClient,
     "appendFile",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,
@@ -77,14 +83,17 @@ export async function updateFile(
   deps: ActionDeps,
   params: UpdateFileParams,
 ): Promise<SdkResult<TransactionReceiptData>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   return executeTransaction(
     deps.nativeClient,
     "updateFile",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,
@@ -96,14 +105,17 @@ export async function deleteFile(
   deps: ActionDeps,
   params: DeleteFileParams,
 ): Promise<SdkResult<TransactionReceiptData>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   return executeTransaction(
     deps.nativeClient,
     "deleteFile",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,

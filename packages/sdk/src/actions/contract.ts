@@ -12,7 +12,7 @@ import type {
   SdkResult,
   ActionDeps,
 } from "../types.ts";
-import { requireOperatorKey } from "../types.ts";
+import { requireSigningContext } from "../types.ts";
 import { executeTransaction } from "../pipeline/executor.ts";
 import { buildContractFunctionParameters } from "../pipeline/resolver.ts";
 
@@ -20,14 +20,17 @@ export async function deployContract(
   deps: ActionDeps,
   params: DeployContractParams,
 ): Promise<SdkResult<ContractReceipt>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   const result = await executeTransaction(
     deps.nativeClient,
     "deployContract",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,
@@ -63,14 +66,17 @@ export async function executeContract(
   deps: ActionDeps,
   params: ExecuteContractParams,
 ): Promise<SdkResult<ContractExecuteReceipt>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   const result = await executeTransaction(
     deps.nativeClient,
     "executeContract",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,
@@ -93,6 +99,12 @@ export async function callContract(
   params: CallContractParams,
 ): Promise<SdkResult<ContractCallResult>> {
   try {
+    const signingResult = requireSigningContext({
+      operatorKey: deps.operatorKey,
+      signer: deps.signer,
+    });
+    if (!signingResult.success) return signingResult;
+
     const query = new ContractCallQuery().setContractId(params.contractId);
 
     if (params.gas !== undefined) query.setGas(params.gas);
@@ -107,7 +119,10 @@ export async function callContract(
       query.setFunction(params.functionName);
     }
 
-    const result = await query.execute(deps.nativeClient);
+    const result =
+      signingResult.data._tag === "signer"
+        ? await query.executeWithSigner(signingResult.data.signer)
+        : await query.execute(deps.nativeClient);
 
     return {
       success: true,
@@ -138,14 +153,17 @@ export async function deleteContract(
   deps: ActionDeps,
   params: DeleteContractParams,
 ): Promise<SdkResult<TransactionReceiptData>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   return executeTransaction(
     deps.nativeClient,
     "deleteContract",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,
@@ -157,14 +175,17 @@ export async function updateContract(
   deps: ActionDeps,
   params: UpdateContractParams,
 ): Promise<SdkResult<TransactionReceiptData>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   return executeTransaction(
     deps.nativeClient,
     "updateContract",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,

@@ -12,21 +12,24 @@ import type {
   SdkResult,
   ActionDeps,
 } from "../types.ts";
-import { requireOperatorKey } from "../types.ts";
+import { requireSigningContext } from "../types.ts";
 import { executeTransaction } from "../pipeline/executor.ts";
 
 export async function transfer(
   deps: ActionDeps,
   params: TransferParams,
 ): Promise<SdkResult<TransferResult>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   const result = await executeTransaction(
     deps.nativeClient,
     "transfer",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,
@@ -48,14 +51,17 @@ export async function createAccount(
   deps: ActionDeps,
   params: CreateAccountParams,
 ): Promise<SdkResult<CreateAccountResult>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   const result = await executeTransaction(
     deps.nativeClient,
     "createAccount",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,
@@ -91,14 +97,17 @@ export async function updateAccount(
   deps: ActionDeps,
   params: UpdateAccountParams,
 ): Promise<SdkResult<UpdateAccountResult>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   const result = await executeTransaction(
     deps.nativeClient,
     "updateAccount",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,
@@ -120,14 +129,17 @@ export async function deleteAccount(
   deps: ActionDeps,
   params: DeleteAccountParams,
 ): Promise<SdkResult<DeleteAccountResult>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   const result = await executeTransaction(
     deps.nativeClient,
     "deleteAccount",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,
@@ -149,14 +161,17 @@ export async function approveAllowance(
   deps: ActionDeps,
   params: ApproveAllowanceParams,
 ): Promise<SdkResult<TransactionReceiptData>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   return executeTransaction(
     deps.nativeClient,
     "approveAllowance",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,

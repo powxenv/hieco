@@ -1,7 +1,7 @@
 {
   "name": "@hieco/sdk",
   "version": "0.0.1",
-  "description": "Laravel-inspired, viem-patterned developer experience layer for Hiero (Hedera) blockchain",
+  "description": "Ergonomic, type-safe SDK for Hiero blockchain transactions and queries",
   "keywords": [
     "blockchain",
     "cryptocurrency",

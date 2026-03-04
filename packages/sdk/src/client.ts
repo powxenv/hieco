@@ -1,4 +1,5 @@
 import { Client, Hbar } from "@hiero-ledger/sdk";
+import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
 import type { EntityId, NetworkType } from "@hieco/types";
 import type {
   HieroClientConfig,
@@ -319,6 +320,14 @@ export class HieroClient {
     return new ContractBuilder();
   }
 
+  withSigner(signer: HieroSigner): HieroClient {
+    return new HieroClient({ ...this.exportConfig(), signer });
+  }
+
+  withoutSigner(): HieroClient {
+    return new HieroClient({ ...this.exportConfig(), signer: undefined });
+  }
+
   extend<T>(decorator: (client: HieroClient) => T): HieroClient & T {
     const extensions = decorator(this);
     return Object.assign(this, extensions) as HieroClient & T;
@@ -329,10 +338,24 @@ export class HieroClient {
     this.emitter.removeAllListeners();
   }
 
+  private exportConfig(): HieroClientConfig {
+    return {
+      network: this.config.network,
+      operatorId: this.config.operatorId,
+      operatorKey: this.config.operatorKey,
+      signer: this.config.signer,
+      mirrorUrl: this.config.mirrorUrl,
+      maxTransactionFee: this.config.maxTransactionFee,
+      logLevel: this.config.logLevel,
+      middleware: this.config.middleware,
+      retry: this.config.retry,
+    };
+  }
+
   private createNativeClient(): Client {
     const client = Client.forName(this.config.network);
 
-    if (this.config.operatorId && this.config.operatorKey) {
+    if (!this.config.signer && this.config.operatorId && this.config.operatorKey) {
       client.setOperator(this.config.operatorId, this.config.operatorKey);
     }
 
@@ -368,6 +391,7 @@ export class HieroClient {
     return {
       nativeClient: this.nativeClient,
       operatorKey: this.config.operatorKey,
+      signer: this.config.signer,
       middleware: this.resolvedMiddleware,
       emitter: this.emitter,
       clientRef: this.clientRef(),

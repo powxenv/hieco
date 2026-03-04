@@ -1,5 +1,5 @@
 import type { EntityId, NetworkType } from "@hieco/types";
-import type { Client } from "@hiero-ledger/sdk";
+import type { Client, Signer as HieroSigner } from "@hiero-ledger/sdk";
 import type { SdkError } from "./errors/types.ts";
 import { configurationError } from "./errors/messages.ts";
 import type { TransactionEventEmitter } from "./events/emitter.ts";
@@ -707,11 +707,34 @@ export interface HieroClientConfig {
   readonly network?: NetworkType;
   readonly operatorId?: EntityId;
   readonly operatorKey?: string;
+  readonly signer?: HieroSigner;
   readonly mirrorUrl?: string;
   readonly maxTransactionFee?: number | string;
   readonly logLevel?: LogLevel;
   readonly middleware?: ReadonlyArray<TransactionMiddleware>;
   readonly retry?: RetryConfig | false;
+}
+
+export type SigningContext =
+  | { readonly _tag: "operator"; readonly operatorKey: string }
+  | { readonly _tag: "signer"; readonly signer: HieroSigner };
+
+export function requireSigningContext(input: {
+  readonly operatorKey: string | undefined;
+  readonly signer: HieroSigner | undefined;
+}): SdkResult<SigningContext> {
+  if (input.signer) {
+    return { success: true, data: { _tag: "signer", signer: input.signer } };
+  }
+
+  if (input.operatorKey) {
+    return { success: true, data: { _tag: "operator", operatorKey: input.operatorKey } };
+  }
+
+  return {
+    success: false,
+    error: configurationError("signer", "A signer or operatorKey is required to sign transactions"),
+  };
 }
 
 export const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
@@ -768,6 +791,7 @@ export type AnyTransactionParams = TransactionParamsMap[TransactionType];
 export interface ActionDeps {
   readonly nativeClient: Client;
   readonly operatorKey: string | undefined;
+  readonly signer: HieroSigner | undefined;
   readonly middleware: ReadonlyArray<TransactionMiddleware>;
   readonly emitter: TransactionEventEmitter;
   readonly clientRef: HieroClientRef;

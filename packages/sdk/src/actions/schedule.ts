@@ -7,21 +7,24 @@ import type {
   SdkResult,
   ActionDeps,
 } from "../types.ts";
-import { requireOperatorKey } from "../types.ts";
+import { requireSigningContext } from "../types.ts";
 import { executeTransaction } from "../pipeline/executor.ts";
 
 export async function scheduleTransaction(
   deps: ActionDeps,
   params: ScheduleTransactionParams,
 ): Promise<SdkResult<ScheduleReceipt>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   const result = await executeTransaction(
     deps.nativeClient,
     "scheduleTransaction",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,
@@ -57,14 +60,17 @@ export async function signSchedule(
   deps: ActionDeps,
   params: SignScheduleParams,
 ): Promise<SdkResult<TransactionReceiptData>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   return executeTransaction(
     deps.nativeClient,
     "signSchedule",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,
@@ -76,14 +82,17 @@ export async function deleteSchedule(
   deps: ActionDeps,
   params: DeleteScheduleParams,
 ): Promise<SdkResult<TransactionReceiptData>> {
-  const keyResult = requireOperatorKey(deps.operatorKey);
-  if (!keyResult.success) return keyResult;
+  const signingResult = requireSigningContext({
+    operatorKey: deps.operatorKey,
+    signer: deps.signer,
+  });
+  if (!signingResult.success) return signingResult;
 
   return executeTransaction(
     deps.nativeClient,
     "deleteSchedule",
     params,
-    keyResult.data,
+    signingResult.data,
     deps.middleware,
     deps.emitter,
     deps.clientRef,

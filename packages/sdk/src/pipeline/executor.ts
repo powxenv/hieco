@@ -10,6 +10,7 @@ import type {
   HieroClientRef,
   RetryConfig,
   AnyTransactionParams,
+  SigningContext,
 } from "../types.ts";
 import { transactionError, invalidSignatureError } from "../errors/messages.ts";
 import type { TransactionEventEmitter } from "../events/emitter.ts";
@@ -46,7 +47,7 @@ export async function executeTransaction(
   nativeClient: Client,
   type: TransactionType,
   params: AnyTransactionParams,
-  operatorKey: string,
+  signing: SigningContext,
   middleware: ReadonlyArray<TransactionMiddleware>,
   emitter: TransactionEventEmitter,
   clientRef: HieroClientRef,
@@ -69,26 +70,34 @@ export async function executeTransaction(
 
   const coreExecution = async (): Promise<SdkResult<TransactionReceiptData>> => {
     try {
-      const nativeTx = resolveTransaction(type, paramsRecord, operatorKey);
+      const operatorKey = signing._tag === "operator" ? signing.operatorKey : undefined;
+      const nativeTx = resolveTransaction(type, paramsRecord, operatorKey, signing);
 
-      const frozenTx = nativeTx.freezeWith(nativeClient);
+      const submitted =
+        signing._tag === "signer"
+          ? await (
+              await (await nativeTx.freezeWithSigner(signing.signer)).signWithSigner(signing.signer)
+            ).executeWithSigner(signing.signer)
+          : await (
+              await (await nativeTx.freezeWith(nativeClient)).sign(
+                PrivateKey.fromStringDer(signing.operatorKey),
+              )
+            ).execute(nativeClient);
 
-      const privateKey = PrivateKey.fromStringDer(operatorKey);
-      const signedTx = await frozenTx.sign(privateKey);
-
-      const txId = signedTx.transactionId?.toString() ?? "unknown";
-
-      emitter.emit("transaction:signed", { type, transactionId: txId });
-
-      const response = await signedTx.execute(nativeClient);
+      const txId = submitted.transactionId?.toString() ?? "unknown";
 
       emitter.emit("transaction:submitted", {
         type,
         transactionId: txId,
-        nodeId: response.nodeId.toString(),
+        nodeId: submitted.nodeId.toString(),
       });
 
-      const receipt = await response.getReceipt(nativeClient);
+      emitter.emit("transaction:signed", { type, transactionId: txId });
+
+      const receipt =
+        signing._tag === "signer"
+          ? await submitted.getReceiptWithSigner(signing.signer)
+          : await submitted.getReceipt(nativeClient);
 
       const accountIdStr = receipt.accountId?.toString();
       const receiptData: TransactionReceiptData = {

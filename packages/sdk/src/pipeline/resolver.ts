@@ -47,6 +47,7 @@ import {
   FeeAssessmentMethod,
   AccountId,
   Timestamp,
+  type Key,
 } from "@hiero-ledger/sdk";
 import type {
   TransactionType,
@@ -90,6 +91,7 @@ import type {
   FunctionParamsConfig,
   CustomFeeParams,
   CustomFixedFeeParams,
+  SigningContext,
 } from "../types.ts";
 
 type NativeTransaction =
@@ -132,8 +134,15 @@ type NativeTransaction =
 function resolveKeyParam(
   value: string | true,
   operatorKey?: string,
-): ReturnType<typeof PrivateKey.fromStringDer>["publicKey"] {
+  signing?: SigningContext,
+): Key {
   if (value === true) {
+    if (signing?._tag === "signer") {
+      const accountKey = signing.signer.getAccountKey?.();
+      if (!accountKey) throw new Error("Signer account key required when key param is true");
+      return accountKey;
+    }
+
     if (!operatorKey) throw new Error("Operator key required when key param is true");
     return PrivateKey.fromStringDer(operatorKey).publicKey;
   }
@@ -297,6 +306,7 @@ function resolveApproveAllowance(
 function resolveCreateToken(
   params: CreateTokenParams,
   operatorKey?: string,
+  signing?: SigningContext,
 ): TokenCreateTransaction {
   const tx = new TokenCreateTransaction().setTokenName(params.name).setTokenSymbol(params.symbol);
 
@@ -311,18 +321,22 @@ function resolveCreateToken(
   if (params.maxSupply !== undefined) tx.setMaxSupply(Long.fromString(String(params.maxSupply)));
   if (params.freezeDefault !== undefined) tx.setFreezeDefault(params.freezeDefault);
 
-  if (params.adminKey !== undefined) tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey));
-  if (params.kycKey !== undefined) tx.setKycKey(resolveKeyParam(params.kycKey, operatorKey));
+  if (params.adminKey !== undefined)
+    tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey, signing));
+  if (params.kycKey !== undefined)
+    tx.setKycKey(resolveKeyParam(params.kycKey, operatorKey, signing));
   if (params.freezeKey !== undefined)
-    tx.setFreezeKey(resolveKeyParam(params.freezeKey, operatorKey));
-  if (params.wipeKey !== undefined) tx.setWipeKey(resolveKeyParam(params.wipeKey, operatorKey));
+    tx.setFreezeKey(resolveKeyParam(params.freezeKey, operatorKey, signing));
+  if (params.wipeKey !== undefined)
+    tx.setWipeKey(resolveKeyParam(params.wipeKey, operatorKey, signing));
   if (params.supplyKey !== undefined)
-    tx.setSupplyKey(resolveKeyParam(params.supplyKey, operatorKey));
-  if (params.pauseKey !== undefined) tx.setPauseKey(resolveKeyParam(params.pauseKey, operatorKey));
+    tx.setSupplyKey(resolveKeyParam(params.supplyKey, operatorKey, signing));
+  if (params.pauseKey !== undefined)
+    tx.setPauseKey(resolveKeyParam(params.pauseKey, operatorKey, signing));
   if (params.metadataKey !== undefined)
-    tx.setMetadataKey(resolveKeyParam(params.metadataKey, operatorKey));
+    tx.setMetadataKey(resolveKeyParam(params.metadataKey, operatorKey, signing));
   if (params.feeScheduleKey !== undefined)
-    tx.setFeeScheduleKey(resolveKeyParam(params.feeScheduleKey, operatorKey));
+    tx.setFeeScheduleKey(resolveKeyParam(params.feeScheduleKey, operatorKey, signing));
 
   if (params.customFees) tx.setCustomFees(params.customFees.map(buildCustomFee));
   if (params.autoRenewAccountId) tx.setAutoRenewAccountId(params.autoRenewAccountId);
@@ -491,6 +505,7 @@ function resolveDeleteToken(params: DeleteTokenParams): TokenDeleteTransaction {
 function resolveUpdateToken(
   params: UpdateTokenParams,
   operatorKey?: string,
+  signing?: SigningContext,
 ): TokenUpdateTransaction {
   const tx = new TokenUpdateTransaction().setTokenId(params.tokenId);
 
@@ -498,18 +513,22 @@ function resolveUpdateToken(
   if (params.symbol) tx.setTokenSymbol(params.symbol);
   if (params.treasury) tx.setTreasuryAccountId(params.treasury);
 
-  if (params.adminKey !== undefined) tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey));
-  if (params.kycKey !== undefined) tx.setKycKey(resolveKeyParam(params.kycKey, operatorKey));
+  if (params.adminKey !== undefined)
+    tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey, signing));
+  if (params.kycKey !== undefined)
+    tx.setKycKey(resolveKeyParam(params.kycKey, operatorKey, signing));
   if (params.freezeKey !== undefined)
-    tx.setFreezeKey(resolveKeyParam(params.freezeKey, operatorKey));
-  if (params.wipeKey !== undefined) tx.setWipeKey(resolveKeyParam(params.wipeKey, operatorKey));
+    tx.setFreezeKey(resolveKeyParam(params.freezeKey, operatorKey, signing));
+  if (params.wipeKey !== undefined)
+    tx.setWipeKey(resolveKeyParam(params.wipeKey, operatorKey, signing));
   if (params.supplyKey !== undefined)
-    tx.setSupplyKey(resolveKeyParam(params.supplyKey, operatorKey));
-  if (params.pauseKey !== undefined) tx.setPauseKey(resolveKeyParam(params.pauseKey, operatorKey));
+    tx.setSupplyKey(resolveKeyParam(params.supplyKey, operatorKey, signing));
+  if (params.pauseKey !== undefined)
+    tx.setPauseKey(resolveKeyParam(params.pauseKey, operatorKey, signing));
   if (params.metadataKey !== undefined)
-    tx.setMetadataKey(resolveKeyParam(params.metadataKey, operatorKey));
+    tx.setMetadataKey(resolveKeyParam(params.metadataKey, operatorKey, signing));
   if (params.feeScheduleKey !== undefined)
-    tx.setFeeScheduleKey(resolveKeyParam(params.feeScheduleKey, operatorKey));
+    tx.setFeeScheduleKey(resolveKeyParam(params.feeScheduleKey, operatorKey, signing));
 
   if (params.autoRenewAccountId) tx.setAutoRenewAccountId(params.autoRenewAccountId);
   if (params.autoRenewPeriodSeconds !== undefined)
@@ -537,14 +556,16 @@ function resolveUpdateTokenFeeSchedule(
 function resolveCreateTopic(
   params: CreateTopicParams,
   operatorKey?: string,
+  signing?: SigningContext,
 ): TopicCreateTransaction {
   const tx = new TopicCreateTransaction();
 
-  if (params.adminKey !== undefined) tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey));
+  if (params.adminKey !== undefined)
+    tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey, signing));
   if (params.submitKey !== undefined)
-    tx.setSubmitKey(resolveKeyParam(params.submitKey, operatorKey));
+    tx.setSubmitKey(resolveKeyParam(params.submitKey, operatorKey, signing));
   if (params.feeScheduleKey !== undefined)
-    tx.setFeeScheduleKey(resolveKeyParam(params.feeScheduleKey, operatorKey));
+    tx.setFeeScheduleKey(resolveKeyParam(params.feeScheduleKey, operatorKey, signing));
   if (params.autoRenewAccountId) tx.setAutoRenewAccountId(params.autoRenewAccountId);
   if (params.autoRenewPeriodSeconds !== undefined)
     tx.setAutoRenewPeriod(params.autoRenewPeriodSeconds);
@@ -565,14 +586,16 @@ function resolveCreateTopic(
 function resolveUpdateTopic(
   params: UpdateTopicParams,
   operatorKey?: string,
+  signing?: SigningContext,
 ): TopicUpdateTransaction {
   const tx = new TopicUpdateTransaction().setTopicId(params.topicId);
 
-  if (params.adminKey !== undefined) tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey));
+  if (params.adminKey !== undefined)
+    tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey, signing));
   if (params.submitKey !== undefined)
-    tx.setSubmitKey(resolveKeyParam(params.submitKey, operatorKey));
+    tx.setSubmitKey(resolveKeyParam(params.submitKey, operatorKey, signing));
   if (params.feeScheduleKey !== undefined)
-    tx.setFeeScheduleKey(resolveKeyParam(params.feeScheduleKey, operatorKey));
+    tx.setFeeScheduleKey(resolveKeyParam(params.feeScheduleKey, operatorKey, signing));
   if (params.autoRenewAccountId) tx.setAutoRenewAccountId(params.autoRenewAccountId);
   if (params.autoRenewPeriodSeconds !== undefined)
     tx.setAutoRenewPeriod(params.autoRenewPeriodSeconds);
@@ -694,6 +717,7 @@ function addSolidityParam(cfp: ContractFunctionParameters, solType: string, val:
 function resolveDeployContract(
   params: DeployContractParams,
   operatorKey?: string,
+  signing?: SigningContext,
 ): ContractCreateTransaction {
   const bytecodeBytes = hexToBytes(params.bytecode);
   const tx = new ContractCreateTransaction().setBytecode(bytecodeBytes);
@@ -702,7 +726,8 @@ function resolveDeployContract(
   if (params.constructorParams) {
     tx.setConstructorParameters(buildContractFunctionParameters(params.constructorParams));
   }
-  if (params.adminKey !== undefined) tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey));
+  if (params.adminKey !== undefined)
+    tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey, signing));
   if (params.initialBalance !== undefined) tx.setInitialBalance(new Hbar(params.initialBalance));
   if (params.autoRenewPeriodSeconds !== undefined)
     tx.setAutoRenewPeriod(params.autoRenewPeriodSeconds);
@@ -750,10 +775,12 @@ function resolveDeleteContract(params: DeleteContractParams): ContractDeleteTran
 function resolveUpdateContract(
   params: UpdateContractParams,
   operatorKey?: string,
+  signing?: SigningContext,
 ): ContractUpdateTransaction {
   const tx = new ContractUpdateTransaction().setContractId(params.contractId);
 
-  if (params.adminKey !== undefined) tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey));
+  if (params.adminKey !== undefined)
+    tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey, signing));
   if (params.expirationTime) tx.setExpirationTime(params.expirationTime);
   if (params.autoRenewPeriodSeconds !== undefined)
     tx.setAutoRenewPeriod(params.autoRenewPeriodSeconds);
@@ -773,15 +800,18 @@ function resolveUpdateContract(
 function resolveScheduleTransaction(
   params: ScheduleTransactionParams,
   operatorKey?: string,
+  signing?: SigningContext,
 ): ScheduleCreateTransaction {
   const innerTx = resolveTransaction(
     params.transaction.type,
     params.transaction.params,
     operatorKey,
+    signing,
   );
   const tx = new ScheduleCreateTransaction().setScheduledTransaction(innerTx);
 
-  if (params.adminKey !== undefined) tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey));
+  if (params.adminKey !== undefined)
+    tx.setAdminKey(resolveKeyParam(params.adminKey, operatorKey, signing));
   if (params.payerAccountId) tx.setPayerAccountId(AccountId.fromString(params.payerAccountId));
   if (params.expirationTime) tx.setExpirationTime(Timestamp.fromDate(params.expirationTime));
   if (params.waitForExpiry !== undefined) tx.setWaitForExpiry(params.waitForExpiry);
@@ -876,6 +906,7 @@ export function resolveTransaction(
   type: TransactionType,
   params: Record<string, unknown>,
   operatorKey?: string,
+  signing?: SigningContext,
 ): NativeTransaction {
   switch (type) {
     case "transfer":
@@ -889,7 +920,7 @@ export function resolveTransaction(
     case "approveAllowance":
       return resolveApproveAllowance(params as unknown as ApproveAllowanceParams);
     case "createToken":
-      return resolveCreateToken(params as unknown as CreateTokenParams, operatorKey);
+      return resolveCreateToken(params as unknown as CreateTokenParams, operatorKey, signing);
     case "mintToken":
       return resolveMintToken(params as unknown as MintTokenParams);
     case "burnToken":
@@ -919,29 +950,30 @@ export function resolveTransaction(
     case "deleteToken":
       return resolveDeleteToken(params as unknown as DeleteTokenParams);
     case "updateToken":
-      return resolveUpdateToken(params as unknown as UpdateTokenParams, operatorKey);
+      return resolveUpdateToken(params as unknown as UpdateTokenParams, operatorKey, signing);
     case "updateTokenFeeSchedule":
       return resolveUpdateTokenFeeSchedule(params as unknown as UpdateTokenFeeScheduleParams);
     case "createTopic":
-      return resolveCreateTopic(params as unknown as CreateTopicParams, operatorKey);
+      return resolveCreateTopic(params as unknown as CreateTopicParams, operatorKey, signing);
     case "updateTopic":
-      return resolveUpdateTopic(params as unknown as UpdateTopicParams, operatorKey);
+      return resolveUpdateTopic(params as unknown as UpdateTopicParams, operatorKey, signing);
     case "deleteTopic":
       return resolveDeleteTopic(params as unknown as DeleteTopicParams);
     case "submitMessage":
       return resolveSubmitMessage(params as unknown as SubmitMessageParams);
     case "deployContract":
-      return resolveDeployContract(params as unknown as DeployContractParams, operatorKey);
+      return resolveDeployContract(params as unknown as DeployContractParams, operatorKey, signing);
     case "executeContract":
       return resolveExecuteContract(params as unknown as ExecuteContractParams);
     case "deleteContract":
       return resolveDeleteContract(params as unknown as DeleteContractParams);
     case "updateContract":
-      return resolveUpdateContract(params as unknown as UpdateContractParams, operatorKey);
+      return resolveUpdateContract(params as unknown as UpdateContractParams, operatorKey, signing);
     case "scheduleTransaction":
       return resolveScheduleTransaction(
         params as unknown as ScheduleTransactionParams,
         operatorKey,
+        signing,
       );
     case "signSchedule":
       return resolveSignSchedule(params as unknown as SignScheduleParams);

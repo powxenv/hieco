@@ -1,5 +1,6 @@
 import type { EntityId, NetworkType } from "@hieco/types";
 import { isValidEntityId } from "@hieco/mirror-shared";
+import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
 import { configurationError } from "./errors/messages.ts";
 import type { ConfigurationError } from "./errors/types.ts";
 import { isBrowser } from "./environment.ts";
@@ -19,6 +20,7 @@ export interface ResolvedConfig {
   readonly network: NetworkType;
   readonly operatorId: EntityId | undefined;
   readonly operatorKey: string | undefined;
+  readonly signer: HieroSigner | undefined;
   readonly mirrorUrl: string | undefined;
   readonly maxTransactionFee: string;
   readonly logLevel: LogLevel;
@@ -80,6 +82,7 @@ export function resolveConfig(config: HieroClientConfig = {}): ResolvedConfig {
     network: resolveNetwork(config.network),
     operatorId: resolveOperatorId(config.operatorId),
     operatorKey: resolveOperatorKey(config.operatorKey),
+    signer: config.signer,
     mirrorUrl: resolveMirrorUrl(config.mirrorUrl),
     maxTransactionFee: resolveMaxFee(config.maxTransactionFee),
     logLevel: resolveLogLevel(config.logLevel),
@@ -91,16 +94,19 @@ export function resolveConfig(config: HieroClientConfig = {}): ResolvedConfig {
 export function validateOperatorForBrowser(
   resolved: ResolvedConfig,
 ): ConfigurationError | undefined {
-  if (isBrowser() && !resolved.operatorId) {
+  const hasSigner = Boolean(resolved.signer);
+
+  if (isBrowser() && !resolved.operatorId && !hasSigner) {
     return configurationError(
       "operatorId",
-      "Operator account ID is required in browser environments. Set it explicitly in createHieroClient({ operatorId: ... })",
+      "Operator account ID is required in browser environments when no signer is provided. Set it explicitly in createHieroClient({ operatorId: ... })",
     );
   }
-  if (isBrowser() && !resolved.operatorKey) {
+
+  if (isBrowser() && !resolved.operatorKey && !hasSigner) {
     return configurationError(
-      "operatorKey",
-      "Operator private key is required in browser environments. Set it explicitly in createHieroClient({ operatorKey: ... })",
+      "signer",
+      "A signer or operatorKey is required in browser environments. Set it explicitly in createHieroClient({ signer: ... }) or createHieroClient({ operatorKey: ... })",
     );
   }
   return undefined;

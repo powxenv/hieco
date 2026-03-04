@@ -16,17 +16,7 @@ Ergonomic, type-safe SDK for Hiero blockchain transactions and queries.
 ## Installation
 
 ```bash
-# bun
 bun add @hieco/sdk @hiero-ledger/sdk
-
-# npm
-npm install @hieco/sdk @hiero-ledger/sdk
-
-# pnpm
-pnpm add @hieco/sdk @hiero-ledger/sdk
-
-# yarn
-yarn add @hieco/sdk @hiero-ledger/sdk
 ```
 
 ## Quick Start
@@ -74,12 +64,48 @@ const hiero = createHieroClient({
   network: "mainnet",
   operatorId: "0.0.123",
   operatorKey: "302e0201...",
-  mirrorNodeUrl: "https://mainnet.mirrornode.hedera.com",
-  retryConfig: {
+  mirrorUrl: "https://mainnet.mirrornode.hedera.com",
+  retry: {
     maxRetries: 3,
-    delayMs: 1000,
+    initialDelayMs: 1000,
   },
 });
+```
+
+### Default (Reusable) Configuration
+
+If you want to configure once and use the same client everywhere:
+
+```typescript
+import { configureHiero, hiero } from "@hieco/sdk";
+
+configureHiero({
+  network: "testnet",
+  logLevel: "info",
+});
+
+const result = await hiero().transfer({
+  to: "0.0.5678",
+  amount: 10,
+});
+```
+
+### Wallet / Per-User Signer
+
+When each user connects their own wallet, pass a Hedera JS SDK `Signer` and execute transactions with that signer:
+
+```typescript
+import { hiero } from "@hieco/sdk";
+import type { Signer } from "@hiero-ledger/sdk";
+
+export async function sendTip(userSigner: Signer, to: string, amount: number) {
+  const client = hiero().withSigner(userSigner);
+
+  return client.transfer({
+    to,
+    amount,
+  });
+}
 ```
 
 ### Actions (Transactions)
@@ -251,11 +277,7 @@ const deleteFileResult = await hiero.deleteFile({
 Builders provide a fluent interface for constructing complex objects:
 
 ```typescript
-const account = hiero
-  .account()
-  .initialBalance(1)
-  .publicKey("302a3005...")
-  .build();
+const account = hiero.account().initialBalance(1).publicKey("302a3005...").build();
 
 const token = hiero
   .token()
@@ -266,11 +288,7 @@ const token = hiero
   .treasury("0.0.123")
   .build();
 
-const topic = hiero
-  .topic()
-  .memo("My Topic")
-  .adminKey("302a3005...")
-  .build();
+const topic = hiero.topic().memo("My Topic").adminKey("302a3005...").build();
 
 const contract = hiero
   .contract()
