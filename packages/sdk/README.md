@@ -5,13 +5,14 @@ Ergonomic, type-safe SDK for Hiero blockchain transactions and queries.
 ## Features
 
 - **Zero-Boilerplate Transactions** - Simple, fluent API for HBAR transfers, token operations, smart contracts, and more
-- **Unified Client** - One client for consensus node transactions, Mirror Node queries, and WebSocket subscriptions
+- **Unified Client** - One client for consensus node transactions and WebSocket subscriptions
 - **Automatic Retry & Resilience** - Built-in retry logic for transient network errors (`BUSY`, `PLATFORM_TRANSACTION_NOT_CREATED`)
 - **Type-Safe Builders** - Fluent chainable builders with full TypeScript support and autocomplete
-- **Event System** - Transaction lifecycle events (pending, settled, error) for visibility and custom middleware
+- **Event System** - Transaction lifecycle events (before, signed, submitted, confirmed, error) for visibility
 - **Smart Error Messages** - Structured errors with context instead of cryptic status codes
-- **Environment Auto-Loading** - Reads `HIERO_OPERATOR_ID`, `HIERO_PRIVATE_KEY`, `HIERO_NETWORK` from `.env`
+- **Environment Auto-Loading** - Reads `HIERO_OPERATOR_ID`, `HIERO_PRIVATE_KEY`, `HIERO_NETWORK` from process env
 - **Composable via `.extend()`** - Add custom actions and middleware
+- **Mirror Node REST** - Built-in `hiero.mirror.*` client powered by `@hieco/mirror`
 
 ## Installation
 
@@ -37,6 +38,12 @@ HIERO_NETWORK=testnet
 import { createHieroClient } from "@hieco/sdk";
 
 const hiero = createHieroClient();
+
+const mirrorInfo = await hiero.mirror.account.getInfo("0.0.123");
+
+if (mirrorInfo.success) {
+  console.log(mirrorInfo.data.account);
+}
 
 // Transfer HBAR
 const result = await hiero.transfer({
@@ -176,7 +183,7 @@ const transferResult = await hiero.transferToken({
 ```typescript
 // Create topic
 const createTopicResult = await hiero.createTopic({
-  topicMemo: "My Topic",
+  memo: "My Topic",
 });
 
 // Submit message
@@ -188,7 +195,7 @@ const submitResult = await hiero.submitMessage({
 // Update topic
 const updateResult = await hiero.updateTopic({
   topicId: "0.0.456",
-  topicMemo: "Updated Topic",
+  memo: "Updated Topic",
 });
 
 // Delete topic
@@ -239,8 +246,11 @@ const callResult = await hiero.callContract({
 const scheduleResult = await hiero.scheduleTransaction({
   transaction: {
     type: "transfer",
-    to: "0.0.5678",
-    amount: 10,
+    params: {
+      from: "0.0.123",
+      to: "0.0.5678",
+      amount: 10,
+    },
   },
   payerAccountId: "0.0.123",
 });
@@ -261,7 +271,7 @@ const createFileResult = await hiero.createFile({
 });
 
 // Append to file
-const appendResult = await hiero.appendToFile({
+const appendResult = await hiero.appendFile({
   fileId: "0.0.111",
   contents: Buffer.from("additional contents"),
 });
@@ -277,21 +287,8 @@ const deleteFileResult = await hiero.deleteFile({
 Builders provide a fluent interface for constructing complex objects:
 
 ```typescript
-const account = hiero.account().initialBalance(1).publicKey("302a3005...").build();
-
-const token = hiero
-  .token()
-  .name("MyToken")
-  .symbol("MYT")
-  .decimals(6)
-  .initialSupply(1000000)
-  .treasury("0.0.123")
-  .build();
-
-const topic = hiero.topic().memo("My Topic").adminKey("302a3005...").build();
-
 const contract = hiero
-  .contract()
+  .contracts()
   .bytecode("0x608060...")
   .gas(100000)
   .constructorParams({
@@ -301,37 +298,6 @@ const contract = hiero
   .build();
 ```
 
-### Mirror Node Queries
-
-Access Mirror Node queries through the client:
-
-```typescript
-// Get account info
-const accountInfo = await hiero.mirror.accountInfo("0.0.123");
-
-// List accounts
-const accounts = await hiero.mirror.accounts({
-  limit: 10,
-  order: "desc",
-});
-
-// Get token info
-const tokenInfo = await hiero.mirror.tokenInfo("0.0.987");
-
-// Get contract info
-const contractInfo = await hiero.mirror.contractInfo("0.0.789");
-
-// Get topic messages
-const messages = await hiero.mirror.topicMessages("0.0.456", {
-  limit: 20,
-});
-
-// Get transactions
-const transactions = await hiero.mirror.transactions({
-  limit: 10,
-});
-```
-
 ### Event System
 
 Listen to transaction lifecycle events:
@@ -339,12 +305,16 @@ Listen to transaction lifecycle events:
 ```typescript
 const client = createHieroClient();
 
-client.on("transaction:pending", (event) => {
-  console.log(`Transaction submitted: ${event.transactionId}`);
+client.on("transaction:confirmed", (event) => {
+  console.log(`Transaction confirmed: ${event.receipt.status}`);
 });
 
-client.on("transaction:settled", (event) => {
-  console.log(`Transaction confirmed: ${event.receipt.status}`);
+client.on("transaction:before", (event) => {
+  console.log(`Transaction starting: ${event.type}`);
+});
+
+client.on("transaction:submitted", (event) => {
+  console.log(`Transaction submitted: ${event.transactionId} on node ${event.nodeId}`);
 });
 
 client.on("transaction:error", (event) => {
@@ -362,11 +332,13 @@ const result = await client.transfer({
 Add custom middleware to the transaction pipeline:
 
 ```typescript
-const client = createHieroClient();
-
-client.use((transaction) => {
-  console.log(`Processing transaction: ${transaction.type}`);
-  return transaction;
+const client = createHieroClient({
+  middleware: [
+    async (context, next) => {
+      console.log(`Processing transaction: ${context.transaction.type}`);
+      return next();
+    },
+  ],
 });
 
 const result = await client.transfer({
@@ -380,17 +352,10 @@ const result = await client.transfer({
 Use custom signers for additional security or wallet integration:
 
 ```typescript
-import { LocalSigner } from "@hieco/sdk";
+import type { Signer } from "@hiero-ledger/sdk";
 import { DAppConnector } from "@hashgraph/hedera-wallet-connect";
 
-// Local signing
-const localSigner = LocalSigner.privateKey("302e0201...");
-
-const client = createHieroClient({
-  signer: localSigner,
-});
-
-// Or use external signer (e.g., HashConnect)
+// Use external signer
 const dAppConnector = new DAppConnector();
 const externalSigner = dAppConnector.signers[0];
 
@@ -430,21 +395,18 @@ if (result.success) {
 } else {
   // Access error details
   const error = result.error;
-  console.error(`Error: ${error.code}`);
-  console.error(`Message: ${error.message}`);
-  console.error(`Status: ${error.status}`);
+  console.error(`Message: ${result.error.message}`);
+  if (result.error._tag === "TransactionError") {
+    console.error(`Status: ${result.error.status}`);
+  }
 }
 ```
 
 Error types include:
 
 - `ConfigurationError` - Invalid client configuration
-- `ValidationError` - Invalid transaction parameters
-- `SigningError` - Key signing failed
-- `NetworkError` - Network connectivity issue
 - `TransactionError` - Transaction failed (status code provided)
-- `TimeoutError` - Operation timed out
-- `UnknownError` - Unexpected error
+- `InvalidSignatureError` - Invalid signature for transaction
 
 ## Configuration
 
@@ -453,7 +415,7 @@ Error types include:
 - `HIERO_OPERATOR_ID` - Account ID of the operator (e.g., `0.0.123456`)
 - `HIERO_PRIVATE_KEY` - Private key of the operator (ED25519 or ECDSA hex format)
 - `HIERO_NETWORK` - Network name: `mainnet`, `testnet`, or `previewnet` (default: `testnet`)
-- `HIERO_MIRROR_NODE_URL` - Custom Mirror Node URL (optional)
+- `HIERO_MIRROR_URL` - Mirror node URL (optional; stored on client config)
 
 ### Client Options
 
@@ -462,13 +424,14 @@ interface HieroClientConfig {
   network?: "mainnet" | "testnet" | "previewnet";
   operatorId?: string;
   operatorKey?: string;
-  mirrorNodeUrl?: string;
+  mirrorUrl?: string;
   signer?: Signer;
-  retryConfig?: {
+  retry?: {
     maxRetries?: number;
-    delayMs?: number;
     maxDelayMs?: number;
+    initialDelayMs?: number;
   };
+  middleware?: ReadonlyArray<TransactionMiddleware>;
 }
 ```
 
@@ -478,8 +441,8 @@ The SDK uses advanced TypeScript patterns for type safety:
 
 ```typescript
 // Builder types are inferred from the fluent API
-const token = hiero.token().name("X").build();
-// ✅ token is typed as Token
+const contract = hiero.contracts().bytecode("0x...").build();
+// ✅ contract is typed as DeployContractParams
 
 // Action parameters are strictly typed
 await hiero.transfer({ to: "0.0.5678", amount: 10 });
@@ -497,9 +460,8 @@ if (result.success) {
 ## Related Packages
 
 - [`@hieco/types`](https://www.npmjs.com/package/@hieco/types) - Shared types
-- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - Mirror Node REST API client
+- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - Mirror node REST API client
 - [`@hieco/mirror-shared`](https://github.com/powxenv/hieco/tree/main/packages/mirror-shared) - Shared utilities
-- [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - WebSocket subscriptions
 - [`@hiero-ledger/sdk`](https://www.npmjs.com/package/@hiero-ledger/sdk) - Official Hiero SDK
 
 ## Browser Support
