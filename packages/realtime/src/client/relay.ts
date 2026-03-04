@@ -255,8 +255,8 @@ export class RelayWebSocketClient extends BaseStreamClient<
         requestId,
         localId,
         subscription.subscription,
-        () => { },
-        () => { },
+        () => {},
+        () => {},
       );
 
       this.sendRequest(request);
