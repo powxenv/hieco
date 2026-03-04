@@ -93,9 +93,9 @@ export async function getAccountBalance(
       "Token Balances":
         data.tokens.length > 0
           ? data.tokens.map((t) => ({
-            "Token ID": t.token_id,
-            Balance: t.balance,
-          }))
+              "Token ID": t.token_id,
+              Balance: t.balance,
+            }))
           : "No token balances",
     };
 

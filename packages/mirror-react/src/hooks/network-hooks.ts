@@ -17,7 +17,7 @@ type NetworkQueryError = ApiError;
 export interface UseNetworkExchangeRateOptions extends Omit<
   UseQueryOptions<NetworkQueryFnData<ExchangeRate>, NetworkQueryError>,
   "queryKey" | "queryFn"
-> { }
+> {}
 
 export type UseNetworkExchangeRateResult = UseQueryResult<
   NetworkQueryFnData<ExchangeRate>,
@@ -27,7 +27,7 @@ export type UseNetworkExchangeRateResult = UseQueryResult<
 export interface UseNetworkFeesOptions extends Omit<
   UseQueryOptions<NetworkQueryFnData<NetworkFee>, NetworkQueryError>,
   "queryKey" | "queryFn"
-> { }
+> {}
 
 export type UseNetworkFeesResult = UseQueryResult<
   NetworkQueryFnData<NetworkFee>,
@@ -37,7 +37,7 @@ export type UseNetworkFeesResult = UseQueryResult<
 export interface UseNetworkNodesOptions extends Omit<
   UseQueryOptions<NetworkQueryFnData<NetworkNode[]>, NetworkQueryError>,
   "queryKey" | "queryFn"
-> { }
+> {}
 
 export type UseNetworkNodesResult = UseQueryResult<
   NetworkQueryFnData<NetworkNode[]>,
@@ -47,7 +47,7 @@ export type UseNetworkNodesResult = UseQueryResult<
 export interface UseNetworkStakeOptions extends Omit<
   UseQueryOptions<NetworkQueryFnData<NetworkStake>, NetworkQueryError>,
   "queryKey" | "queryFn"
-> { }
+> {}
 
 export type UseNetworkStakeResult = UseQueryResult<
   NetworkQueryFnData<NetworkStake>,
@@ -57,7 +57,7 @@ export type UseNetworkStakeResult = UseQueryResult<
 export interface UseNetworkSupplyOptions extends Omit<
   UseQueryOptions<NetworkQueryFnData<NetworkSupply>, NetworkQueryError>,
   "queryKey" | "queryFn"
-> { }
+> {}
 
 export type UseNetworkSupplyResult = UseQueryResult<
   NetworkQueryFnData<NetworkSupply>,
