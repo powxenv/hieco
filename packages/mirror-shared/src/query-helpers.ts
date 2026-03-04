@@ -384,9 +384,9 @@ export type EntityType =
 export type InvalidateFilters =
   | { readonly exactKey: readonly unknown[] }
   | {
-    readonly entityType: EntityType;
-    readonly resourceId?: EntityId | string;
-  };
+      readonly entityType: EntityType;
+      readonly resourceId?: EntityId | string;
+    };
 
 export function invalidateQueries(
   queryClient: QueryClient,
