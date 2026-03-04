@@ -25,6 +25,7 @@ related:
 ### What is Headless/Unstyled?
 
 A **headless** or **unstyled** library provides:
+
 - ✅ All the **logic and functionality**
 - ✅ **State management**
 - ✅ **Accessibility features**
@@ -37,22 +38,22 @@ A **headless** or **unstyled** library provides:
 
 ### Why Headless for Wallet Connection?
 
-| Benefit | Explanation |
-|---------|-------------|
-| **Full Design Control** | Match your brand exactly, no fighting default styles |
-| **Smaller Bundle** | No bundled CSS/icons = smaller download |
-| **Framework Agnostic** | Works with React, Vue, Svelte, Solid + any UI library |
-| **Composability** | Use with shadcn/ui, Chakra, MUI, Tailwind, CSS-in-JS |
-| **Future-Proof** | UI trends change, logic stays the same |
-| **Tree-Shakeable** | Only use what you need |
+| Benefit                 | Explanation                                           |
+| ----------------------- | ----------------------------------------------------- |
+| **Full Design Control** | Match your brand exactly, no fighting default styles  |
+| **Smaller Bundle**      | No bundled CSS/icons = smaller download               |
+| **Framework Agnostic**  | Works with React, Vue, Svelte, Solid + any UI library |
+| **Composability**       | Use with shadcn/ui, Chakra, MUI, Tailwind, CSS-in-JS  |
+| **Future-Proof**        | UI trends change, logic stays the same                |
+| **Tree-Shakeable**      | Only use what you need                                |
 
 ### Trade-offs
 
-| Con | Mitigation |
-|-----|------------|
-| **More UI Code** | Provide example implementations for popular stacks |
-| **Styling Work** | Provide Tailwind + CSS examples |
-| **Accessibility Burden** | Built-in ARIA attributes, keyboard handlers |
+| Con                      | Mitigation                                         |
+| ------------------------ | -------------------------------------------------- |
+| **More UI Code**         | Provide example implementations for popular stacks |
+| **Styling Work**         | Provide Tailwind + CSS examples                    |
+| **Accessibility Burden** | Built-in ARIA attributes, keyboard handlers        |
 
 ---
 
@@ -68,17 +69,19 @@ A **headless** or **unstyled** library provides:
 ```
 
 **Benefits:**
+
 - Single dependency
 - Can switch between headless and styled
 - Shared logic, no duplication
 
 **Usage:**
+
 ```typescript
 // Use headless
-import { useWallet } from '@hieco/connect/headless';
+import { useWallet } from "@hieco/connect/headless";
 
 // Or use styled
-import { ConnectButton } from '@hieco/connect/components';
+import { ConnectButton } from "@hieco/connect/components";
 ```
 
 ### Option 2: Separate Packages
@@ -89,6 +92,7 @@ import { ConnectButton } from '@hieco/connect/components';
 ```
 
 **Benefits:**
+
 - Smaller core package
 - Clear separation
 
@@ -701,24 +705,17 @@ export function ConnectButton() {
 ```vue
 <!-- WalletButton.vue -->
 <script setup lang="ts">
-  import { useWallet } from '@hieco/connect/headless';
+import { useWallet } from "@hieco/connect/headless";
 
-  const { isConnected, address, isConnecting, connect, disconnect } = useWallet();
+const { isConnected, address, isConnecting, connect, disconnect } = useWallet();
 </script>
 
 <template>
-  <button
-    v-if="isConnected"
-    @click="disconnect"
-  >
+  <button v-if="isConnected" @click="disconnect">
     {{ address?.slice(0, 6) }}...{{ address?.slice(-4) }}
   </button>
-  <button
-    v-else
-    @click="() => connect('hashpack')"
-    :disabled="isConnecting"
-  >
-    {{ isConnecting ? 'Connecting...' : 'Connect Wallet' }}
+  <button v-else @click="() => connect('hashpack')" :disabled="isConnecting">
+    {{ isConnecting ? "Connecting..." : "Connect Wallet" }}
   </button>
 </template>
 ```
@@ -813,6 +810,7 @@ function WalletList() {
 ```
 
 **Built-in keyboard shortcuts:**
+
 - `Tab` / `Shift+Tab` - Navigate focusable elements
 - `ArrowUp` / `ArrowDown` - Navigate wallet list
 - `Enter` / `Space` - Select focused wallet
@@ -824,19 +822,19 @@ function WalletList() {
 
 ### Feature Comparison
 
-| Feature | Headless | Styled |
-|---------|----------|--------|
-| Wallet connection logic | ✅ | ✅ |
-| State management | ✅ | ✅ |
-| Error handling | ✅ | ✅ |
-| Auto-reconnect | ✅ | ✅ |
-| Network switching | ✅ | ✅ |
-| ARIA attributes | ✅ (apply to your UI) | ✅ (pre-applied) |
-| Keyboard navigation | ✅ (hooks provided) | ✅ (built-in) |
-| Pre-built components | ❌ | ✅ (20+ components) |
-| Default styling | ❌ | ✅ (dark/light themes) |
-| Bundle size | ~30KB | ~100KB |
-| UI flexibility | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
+| Feature                 | Headless              | Styled                 |
+| ----------------------- | --------------------- | ---------------------- |
+| Wallet connection logic | ✅                    | ✅                     |
+| State management        | ✅                    | ✅                     |
+| Error handling          | ✅                    | ✅                     |
+| Auto-reconnect          | ✅                    | ✅                     |
+| Network switching       | ✅                    | ✅                     |
+| ARIA attributes         | ✅ (apply to your UI) | ✅ (pre-applied)       |
+| Keyboard navigation     | ✅ (hooks provided)   | ✅ (built-in)          |
+| Pre-built components    | ❌                    | ✅ (20+ components)    |
+| Default styling         | ❌                    | ✅ (dark/light themes) |
+| Bundle size             | ~30KB                 | ~100KB                 |
+| UI flexibility          | ⭐⭐⭐⭐⭐            | ⭐⭐⭐                 |
 
 ### When to Use Which?
 
@@ -1008,13 +1006,13 @@ export function Transfer() {
 ```typescript
 interface HederaWalletProviderProps {
   // Required
-  network: 'mainnet' | 'testnet' | 'previewnet';
+  network: "mainnet" | "testnet" | "previewnet";
   children: React.ReactNode;
 
   // Optional - Auto-connect
-  autoConnect?: boolean;              // Default: false
-  storage?: 'localStorage' | 'sessionStorage' | 'memory';
-  storageKey?: string;               // Default: '@hieco/wallet'
+  autoConnect?: boolean; // Default: false
+  storage?: "localStorage" | "sessionStorage" | "memory";
+  storageKey?: string; // Default: '@hieco/wallet'
 
   // Optional - Wallets
   wallets?: {
@@ -1030,10 +1028,10 @@ interface HederaWalletProviderProps {
 
   // Optional - Advanced
   options?: {
-    refreshInterval?: number;       // Balance refresh (ms)
-    connectionTimeout?: number;     // Max connection time (ms)
-    retryAttempts?: number;         // Retry attempts
-    retryDelay?: number;            // Retry delay (ms)
+    refreshInterval?: number; // Balance refresh (ms)
+    connectionTimeout?: number; // Max connection time (ms)
+    retryAttempts?: number; // Retry attempts
+    retryDelay?: number; // Retry delay (ms)
   };
 }
 ```
@@ -1043,26 +1041,26 @@ interface HederaWalletProviderProps {
 ```typescript
 // Core hooks
 export {
-  useWallet,                    // Main wallet state and actions
-  useWalletList,               // Available wallets
-  useConnectModal,              // Modal state management
-  useAccountDropdown,           // Account dropdown state
-  useNetworkSwitcher,           // Network switching state
-} from '@hieco/connect/headless';
+  useWallet, // Main wallet state and actions
+  useWalletList, // Available wallets
+  useConnectModal, // Modal state management
+  useAccountDropdown, // Account dropdown state
+  useNetworkSwitcher, // Network switching state
+} from "@hieco/connect/headless";
 
 // Transaction hooks
 export {
-  useTransactionSigning,       // Sign transactions
-  useContractCall,              // Contract interactions
-  useMessageSigning,            // Sign messages
-} from '@hieco/connect/headless';
+  useTransactionSigning, // Sign transactions
+  useContractCall, // Contract interactions
+  useMessageSigning, // Sign messages
+} from "@hieco/connect/headless";
 
 // Utility hooks
 export {
-  useAriaProps,                 // ARIA attributes
-  useKeyboardNav,               // Keyboard navigation
-  useLocalStorage,             // Persistent state
-} from '@hieco/connect/headless';
+  useAriaProps, // ARIA attributes
+  useKeyboardNav, // Keyboard navigation
+  useLocalStorage, // Persistent state
+} from "@hieco/connect/headless";
 ```
 
 ---
@@ -1166,29 +1164,29 @@ Savings: ~67KB (58% smaller)
 
 ### Developer Experience
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Setup time | < 3 minutes | Time to first working connection |
-| API clarity | 95% coverage | TypeScript autocomplete coverage |
-| Bundle size | < 50KB gzipped | Bundle analysis |
-| Documentation | 100% coverage | All hooks documented |
+| Metric        | Target         | Measurement                      |
+| ------------- | -------------- | -------------------------------- |
+| Setup time    | < 3 minutes    | Time to first working connection |
+| API clarity   | 95% coverage   | TypeScript autocomplete coverage |
+| Bundle size   | < 50KB gzipped | Bundle analysis                  |
+| Documentation | 100% coverage  | All hooks documented             |
 
 ### User Experience
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Connection success | 95%+ | Analytics tracking |
-| Connection time | < 2 seconds | Performance monitoring |
-| Accessibility | WCAG 2.2 AA | axe-core testing |
-| Keyboard nav | 100% functional | Manual testing |
+| Metric             | Target          | Measurement            |
+| ------------------ | --------------- | ---------------------- |
+| Connection success | 95%+            | Analytics tracking     |
+| Connection time    | < 2 seconds     | Performance monitoring |
+| Accessibility      | WCAG 2.2 AA     | axe-core testing       |
+| Keyboard nav       | 100% functional | Manual testing         |
 
 ### Adoption
 
-| Metric | 3-Month Target | 6-Month Target |
-|--------|---------------|---------------|
-| GitHub stars | 200+ | 1,000+ |
-| Weekly downloads | 1,000+ | 5,000+ |
-| Using projects | 20+ | 100+ |
+| Metric           | 3-Month Target | 6-Month Target |
+| ---------------- | -------------- | -------------- |
+| GitHub stars     | 200+           | 1,000+         |
+| Weekly downloads | 1,000+         | 5,000+         |
+| Using projects   | 20+            | 100+           |
 
 ---
 
@@ -1222,14 +1220,14 @@ Savings: ~67KB (58% smaller)
 
 ## Comparison with Other Headless Libraries
 
-| Library | Type | Bundle | Features |
-|---------|------|--------|----------|
-| **@hieco/connect/headless** | Wallet | ~48KB | Hedera-specific, multi-wallet |
-| RainbowKit | Styled | ~90KB | EVM only, Rainbow-themed |
-| ConnectKit | Styled | ~50KB | EVM only, configurable |
-| wagmi | Headless | ~25KB | EVM hooks only |
-| @rainbow-me/rainbowkit | Styled | ~85KB | EVM, React only |
-| **@hieco/connect (styled)** | Styled | ~115KB | Hedera, multi-framework |
+| Library                     | Type     | Bundle | Features                      |
+| --------------------------- | -------- | ------ | ----------------------------- |
+| **@hieco/connect/headless** | Wallet   | ~48KB  | Hedera-specific, multi-wallet |
+| RainbowKit                  | Styled   | ~90KB  | EVM only, Rainbow-themed      |
+| ConnectKit                  | Styled   | ~50KB  | EVM only, configurable        |
+| wagmi                       | Headless | ~25KB  | EVM hooks only                |
+| @rainbow-me/rainbowkit      | Styled   | ~85KB  | EVM, React only               |
+| **@hieco/connect (styled)** | Styled   | ~115KB | Hedera, multi-framework       |
 
 ---
 

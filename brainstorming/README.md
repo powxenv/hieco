@@ -12,17 +12,17 @@ This directory contains comprehensive research, analysis, and proposals for the 
 
 ### Quick Navigation
 
-| Section                                               | Description                                   | Status      |
-| ----------------------------------------------------- | --------------------------------------------- | ----------- |
-| [01 - Hackathon Overview](./01-overview/)             | Comprehensive analysis of all 5 bounty tracks | ✅ Complete |
-| [02 - Bounty Research](./02-bounty-research/)         | Deep-dive research on Hiero ecosystem         | ✅ Complete |
-| [03 - Proposals](./03-proposals/)                     | Novel DX proposals and unified ecosystem      | ✅ Complete |
-| [04 - Ecosystem Expansion](./04-ecosystem-expansion/) | Seven practical additions to @hieco           | ✅ Complete |
-| [05 - Additional Packages](./05-additional-packages-research.md) | Independent research on potential new packages | ✅ Complete |
-| [06 - Connect PRD](./06-connect-prd.md)               | Wallet Connection UI Kit - DX & UX focus      | ✅ Complete |
-| [07 - Headless Connect PRD](./07-headless-connect-prd.md) | Headless wallet connection for maximum UI flexibility | ✅ Complete |
-| [08 - Hiero SDK Complete Research](./08-hiero-sdk-complete-research.md) | Complete API reference for all Hiero SDKs | ✅ Complete |
-| [08 - Hiero SDK Quick Reference](./08-hiero-sdk-quick-reference.md) | Quick reference guide for Hiero SDKs | ✅ Complete |
+| Section                                                                 | Description                                           | Status      |
+| ----------------------------------------------------------------------- | ----------------------------------------------------- | ----------- |
+| [01 - Hackathon Overview](./01-overview/)                               | Comprehensive analysis of all 5 bounty tracks         | ✅ Complete |
+| [02 - Bounty Research](./02-bounty-research/)                           | Deep-dive research on Hiero ecosystem                 | ✅ Complete |
+| [03 - Proposals](./03-proposals/)                                       | Novel DX proposals and unified ecosystem              | ✅ Complete |
+| [04 - Ecosystem Expansion](./04-ecosystem-expansion/)                   | Seven practical additions to @hieco                   | ✅ Complete |
+| [05 - Additional Packages](./05-additional-packages-research.md)        | Independent research on potential new packages        | ✅ Complete |
+| [06 - Connect PRD](./06-connect-prd.md)                                 | Wallet Connection UI Kit - DX & UX focus              | ✅ Complete |
+| [07 - Headless Connect PRD](./07-headless-connect-prd.md)               | Headless wallet connection for maximum UI flexibility | ✅ Complete |
+| [08 - Hiero SDK Complete Research](./08-hiero-sdk-complete-research.md) | Complete API reference for all Hiero SDKs             | ✅ Complete |
+| [08 - Hiero SDK Quick Reference](./08-hiero-sdk-quick-reference.md)     | Quick reference guide for Hiero SDKs                  | ✅ Complete |
 
 ---
 
@@ -241,6 +241,7 @@ expect(tx).toBeSuccessfulTransaction();
 Independent research on potential new packages based on modern Web3 development trends and ecosystem gaps:
 
 **Research Methodology:**
+
 - Web search on wagmi, viem, RainbowKit, ConnectKit (modern Web3 standards)
 - Deep research on Web3 development trends for 2025-2026
 - Hedera/Hiero ecosystem gap analysis
@@ -248,6 +249,7 @@ Independent research on potential new packages based on modern Web3 development 
 - Meta-framework adoption (Next.js, Nuxt, SvelteKit, SolidStart, Astro)
 
 **Key Findings:**
+
 - wagmi + viem is now the standard (replacing ethers.js)
 - RainbowKit/ConnectKit dominate wallet connection UI
 - Account Abstraction has gone mainstream (200M+ wallets)
@@ -257,22 +259,26 @@ Independent research on potential new packages based on modern Web3 development 
 **Proposed Packages (15 total):**
 
 **Tier 1 - High Impact:**
+
 - `@hieco/next` - Next.js Integration Kit (SSR, App Router)
 - `@hieco/connect` - Wallet Connection UI Kit (RainbowKit for Hedera)
 - `@hieco/components` - UI Component Library (20+ pre-built components)
 
 **Tier 2 - Medium Impact:**
+
 - `@hieco/smart-wallet` - Account Abstraction Layer
 - `@hieco/nuxt` - Nuxt Integration Kit
 - `@hieco/sveltekit` - SvelteKit Integration Kit
 
 **Tier 3 - Specialized Use Cases:**
+
 - `@hieco/nft` - NFT/SB Utilities
 - `@hieco/staking` - HBAR Staking Utilities
 - `@hieco/forms` - Form Validation Integration
 - `@hieco/docs` - Documentation Generator
 
 **Tier 4 - Infrastructure:**
+
 - `@hieco/relay` - Gasless Relayer
 - `@hieco/subgraph` - The Graph Integration
 - `@hieco/devtools-extension` - Browser DevTools Extension
@@ -290,6 +296,7 @@ Comprehensive Product Requirements Document for `@hieco/connect` - Wallet Connec
 **Focus Areas:**
 
 **Developer Experience (DX):**
+
 - Setup in under 5 minutes from `npm install`
 - Full TypeScript support with helpful autocomplete
 - Sensible defaults with easy customization
@@ -299,6 +306,7 @@ Comprehensive Product Requirements Document for `@hieco/connect` - Wallet Connec
 - Testing support with mock wallets
 
 **User Experience (UX):**
+
 - Instant visual feedback (loading states, animations)
 - Progressive disclosure (show info gradually)
 - Error recovery with actionable steps
@@ -324,6 +332,7 @@ const { address, balance, isConnected, connect } = useWallet();
 ```
 
 **Supported Wallets:**
+
 - HashPack (Browser Extension)
 - Blade Wallet (Browser Extension)
 - Kabila (Mobile)
@@ -346,13 +355,13 @@ A headless library provides all the **logic and functionality** but **no pre-bui
 
 **Benefits:**
 
-| Benefit | Description |
-|---------|-------------|
-| **Full Design Control** | Match your brand exactly, no fighting default styles |
-| **Smaller Bundle** | ~48KB vs ~115KB (58% smaller) |
-| **Framework Agnostic** | Works with any UI library (Tailwind, Chakra, MUI, etc.) |
-| **Composability** | Use with shadcn/ui, Radix UI, Ark UI, etc. |
-| **Future-Proof** | UI trends change, logic stays the same |
+| Benefit                 | Description                                             |
+| ----------------------- | ------------------------------------------------------- |
+| **Full Design Control** | Match your brand exactly, no fighting default styles    |
+| **Smaller Bundle**      | ~48KB vs ~115KB (58% smaller)                           |
+| **Framework Agnostic**  | Works with any UI library (Tailwind, Chakra, MUI, etc.) |
+| **Composability**       | Use with shadcn/ui, Radix UI, Ark UI, etc.              |
+| **Future-Proof**        | UI trends change, logic stays the same                  |
 
 **Core Hook Usage:**
 
@@ -482,6 +491,7 @@ A condensed, developer-friendly quick reference guide for common Hiero SDK opera
 **Use Case:**
 
 Designed for developers who need quick code snippets without reading the full documentation. Perfect for:
+
 - Quick lookups during development
 - Copy-paste examples
 - Language comparison

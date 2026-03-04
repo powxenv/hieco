@@ -210,6 +210,7 @@
       "name": "@hieco/sdk",
       "version": "0.0.1",
       "dependencies": {
+        "@hieco/mirror": "workspace:*",
         "@hieco/mirror-shared": "workspace:*",
         "@hieco/types": "workspace:*",
         "@hiero-ledger/sdk": "^2.80.0",

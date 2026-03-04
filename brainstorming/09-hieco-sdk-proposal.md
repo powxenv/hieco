@@ -41,26 +41,26 @@ Building on the Hiero network today requires developers to write verbose, repeti
 boilerplate for every operation. A simple HBAR transfer looks like this:
 
 ```typescript
-import { Client, TransferTransaction, Hbar, AccountId, PrivateKey } from "@hiero-ledger/sdk"
+import { Client, TransferTransaction, Hbar, AccountId, PrivateKey } from "@hiero-ledger/sdk";
 
-const client = Client.forTestnet()
+const client = Client.forTestnet();
 client.setOperator(
   AccountId.fromString(process.env.HIERO_ACCOUNT_ID!),
-  PrivateKey.fromStringED25519(process.env.HIERO_PRIVATE_KEY!)
-)
+  PrivateKey.fromStringED25519(process.env.HIERO_PRIVATE_KEY!),
+);
 
 const transaction = new TransferTransaction()
   .addHbarTransfer(AccountId.fromString("0.0.1234"), new Hbar(-10))
   .addHbarTransfer(AccountId.fromString("0.0.5678"), new Hbar(10))
   .setTransactionMemo("Payment")
-  .setMaxTransactionFee(new Hbar(1))
+  .setMaxTransactionFee(new Hbar(1));
 
-const frozenTx = await transaction.freezeWith(client)
-const signedTx = await frozenTx.sign(PrivateKey.fromStringED25519(process.env.HIERO_PRIVATE_KEY!))
-const response = await signedTx.execute(client)
-const receipt = await response.getReceipt(client)
+const frozenTx = await transaction.freezeWith(client);
+const signedTx = await frozenTx.sign(PrivateKey.fromStringED25519(process.env.HIERO_PRIVATE_KEY!));
+const response = await signedTx.execute(client);
+const receipt = await response.getReceipt(client);
 
-console.log(`Status: ${receipt.status}`)
+console.log(`Status: ${receipt.status}`);
 ```
 
 **Every. Single. Time.** Create → Configure → Freeze → Sign → Execute → Receipt.
@@ -69,17 +69,17 @@ This is not a developer experience. It is a ceremony.
 
 ### The Pain is Structural
 
-| Pain Point | Impact |
-|---|---|
-| Manual `Client.forTestnet()` + `setOperator()` ceremony | Every file, every script, every test |
-| `AccountId.fromString()` / `PrivateKey.fromStringED25519()` wrapping | Type conversion noise everywhere |
-| Explicit `freezeWith()` → `sign()` → `execute()` → `getReceipt()` chain | 4 lines that never vary |
-| No automatic retry on `BUSY` / `PLATFORM_TRANSACTION_NOT_CREATED` | Silent failures in production |
-| No gas estimation for smart contracts | Manual guessing or over-provisioning |
-| Cryptic `Status.INVALID_SIGNATURE` with no context | Hours lost debugging key mismatches |
-| Separate clients for consensus node vs Mirror Node | Two integration paths, two mental models |
-| `AccountBalanceQuery` planned for deprecation | Future migration with no abstraction layer |
-| No transaction lifecycle visibility | No hooks, no events, no middleware |
+| Pain Point                                                              | Impact                                     |
+| ----------------------------------------------------------------------- | ------------------------------------------ |
+| Manual `Client.forTestnet()` + `setOperator()` ceremony                 | Every file, every script, every test       |
+| `AccountId.fromString()` / `PrivateKey.fromStringED25519()` wrapping    | Type conversion noise everywhere           |
+| Explicit `freezeWith()` → `sign()` → `execute()` → `getReceipt()` chain | 4 lines that never vary                    |
+| No automatic retry on `BUSY` / `PLATFORM_TRANSACTION_NOT_CREATED`       | Silent failures in production              |
+| No gas estimation for smart contracts                                   | Manual guessing or over-provisioning       |
+| Cryptic `Status.INVALID_SIGNATURE` with no context                      | Hours lost debugging key mismatches        |
+| Separate clients for consensus node vs Mirror Node                      | Two integration paths, two mental models   |
+| `AccountBalanceQuery` planned for deprecation                           | Future migration with no abstraction layer |
+| No transaction lifecycle visibility                                     | No hooks, no events, no middleware         |
 
 The Hiero SDK is correct, complete, and well-maintained. But it optimizes for
 **protocol fidelity** over **developer productivity**. That gap is where `@hieco/sdk`
@@ -94,11 +94,11 @@ Not "blockchain SDK you learn to tolerate" — genuinely pleasant to use, the wa
 the best tools disappear into your workflow.
 
 ```typescript
-import { createHieroClient } from "@hieco/sdk"
+import { createHieroClient } from "@hieco/sdk";
 
-const hiero = createHieroClient()
+const hiero = createHieroClient();
 
-await hiero.transfer({ to: "0.0.5678", amount: 10 })
+await hiero.transfer({ to: "0.0.5678", amount: 10 });
 ```
 
 Three lines. Zero ceremony. The client reads credentials from environment variables,
@@ -153,18 +153,18 @@ the source of truth. You define once, TypeScript infers the rest.
 
 ### 3.2 Key Translations
 
-| Pattern | @hieco/sdk |
-|---|---|
-| `Eloquent::create([...])` | `hiero.tokens().name("X").symbol("Y").create()` |
-| `DB::table(...)->where(...)->get()` | `hiero.mirror.accounts().balance.gte(1000).get()` |
-| Service Container | `createHieroClient()` resolves consensus + mirror transports |
-| Facades | `import { transfer } from "@hieco/sdk/facade"` |
-| `.env` auto-loading | `HIERO_OPERATOR_ID`, `HIERO_PRIVATE_KEY`, `HIERO_NETWORK` |
-| `createClient().extend(publicActions)` | `createHieroClient().extend(tokenActions)` |
-| Tree-shakable imports | `import { transfer } from "@hieco/sdk/actions"` |
-| `useWriteContract` | `useTransfer`, `useCreateToken`, `useSubmitMessage` |
-| Transport abstraction | `ConsensusTransport` / `MirrorTransport` |
-| Middleware pipeline | Transaction middleware (retry, logging, gas estimation) |
+| Pattern                                | @hieco/sdk                                                   |
+| -------------------------------------- | ------------------------------------------------------------ |
+| `Eloquent::create([...])`              | `hiero.tokens().name("X").symbol("Y").create()`              |
+| `DB::table(...)->where(...)->get()`    | `hiero.mirror.accounts().balance.gte(1000).get()`            |
+| Service Container                      | `createHieroClient()` resolves consensus + mirror transports |
+| Facades                                | `import { transfer } from "@hieco/sdk/facade"`               |
+| `.env` auto-loading                    | `HIERO_OPERATOR_ID`, `HIERO_PRIVATE_KEY`, `HIERO_NETWORK`    |
+| `createClient().extend(publicActions)` | `createHieroClient().extend(tokenActions)`                   |
+| Tree-shakable imports                  | `import { transfer } from "@hieco/sdk/actions"`              |
+| `useWriteContract`                     | `useTransfer`, `useCreateToken`, `useSubmitMessage`          |
+| Transport abstraction                  | `ConsensusTransport` / `MirrorTransport`                     |
+| Middleware pipeline                    | Transaction middleware (retry, logging, gas estimation)      |
 
 ---
 
@@ -220,21 +220,21 @@ the source of truth. You define once, TypeScript infers the rest.
 
 ### Core Modules
 
-| Module | Responsibility | Entry Point |
-|---|---|---|
-| `client` | Client creation, configuration, service resolution | `@hieco/sdk` |
-| `actions/crypto` | HBAR transfers, account CRUD | `@hieco/sdk/actions` |
-| `actions/token` | HTS token lifecycle (create, mint, burn, associate, transfer) | `@hieco/sdk/actions` |
-| `actions/consensus` | HCS topic CRUD, message submission | `@hieco/sdk/actions` |
-| `actions/contract` | Smart contract deploy, execute, call | `@hieco/sdk/actions` |
-| `actions/schedule` | Scheduled transactions | `@hieco/sdk/actions` |
-| `actions/file` | File service operations | `@hieco/sdk/actions` |
-| `builders` | Fluent resource builders | `@hieco/sdk/builders` |
-| `mirror` | Mirror Node query integration | `@hieco/sdk/mirror` |
-| `events` | Transaction lifecycle events | `@hieco/sdk/events` |
-| `middleware` | Transaction pipeline middleware | `@hieco/sdk/middleware` |
-| `errors` | Enhanced error types and messages | `@hieco/sdk/errors` |
-| `facade` | Singleton static-like access | `@hieco/sdk/facade` |
+| Module              | Responsibility                                                | Entry Point             |
+| ------------------- | ------------------------------------------------------------- | ----------------------- |
+| `client`            | Client creation, configuration, service resolution            | `@hieco/sdk`            |
+| `actions/crypto`    | HBAR transfers, account CRUD                                  | `@hieco/sdk/actions`    |
+| `actions/token`     | HTS token lifecycle (create, mint, burn, associate, transfer) | `@hieco/sdk/actions`    |
+| `actions/consensus` | HCS topic CRUD, message submission                            | `@hieco/sdk/actions`    |
+| `actions/contract`  | Smart contract deploy, execute, call                          | `@hieco/sdk/actions`    |
+| `actions/schedule`  | Scheduled transactions                                        | `@hieco/sdk/actions`    |
+| `actions/file`      | File service operations                                       | `@hieco/sdk/actions`    |
+| `builders`          | Fluent resource builders                                      | `@hieco/sdk/builders`   |
+| `mirror`            | Mirror Node query integration                                 | `@hieco/sdk/mirror`     |
+| `events`            | Transaction lifecycle events                                  | `@hieco/sdk/events`     |
+| `middleware`        | Transaction pipeline middleware                               | `@hieco/sdk/middleware` |
+| `errors`            | Enhanced error types and messages                             | `@hieco/sdk/errors`     |
+| `facade`            | Singleton static-like access                                  | `@hieco/sdk/facade`     |
 
 ---
 
@@ -259,9 +259,9 @@ HIERO_PRIVATE_KEY=302e020100300506032b657004220420...
 ```
 
 ```typescript
-import { createHieroClient } from "@hieco/sdk"
+import { createHieroClient } from "@hieco/sdk";
 
-const hiero = createHieroClient()
+const hiero = createHieroClient();
 ```
 
 Done. No `Client.forTestnet()`. No `AccountId.fromString()`. No `PrivateKey.fromStringED25519()`.
@@ -271,14 +271,14 @@ transport, lazily prepares the Mirror Node client. One line.
 **Browser (dApps):**
 
 ```typescript
-import { createHieroClient, fromHieroSigner } from "@hieco/sdk"
-import { DAppConnector } from "@hashgraph/hedera-wallet-connect"
+import { createHieroClient, fromHieroSigner } from "@hieco/sdk";
+import { DAppConnector } from "@hashgraph/hedera-wallet-connect";
 
 // 1. Connect via WalletConnect (ecosystem standard — works with HashPack, Kabila, Dropp)
-const dAppConnector = new DAppConnector(/* metadata, ledgerId, projectId */)
-await dAppConnector.init()
-const session = await dAppConnector.openModal()
-const walletSigner = dAppConnector.getSigner(accountId)  // DAppSigner (implements Hiero Signer)
+const dAppConnector = new DAppConnector(/* metadata, ledgerId, projectId */);
+await dAppConnector.init();
+const session = await dAppConnector.openModal();
+const walletSigner = dAppConnector.getSigner(accountId); // DAppSigner (implements Hiero Signer)
 
 // 2. Wrap in @hieco/sdk's Signer interface
 const hiero = createHieroClient({
@@ -287,7 +287,7 @@ const hiero = createHieroClient({
     accountId: "0.0.1234",
     signer: fromHieroSigner(walletSigner),
   },
-})
+});
 ```
 
 Browser environments require explicit operator configuration — the SDK refuses to
@@ -300,7 +300,7 @@ The developer wants to send HBAR. They type `hiero.` and autocomplete shows them
 every available action.
 
 ```typescript
-const result = await hiero.transfer({ to: "0.0.5678", amount: 10 })
+const result = await hiero.transfer({ to: "0.0.5678", amount: 10 });
 ```
 
 Behind the scenes: build `TransferTransaction`, set operator as sender, freeze with
@@ -313,7 +313,7 @@ The transfer fails. Instead of `Status.INSUFFICIENT_PAYER_BALANCE`:
 
 ```typescript
 if (!result.success) {
-  console.log(result.error.message)
+  console.log(result.error.message);
   // "Transaction failed with INSUFFICIENT_PAYER_BALANCE on account 0.0.1234.
   //  The payer account does not have enough HBAR to cover the transaction fee.
   //  Check the account balance with hiero.getBalance({ accountId: '0.0.1234' })."
@@ -330,7 +330,7 @@ specific gas limits. The API does not change shape — it just accepts more para
 
 ```typescript
 // Simple (day 1)
-await hiero.transfer({ to: "0.0.5678", amount: 10 })
+await hiero.transfer({ to: "0.0.5678", amount: 10 });
 
 // Multi-recipient (day 5)
 await hiero.transfer({
@@ -339,7 +339,7 @@ await hiero.transfer({
     { to: "0.0.9012", amount: 5 },
   ],
   memo: "Split payment",
-})
+});
 
 // Custom signing (day 15)
 await hiero.transfer({
@@ -348,16 +348,16 @@ await hiero.transfer({
   signers: [additionalKey],
   maxFee: 2,
   nodeAccountIds: ["0.0.3"],
-})
+});
 
 // Full control (day 30)
 const frozen = await hiero.buildTransaction("transfer", {
   to: "0.0.5678",
   amount: 100,
-})
-const bytes = frozen.toBytes()       // serialize for external signing
-frozen.addSignature(pubKey, sig)     // add external signature
-const result = await hiero.submitTransaction(frozen)
+});
+const bytes = frozen.toBytes(); // serialize for external signing
+frozen.addSignature(pubKey, sig); // add external signature
+const result = await hiero.submitTransaction(frozen);
 ```
 
 Same API surface. Same mental model. Just more knobs turned.
@@ -367,17 +367,17 @@ Same API surface. Same mental model. Just more knobs turned.
 The developer needs account data. The Mirror Node is available through the same client:
 
 ```typescript
-const account = await hiero.mirror.accounts.get("0.0.1234")
+const account = await hiero.mirror.accounts.get("0.0.1234");
 
 const richAccounts = await hiero.mirror
   .accounts()
   .balance.gte(1000_00000000)
   .order("desc")
   .limit(25)
-  .get()
+  .get();
 
 for await (const tx of hiero.mirror.transactions().account("0.0.1234").all()) {
-  console.log(tx.transaction_id)
+  console.log(tx.transaction_id);
 }
 ```
 
@@ -388,19 +388,16 @@ No separate client. No separate configuration. One object, both writing and read
 The developer is building a UI. Transaction state management should be trivial:
 
 ```tsx
-import { useTransfer } from "@hieco/sdk-react"
+import { useTransfer } from "@hieco/sdk-react";
 
 function SendButton() {
-  const { mutate, isPending, isSuccess, error } = useTransfer()
+  const { mutate, isPending, isSuccess, error } = useTransfer();
 
   return (
-    <button
-      disabled={isPending}
-      onClick={() => mutate({ to: "0.0.5678", amount: 10 })}
-    >
+    <button disabled={isPending} onClick={() => mutate({ to: "0.0.5678", amount: 10 })}>
       {isPending ? "Sending..." : "Send 10 HBAR"}
     </button>
-  )
+  );
 }
 ```
 
@@ -414,10 +411,10 @@ at the right times. The developer focuses on UI, not plumbing.
 ### 6.1 Client Creation
 
 ```typescript
-import { createHieroClient } from "@hieco/sdk"
+import { createHieroClient } from "@hieco/sdk";
 
 // Node: zero-config — reads HIERO_OPERATOR_ID, HIERO_PRIVATE_KEY, HIERO_NETWORK from env
-const hiero = createHieroClient()
+const hiero = createHieroClient();
 
 // Explicit configuration (Node or browser)
 const hiero = createHieroClient({
@@ -426,10 +423,10 @@ const hiero = createHieroClient({
     accountId: "0.0.1234",
     privateKey: "302e020100300506032b657004220420...",
   },
-})
+});
 
 // Browser: explicit operator required (env-var fallback disabled)
-import { privateKeySigner } from "@hieco/sdk"
+import { privateKeySigner } from "@hieco/sdk";
 
 const hiero = createHieroClient({
   network: "testnet",
@@ -437,15 +434,15 @@ const hiero = createHieroClient({
     accountId: "0.0.1234",
     signer: privateKeySigner("302e020100..."),
   },
-})
+});
 
 // Browser with wallet signer (via @hashgraph/hedera-wallet-connect)
-import { fromHieroSigner } from "@hieco/sdk"
-import { DAppConnector } from "@hashgraph/hedera-wallet-connect"
+import { fromHieroSigner } from "@hieco/sdk";
+import { DAppConnector } from "@hashgraph/hedera-wallet-connect";
 
-const dAppConnector = new DAppConnector(/* ... */)
-await dAppConnector.init()
-const walletSigner = dAppConnector.getSigner(accountId)
+const dAppConnector = new DAppConnector(/* ... */);
+await dAppConnector.init();
+const walletSigner = dAppConnector.getSigner(accountId);
 
 const hiero = createHieroClient({
   network: "mainnet",
@@ -453,7 +450,7 @@ const hiero = createHieroClient({
     accountId: "0.0.1234",
     signer: fromHieroSigner(walletSigner),
   },
-})
+});
 
 // Full configuration with all transports
 const hiero = createHieroClient({
@@ -462,15 +459,15 @@ const hiero = createHieroClient({
     accountId: "0.0.1234",
     privateKey: "302e020100300506032b657004220420...",
   },
-  transport: "auto",  // "auto" | "grpc" | "grpc-web" (auto-detects environment)
+  transport: "auto", // "auto" | "grpc" | "grpc-web" (auto-detects environment)
   mirror: {
     url: "https://mainnet.mirrornode.hedera.com",
     rateLimitPerSecond: 50,
   },
   middleware: [loggingMiddleware(), retryMiddleware({ maxRetries: 3 })],
-  maxTransactionFee: 5,  // HBAR
+  maxTransactionFee: 5, // HBAR
   defaultTransactionValidDuration: 120, // seconds
-})
+});
 ```
 
 ### 6.2 Signer Interface
@@ -482,18 +479,18 @@ interface.
 
 ```typescript
 interface Signer {
-  sign(bytes: Uint8Array): Promise<Uint8Array>
-  getPublicKey(): Promise<PublicKey>
+  sign(bytes: Uint8Array): Promise<Uint8Array>;
+  getPublicKey(): Promise<PublicKey>;
 }
 ```
 
 **Built-in signers:**
 
 ```typescript
-import { privateKeySigner } from "@hieco/sdk"
+import { privateKeySigner } from "@hieco/sdk";
 
 // Auto-detects key format: ED25519 DER, ECDSA DER, raw hex
-const signer = privateKeySigner("302e020100300506032b657004220420...")
+const signer = privateKeySigner("302e020100300506032b657004220420...");
 ```
 
 **Adapter for ecosystem wallets:**
@@ -508,13 +505,13 @@ ships a `fromHieroSigner()` adapter that bridges any object implementing the Hie
 SDK's `Signer` interface (including `DAppSigner`) into our minimal interface:
 
 ```typescript
-import { fromHieroSigner } from "@hieco/sdk"
-import { DAppConnector } from "@hashgraph/hedera-wallet-connect"
+import { fromHieroSigner } from "@hieco/sdk";
+import { DAppConnector } from "@hashgraph/hedera-wallet-connect";
 
-const dAppConnector = new DAppConnector(metadata, ledgerId, projectId)
-await dAppConnector.init()
-const session = await dAppConnector.openModal()
-const walletSigner = dAppConnector.getSigner(accountId)
+const dAppConnector = new DAppConnector(metadata, ledgerId, projectId);
+await dAppConnector.init();
+const session = await dAppConnector.openModal();
+const walletSigner = dAppConnector.getSigner(accountId);
 
 const hiero = createHieroClient({
   network: "mainnet",
@@ -522,7 +519,7 @@ const hiero = createHieroClient({
     accountId: accountId.toString(),
     signer: fromHieroSigner(walletSigner),
   },
-})
+});
 ```
 
 **Custom signer (ad-hoc):**
@@ -533,12 +530,12 @@ Developers can implement the `Signer` interface directly for any signing backend
 ```typescript
 const customSigner: Signer = {
   async sign(bytes) {
-    return myHsmService.sign(bytes)
+    return myHsmService.sign(bytes);
   },
   async getPublicKey() {
-    return myHsmService.getPublicKey()
+    return myHsmService.getPublicKey();
   },
-}
+};
 ```
 
 **Why not use the Hiero SDK's full Signer interface?**
@@ -573,83 +570,80 @@ warnings) or a `fromHieroSigner()` adapter wrapping a WalletConnect `DAppSigner`
 
 ```typescript
 interface HieroClient {
-  readonly network: NetworkType
-  readonly operatorAccountId: EntityId
-  readonly operatorPublicKey: string
+  readonly network: NetworkType;
+  readonly operatorAccountId: EntityId;
+  readonly operatorPublicKey: string;
 
   // Transports (lazy-initialized, auto-detected environment)
-  readonly consensus: ConsensusTransport
-  readonly mirror: MirrorQueryClient
+  readonly consensus: ConsensusTransport;
+  readonly mirror: MirrorQueryClient;
 
   // Quick actions (convenience methods on the client itself)
-  transfer(params: TransferParams): Promise<SdkResult<TransferReceipt>>
-  createAccount(params: CreateAccountParams): Promise<SdkResult<AccountReceipt>>
-  createToken(params: CreateTokenParams): Promise<SdkResult<TokenReceipt>>
-  createTopic(params: CreateTopicParams): Promise<SdkResult<TopicReceipt>>
-  submitMessage(params: SubmitMessageParams): Promise<SdkResult<MessageReceipt>>
-  deployContract(params: DeployContractParams): Promise<SdkResult<ContractReceipt>>
-  executeContract(params: ExecuteContractParams): Promise<SdkResult<ContractExecuteReceipt>>
-  callContract(params: CallContractParams): Promise<SdkResult<ContractCallResult>>
-  getBalance(params: GetBalanceParams): Promise<SdkResult<BalanceResult>>
+  transfer(params: TransferParams): Promise<SdkResult<TransferReceipt>>;
+  createAccount(params: CreateAccountParams): Promise<SdkResult<AccountReceipt>>;
+  createToken(params: CreateTokenParams): Promise<SdkResult<TokenReceipt>>;
+  createTopic(params: CreateTopicParams): Promise<SdkResult<TopicReceipt>>;
+  submitMessage(params: SubmitMessageParams): Promise<SdkResult<MessageReceipt>>;
+  deployContract(params: DeployContractParams): Promise<SdkResult<ContractReceipt>>;
+  executeContract(params: ExecuteContractParams): Promise<SdkResult<ContractExecuteReceipt>>;
+  callContract(params: CallContractParams): Promise<SdkResult<ContractCallResult>>;
+  getBalance(params: GetBalanceParams): Promise<SdkResult<BalanceResult>>;
 
   // Fluent builders
-  tokens(): TokenBuilder
-  topics(): TopicBuilder
-  accounts(): AccountBuilder
-  contracts(): ContractBuilder
+  tokens(): TokenBuilder;
+  topics(): TopicBuilder;
+  accounts(): AccountBuilder;
+  contracts(): ContractBuilder;
 
   // Transaction lifecycle
   buildTransaction<T extends TransactionType>(
     type: T,
     params: TransactionParamsMap[T],
-  ): Promise<FrozenTransaction>
-  submitTransaction(frozen: FrozenTransaction): Promise<SdkResult<TransactionReceipt>>
+  ): Promise<FrozenTransaction>;
+  submitTransaction(frozen: FrozenTransaction): Promise<SdkResult<TransactionReceipt>>;
 
   // Composable extension (viem pattern)
   extend<TActions extends Record<string, unknown>>(
     decorator: (client: HieroClient) => TActions,
-  ): HieroClient & TActions
+  ): HieroClient & TActions;
 
   // Event system
   on<TEvent extends TransactionEvent>(
     event: TEvent,
     handler: TransactionEventHandler<TEvent>,
-  ): Unsubscribe
+  ): Unsubscribe;
 
   // Real-time subscriptions (different transports per type)
-  watchTopicMessages(params: WatchTopicMessagesParams): Unsubscribe   // gRPC via @hiero-ledger/sdk
-  watchContractLogs(params: WatchContractLogsParams): Unsubscribe     // WebSocket via @hieco/realtime
+  watchTopicMessages(params: WatchTopicMessagesParams): Unsubscribe; // gRPC via @hiero-ledger/sdk
+  watchContractLogs(params: WatchContractLogsParams): Unsubscribe; // WebSocket via @hieco/realtime
 
   // Raw access (escape hatch to underlying libraries)
   readonly raw: {
-    readonly client: import("@hiero-ledger/sdk").Client
-    readonly mirrorClient: import("@hieco/mirror").MirrorNodeClient
-  }
+    readonly client: import("@hiero-ledger/sdk").Client;
+    readonly mirrorClient: import("@hieco/mirror").MirrorNodeClient;
+  };
 
-  close(): Promise<void>
+  close(): Promise<void>;
 }
 
 interface GetBalanceParams {
-  readonly accountId: EntityId
-  readonly source?: "mirror" | "consensus"  // default: "mirror"
+  readonly accountId: EntityId;
+  readonly source?: "mirror" | "consensus"; // default: "mirror"
 }
 ```
 
 ### 6.5 Composable Extension (viem Pattern)
 
 ```typescript
-import { createHieroClient } from "@hieco/sdk"
-import { hcsActions, tokenActions, contractActions } from "@hieco/sdk/actions"
+import { createHieroClient } from "@hieco/sdk";
+import { hcsActions, tokenActions, contractActions } from "@hieco/sdk/actions";
 
-const hiero = createHieroClient()
-  .extend(hcsActions)
-  .extend(tokenActions)
-  .extend(contractActions)
+const hiero = createHieroClient().extend(hcsActions).extend(tokenActions).extend(contractActions);
 
 // hiero now has all HCS + Token + Contract methods
-await hiero.createTopic({ memo: "My topic", submitKey: true })
-await hiero.createToken({ name: "Gold", symbol: "GLD", decimals: 8 })
-await hiero.deployContract({ bytecode: "0x...", gas: 100_000 })
+await hiero.createTopic({ memo: "My topic", submitKey: true });
+await hiero.createToken({ name: "Gold", symbol: "GLD", decimals: 8 });
+await hiero.deployContract({ bytecode: "0x...", gas: 100_000 });
 ```
 
 The base client ships with convenience actions for the most common operations.
@@ -659,14 +653,14 @@ the default bundle.
 ### 6.6 Tree-Shakable Standalone Actions
 
 ```typescript
-import { createHieroClient } from "@hieco/sdk"
-import { transfer, createToken } from "@hieco/sdk/actions"
+import { createHieroClient } from "@hieco/sdk";
+import { transfer, createToken } from "@hieco/sdk/actions";
 
-const hiero = createHieroClient()
+const hiero = createHieroClient();
 
 // Actions accept the client as the first argument (like viem)
-await transfer(hiero, { to: "0.0.5678", amount: 10 })
-await createToken(hiero, { name: "Gold", symbol: "GLD", decimals: 8 })
+await transfer(hiero, { to: "0.0.5678", amount: 10 });
+await createToken(hiero, { name: "Gold", symbol: "GLD", decimals: 8 });
 ```
 
 Both patterns — `hiero.transfer(...)` and `transfer(hiero, ...)` — call the same
@@ -674,15 +668,15 @@ underlying implementation. Choose based on preference and bundle requirements.
 
 ### 6.7 Environment Variable Convention (Node Only)
 
-| Variable | Default | Description |
-|---|---|---|
-| `HIERO_OPERATOR_ID` | — | Operator account ID (`0.0.XXXX`) |
-| `HIERO_PRIVATE_KEY` | — | Operator private key (DER-encoded or raw hex) |
-| `HIERO_NETWORK` | `"testnet"` | Network name (`mainnet`, `testnet`, `previewnet`) |
-| `HIERO_MIRROR_URL` | Network default | Custom Mirror Node URL |
-| `HIERO_RELAY_URL` | Network default | Custom JSON-RPC Relay URL |
-| `HIERO_MAX_TRANSACTION_FEE` | `"2"` | Default max fee in HBAR |
-| `HIERO_LOG_LEVEL` | `"none"` | Logging verbosity (`none`, `error`, `warn`, `info`, `debug`) |
+| Variable                    | Default         | Description                                                  |
+| --------------------------- | --------------- | ------------------------------------------------------------ |
+| `HIERO_OPERATOR_ID`         | —               | Operator account ID (`0.0.XXXX`)                             |
+| `HIERO_PRIVATE_KEY`         | —               | Operator private key (DER-encoded or raw hex)                |
+| `HIERO_NETWORK`             | `"testnet"`     | Network name (`mainnet`, `testnet`, `previewnet`)            |
+| `HIERO_MIRROR_URL`          | Network default | Custom Mirror Node URL                                       |
+| `HIERO_RELAY_URL`           | Network default | Custom JSON-RPC Relay URL                                    |
+| `HIERO_MAX_TRANSACTION_FEE` | `"2"`           | Default max fee in HBAR                                      |
+| `HIERO_LOG_LEVEL`           | `"none"`        | Logging verbosity (`none`, `error`, `warn`, `info`, `debug`) |
 
 Environment variable resolution is **disabled in browser environments**. The SDK
 detects the runtime and only reads `process.env` in Node. Browser clients must
@@ -748,26 +742,22 @@ and any created entity IDs (account, token, topic, contract, file, schedule).
 type TransactionMiddleware = (
   context: TransactionContext,
   next: () => Promise<SdkResult<TransactionReceipt>>,
-) => Promise<SdkResult<TransactionReceipt>>
+) => Promise<SdkResult<TransactionReceipt>>;
 
 interface TransactionContext {
-  readonly type: TransactionType
-  readonly params: Record<string, unknown>
-  readonly client: HieroClient
-  readonly attempt: number
-  readonly transactionId: string | undefined
-  readonly startedAt: number
+  readonly type: TransactionType;
+  readonly params: Record<string, unknown>;
+  readonly client: HieroClient;
+  readonly attempt: number;
+  readonly transactionId: string | undefined;
+  readonly startedAt: number;
 }
 ```
 
 ### 7.3 Built-in Middleware
 
 ```typescript
-import {
-  retryMiddleware,
-  loggingMiddleware,
-  gasEstimationMiddleware,
-} from "@hieco/sdk/middleware"
+import { retryMiddleware, loggingMiddleware, gasEstimationMiddleware } from "@hieco/sdk/middleware";
 
 const hiero = createHieroClient({
   middleware: [
@@ -775,7 +765,7 @@ const hiero = createHieroClient({
     retryMiddleware({ maxRetries: 3 }),
     gasEstimationMiddleware({ bufferPercent: 20 }),
   ],
-})
+});
 ```
 
 **Retry middleware** is enabled by default (3 retries, exponential backoff, retries
@@ -794,32 +784,32 @@ A configurable buffer percentage is added to the estimate.
 
 ```typescript
 gasEstimationMiddleware({
-  strategy: "mirror",        // "mirror" (default) | "dry-run"
+  strategy: "mirror", // "mirror" (default) | "dry-run"
   bufferPercent: 20,
-})
+});
 ```
 
 ### 7.4 Custom Middleware
 
 ```typescript
 const auditMiddleware: TransactionMiddleware = async (context, next) => {
-  console.log(`[${context.type}] Starting attempt ${context.attempt}`)
-  const start = performance.now()
-  const result = await next()
-  const duration = performance.now() - start
+  console.log(`[${context.type}] Starting attempt ${context.attempt}`);
+  const start = performance.now();
+  const result = await next();
+  const duration = performance.now() - start;
 
   if (result.success) {
-    console.log(`[${context.type}] Confirmed in ${duration.toFixed(0)}ms`)
+    console.log(`[${context.type}] Confirmed in ${duration.toFixed(0)}ms`);
   } else {
-    console.error(`[${context.type}] Failed: ${result.error._tag}`)
+    console.error(`[${context.type}] Failed: ${result.error._tag}`);
   }
 
-  return result
-}
+  return result;
+};
 
 const hiero = createHieroClient({
   middleware: [auditMiddleware],
-})
+});
 ```
 
 ---
@@ -834,10 +824,10 @@ need to learn more than what their current task demands.
 The simplest possible invocation. Sensible defaults everywhere.
 
 ```typescript
-await hiero.transfer({ to: "0.0.5678", amount: 10 })
-await hiero.createToken({ name: "Gold", symbol: "GLD", decimals: 8 })
-await hiero.createTopic({ memo: "Audit log" })
-await hiero.submitMessage({ topicId: "0.0.TOPIC", message: "Hello" })
+await hiero.transfer({ to: "0.0.5678", amount: 10 });
+await hiero.createToken({ name: "Gold", symbol: "GLD", decimals: 8 });
+await hiero.createTopic({ memo: "Audit log" });
+await hiero.submitMessage({ topicId: "0.0.TOPIC", message: "Hello" });
 ```
 
 ### 8.2 Level 1: Configuration
@@ -850,7 +840,7 @@ await hiero.transfer({
   amount: 10,
   memo: "Invoice #1234",
   maxFee: 1,
-})
+});
 
 await hiero.createToken({
   name: "Gold",
@@ -861,7 +851,7 @@ await hiero.createToken({
   adminKey: true,
   supplyKey: true,
   freezeDefault: false,
-})
+});
 ```
 
 ### 8.3 Level 2: Multi-Party
@@ -875,14 +865,14 @@ await hiero.transfer({
     { to: "0.0.5678", amount: 5 },
     { to: "0.0.9012", amount: 5 },
   ],
-})
+});
 
 // Additional signers
 await hiero.transfer({
   to: "0.0.5678",
   amount: 100,
   signers: [secondaryKey],
-})
+});
 
 // Token with multiple key holders
 await hiero.createToken({
@@ -894,7 +884,7 @@ await hiero.createToken({
   freezeKey: compliancePublicKey,
   wipeKey: compliancePublicKey,
   signers: [adminKey, minterKey, complianceKey],
-})
+});
 ```
 
 ### 8.4 Level 3: Pipeline Control
@@ -906,23 +896,23 @@ For advanced use cases — manual freezing, external signing, custom node select
 const frozen = await hiero.buildTransaction("transfer", {
   to: "0.0.5678",
   amount: 100,
-})
+});
 
 // Serialize for transport
-const bytes = frozen.toBytes()
+const bytes = frozen.toBytes();
 
 // Add externally-obtained signature
-frozen.addSignature(externalPublicKey, externalSignature)
+frozen.addSignature(externalPublicKey, externalSignature);
 
 // Submit manually
-const result = await hiero.submitTransaction(frozen)
+const result = await hiero.submitTransaction(frozen);
 
 // Or: complete low-level control via escape hatch
-const rawClient = hiero.raw.client
+const rawClient = hiero.raw.client;
 const rawTx = new TransferTransaction()
   .addHbarTransfer(AccountId.fromString("0.0.1234"), new Hbar(-10))
-  .addHbarTransfer(AccountId.fromString("0.0.5678"), new Hbar(10))
-const response = await rawTx.execute(rawClient)
+  .addHbarTransfer(AccountId.fromString("0.0.5678"), new Hbar(10));
+const response = await rawTx.execute(rawClient);
 ```
 
 ### 8.5 Level 4: Fluent Builders
@@ -940,7 +930,7 @@ const token = await hiero
   .adminKey(hiero.operatorPublicKey)
   .supplyKey(hiero.operatorPublicKey)
   .memo("Loyalty program token")
-  .create()
+  .create();
 ```
 
 Both `hiero.createToken({...})` and `hiero.tokens()...create()` produce identical
@@ -958,7 +948,7 @@ Every action follows the same contract:
 type Action<TParams, TResult> = (
   client: HieroClient,
   params: TParams,
-) => Promise<SdkResult<TResult>>
+) => Promise<SdkResult<TResult>>;
 ```
 
 When called as a method on the client (`hiero.transfer(...)`), the client parameter
@@ -970,9 +960,9 @@ is bound automatically.
 // Transfer HBAR
 await hiero.transfer({
   to: "0.0.5678",
-  amount: 10,               // number = HBAR, Hbar instance also accepted
+  amount: 10, // number = HBAR, Hbar instance also accepted
   memo: "Payment for services",
-})
+});
 
 // Transfer HBAR to multiple recipients
 await hiero.transfer({
@@ -981,16 +971,16 @@ await hiero.transfer({
     { to: "0.0.9012", amount: 5 },
   ],
   memo: "Split payment",
-})
+});
 
 // Create account
 const result = await hiero.createAccount({
   initialBalance: 10,
   memo: "Service account",
   maxAutoTokenAssociations: 10,
-})
+});
 if (result.success) {
-  console.log(result.data.accountId) // EntityId
+  console.log(result.data.accountId); // EntityId
 }
 
 // Update account
@@ -998,20 +988,20 @@ await hiero.updateAccount({
   accountId: "0.0.1234",
   memo: "Updated memo",
   maxAutoTokenAssociations: 50,
-})
+});
 
 // Delete account (transfer remaining balance)
 await hiero.deleteAccount({
   accountId: "0.0.1234",
   transferTo: "0.0.5678",
-})
+});
 
 // Approve HBAR/token allowance
 await hiero.approveAllowance({
   ownerAccountId: "0.0.1234",
   spenderAccountId: "0.0.5678",
   amount: 50, // HBAR
-})
+});
 ```
 
 ### 9.3 Token Actions (HTS)
@@ -1023,11 +1013,11 @@ const token = await hiero.createToken({
   symbol: "LOYAL",
   decimals: 2,
   initialSupply: 1_000_000,
-  treasury: "0.0.1234",      // defaults to operator if omitted
-  adminKey: true,             // true = use operator key
+  treasury: "0.0.1234", // defaults to operator if omitted
+  adminKey: true, // true = use operator key
   supplyKey: true,
   freezeDefault: false,
-})
+});
 
 // Create NFT collection
 const nft = await hiero.createToken({
@@ -1037,53 +1027,50 @@ const nft = await hiero.createToken({
   maxSupply: 10_000,
   supplyKey: true,
   treasury: "0.0.1234",
-})
+});
 
 // Mint tokens
 await hiero.mintToken({
   tokenId: "0.0.TOKEN",
   amount: 500,
-})
+});
 
 // Mint NFTs (with metadata)
 await hiero.mintToken({
   tokenId: "0.0.NFT",
-  metadata: [
-    Buffer.from("ipfs://QmXxx..."),
-    Buffer.from("ipfs://QmYyy..."),
-  ],
-})
+  metadata: [Buffer.from("ipfs://QmXxx..."), Buffer.from("ipfs://QmYyy...")],
+});
 
 // Transfer tokens
 await hiero.transferToken({
   tokenId: "0.0.TOKEN",
   to: "0.0.5678",
   amount: 100,
-})
+});
 
 // Transfer NFT
 await hiero.transferNft({
   tokenId: "0.0.NFT",
   serialNumber: 1,
   to: "0.0.5678",
-})
+});
 
 // Associate token with account
 await hiero.associateToken({
   accountId: "0.0.5678",
   tokenIds: ["0.0.TOKEN1", "0.0.TOKEN2"],
-})
+});
 
 // Full token lifecycle
-await hiero.burnToken({ tokenId: "0.0.TOKEN", amount: 50 })
-await hiero.wipeToken({ tokenId: "0.0.TOKEN", accountId: "0.0.5678", amount: 10 })
-await hiero.freezeToken({ tokenId: "0.0.TOKEN", accountId: "0.0.5678" })
-await hiero.unfreezeToken({ tokenId: "0.0.TOKEN", accountId: "0.0.5678" })
-await hiero.pauseToken({ tokenId: "0.0.TOKEN" })
-await hiero.unpauseToken({ tokenId: "0.0.TOKEN" })
-await hiero.grantKyc({ tokenId: "0.0.TOKEN", accountId: "0.0.5678" })
-await hiero.revokeKyc({ tokenId: "0.0.TOKEN", accountId: "0.0.5678" })
-await hiero.deleteToken({ tokenId: "0.0.TOKEN" })
+await hiero.burnToken({ tokenId: "0.0.TOKEN", amount: 50 });
+await hiero.wipeToken({ tokenId: "0.0.TOKEN", accountId: "0.0.5678", amount: 10 });
+await hiero.freezeToken({ tokenId: "0.0.TOKEN", accountId: "0.0.5678" });
+await hiero.unfreezeToken({ tokenId: "0.0.TOKEN", accountId: "0.0.5678" });
+await hiero.pauseToken({ tokenId: "0.0.TOKEN" });
+await hiero.unpauseToken({ tokenId: "0.0.TOKEN" });
+await hiero.grantKyc({ tokenId: "0.0.TOKEN", accountId: "0.0.5678" });
+await hiero.revokeKyc({ tokenId: "0.0.TOKEN", accountId: "0.0.5678" });
+await hiero.deleteToken({ tokenId: "0.0.TOKEN" });
 ```
 
 ### 9.4 Consensus Actions (HCS)
@@ -1092,36 +1079,36 @@ await hiero.deleteToken({ tokenId: "0.0.TOKEN" })
 // Create topic
 const topic = await hiero.createTopic({
   memo: "Audit log",
-  submitKey: true,             // true = operator key
+  submitKey: true, // true = operator key
   adminKey: true,
-})
+});
 
 // Submit message (string)
 await hiero.submitMessage({
   topicId: "0.0.TOPIC",
   message: "Hello, consensus!",
-})
+});
 
 // Submit structured message (auto-serialized to JSON)
 await hiero.submitMessage({
   topicId: "0.0.TOPIC",
   message: { event: "user.signup", userId: "abc123", timestamp: Date.now() },
-})
+});
 
 // Submit large message (auto-chunked for messages > 1024 bytes)
 await hiero.submitMessage({
   topicId: "0.0.TOPIC",
   message: largePayload,
-})
+});
 
 // Update topic
 await hiero.updateTopic({
   topicId: "0.0.TOPIC",
   memo: "Audit log v2",
-})
+});
 
 // Delete topic
-await hiero.deleteTopic({ topicId: "0.0.TOPIC" })
+await hiero.deleteTopic({ topicId: "0.0.TOPIC" });
 ```
 
 ### 9.5 Smart Contract Actions
@@ -1130,14 +1117,14 @@ await hiero.deleteTopic({ topicId: "0.0.TOPIC" })
 // Deploy contract
 const contract = await hiero.deployContract({
   bytecode: "0x608060...",
-  gas: 100_000,                // or omit for auto-estimation
+  gas: 100_000, // or omit for auto-estimation
   constructorParams: {
     types: ["string", "uint256"],
     values: ["Hello", 42],
   },
   adminKey: true,
   memo: "MyContract v1",
-})
+});
 
 // Execute contract function (state-changing, costs gas)
 await hiero.executeContract({
@@ -1148,7 +1135,7 @@ await hiero.executeContract({
     values: ["0.0.5678", 100],
   },
   gas: 50_000,
-})
+});
 
 // Call contract (read-only, free, via Mirror Node)
 const result = await hiero.callContract({
@@ -1158,14 +1145,14 @@ const result = await hiero.callContract({
     types: ["address"],
     values: ["0.0.1234"],
   },
-})
+});
 
 // Deploy with gas estimation (Mirror Node POST /api/v1/contracts/call with estimate: true)
 const contract = await hiero.deployContract({
   bytecode: "0x608060...",
-  gasEstimate: true,           // runs Mirror Node gas estimation
+  gasEstimate: true, // runs Mirror Node gas estimation
   constructorParams: { types: ["string"], values: ["Hello"] },
-})
+});
 ```
 
 ### 9.6 Schedule Actions
@@ -1180,17 +1167,17 @@ const scheduled = await hiero.scheduleTransaction({
   expirationTime: new Date("2026-04-01"),
   memo: "Scheduled payment",
   waitForExpiry: false,
-})
+});
 
 // Add signature to scheduled transaction (multi-sig flow)
 await hiero.signSchedule({
   scheduleId: "0.0.SCHEDULE",
-})
+});
 
 // Delete scheduled transaction
 await hiero.deleteSchedule({
   scheduleId: "0.0.SCHEDULE",
-})
+});
 ```
 
 ### 9.7 File Actions
@@ -1199,14 +1186,14 @@ await hiero.deleteSchedule({
 await hiero.createFile({
   contents: Buffer.from("Hello, Hiero!"),
   memo: "My file",
-})
+});
 
 await hiero.appendFile({
   fileId: "0.0.FILE",
   contents: Buffer.from(" More content."),
-})
+});
 
-await hiero.deleteFile({ fileId: "0.0.FILE" })
+await hiero.deleteFile({ fileId: "0.0.FILE" });
 ```
 
 ### 9.8 Multi-Signature Support
@@ -1217,19 +1204,19 @@ const result = await hiero.transfer({
   to: "0.0.5678",
   amount: 100,
   signers: [secondaryKey, tertiaryKey],
-})
+});
 
 // Or: freeze for external signing
 const frozen = await hiero.buildTransaction("transfer", {
   to: "0.0.5678",
   amount: 100,
-})
+});
 
 // Serialize → send to another party → receive signature back
-const bytes = frozen.toBytes()
-frozen.addSignature(otherPublicKey, otherSignature)
+const bytes = frozen.toBytes();
+frozen.addSignature(otherPublicKey, otherSignature);
 
-const result = await hiero.submitTransaction(frozen)
+const result = await hiero.submitTransaction(frozen);
 ```
 
 ---
@@ -1252,7 +1239,7 @@ const token = await hiero
   .supplyKey(hiero.operatorPublicKey)
   .freezeDefault(false)
   .memo("Loyalty program token")
-  .create()
+  .create();
 ```
 
 ### 10.2 Topic Builder
@@ -1265,7 +1252,7 @@ const topic = await hiero
   .adminKey(hiero.operatorPublicKey)
   .autoRenewAccount("0.0.1234")
   .autoRenewPeriod(7776000)
-  .create()
+  .create();
 ```
 
 ### 10.3 Account Builder
@@ -1277,7 +1264,7 @@ const account = await hiero
   .memo("Service account")
   .maxAutoTokenAssociations(100)
   .receiverSignatureRequired(false)
-  .create()
+  .create();
 ```
 
 ### 10.4 Contract Builder
@@ -1291,7 +1278,7 @@ const contract = await hiero
   .adminKey(hiero.operatorPublicKey)
   .memo("MyContract v1.0")
   .autoRenewPeriod(7776000)
-  .deploy()
+  .deploy();
 ```
 
 Every builder's terminal method (`.create()`, `.deploy()`) flows through the same
@@ -1310,13 +1297,13 @@ explicit `source` option for developers who need real-time consensus data.
 
 ```typescript
 // Default: Mirror Node (free, fast, sufficient for most applications)
-const balance = await hiero.getBalance({ accountId: "0.0.1234" })
+const balance = await hiero.getBalance({ accountId: "0.0.1234" });
 
 // Explicit: consensus node (real-time, costs HBAR)
 const balance = await hiero.getBalance({
   accountId: "0.0.1234",
   source: "consensus",
-})
+});
 ```
 
 Most applications never need consensus-sourced balances. The Mirror Node default
@@ -1333,8 +1320,8 @@ Both are accessible — the fluent API is sugar, the raw client is the escape ha
 
 ```typescript
 // Direct access
-const account = await hiero.mirror.accounts.get("0.0.1234")
-const tokens = await hiero.mirror.tokens.list({ limit: 10 })
+const account = await hiero.mirror.accounts.get("0.0.1234");
+const tokens = await hiero.mirror.tokens.list({ limit: 10 });
 
 // Fluent query builder
 const richAccounts = await hiero.mirror
@@ -1342,11 +1329,11 @@ const richAccounts = await hiero.mirror
   .balance.gte(1000_00000000)
   .order("desc")
   .limit(25)
-  .get()
+  .get();
 
 // Pagination with AsyncIterable
 for await (const tx of hiero.mirror.transactions().account("0.0.1234").all()) {
-  console.log(tx.transaction_id)
+  console.log(tx.transaction_id);
 }
 
 // Topic messages with filtering
@@ -1355,7 +1342,7 @@ const messages = await hiero.mirror
   .messages()
   .sequenceNumber.gte(100)
   .limit(50)
-  .get()
+  .get();
 ```
 
 ### 11.3 Relationship Loading (Planned — v0.2)
@@ -1371,7 +1358,7 @@ Inspired by Eloquent's eager loading, the planned API:
 // Load account with related data in parallel
 const account = await hiero.mirror.accounts.get("0.0.1234", {
   with: ["tokens", "nfts"],
-})
+});
 // account.tokens → Token[]
 // account.nfts → Nft[]
 ```
@@ -1386,30 +1373,30 @@ underlying API methods.
 ```typescript
 interface MirrorQueryBuilder<T> {
   // Filtering
-  eq(value: T): this
-  ne(value: T): this
-  gt(value: T): this
-  gte(value: T): this
-  lt(value: T): this
-  lte(value: T): this
+  eq(value: T): this;
+  ne(value: T): this;
+  gt(value: T): this;
+  gte(value: T): this;
+  lt(value: T): this;
+  lte(value: T): this;
 
   // Sorting & pagination
-  order(direction: "asc" | "desc"): this
-  limit(count: number): this
-  after(cursor: string): this
+  order(direction: "asc" | "desc"): this;
+  limit(count: number): this;
+  after(cursor: string): this;
 
   // Timestamp filtering
   timestamp: {
-    gt(ts: string | Date | number): MirrorQueryBuilder<T>
-    gte(ts: string | Date | number): MirrorQueryBuilder<T>
-    lt(ts: string | Date | number): MirrorQueryBuilder<T>
-    lte(ts: string | Date | number): MirrorQueryBuilder<T>
-  }
+    gt(ts: string | Date | number): MirrorQueryBuilder<T>;
+    gte(ts: string | Date | number): MirrorQueryBuilder<T>;
+    lt(ts: string | Date | number): MirrorQueryBuilder<T>;
+    lte(ts: string | Date | number): MirrorQueryBuilder<T>;
+  };
 
   // Terminal methods
-  get(): Promise<ApiResult<readonly T[]>>
-  first(): Promise<ApiResult<T>>
-  all(): AsyncIterable<T>    // delegates to @hieco/mirror CursorPaginator
+  get(): Promise<ApiResult<readonly T[]>>;
+  first(): Promise<ApiResult<T>>;
+  all(): AsyncIterable<T>; // delegates to @hieco/mirror CursorPaginator
 }
 ```
 
@@ -1424,34 +1411,34 @@ teaches developers the API through autocomplete and compile-time feedback.
 
 ```typescript
 // From @hieco/types — enforced at the type level
-type EntityId = `${number}.${number}.${number}`
+type EntityId = `${number}.${number}.${number}`;
 
 // These compile
-const a: EntityId = "0.0.1234"
-const b: EntityId = "0.0.5678"
+const a: EntityId = "0.0.1234";
+const b: EntityId = "0.0.5678";
 
 // These do not compile
-const c: EntityId = "0.0"         // Error: not enough segments
-const d: EntityId = "abc.0.1234"  // Error: not a number
+const c: EntityId = "0.0"; // Error: not enough segments
+const d: EntityId = "abc.0.1234"; // Error: not a number
 ```
 
 ### 12.2 Params Types — Self-Documenting
 
 ```typescript
 interface TransferParams {
-  readonly to?: EntityId
-  readonly amount?: number | Hbar
-  readonly transfers?: readonly TransferEntry[]
-  readonly memo?: string
-  readonly maxFee?: number
-  readonly signers?: readonly PrivateKey[]
-  readonly retry?: RetryConfig | false
-  readonly nodeAccountIds?: readonly EntityId[]
+  readonly to?: EntityId;
+  readonly amount?: number | Hbar;
+  readonly transfers?: readonly TransferEntry[];
+  readonly memo?: string;
+  readonly maxFee?: number;
+  readonly signers?: readonly PrivateKey[];
+  readonly retry?: RetryConfig | false;
+  readonly nodeAccountIds?: readonly EntityId[];
 }
 
 interface TransferEntry {
-  readonly to: EntityId
-  readonly amount: number | Hbar
+  readonly to: EntityId;
+  readonly amount: number | Hbar;
 }
 ```
 
@@ -1461,12 +1448,12 @@ but not both. TypeScript autocomplete shows every available field with its type.
 ### 12.3 Discriminated Result Types
 
 ```typescript
-type SdkResult<T> = ApiResult<T, SdkError>
+type SdkResult<T> = ApiResult<T, SdkError>;
 
 // ApiResult from @hieco/types:
 type ApiResult<T, E = ApiError> =
   | { readonly success: true; readonly data: T }
-  | { readonly success: false; readonly error: E }
+  | { readonly success: false; readonly error: E };
 ```
 
 After checking `result.success`, TypeScript narrows the type automatically:
@@ -1496,34 +1483,34 @@ type TransactionType =
   | "submitMessage"
   | "deployContract"
   | "executeContract"
-  | "scheduleTransaction"
-  // ... all transaction types
+  | "scheduleTransaction";
+// ... all transaction types
 
 // Maps transaction type → params type
 interface TransactionParamsMap {
-  transfer: TransferParams
-  createAccount: CreateAccountParams
-  createToken: CreateTokenParams
-  mintToken: MintTokenParams
-  createTopic: CreateTopicParams
-  submitMessage: SubmitMessageParams
-  deployContract: DeployContractParams
-  executeContract: ExecuteContractParams
-  scheduleTransaction: ScheduleTransactionParams
+  transfer: TransferParams;
+  createAccount: CreateAccountParams;
+  createToken: CreateTokenParams;
+  mintToken: MintTokenParams;
+  createTopic: CreateTopicParams;
+  submitMessage: SubmitMessageParams;
+  deployContract: DeployContractParams;
+  executeContract: ExecuteContractParams;
+  scheduleTransaction: ScheduleTransactionParams;
   // ...
 }
 
 // Maps transaction type → result type
 interface TransactionResultMap {
-  transfer: TransferReceipt
-  createAccount: AccountReceipt
-  createToken: TokenReceipt
-  mintToken: MintReceipt
-  createTopic: TopicReceipt
-  submitMessage: MessageReceipt
-  deployContract: ContractReceipt
-  executeContract: ContractExecuteReceipt
-  scheduleTransaction: ScheduleReceipt
+  transfer: TransferReceipt;
+  createAccount: AccountReceipt;
+  createToken: TokenReceipt;
+  mintToken: MintReceipt;
+  createTopic: TopicReceipt;
+  submitMessage: MessageReceipt;
+  deployContract: ContractReceipt;
+  executeContract: ContractExecuteReceipt;
+  scheduleTransaction: ScheduleReceipt;
   // ...
 }
 ```
@@ -1533,14 +1520,14 @@ This enables fully typed generic methods:
 ```typescript
 // buildTransaction infers both params and result from the type string
 const frozen = await hiero.buildTransaction("transfer", {
-  to: "0.0.5678",  // TypeScript knows this must be TransferParams
+  to: "0.0.5678", // TypeScript knows this must be TransferParams
   amount: 10,
-})
+});
 
 // The event system uses the same map for typed payloads
 hiero.on("transaction:transfer:confirmed", (event) => {
-  event.receipt.status  // TypeScript knows this is TransferReceipt
-})
+  event.receipt.status; // TypeScript knows this is TransferReceipt
+});
 ```
 
 ### 12.5 Builder Return Type Inference
@@ -1550,11 +1537,19 @@ returns the correct `SdkResult`:
 
 ```typescript
 class TokenBuilder {
-  name(value: string): this { /* ... */ }
-  symbol(value: string): this { /* ... */ }
-  decimals(value: number): this { /* ... */ }
+  name(value: string): this {
+    /* ... */
+  }
+  symbol(value: string): this {
+    /* ... */
+  }
+  decimals(value: number): this {
+    /* ... */
+  }
   // ...
-  create(): Promise<SdkResult<TokenReceipt>> { /* ... */ }
+  create(): Promise<SdkResult<TokenReceipt>> {
+    /* ... */
+  }
 }
 ```
 
@@ -1571,15 +1566,38 @@ Building on `@hieco/types`' `ApiError` pattern with `_tag` discrimination:
 
 ```typescript
 type SdkError =
-  | { readonly _tag: "TransactionError"; readonly status: string; readonly transactionId: string; readonly message: string }
-  | { readonly _tag: "InsufficientBalanceError"; readonly accountId: EntityId; readonly message: string }
-  | { readonly _tag: "InvalidSignatureError"; readonly transactionId: string; readonly message: string }
+  | {
+      readonly _tag: "TransactionError";
+      readonly status: string;
+      readonly transactionId: string;
+      readonly message: string;
+    }
+  | {
+      readonly _tag: "InsufficientBalanceError";
+      readonly accountId: EntityId;
+      readonly message: string;
+    }
+  | {
+      readonly _tag: "InvalidSignatureError";
+      readonly transactionId: string;
+      readonly message: string;
+    }
   | { readonly _tag: "GasEstimationError"; readonly contractId: EntityId; readonly message: string }
-  | { readonly _tag: "NetworkError"; readonly url: string; readonly statusCode: number; readonly message: string }
-  | { readonly _tag: "TimeoutError"; readonly operation: string; readonly timeoutMs: number; readonly message: string }
+  | {
+      readonly _tag: "NetworkError";
+      readonly url: string;
+      readonly statusCode: number;
+      readonly message: string;
+    }
+  | {
+      readonly _tag: "TimeoutError";
+      readonly operation: string;
+      readonly timeoutMs: number;
+      readonly message: string;
+    }
   | { readonly _tag: "RateLimitError"; readonly retryAfterMs: number; readonly message: string }
   | { readonly _tag: "ConfigurationError"; readonly field: string; readonly message: string }
-  | { readonly _tag: "InvalidEntityIdError"; readonly value: string; readonly message: string }
+  | { readonly _tag: "InvalidEntityIdError"; readonly value: string; readonly message: string };
 ```
 
 ### 13.2 Human-Readable Error Messages
@@ -1623,24 +1641,24 @@ the suggested fix directly.
 ### 13.3 Type-Safe Error Narrowing
 
 ```typescript
-const result = await hiero.transfer({ to: "0.0.5678", amount: 10 })
+const result = await hiero.transfer({ to: "0.0.5678", amount: 10 });
 
 if (!result.success) {
   switch (result.error._tag) {
     case "InsufficientBalanceError":
-      console.log(`Insufficient balance on ${result.error.accountId}`)
-      break
+      console.log(`Insufficient balance on ${result.error.accountId}`);
+      break;
     case "InvalidSignatureError":
-      console.log(`Signature mismatch: ${result.error.message}`)
-      break
+      console.log(`Signature mismatch: ${result.error.message}`);
+      break;
     case "NetworkError":
-      console.log(`Network issue: ${result.error.statusCode}`)
-      break
+      console.log(`Network issue: ${result.error.statusCode}`);
+      break;
     case "TimeoutError":
-      console.log(`Timed out after ${result.error.timeoutMs}ms`)
-      break
+      console.log(`Timed out after ${result.error.timeoutMs}ms`);
+      break;
     default: {
-      const _exhaustive: never = result.error
+      const _exhaustive: never = result.error;
       // TypeScript ensures all cases are handled ^
     }
   }
@@ -1660,12 +1678,12 @@ import {
   isInvalidSignatureError,
   isNetworkError,
   isRateLimitError,
-} from "@hieco/sdk/errors"
+} from "@hieco/sdk/errors";
 
-const result = await hiero.transfer({ to: "0.0.5678", amount: 10 })
+const result = await hiero.transfer({ to: "0.0.5678", amount: 10 });
 
 if (!result.success && isRateLimitError(result.error)) {
-  await sleep(result.error.retryAfterMs)
+  await sleep(result.error.retryAfterMs);
   // retry...
 }
 ```
@@ -1681,7 +1699,7 @@ transient errors.
 
 ```typescript
 // Default retry configuration (applied automatically)
-const hiero = createHieroClient()
+const hiero = createHieroClient();
 // Equivalent to:
 const hiero = createHieroClient({
   retry: {
@@ -1690,13 +1708,9 @@ const hiero = createHieroClient({
     maxDelayMs: 10_000,
     backoffMultiplier: 2,
     jitter: true,
-    retryableStatuses: [
-      "BUSY",
-      "PLATFORM_TRANSACTION_NOT_CREATED",
-      "PLATFORM_NOT_ACTIVE",
-    ],
+    retryableStatuses: ["BUSY", "PLATFORM_TRANSACTION_NOT_CREATED", "PLATFORM_NOT_ACTIVE"],
   },
-})
+});
 ```
 
 ### 14.2 Per-Transaction Override
@@ -1707,14 +1721,14 @@ await hiero.transfer({
   to: "0.0.5678",
   amount: 10,
   retry: { maxRetries: 5, maxDelayMs: 30_000 },
-})
+});
 
 // No retry for idempotency-sensitive operations
 await hiero.transfer({
   to: "0.0.5678",
   amount: 10,
   retry: false,
-})
+});
 ```
 
 ### 14.3 Retry Observability
@@ -1724,9 +1738,9 @@ The event system emits retry events so you can monitor retry behavior:
 ```typescript
 hiero.on("transaction:retry", (event) => {
   console.warn(
-    `Retrying ${event.type} (attempt ${event.attempt}/${event.maxRetries}): ${event.reason}`
-  )
-})
+    `Retrying ${event.type} (attempt ${event.attempt}/${event.maxRetries}): ${event.reason}`,
+  );
+});
 ```
 
 ---
@@ -1737,26 +1751,26 @@ hiero.on("transaction:retry", (event) => {
 
 ```typescript
 const unsubscribe = hiero.on("transaction:confirmed", (event) => {
-  console.log(`${event.transactionId} confirmed: ${event.status}`)
-})
+  console.log(`${event.transactionId} confirmed: ${event.status}`);
+});
 
 hiero.on("transaction:transfer:confirmed", (event) => {
-  console.log(`Transfer confirmed`)
-})
+  console.log(`Transfer confirmed`);
+});
 
 hiero.on("transaction:error", (event) => {
-  console.error(`${event.transactionId} failed: ${event.error._tag}`)
-})
+  console.error(`${event.transactionId} failed: ${event.error._tag}`);
+});
 
 hiero.on("transaction:before", (event) => {
-  console.log(`Executing ${event.type}...`)
-})
+  console.log(`Executing ${event.type}...`);
+});
 
 hiero.on("transaction:retry", (event) => {
-  console.warn(`Retry attempt ${event.attempt} for ${event.type}`)
-})
+  console.warn(`Retry attempt ${event.attempt} for ${event.type}`);
+});
 
-unsubscribe()
+unsubscribe();
 ```
 
 ### 15.2 Event Types
@@ -1771,7 +1785,7 @@ type TransactionEvent =
   | "transaction:retry"
   | `transaction:${TransactionType}:before`
   | `transaction:${TransactionType}:confirmed`
-  | `transaction:${TransactionType}:error`
+  | `transaction:${TransactionType}:error`;
 ```
 
 ### 15.3 Real-Time Subscriptions
@@ -1785,17 +1799,17 @@ server-streaming to the mirror node). This is NOT a WebSocket subscription.
 // Topic message stream (via @hiero-ledger/sdk TopicMessageQuery, gRPC)
 const unsubscribe = hiero.watchTopicMessages({
   topicId: "0.0.TOPIC",
-  startTime: new Date("2026-01-01"),  // optional
+  startTime: new Date("2026-01-01"), // optional
   handler: (message) => {
-    console.log(`Sequence ${message.sequenceNumber}: ${message.contents}`)
+    console.log(`Sequence ${message.sequenceNumber}: ${message.contents}`);
   },
   onError: (error) => {
-    console.error("Subscription error:", error)
+    console.error("Subscription error:", error);
   },
-})
+});
 
 // Stop listening
-unsubscribe()
+unsubscribe();
 ```
 
 **Contract Logs** — uses `@hieco/realtime`'s `RelayWebSocketClient` with
@@ -1806,9 +1820,9 @@ unsubscribe()
 const unsubscribe = hiero.watchContractLogs({
   contractId: "0.0.CONTRACT",
   handler: (log) => {
-    console.log(`Event: ${log.topics[0]}`)
+    console.log(`Event: ${log.topics[0]}`);
   },
-})
+});
 ```
 
 > **Why two mechanisms?** Topic messages use HCS gRPC streaming — a Hiero-native
@@ -1823,12 +1837,12 @@ const unsubscribe = hiero.watchContractLogs({
 For scripts, CLIs, and quick prototypes where creating a client feels heavy:
 
 ```typescript
-import { transfer, createToken, submitMessage } from "@hieco/sdk/facade"
+import { transfer, createToken, submitMessage } from "@hieco/sdk/facade";
 
 // Auto-creates a singleton client from environment variables on first call
-await transfer({ to: "0.0.5678", amount: 10 })
-await createToken({ name: "Gold", symbol: "GLD", decimals: 8 })
-await submitMessage({ topicId: "0.0.TOPIC", message: "Hello" })
+await transfer({ to: "0.0.5678", amount: 10 });
+await createToken({ name: "Gold", symbol: "GLD", decimals: 8 });
+await submitMessage({ topicId: "0.0.TOPIC", message: "Hello" });
 ```
 
 Each facade function lazily initializes a module-scoped `HieroClient` on first
@@ -1842,7 +1856,7 @@ scripts that do one thing and exit.
 ### 17.1 Provider
 
 ```tsx
-import { HieroProvider, createHieroConfig } from "@hieco/sdk-react"
+import { HieroProvider, createHieroConfig } from "@hieco/sdk-react";
 
 const config = createHieroConfig({
   network: "testnet",
@@ -1850,14 +1864,14 @@ const config = createHieroConfig({
     accountId: "0.0.1234",
     privateKey: "302e...",
   },
-})
+});
 
 function App() {
   return (
     <HieroProvider config={config}>
       <MyApp />
     </HieroProvider>
-  )
+  );
 }
 ```
 
@@ -1866,23 +1880,20 @@ function App() {
 Following the wagmi `useWriteContract` pattern:
 
 ```tsx
-import { useTransfer, useCreateToken } from "@hieco/sdk-react"
+import { useTransfer, useCreateToken } from "@hieco/sdk-react";
 
 function TransferButton() {
-  const { mutate, isPending, isSuccess, error, data } = useTransfer()
+  const { mutate, isPending, isSuccess, error, data } = useTransfer();
 
   return (
-    <button
-      disabled={isPending}
-      onClick={() => mutate({ to: "0.0.5678", amount: 10 })}
-    >
+    <button disabled={isPending} onClick={() => mutate({ to: "0.0.5678", amount: 10 })}>
       {isPending ? "Sending..." : "Send 10 HBAR"}
     </button>
-  )
+  );
 }
 
 function CreateTokenForm() {
-  const { mutateAsync } = useCreateToken()
+  const { mutateAsync } = useCreateToken();
 
   async function handleSubmit(values: TokenFormValues) {
     const result = await mutateAsync({
@@ -1890,13 +1901,13 @@ function CreateTokenForm() {
       symbol: values.symbol,
       decimals: values.decimals,
       initialSupply: values.supply,
-    })
+    });
     if (result.success) {
-      console.log(`Created token: ${result.data.tokenId}`)
+      console.log(`Created token: ${result.data.tokenId}`);
     }
   }
 
-  return <form onSubmit={handleSubmit}>{/* ... */}</form>
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>;
 }
 ```
 
@@ -1904,17 +1915,17 @@ function CreateTokenForm() {
 
 ```typescript
 interface UseTransactionResult<TData, TParams> {
-  readonly mutate: (params: TParams) => void
-  readonly mutateAsync: (params: TParams) => Promise<SdkResult<TData>>
-  readonly data: TData | undefined
-  readonly error: SdkError | null
-  readonly status: "idle" | "pending" | "success" | "error"
-  readonly isIdle: boolean
-  readonly isPending: boolean
-  readonly isSuccess: boolean
-  readonly isError: boolean
-  readonly reset: () => void
-  readonly transactionId: string | undefined
+  readonly mutate: (params: TParams) => void;
+  readonly mutateAsync: (params: TParams) => Promise<SdkResult<TData>>;
+  readonly data: TData | undefined;
+  readonly error: SdkError | null;
+  readonly status: "idle" | "pending" | "success" | "error";
+  readonly isIdle: boolean;
+  readonly isPending: boolean;
+  readonly isSuccess: boolean;
+  readonly isError: boolean;
+  readonly reset: () => void;
+  readonly transactionId: string | undefined;
 }
 ```
 
@@ -1935,18 +1946,18 @@ import {
   useTokenInfo,
   // Provider (unified)
   HieroProvider,
-} from "@hieco/sdk-react"
+} from "@hieco/sdk-react";
 ```
 
 ### 17.5 Subscription Hooks
 
 ```tsx
-import { useTopicMessages, useContractLogs } from "@hieco/sdk-react"
+import { useTopicMessages, useContractLogs } from "@hieco/sdk-react";
 
 function AuditLog() {
   const { messages, isConnected } = useTopicMessages({
     topicId: "0.0.TOPIC",
-  })
+  });
 
   return (
     <ul>
@@ -1954,13 +1965,14 @@ function AuditLog() {
         <li key={msg.sequenceNumber}>{msg.contents}</li>
       ))}
     </ul>
-  )
+  );
 }
 ```
 
 > **Note:** `useTopicMessages` uses `TopicMessageQuery` (gRPC) internally.
 > `useContractLogs` uses `@hieco/realtime` (WebSocket `eth_subscribe`). These are
 > different transport layers and have different connection lifecycle characteristics.
+
 ```
 
 ### 17.6 Hooks for Every Action
@@ -1989,22 +2001,24 @@ function AuditLog() {
 ### 18.1 Entry Point Strategy
 
 ```
-@hieco/sdk                   → createHieroClient, HieroClient, core types, privateKeySigner
-@hieco/sdk/signer            → Signer interface, privateKeySigner, fromHieroSigner adapter
-@hieco/sdk/actions           → all action functions
-@hieco/sdk/actions/crypto    → transfer, createAccount, updateAccount, deleteAccount
-@hieco/sdk/actions/token     → createToken, mintToken, burnToken, transferToken, ...
+
+@hieco/sdk → createHieroClient, HieroClient, core types, privateKeySigner
+@hieco/sdk/signer → Signer interface, privateKeySigner, fromHieroSigner adapter
+@hieco/sdk/actions → all action functions
+@hieco/sdk/actions/crypto → transfer, createAccount, updateAccount, deleteAccount
+@hieco/sdk/actions/token → createToken, mintToken, burnToken, transferToken, ...
 @hieco/sdk/actions/consensus → createTopic, submitMessage, deleteTopic, updateTopic
-@hieco/sdk/actions/contract  → deployContract, executeContract, callContract
-@hieco/sdk/actions/schedule  → scheduleTransaction, signSchedule, deleteSchedule
-@hieco/sdk/actions/file      → createFile, appendFile, deleteFile
-@hieco/sdk/builders          → TokenBuilder, TopicBuilder, AccountBuilder, ContractBuilder
-@hieco/sdk/mirror            → MirrorQueryClient, query builders
-@hieco/sdk/events            → event types, typed emitter
-@hieco/sdk/middleware         → retryMiddleware, loggingMiddleware, gasEstimationMiddleware
-@hieco/sdk/errors            → SdkError, type guards, error factories
-@hieco/sdk/facade            → singleton facades
-```
+@hieco/sdk/actions/contract → deployContract, executeContract, callContract
+@hieco/sdk/actions/schedule → scheduleTransaction, signSchedule, deleteSchedule
+@hieco/sdk/actions/file → createFile, appendFile, deleteFile
+@hieco/sdk/builders → TokenBuilder, TopicBuilder, AccountBuilder, ContractBuilder
+@hieco/sdk/mirror → MirrorQueryClient, query builders
+@hieco/sdk/events → event types, typed emitter
+@hieco/sdk/middleware → retryMiddleware, loggingMiddleware, gasEstimationMiddleware
+@hieco/sdk/errors → SdkError, type guards, error factories
+@hieco/sdk/facade → singleton facades
+
+````
 
 ### 18.2 Bundle Impact
 
@@ -2022,7 +2036,7 @@ by bundlers.
 {
   "sideEffects": false
 }
-```
+````
 
 Every module is pure. No top-level side effects. Bundlers can safely eliminate
 unused exports.
@@ -2048,17 +2062,17 @@ Both packages can coexist in the same project.
 ### 19.2 Interoperability
 
 ```typescript
-import { createHieroClient } from "@hieco/sdk"
-import { createMirrorNodeClient } from "@hieco/mirror"
+import { createHieroClient } from "@hieco/sdk";
+import { createMirrorNodeClient } from "@hieco/mirror";
 
-const hiero = createHieroClient()
+const hiero = createHieroClient();
 
 // Access the underlying @hieco/mirror client
-const mirrorClient: MirrorNodeClient = hiero.raw.mirrorClient
+const mirrorClient: MirrorNodeClient = hiero.raw.mirrorClient;
 
 // Or use @hieco/mirror independently (still works)
-const mirror = createMirrorNodeClient("testnet")
-const account = await mirror.account.getInfo("0.0.1234")
+const mirror = createMirrorNodeClient("testnet");
+const account = await mirror.account.getInfo("0.0.1234");
 ```
 
 ### 19.3 Shared Type Foundation
@@ -2250,99 +2264,99 @@ packages/sdk-react/
 
 ### 21.1 Client
 
-| Export | Type | Description |
-|---|---|---|
-| `createHieroClient(config?)` | `(config?: HieroClientConfig) => HieroClient` | Create a configured client |
-| `HieroClient` | Interface | Client instance type |
-| `HieroClientConfig` | Interface | Configuration options |
-| `privateKeySigner(key)` | `(key: string) => Signer` | Create signer from private key (auto-detects format) |
-| `fromHieroSigner(signer)` | `(signer: HieroSigner) => Signer` | Adapt a Hiero SDK `Signer` (e.g., WalletConnect `DAppSigner`) |
-| `Signer` | Interface | Minimal signing interface (2 methods: `sign`, `getPublicKey`) |
-| `GetBalanceParams` | Interface | Balance query params with `source` option |
+| Export                       | Type                                          | Description                                                   |
+| ---------------------------- | --------------------------------------------- | ------------------------------------------------------------- |
+| `createHieroClient(config?)` | `(config?: HieroClientConfig) => HieroClient` | Create a configured client                                    |
+| `HieroClient`                | Interface                                     | Client instance type                                          |
+| `HieroClientConfig`          | Interface                                     | Configuration options                                         |
+| `privateKeySigner(key)`      | `(key: string) => Signer`                     | Create signer from private key (auto-detects format)          |
+| `fromHieroSigner(signer)`    | `(signer: HieroSigner) => Signer`             | Adapt a Hiero SDK `Signer` (e.g., WalletConnect `DAppSigner`) |
+| `Signer`                     | Interface                                     | Minimal signing interface (2 methods: `sign`, `getPublicKey`) |
+| `GetBalanceParams`           | Interface                                     | Balance query params with `source` option                     |
 
 ### 21.2 Crypto Actions
 
-| Export | Params | Result |
-|---|---|---|
-| `transfer` | `TransferParams` | `SdkResult<TransferReceipt>` |
-| `createAccount` | `CreateAccountParams` | `SdkResult<AccountReceipt>` |
-| `updateAccount` | `UpdateAccountParams` | `SdkResult<TransactionReceipt>` |
-| `deleteAccount` | `DeleteAccountParams` | `SdkResult<TransactionReceipt>` |
+| Export             | Params                   | Result                          |
+| ------------------ | ------------------------ | ------------------------------- |
+| `transfer`         | `TransferParams`         | `SdkResult<TransferReceipt>`    |
+| `createAccount`    | `CreateAccountParams`    | `SdkResult<AccountReceipt>`     |
+| `updateAccount`    | `UpdateAccountParams`    | `SdkResult<TransactionReceipt>` |
+| `deleteAccount`    | `DeleteAccountParams`    | `SdkResult<TransactionReceipt>` |
 | `approveAllowance` | `ApproveAllowanceParams` | `SdkResult<TransactionReceipt>` |
 
 ### 21.3 Token Actions
 
-| Export | Params | Result |
-|---|---|---|
-| `createToken` | `CreateTokenParams` | `SdkResult<TokenReceipt>` |
-| `mintToken` | `MintTokenParams` | `SdkResult<MintReceipt>` |
-| `burnToken` | `BurnTokenParams` | `SdkResult<TransactionReceipt>` |
-| `transferToken` | `TransferTokenParams` | `SdkResult<TransactionReceipt>` |
-| `transferNft` | `TransferNftParams` | `SdkResult<TransactionReceipt>` |
-| `associateToken` | `AssociateTokenParams` | `SdkResult<TransactionReceipt>` |
-| `dissociateToken` | `DissociateTokenParams` | `SdkResult<TransactionReceipt>` |
-| `freezeToken` | `FreezeTokenParams` | `SdkResult<TransactionReceipt>` |
-| `unfreezeToken` | `UnfreezeTokenParams` | `SdkResult<TransactionReceipt>` |
-| `grantKyc` | `GrantKycParams` | `SdkResult<TransactionReceipt>` |
-| `revokeKyc` | `RevokeKycParams` | `SdkResult<TransactionReceipt>` |
-| `pauseToken` | `PauseTokenParams` | `SdkResult<TransactionReceipt>` |
-| `unpauseToken` | `UnpauseTokenParams` | `SdkResult<TransactionReceipt>` |
-| `wipeToken` | `WipeTokenParams` | `SdkResult<TransactionReceipt>` |
-| `deleteToken` | `DeleteTokenParams` | `SdkResult<TransactionReceipt>` |
-| `updateToken` | `UpdateTokenParams` | `SdkResult<TransactionReceipt>` |
+| Export                   | Params                         | Result                          |
+| ------------------------ | ------------------------------ | ------------------------------- |
+| `createToken`            | `CreateTokenParams`            | `SdkResult<TokenReceipt>`       |
+| `mintToken`              | `MintTokenParams`              | `SdkResult<MintReceipt>`        |
+| `burnToken`              | `BurnTokenParams`              | `SdkResult<TransactionReceipt>` |
+| `transferToken`          | `TransferTokenParams`          | `SdkResult<TransactionReceipt>` |
+| `transferNft`            | `TransferNftParams`            | `SdkResult<TransactionReceipt>` |
+| `associateToken`         | `AssociateTokenParams`         | `SdkResult<TransactionReceipt>` |
+| `dissociateToken`        | `DissociateTokenParams`        | `SdkResult<TransactionReceipt>` |
+| `freezeToken`            | `FreezeTokenParams`            | `SdkResult<TransactionReceipt>` |
+| `unfreezeToken`          | `UnfreezeTokenParams`          | `SdkResult<TransactionReceipt>` |
+| `grantKyc`               | `GrantKycParams`               | `SdkResult<TransactionReceipt>` |
+| `revokeKyc`              | `RevokeKycParams`              | `SdkResult<TransactionReceipt>` |
+| `pauseToken`             | `PauseTokenParams`             | `SdkResult<TransactionReceipt>` |
+| `unpauseToken`           | `UnpauseTokenParams`           | `SdkResult<TransactionReceipt>` |
+| `wipeToken`              | `WipeTokenParams`              | `SdkResult<TransactionReceipt>` |
+| `deleteToken`            | `DeleteTokenParams`            | `SdkResult<TransactionReceipt>` |
+| `updateToken`            | `UpdateTokenParams`            | `SdkResult<TransactionReceipt>` |
 | `updateTokenFeeSchedule` | `UpdateTokenFeeScheduleParams` | `SdkResult<TransactionReceipt>` |
 
 ### 21.4 Consensus Actions
 
-| Export | Params | Result |
-|---|---|---|
-| `createTopic` | `CreateTopicParams` | `SdkResult<TopicReceipt>` |
-| `updateTopic` | `UpdateTopicParams` | `SdkResult<TransactionReceipt>` |
-| `deleteTopic` | `DeleteTopicParams` | `SdkResult<TransactionReceipt>` |
-| `submitMessage` | `SubmitMessageParams` | `SdkResult<MessageReceipt>` |
+| Export          | Params                | Result                          |
+| --------------- | --------------------- | ------------------------------- |
+| `createTopic`   | `CreateTopicParams`   | `SdkResult<TopicReceipt>`       |
+| `updateTopic`   | `UpdateTopicParams`   | `SdkResult<TransactionReceipt>` |
+| `deleteTopic`   | `DeleteTopicParams`   | `SdkResult<TransactionReceipt>` |
+| `submitMessage` | `SubmitMessageParams` | `SdkResult<MessageReceipt>`     |
 
 ### 21.5 Contract Actions
 
-| Export | Params | Result |
-|---|---|---|
-| `deployContract` | `DeployContractParams` | `SdkResult<ContractReceipt>` |
+| Export            | Params                  | Result                              |
+| ----------------- | ----------------------- | ----------------------------------- |
+| `deployContract`  | `DeployContractParams`  | `SdkResult<ContractReceipt>`        |
 | `executeContract` | `ExecuteContractParams` | `SdkResult<ContractExecuteReceipt>` |
-| `callContract` | `CallContractParams` | `SdkResult<ContractCallResult>` |
-| `deleteContract` | `DeleteContractParams` | `SdkResult<TransactionReceipt>` |
-| `updateContract` | `UpdateContractParams` | `SdkResult<TransactionReceipt>` |
+| `callContract`    | `CallContractParams`    | `SdkResult<ContractCallResult>`     |
+| `deleteContract`  | `DeleteContractParams`  | `SdkResult<TransactionReceipt>`     |
+| `updateContract`  | `UpdateContractParams`  | `SdkResult<TransactionReceipt>`     |
 
 ### 21.6 Schedule Actions
 
-| Export | Params | Result |
-|---|---|---|
-| `scheduleTransaction` | `ScheduleTransactionParams` | `SdkResult<ScheduleReceipt>` |
-| `signSchedule` | `SignScheduleParams` | `SdkResult<TransactionReceipt>` |
-| `deleteSchedule` | `DeleteScheduleParams` | `SdkResult<TransactionReceipt>` |
+| Export                | Params                      | Result                          |
+| --------------------- | --------------------------- | ------------------------------- |
+| `scheduleTransaction` | `ScheduleTransactionParams` | `SdkResult<ScheduleReceipt>`    |
+| `signSchedule`        | `SignScheduleParams`        | `SdkResult<TransactionReceipt>` |
+| `deleteSchedule`      | `DeleteScheduleParams`      | `SdkResult<TransactionReceipt>` |
 
 ### 21.7 File Actions
 
-| Export | Params | Result |
-|---|---|---|
-| `createFile` | `CreateFileParams` | `SdkResult<FileReceipt>` |
+| Export       | Params             | Result                          |
+| ------------ | ------------------ | ------------------------------- |
+| `createFile` | `CreateFileParams` | `SdkResult<FileReceipt>`        |
 | `appendFile` | `AppendFileParams` | `SdkResult<TransactionReceipt>` |
 | `updateFile` | `UpdateFileParams` | `SdkResult<TransactionReceipt>` |
 | `deleteFile` | `DeleteFileParams` | `SdkResult<TransactionReceipt>` |
 
 ### 21.8 Builders
 
-| Builder | Terminal | Result |
-|---|---|---|
-| `hiero.tokens()` | `.create()` | `SdkResult<TokenReceipt>` |
-| `hiero.topics()` | `.create()` | `SdkResult<TopicReceipt>` |
-| `hiero.accounts()` | `.create()` | `SdkResult<AccountReceipt>` |
+| Builder             | Terminal    | Result                       |
+| ------------------- | ----------- | ---------------------------- |
+| `hiero.tokens()`    | `.create()` | `SdkResult<TokenReceipt>`    |
+| `hiero.topics()`    | `.create()` | `SdkResult<TopicReceipt>`    |
+| `hiero.accounts()`  | `.create()` | `SdkResult<AccountReceipt>`  |
 | `hiero.contracts()` | `.deploy()` | `SdkResult<ContractReceipt>` |
 
 ### 21.9 Middleware
 
-| Export | Description |
-|---|---|
-| `retryMiddleware(config?)` | Exponential backoff with jitter (default: enabled) |
-| `loggingMiddleware(config?)` | Structured lifecycle logging |
+| Export                             | Description                                                                                                                       |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `retryMiddleware(config?)`         | Exponential backoff with jitter (default: enabled)                                                                                |
+| `loggingMiddleware(config?)`       | Structured lifecycle logging                                                                                                      |
 | `gasEstimationMiddleware(config?)` | Gas estimation via Mirror Node REST API (`POST /api/v1/contracts/call` with `estimate: true`), or dry-run via `@hiero-ledger/sdk` |
 
 ---
@@ -2353,26 +2367,35 @@ packages/sdk-react/
 
 ```typescript
 import {
-  Client, PrivateKey, AccountId, TransferTransaction,
-  Hbar, TokenCreateTransaction, TokenType, TokenSupplyType,
-  TopicCreateTransaction, TopicMessageSubmitTransaction,
-} from "@hiero-ledger/sdk"
+  Client,
+  PrivateKey,
+  AccountId,
+  TransferTransaction,
+  Hbar,
+  TokenCreateTransaction,
+  TokenType,
+  TokenSupplyType,
+  TopicCreateTransaction,
+  TopicMessageSubmitTransaction,
+} from "@hiero-ledger/sdk";
 
-const client = Client.forTestnet()
+const client = Client.forTestnet();
 client.setOperator(
   AccountId.fromString(process.env.ACCOUNT_ID!),
   PrivateKey.fromStringED25519(process.env.PRIVATE_KEY!),
-)
+);
 
 // Transfer HBAR
 const transferTx = new TransferTransaction()
   .addHbarTransfer(AccountId.fromString("0.0.1234"), new Hbar(-10))
   .addHbarTransfer(AccountId.fromString("0.0.5678"), new Hbar(10))
-  .setMaxTransactionFee(new Hbar(1))
-const frozenTransfer = await transferTx.freezeWith(client)
-const signedTransfer = await frozenTransfer.sign(PrivateKey.fromStringED25519(process.env.PRIVATE_KEY!))
-const transferResponse = await signedTransfer.execute(client)
-const transferReceipt = await transferResponse.getReceipt(client)
+  .setMaxTransactionFee(new Hbar(1));
+const frozenTransfer = await transferTx.freezeWith(client);
+const signedTransfer = await frozenTransfer.sign(
+  PrivateKey.fromStringED25519(process.env.PRIVATE_KEY!),
+);
+const transferResponse = await signedTransfer.execute(client);
+const transferReceipt = await transferResponse.getReceipt(client);
 
 // Create Token
 const tokenTx = new TokenCreateTransaction()
@@ -2385,36 +2408,36 @@ const tokenTx = new TokenCreateTransaction()
   .setSupplyKey(PrivateKey.fromStringED25519(process.env.PRIVATE_KEY!).publicKey)
   .setTokenType(TokenType.FungibleCommon)
   .setSupplyType(TokenSupplyType.Infinite)
-  .setMaxTransactionFee(new Hbar(30))
-const frozenToken = await tokenTx.freezeWith(client)
-const signedToken = await frozenToken.sign(PrivateKey.fromStringED25519(process.env.PRIVATE_KEY!))
-const tokenResponse = await signedToken.execute(client)
-const tokenReceipt = await tokenResponse.getReceipt(client)
+  .setMaxTransactionFee(new Hbar(30));
+const frozenToken = await tokenTx.freezeWith(client);
+const signedToken = await frozenToken.sign(PrivateKey.fromStringED25519(process.env.PRIVATE_KEY!));
+const tokenResponse = await signedToken.execute(client);
+const tokenReceipt = await tokenResponse.getReceipt(client);
 
 // Create Topic + Submit Message
 const topicTx = new TopicCreateTransaction()
   .setTopicMemo("Audit log")
-  .setSubmitKey(PrivateKey.fromStringED25519(process.env.PRIVATE_KEY!).publicKey)
-const frozenTopic = await topicTx.freezeWith(client)
-const signedTopic = await frozenTopic.sign(PrivateKey.fromStringED25519(process.env.PRIVATE_KEY!))
-const topicResponse = await signedTopic.execute(client)
-const topicReceipt = await topicResponse.getReceipt(client)
+  .setSubmitKey(PrivateKey.fromStringED25519(process.env.PRIVATE_KEY!).publicKey);
+const frozenTopic = await topicTx.freezeWith(client);
+const signedTopic = await frozenTopic.sign(PrivateKey.fromStringED25519(process.env.PRIVATE_KEY!));
+const topicResponse = await signedTopic.execute(client);
+const topicReceipt = await topicResponse.getReceipt(client);
 
 const msgTx = new TopicMessageSubmitTransaction()
   .setTopicId(topicReceipt.topicId!)
-  .setMessage("Hello, consensus!")
-const msgResponse = await msgTx.execute(client)
-await msgResponse.getReceipt(client)
+  .setMessage("Hello, consensus!");
+const msgResponse = await msgTx.execute(client);
+await msgResponse.getReceipt(client);
 ```
 
 ### @hieco/sdk (10 lines)
 
 ```typescript
-import { createHieroClient } from "@hieco/sdk"
+import { createHieroClient } from "@hieco/sdk";
 
-const hiero = createHieroClient()
+const hiero = createHieroClient();
 
-await hiero.transfer({ to: "0.0.5678", amount: 10 })
+await hiero.transfer({ to: "0.0.5678", amount: 10 });
 
 const token = await hiero.createToken({
   name: "Loyalty Points",
@@ -2423,10 +2446,10 @@ const token = await hiero.createToken({
   initialSupply: 1_000_000,
   supplyKey: true,
   adminKey: true,
-})
+});
 
-const topic = await hiero.createTopic({ memo: "Audit log", submitKey: true })
-await hiero.submitMessage({ topicId: topic.data.topicId, message: "Hello, consensus!" })
+const topic = await hiero.createTopic({ memo: "Audit log", submitKey: true });
+await hiero.submitMessage({ topicId: topic.data.topicId, message: "Hello, consensus!" });
 ```
 
 Same 3 operations. 35 lines → 10 lines. Every operation gets automatic retry,
@@ -2533,9 +2556,9 @@ Mirror Node provides gas estimation directly.
 
 ```typescript
 gasEstimationMiddleware({
-  strategy: "mirror",        // "mirror" (default) | "dry-run"
+  strategy: "mirror", // "mirror" (default) | "dry-run"
   bufferPercent: 20,
-})
+});
 ```
 
 The `"mirror"` strategy calls the Mirror Node REST API. The `"dry-run"` strategy
@@ -2555,12 +2578,12 @@ override.
 
 ```typescript
 // Works in both Node and browser — transport auto-detected
-const hiero = createHieroClient()
+const hiero = createHieroClient();
 
 // Manual override for edge cases
 const hiero = createHieroClient({
-  transport: "grpc-web",  // force gRPC-web even in Node (e.g., testing)
-})
+  transport: "grpc-web", // force gRPC-web even in Node (e.g., testing)
+});
 ```
 
 ### 24.4 Signer Interface at the SDK Boundary
@@ -2584,8 +2607,8 @@ For custom integrations (HSMs, custodial services, MPC), developers implement th
 
 ```typescript
 interface Signer {
-  sign(bytes: Uint8Array): Promise<Uint8Array>
-  getPublicKey(): Promise<PublicKey>
+  sign(bytes: Uint8Array): Promise<Uint8Array>;
+  getPublicKey(): Promise<PublicKey>;
 }
 
 // Built-in: private key signer (included in @hieco/sdk)
@@ -2594,33 +2617,37 @@ const hiero = createHieroClient({
     accountId: "0.0.1234",
     signer: privateKeySigner("302e020100..."),
   },
-})
+});
 
 // Ecosystem wallet: WalletConnect DAppSigner → fromHieroSigner adapter
-import { fromHieroSigner } from "@hieco/sdk"
-import { DAppConnector } from "@hashgraph/hedera-wallet-connect"
+import { fromHieroSigner } from "@hieco/sdk";
+import { DAppConnector } from "@hashgraph/hedera-wallet-connect";
 
-const dAppConnector = new DAppConnector(metadata, ledgerId, projectId)
-await dAppConnector.init()
-const walletSigner = dAppConnector.getSigner(accountId)
+const dAppConnector = new DAppConnector(metadata, ledgerId, projectId);
+await dAppConnector.init();
+const walletSigner = dAppConnector.getSigner(accountId);
 
 const hiero = createHieroClient({
   operator: {
     accountId: accountId.toString(),
     signer: fromHieroSigner(walletSigner),
   },
-})
+});
 
 // Custom: ad-hoc implementation for any signing backend
 const hiero = createHieroClient({
   operator: {
     accountId: "0.0.1234",
     signer: {
-      async sign(bytes) { return myHsm.sign(bytes) },
-      async getPublicKey() { return myHsm.getPublicKey() },
+      async sign(bytes) {
+        return myHsm.sign(bytes);
+      },
+      async getPublicKey() {
+        return myHsm.getPublicKey();
+      },
     },
   },
-})
+});
 ```
 
 ### 24.5 Explicit Balance Query Source with Mirror Default
@@ -2634,13 +2661,13 @@ high-frequency trading).
 
 ```typescript
 // Default: Mirror Node (free, fast)
-const balance = await hiero.getBalance({ accountId: "0.0.1234" })
+const balance = await hiero.getBalance({ accountId: "0.0.1234" });
 
 // Explicit: consensus node (real-time, costs HBAR)
 const balance = await hiero.getBalance({
   accountId: "0.0.1234",
   source: "consensus",
-})
+});
 ```
 
 ### 24.6 Package Name: `@hieco/sdk`
@@ -2667,15 +2694,15 @@ intentional signer setup.
 
 ```typescript
 // Node: zero-config (reads from process.env)
-const hiero = createHieroClient()
+const hiero = createHieroClient();
 
 // Browser: explicit operator required
 const hiero = createHieroClient({
   operator: {
     accountId: "0.0.1234",
-    signer: fromHieroSigner(walletSigner),  // or custom Signer implementation
+    signer: fromHieroSigner(walletSigner), // or custom Signer implementation
   },
-})
+});
 
 // Browser: omitting operator throws ConfigurationError
 // "Operator configuration is required in browser environments.
@@ -2692,46 +2719,46 @@ against actual `@hiero-ledger/sdk` exports, Mirror Node REST API endpoints, exis
 
 ### Corrections (Factual Errors Fixed)
 
-| Finding | Change |
-|---|---|
-| `TokenWipeAccountTransaction` doesn't exist in `@hiero-ledger/sdk` | Internal implementation must use `TokenWipeTransaction`. Action name `wipeToken` unchanged. |
-| `AccountBalanceQuery` is NOT deprecated in SDK source (no `@deprecated` tag) | Changed "deprecated July 2026" to "planned for deprecation" throughout. |
-| `POST /api/v1/contracts/estimateGas` does not exist | Gas estimation uses `POST /api/v1/contracts/call` with `{ "estimate": true }`. All references corrected. |
-| `ThresholdKey` doesn't exist as a standalone class | Uses `KeyList` with `threshold` parameter: `new KeyList(keys, 2)`. |
+| Finding                                                                      | Change                                                                                                   |
+| ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `TokenWipeAccountTransaction` doesn't exist in `@hiero-ledger/sdk`           | Internal implementation must use `TokenWipeTransaction`. Action name `wipeToken` unchanged.              |
+| `AccountBalanceQuery` is NOT deprecated in SDK source (no `@deprecated` tag) | Changed "deprecated July 2026" to "planned for deprecation" throughout.                                  |
+| `POST /api/v1/contracts/estimateGas` does not exist                          | Gas estimation uses `POST /api/v1/contracts/call` with `{ "estimate": true }`. All references corrected. |
+| `ThresholdKey` doesn't exist as a standalone class                           | Uses `KeyList` with `threshold` parameter: `new KeyList(keys, 2)`.                                       |
 
 ### Deletions
 
-| Feature | Reason |
-|---|---|
-| Unified `hiero.subscribe("topic:messages", {...})` API | `@hieco/realtime` only supports `eth_subscribe` (logs, newHeads). Topic subscriptions require `TopicMessageQuery` (gRPC) from `@hiero-ledger/sdk` — a completely different transport. Replaced with honest `watchTopicMessages()` and `watchContractLogs()` with documented transport boundaries. |
-| `gasEstimationMiddleware` "auto" strategy with bytecode complexity detection | No reliable heuristic exists to detect when Mirror Node estimate will fail. Removed "auto", simplified to explicit `"mirror"` (default) or `"dry-run"`. |
-| `count()` terminal method on `MirrorQueryBuilder` | Mirror Node REST API has no count endpoints. Would require fetching all results just to count them — deceptive API surface. |
+| Feature                                                                      | Reason                                                                                                                                                                                                                                                                                            |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unified `hiero.subscribe("topic:messages", {...})` API                       | `@hieco/realtime` only supports `eth_subscribe` (logs, newHeads). Topic subscriptions require `TopicMessageQuery` (gRPC) from `@hiero-ledger/sdk` — a completely different transport. Replaced with honest `watchTopicMessages()` and `watchContractLogs()` with documented transport boundaries. |
+| `gasEstimationMiddleware` "auto" strategy with bytecode complexity detection | No reliable heuristic exists to detect when Mirror Node estimate will fail. Removed "auto", simplified to explicit `"mirror"` (default) or `"dry-run"`.                                                                                                                                           |
+| `count()` terminal method on `MirrorQueryBuilder`                            | Mirror Node REST API has no count endpoints. Would require fetching all results just to count them — deceptive API surface.                                                                                                                                                                       |
 
 ### Simplifications
 
-| Feature | Change |
-|---|---|
+| Feature                       | Change                                                                                                                                                                                                           |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Human-readable error messages | Removed key structure fetching from error handling. Errors now use only locally available context (status code, transaction ID, account ID). Suggests diagnostic Mirror Node queries instead of performing them. |
-| `SdkError` type | Removed `required`/`available` from `InsufficientBalanceError` and `expectedKeys`/`providedKeys` from `InvalidSignatureError` — these required additional network queries. |
-| `MirrorQueryBuilder` | Added documentation that it's a facade over `@hieco/mirror`'s existing domain APIs, not a new implementation. Removed `with()` from query builder interface. |
-| Private key auto-detection | Removed mnemonic auto-detection. Mnemonics require BIP-39 wordlist lookup — a different code path. Keep ED25519/ECDSA DER and raw hex detection only. |
-| Bundle size estimates | Removed specific KB estimates (they were speculative). Replaced with commitment to measure after implementation. |
+| `SdkError` type               | Removed `required`/`available` from `InsufficientBalanceError` and `expectedKeys`/`providedKeys` from `InvalidSignatureError` — these required additional network queries.                                       |
+| `MirrorQueryBuilder`          | Added documentation that it's a facade over `@hieco/mirror`'s existing domain APIs, not a new implementation. Removed `with()` from query builder interface.                                                     |
+| Private key auto-detection    | Removed mnemonic auto-detection. Mnemonics require BIP-39 wordlist lookup — a different code path. Keep ED25519/ECDSA DER and raw hex detection only.                                                            |
+| Bundle size estimates         | Removed specific KB estimates (they were speculative). Replaced with commitment to measure after implementation.                                                                                                 |
 
 ### Postponements (Moved to v0.2)
 
-| Feature | Reason |
-|---|---|
-| Relationship loading (`.with("tokens", "nfts")`) | Requires parallel Mirror Node requests + response stitching. Feasible but adds implementation complexity without solving an urgent pain point. |
-| Mnemonic-to-signer convenience function | Lower priority, clear workaround exists (`Mnemonic` from `@hiero-ledger/sdk`). |
-| Advanced gas estimation heuristics | Needs real-world data on when Mirror Node estimates are insufficient. |
-| Subscription hooks (`useTopicMessages`, `useContractLogs`) | Moved from Phase 4 to Phase 5 — the two different transport layers (gRPC vs WebSocket) add complexity that should not block core React hooks. |
+| Feature                                                    | Reason                                                                                                                                         |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Relationship loading (`.with("tokens", "nfts")`)           | Requires parallel Mirror Node requests + response stitching. Feasible but adds implementation complexity without solving an urgent pain point. |
+| Mnemonic-to-signer convenience function                    | Lower priority, clear workaround exists (`Mnemonic` from `@hiero-ledger/sdk`).                                                                 |
+| Advanced gas estimation heuristics                         | Needs real-world data on when Mirror Node estimates are insufficient.                                                                          |
+| Subscription hooks (`useTopicMessages`, `useContractLogs`) | Moved from Phase 4 to Phase 5 — the two different transport layers (gRPC vs WebSocket) add complexity that should not block core React hooks.  |
 
 ### Consistency Fixes
 
-| Finding | Change |
-|---|---|
-| `@hieco/mirror` uses singular (`client.account`), proposal uses plural (`hiero.mirror.accounts`) | Documented the intentional naming divergence with rationale in Section 11.2. |
-| `SdkError` type guards incompatible with `@hieco/mirror-shared` `ApiError` guards | Added explicit documentation in Section 13.4 that SDK type guards are separate from `@hieco/mirror-shared` guards. |
-| `RelayTransport` listed in key translations table | Removed — `@hieco/realtime` is used directly for WebSocket subscriptions, not through a separate transport abstraction. |
-| `relay: RelayTransport` on `HieroClient` interface | Removed — same rationale as above. `watchContractLogs` manages its own connection. |
-| `@hieco/connect` phantom package with `hashPackSigner`, `bladeSigner`, `metaMaskSigner` | Removed entirely. Blade Wallet shut down July 2025. Ecosystem standardized on `@hashgraph/hedera-wallet-connect` (`DAppSigner` implements Hiero SDK `Signer`). Added `fromHieroSigner()` adapter to bridge ecosystem signers to our minimal 2-method interface. Architecture diagram, developer journey, Section 6.2, Section 24.4, and all code examples updated. |
+| Finding                                                                                          | Change                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `@hieco/mirror` uses singular (`client.account`), proposal uses plural (`hiero.mirror.accounts`) | Documented the intentional naming divergence with rationale in Section 11.2.                                                                                                                                                                                                                                                                                       |
+| `SdkError` type guards incompatible with `@hieco/mirror-shared` `ApiError` guards                | Added explicit documentation in Section 13.4 that SDK type guards are separate from `@hieco/mirror-shared` guards.                                                                                                                                                                                                                                                 |
+| `RelayTransport` listed in key translations table                                                | Removed — `@hieco/realtime` is used directly for WebSocket subscriptions, not through a separate transport abstraction.                                                                                                                                                                                                                                            |
+| `relay: RelayTransport` on `HieroClient` interface                                               | Removed — same rationale as above. `watchContractLogs` manages its own connection.                                                                                                                                                                                                                                                                                 |
+| `@hieco/connect` phantom package with `hashPackSigner`, `bladeSigner`, `metaMaskSigner`          | Removed entirely. Blade Wallet shut down July 2025. Ecosystem standardized on `@hashgraph/hedera-wallet-connect` (`DAppSigner` implements Hiero SDK `Signer`). Added `fromHieroSigner()` adapter to bridge ecosystem signers to our minimal 2-method interface. Architecture diagram, developer journey, Section 6.2, Section 24.4, and all code examples updated. |

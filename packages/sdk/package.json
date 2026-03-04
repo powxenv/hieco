@@ -51,6 +51,7 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
+    "@hieco/mirror": "workspace:*",
     "@hieco/mirror-shared": "workspace:*",
     "@hieco/types": "workspace:*",
     "@hiero-ledger/sdk": "^2.80.0"

@@ -35,15 +35,15 @@ Hiero is the open-source distributed ledger technology of Linux Foundation Decen
 
 ### Official SDKs
 
-| SDK | Maintainer | Status | GitHub |
-|-----|-----------|---------|---------|
-| Java SDK | Hiero | Official | [hiero-ledger/hiero-sdk-java](https://github.com/hiero-ledger/hiero-sdk-java) |
-| JavaScript SDK | Hiero | Official | [hiero-ledger/hiero-sdk-js](https://github.com/hiero-ledger/hiero-sdk-js) |
-| Go SDK | Hiero | Official | [hiero-ledger/hiero-sdk-go](https://github.com/hiero-ledger/hiero-sdk-go) |
-| Rust SDK | Hiero | Official | [hiero-ledger/hiero-sdk-rust](https://github.com/hiero-ledger/hiero-sdk-rust) |
-| Swift SDK | Hiero | Official | [hiero-ledger/hiero-sdk-swift](https://github.com/hiero-ledger/hiero-sdk-swift) |
-| C++ SDK | Hiero | Official | [hiero-ledger/hiero-sdk-cpp](https://github.com/hiero-ledger/hiero-sdk-cpp) |
-| Python SDK | Community | Community | [hiero-ledger/hiero-sdk-python](https://github.com/hiero-ledger/hiero-sdk-python) |
+| SDK            | Maintainer | Status    | GitHub                                                                            |
+| -------------- | ---------- | --------- | --------------------------------------------------------------------------------- |
+| Java SDK       | Hiero      | Official  | [hiero-ledger/hiero-sdk-java](https://github.com/hiero-ledger/hiero-sdk-java)     |
+| JavaScript SDK | Hiero      | Official  | [hiero-ledger/hiero-sdk-js](https://github.com/hiero-ledger/hiero-sdk-js)         |
+| Go SDK         | Hiero      | Official  | [hiero-ledger/hiero-sdk-go](https://github.com/hiero-ledger/hiero-sdk-go)         |
+| Rust SDK       | Hiero      | Official  | [hiero-ledger/hiero-sdk-rust](https://github.com/hiero-ledger/hiero-sdk-rust)     |
+| Swift SDK      | Hiero      | Official  | [hiero-ledger/hiero-sdk-swift](https://github.com/hiero-ledger/hiero-sdk-swift)   |
+| C++ SDK        | Hiero      | Official  | [hiero-ledger/hiero-sdk-cpp](https://github.com/hiero-ledger/hiero-sdk-cpp)       |
+| Python SDK     | Community  | Community | [hiero-ledger/hiero-sdk-python](https://github.com/hiero-ledger/hiero-sdk-python) |
 
 ### Additional SDKs
 
@@ -58,38 +58,42 @@ Hiero is the open-source distributed ledger technology of Linux Foundation Decen
 ### Core Concepts
 
 #### 1. Client Architecture
+
 All SDKs follow a similar client pattern:
+
 ```javascript
 // Create client for specific network
-Client.forTestnet()
-Client.forMainnet()
-Client.forPreviewnet()
+Client.forTestnet();
+Client.forMainnet();
+Client.forPreviewnet();
 
 // Set operator (account that signs transactions)
-client.setOperator(accountId, privateKey)
+client.setOperator(accountId, privateKey);
 ```
 
 #### 2. Key Types Supported
+
 - **Ed25519** (preferred for security/performance)
 - **ECDSA (secp256k1)** (for EVM compatibility)
 - **Composite Keys:** Key lists, threshold keys
 
 #### 3. Network Services
 
-| Service | Description |
-|---------|-------------|
-| **Cryptocurrency** | HBAR transfers, account management |
-| **Token Service (HTS)** | Fungible & non-fungible tokens, KYC, freeze |
-| **Consensus Service (HCS)** | Pub/sub messaging, ordered consensus |
-| **Smart Contracts** | EVM-compatible contracts |
-| **File Service** | Decentralized file storage |
-| **Schedule Transaction** | Future/delayed execution |
+| Service                     | Description                                 |
+| --------------------------- | ------------------------------------------- |
+| **Cryptocurrency**          | HBAR transfers, account management          |
+| **Token Service (HTS)**     | Fungible & non-fungible tokens, KYC, freeze |
+| **Consensus Service (HCS)** | Pub/sub messaging, ordered consensus        |
+| **Smart Contracts**         | EVM-compatible contracts                    |
+| **File Service**            | Decentralized file storage                  |
+| **Schedule Transaction**    | Future/delayed execution                    |
 
 #### 4. Transaction Types
 
 All SDKs implement the following transaction categories:
 
 **Account Transactions:**
+
 - `AccountCreateTransaction`
 - `AccountUpdateTransaction`
 - `AccountDeleteTransaction`
@@ -97,6 +101,7 @@ All SDKs implement the following transaction categories:
 - `AccountAllowanceApprovalTransaction`
 
 **Token Transactions:**
+
 - `TokenCreateTransaction`
 - `TokenUpdateTransaction`
 - `TokenMintTransaction`
@@ -111,12 +116,14 @@ All SDKs implement the following transaction categories:
 - `TokenDeleteTransaction`
 
 **Consensus Transactions:**
+
 - `TopicCreateTransaction`
 - `TopicUpdateTransaction`
 - `TopicMessageSubmitTransaction`
 - `TopicDeleteTransaction`
 
 **Smart Contract Transactions:**
+
 - `ContractCreateTransaction`
 - `ContractUpdateTransaction`
 - `ContractDeleteTransaction`
@@ -124,12 +131,14 @@ All SDKs implement the following transaction categories:
 - `ContractCallQuery`
 
 **File Transactions:**
+
 - `FileCreateTransaction`
 - `FileAppendTransaction`
 - `FileUpdateTransaction`
 - `FileDeleteTransaction`
 
 **Schedule Transactions:**
+
 - `ScheduleCreateTransaction`
 - `ScheduleSignTransaction`
 - `ScheduleDeleteTransaction`
@@ -143,6 +152,7 @@ All SDKs implement the following transaction categories:
 **Official Package:** `@hiero-ledger/sdk` (formerly `@hashgraph/sdk`)
 
 **Installation:**
+
 ```bash
 npm install @hiero-ledger/sdk
 # or
@@ -152,11 +162,13 @@ pnpm add @hiero-ledger/sdk
 ```
 
 **Version:**
+
 - Current stable: v2.80.0
 - Dual publishing period: v2.70.0 - v2.82.0 (both old and new namespaces)
 - From v2.83.0: Only `@hiero-ledger` namespace
 
 **React Native Support:**
+
 - SDK v2.60+: Requires Expo SDK 51+ and `react-native-get-random-values`
 - SDK v2.59 and below: Requires Expo SDK 49 and `@ethersproject/shims`
 - Does NOT support React Native Bare
@@ -168,25 +180,25 @@ pnpm add @hiero-ledger/sdk
 ```typescript
 class Client {
   // Network creation
-  static forTestnet(): Client
-  static forMainnet(): Client
-  static forPreviewnet(): Client
-  static forNetwork(network: {[key: string]: string}): Client
+  static forTestnet(): Client;
+  static forMainnet(): Client;
+  static forPreviewnet(): Client;
+  static forNetwork(network: { [key: string]: string }): Client;
 
   // Operator management
-  setOperator(accountId: string | AccountId, privateKey: string | PrivateKey): Client
+  setOperator(accountId: string | AccountId, privateKey: string | PrivateKey): Client;
 
   // Network configuration
-  setNetwork(network: {[key: string]: string}): Client
+  setNetwork(network: { [key: string]: string }): Client;
 
   // Transaction execution
-  getMaxAttempts(): number
-  setMaxAttempts(max: number): Client
-  getMaxBackoff(): number
-  setMaxBackoff(max: number): Client
+  getMaxAttempts(): number;
+  setMaxAttempts(max: number): Client;
+  getMaxBackoff(): number;
+  setMaxBackoff(max: number): Client;
 
   // Close client
-  close(): Promise<void>
+  close(): Promise<void>;
 }
 ```
 
@@ -194,11 +206,11 @@ class Client {
 
 ```typescript
 class AccountId {
-  constructor(shard: number, realm: number, account: number)
-  static fromString(id: string): AccountId
-  static fromEvmAddress(evmAddress: string): AccountId
-  toString(): string
-  toSolidityAddress(): string
+  constructor(shard: number, realm: number, account: number);
+  static fromString(id: string): AccountId;
+  static fromEvmAddress(evmAddress: string): AccountId;
+  toString(): string;
+  toSolidityAddress(): string;
 }
 ```
 
@@ -206,22 +218,22 @@ class AccountId {
 
 ```typescript
 class PrivateKey {
-  static generate(): PrivateKey
-  static fromString(key: string): PrivateKey
-  static fromMnemonic(mnemonic: string[]): PrivateKey
-  derive(passphrase: string): PrivateKey
+  static generate(): PrivateKey;
+  static fromString(key: string): PrivateKey;
+  static fromMnemonic(mnemonic: string[]): PrivateKey;
+  derive(passphrase: string): PrivateKey;
 
-  publicKey: PublicKey
-  sign(message: Uint8Array): Signature
-  toString(): string
-  toBytes(): Uint8Array
+  publicKey: PublicKey;
+  sign(message: Uint8Array): Signature;
+  toString(): string;
+  toBytes(): Uint8Array;
 }
 
 class PublicKey {
-  static fromBytes(bytes: Uint8Array): PublicKey
-  toEvmAddress(): string
-  toString(): string
-  verify(message: Uint8Array, signature: Signature): boolean
+  static fromBytes(bytes: Uint8Array): PublicKey;
+  toEvmAddress(): string;
+  toString(): string;
+  verify(message: Uint8Array, signature: Signature): boolean;
 }
 ```
 
@@ -229,14 +241,14 @@ class PublicKey {
 
 ```typescript
 class Hbar {
-  constructor(amount: number | BigNumber, unit: HbarUnit)
+  constructor(amount: number | BigNumber, unit: HbarUnit);
 
-  static fromTinybars(tinybars: number | BigNumber): Hbar
-  static fromHbar(hbar: number | BigNumber): Hbar
+  static fromTinybars(tinybars: number | BigNumber): Hbar;
+  static fromHbar(hbar: number | BigNumber): Hbar;
 
-  toTinybars(): BigNumber
-  toHbar(): BigNumber
-  toString(): string
+  toTinybars(): BigNumber;
+  toHbar(): BigNumber;
+  toString(): string;
 }
 ```
 
@@ -246,16 +258,21 @@ class Hbar {
 
 ```typescript
 class TransferTransaction extends Transaction<TransferTransaction> {
-  addHbarTransfer(accountId: AccountId | string, amount: Hbar): TransferTransaction
-  addTokenTransfer(tokenId: TokenId, accountId: AccountId, amount: number): TransferTransaction
-  addNftTransfer(tokenId: TokenId, from: AccountId, to: AccountId, serial: number): TransferTransaction
+  addHbarTransfer(accountId: AccountId | string, amount: Hbar): TransferTransaction;
+  addTokenTransfer(tokenId: TokenId, accountId: AccountId, amount: number): TransferTransaction;
+  addNftTransfer(
+    tokenId: TokenId,
+    from: AccountId,
+    to: AccountId,
+    serial: number,
+  ): TransferTransaction;
 
   // Transaction methods (inherited)
-  setTransactionMemo(memo: string): TransferTransaction
-  setMaxTransactionFee(fee: Hbar): TransferTransaction
-  setTransactionValidDuration(duration: Duration): TransferTransaction
-  execute(client: Client): Promise<TransactionResponse>
-  sign(privateKey: PrivateKey): TransferTransaction
+  setTransactionMemo(memo: string): TransferTransaction;
+  setMaxTransactionFee(fee: Hbar): TransferTransaction;
+  setTransactionValidDuration(duration: Duration): TransferTransaction;
+  execute(client: Client): Promise<TransactionResponse>;
+  sign(privateKey: PrivateKey): TransferTransaction;
 }
 ```
 
@@ -263,18 +280,18 @@ class TransferTransaction extends Transaction<TransferTransaction> {
 
 ```typescript
 class AccountCreateTransaction extends Transaction<AccountCreateTransaction> {
-  setKey(key: PublicKey): AccountCreateTransaction
-  setInitialBalance(balance: Hbar): AccountCreateTransaction
-  setAccountMemo(memo: string): AccountCreateTransaction
-  setReceiverSignatureRequired(required: boolean): AccountCreateTransaction
-  setAutoRenewPeriod(period: Duration): AccountCreateTransaction
-  setStakedAccountId(accountId: AccountId): AccountCreateTransaction
-  setStakedNodeId(nodeId: number): AccountCreateTransaction
-  setDeclineStakingReward(decline: boolean): AccountCreateTransaction
-  setAlias(evmAddress: string): AccountCreateTransaction
+  setKey(key: PublicKey): AccountCreateTransaction;
+  setInitialBalance(balance: Hbar): AccountCreateTransaction;
+  setAccountMemo(memo: string): AccountCreateTransaction;
+  setReceiverSignatureRequired(required: boolean): AccountCreateTransaction;
+  setAutoRenewPeriod(period: Duration): AccountCreateTransaction;
+  setStakedAccountId(accountId: AccountId): AccountCreateTransaction;
+  setStakedNodeId(nodeId: number): AccountCreateTransaction;
+  setDeclineStakingReward(decline: boolean): AccountCreateTransaction;
+  setAlias(evmAddress: string): AccountCreateTransaction;
 
-  execute(client: Client): Promise<TransactionResponse>
-  getReceipt(client: Client): Promise<AccountCreateTransactionReceipt>
+  execute(client: Client): Promise<TransactionResponse>;
+  getReceipt(client: Client): Promise<AccountCreateTransactionReceipt>;
 }
 ```
 
@@ -282,28 +299,28 @@ class AccountCreateTransaction extends Transaction<AccountCreateTransaction> {
 
 ```typescript
 class TokenCreateTransaction extends Transaction<TokenCreateTransaction> {
-  setTokenName(name: string): TokenCreateTransaction
-  setTokenSymbol(symbol: string): TokenCreateTransaction
-  setDecimals(decimals: number): TokenCreateTransaction
-  setInitialSupply(supply: number): TokenCreateTransaction
-  setTreasuryAccountId(id: AccountId): TokenCreateTransaction
-  setAdminKey(key: Key): TokenCreateTransaction
-  setKycKey(key: Key): TokenCreateTransaction
-  setFreezeKey(key: Key): TokenCreateTransaction
-  setWipeKey(key: Key): TokenCreateTransaction
-  setSupplyKey(key: Key): TokenCreateTransaction
-  setFeeScheduleKey(key: Key): TokenCreateTransaction
-  setPauseKey(key: Key): TokenCreateTransaction
-  setMetadata(key: Key): TokenCreateTransaction
-  setAutoRenewAccountId(id: AccountId): TokenCreateTransaction
-  setAutoRenewPeriod(period: Duration): TokenCreateTransaction
-  setTokenType(type: TokenType): TokenCreateTransaction
-  setSupplyType(type: TokenSupplyType): TokenCreateTransaction
-  setMaxSupply(max: number): TokenCreateTransaction
-  setCustomFees(fees: CustomFee[]): TokenCreateTransaction
+  setTokenName(name: string): TokenCreateTransaction;
+  setTokenSymbol(symbol: string): TokenCreateTransaction;
+  setDecimals(decimals: number): TokenCreateTransaction;
+  setInitialSupply(supply: number): TokenCreateTransaction;
+  setTreasuryAccountId(id: AccountId): TokenCreateTransaction;
+  setAdminKey(key: Key): TokenCreateTransaction;
+  setKycKey(key: Key): TokenCreateTransaction;
+  setFreezeKey(key: Key): TokenCreateTransaction;
+  setWipeKey(key: Key): TokenCreateTransaction;
+  setSupplyKey(key: Key): TokenCreateTransaction;
+  setFeeScheduleKey(key: Key): TokenCreateTransaction;
+  setPauseKey(key: Key): TokenCreateTransaction;
+  setMetadata(key: Key): TokenCreateTransaction;
+  setAutoRenewAccountId(id: AccountId): TokenCreateTransaction;
+  setAutoRenewPeriod(period: Duration): TokenCreateTransaction;
+  setTokenType(type: TokenType): TokenCreateTransaction;
+  setSupplyType(type: TokenSupplyType): TokenCreateTransaction;
+  setMaxSupply(max: number): TokenCreateTransaction;
+  setCustomFees(fees: CustomFee[]): TokenCreateTransaction;
 
-  execute(client: Client): Promise<TransactionResponse>
-  getReceipt(client: Client): Promise<TokenCreateTransactionReceipt>
+  execute(client: Client): Promise<TransactionResponse>;
+  getReceipt(client: Client): Promise<TokenCreateTransactionReceipt>;
 }
 ```
 
@@ -311,22 +328,22 @@ class TokenCreateTransaction extends Transaction<TokenCreateTransaction> {
 
 ```typescript
 class TopicCreateTransaction extends Transaction<TopicCreateTransaction> {
-  setTopicMemo(memo: string): TopicCreateTransaction
-  setAdminKey(key: Key): TopicCreateTransaction
-  setSubmitKey(key: Key): TopicCreateTransaction
-  setAutoRenewAccountId(id: AccountId): TopicCreateTransaction
-  setAutoRenewPeriod(period: Duration): TopicCreateTransaction
+  setTopicMemo(memo: string): TopicCreateTransaction;
+  setAdminKey(key: Key): TopicCreateTransaction;
+  setSubmitKey(key: Key): TopicCreateTransaction;
+  setAutoRenewAccountId(id: AccountId): TopicCreateTransaction;
+  setAutoRenewPeriod(period: Duration): TopicCreateTransaction;
 
-  execute(client: Client): Promise<TransactionResponse>
-  getReceipt(client: Client): Promise<TopicCreateTransactionReceipt>
+  execute(client: Client): Promise<TransactionResponse>;
+  getReceipt(client: Client): Promise<TopicCreateTransactionReceipt>;
 }
 
 class TopicMessageSubmitTransaction extends Transaction<TopicMessageSubmitTransaction> {
-  setTopicId(topicId: TopicId | string): TopicMessageSubmitTransaction
-  setMessage(message: string | Uint8Array): TopicMessageSubmitTransaction
+  setTopicId(topicId: TopicId | string): TopicMessageSubmitTransaction;
+  setMessage(message: string | Uint8Array): TopicMessageSubmitTransaction;
 
-  execute(client: Client): Promise<TransactionResponse>
-  getReceipt(client: Client): Promise<TransactionReceipt>
+  execute(client: Client): Promise<TransactionResponse>;
+  getReceipt(client: Client): Promise<TransactionReceipt>;
 }
 ```
 
@@ -336,14 +353,14 @@ class TopicMessageSubmitTransaction extends Transaction<TopicMessageSubmitTransa
 
 ```typescript
 class AccountBalanceQuery extends Query<AccountBalanceQuery, AccountBalance> {
-  setAccountId(accountId: AccountId | string): AccountBalanceQuery
+  setAccountId(accountId: AccountId | string): AccountBalanceQuery;
 
-  execute(client: Client): Promise<AccountBalance>
+  execute(client: Client): Promise<AccountBalance>;
 }
 
 class AccountBalance {
-  hbars: Hbar
-  tokens: Map<TokenId, number>
+  hbars: Hbar;
+  tokens: Map<TokenId, number>;
 }
 ```
 
@@ -351,18 +368,18 @@ class AccountBalance {
 
 ```typescript
 class AccountInfoQuery extends Query<AccountInfoQuery, AccountInfo> {
-  setAccountId(accountId: AccountId | string): AccountInfoQuery
+  setAccountId(accountId: AccountId | string): AccountInfoQuery;
 
-  execute(client: Client): Promise<AccountInfo>
+  execute(client: Client): Promise<AccountInfo>;
 }
 
 class AccountInfo {
-  accountId: AccountId
-  key: Key
-  balance: Hbar
-  tokenRelationships: Map<TokenId, TokenRelationship>
-  accountMemo: string
-  expirationTime: Instant
+  accountId: AccountId;
+  key: Key;
+  balance: Hbar;
+  tokenRelationships: Map<TokenId, TokenRelationship>;
+  accountMemo: string;
+  expirationTime: Instant;
 }
 ```
 
@@ -370,29 +387,29 @@ class AccountInfo {
 
 ```typescript
 class TokenInfoQuery extends Query<TokenInfoQuery, TokenInfo> {
-  setTokenId(tokenId: TokenId | string): TokenInfoQuery
+  setTokenId(tokenId: TokenId | string): TokenInfoQuery;
 
-  execute(client: Client): Promise<TokenInfo>
+  execute(client: Client): Promise<TokenInfo>;
 }
 
 class TokenInfo {
-  tokenId: TokenId
-  name: string
-  symbol: string
-  decimals: number
-  totalSupply: number
-  treasuryAccountId: AccountId
-  adminKey: Key
-  kycKey: Key
-  freezeKey: Key
-  wipeKey: Key
-  supplyKey: Key
-  feeScheduleKey: Key
-  pauseKey: Key
-  defaultFreezeStatus: boolean
-  defaultKycStatus: boolean
-  deleted: boolean
-  autoRenewPeriod: Duration
+  tokenId: TokenId;
+  name: string;
+  symbol: string;
+  decimals: number;
+  totalSupply: number;
+  treasuryAccountId: AccountId;
+  adminKey: Key;
+  kycKey: Key;
+  freezeKey: Key;
+  wipeKey: Key;
+  supplyKey: Key;
+  feeScheduleKey: Key;
+  pauseKey: Key;
+  defaultFreezeStatus: boolean;
+  defaultKycStatus: boolean;
+  deleted: boolean;
+  autoRenewPeriod: Duration;
 }
 ```
 
@@ -400,34 +417,34 @@ class TokenInfo {
 
 ```typescript
 class MirrorClient {
-  constructor(network: string | string[])
+  constructor(network: string | string[]);
 
   subscribeToTopic(
     topicId: TopicId | string,
     handler: (message: TopicMessage) => void,
-    errorHandler: (error: Error) => void
-  ): Subscription
+    errorHandler: (error: Error) => void,
+  ): Subscription;
 }
 
 class MirrorConsensusTopicQuery {
-  setTopicId(topicId: TopicId | string): MirrorConsensusTopicQuery
-  setStartTime(startTime: Date): MirrorConsensusTopicQuery
-  setEndTime(endTime: Date): MirrorConsensusTopicQuery
-  setLimit(limit: number): MirrorConsensusTopicQuery
+  setTopicId(topicId: TopicId | string): MirrorConsensusTopicQuery;
+  setStartTime(startTime: Date): MirrorConsensusTopicQuery;
+  setEndTime(endTime: Date): MirrorConsensusTopicQuery;
+  setLimit(limit: number): MirrorConsensusTopicQuery;
 
   subscribe(
     mirrorClient: MirrorClient,
     handler: (message: TopicMessage) => void,
-    errorHandler: (error: Error) => void
-  ): Subscription
+    errorHandler: (error: Error) => void,
+  ): Subscription;
 }
 
 class TopicMessage {
-  topicId: TopicId
-  sequenceNumber: number
-  message: Uint8Array
-  consensusTimestamp: Instant
-  runningHash: Uint8Array
+  topicId: TopicId;
+  sequenceNumber: number;
+  message: Uint8Array;
+  consensusTimestamp: Instant;
+  runningHash: Uint8Array;
 }
 ```
 
@@ -459,16 +476,14 @@ import {
   TopicCreateTransaction,
   TopicMessageSubmitTransaction,
   MirrorClient,
-  MirrorConsensusTopicQuery
+  MirrorConsensusTopicQuery,
 } from "@hiero-ledger/sdk";
 
 // Create topic
 const client = Client.forTestnet();
 client.setOperator(operatorId, operatorKey);
 
-const topicTx = await new TopicCreateTransaction()
-  .setTopicMemo("My Topic")
-  .execute(client);
+const topicTx = await new TopicCreateTransaction().setTopicMemo("My Topic").execute(client);
 
 const topicReceipt = await topicTx.getReceipt(client);
 const topicId = topicReceipt.topicId;
@@ -482,11 +497,9 @@ const submitTx = await new TopicMessageSubmitTransaction()
 // Subscribe
 const mirrorClient = new MirrorClient("testnet.mirrornode.hedera.com:443");
 
-new MirrorConsensusTopicQuery()
-  .setTopicId(topicId)
-  .subscribe(mirrorClient, (message) => {
-    console.log("Received:", new TextDecoder().decode(message.message));
-  });
+new MirrorConsensusTopicQuery().setTopicId(topicId).subscribe(mirrorClient, (message) => {
+  console.log("Received:", new TextDecoder().decode(message.message));
+});
 ```
 
 ---
@@ -496,11 +509,13 @@ new MirrorConsensusTopicQuery()
 ### Package Information
 
 **Maven Coordinates:**
+
 - **GroupId:** `com.hedera.hashgraph` (transitional to `org.hiero`)
 - **ArtifactId:** `sdk` (transitioning to `hiero-sdk`)
 - **Version:** v2.80.0+
 
 **Migration:**
+
 - Single-step cutover from v2.80.0
 - New namespace: `org.hiero`
 - Migration guidelines available
@@ -655,16 +670,19 @@ BigInteger balance = result.getOutput(0).asInt(BigInteger.class);
 **PyPI Package:** `hiero-sdk-python`
 
 **Installation:**
+
 ```bash
 pip install hiero-sdk-python
 pip install python-dotenv
 ```
 
 **Compatibility:**
+
 - Python ≥ 3.10
 - Tested on Python 3.10–3.14
 
 **Environment Setup:**
+
 ```bash
 # Create .env file
 OPERATOR_ID=0.0.1234
@@ -838,6 +856,7 @@ transfer_tx = TransferTransaction()
 **GitHub:** [hiero-ledger/hiero-sdk-go](https://github.com/hiero-ledger/hiero-sdk-go)
 
 **Installation:**
+
 ```bash
 go get github.com/hiero-ledger/hiero-sdk-go/v2
 ```
@@ -1027,6 +1046,7 @@ fmt.Println("Balance:", balance)
 **GitHub:** [hiero-ledger/hiero-sdk-rust](https://github.com/hiero-ledger/hiero-sdk-rust)
 
 **Cargo.toml:**
+
 ```toml
 [dependencies]
 hiero-sdk = "0.6"
@@ -1183,11 +1203,13 @@ let previewnet = Network::previewnet();
 **GitHub:** [hiero-ledger/hiero-sdk-swift](https://github.com/hiero-ledger/hiero-sdk-swift)
 
 **Requirements:**
+
 - Swift 5.6+ (6.0+ recommended)
 - macOS 10.15+ / iOS 13+
 - Swift Package Manager
 
 **Dependencies:**
+
 ```swift
 // Package.swift
 dependencies: [
@@ -1347,10 +1369,12 @@ func submitMessage(
 **Status:** Not production-ready (under development)
 
 **Build System:**
+
 - CMake with presets
 - vcpkg support
 
 **Requirements:**
+
 - C++17 or later
 - OpenSSL
 - Protocol Buffers
@@ -1412,6 +1436,7 @@ void transferHbar(
 The Mirror Node REST API provides read access to historical and current network data.
 
 **Base URLs:**
+
 - **Mainnet:** `https://mainnet.mirrornode.hedera.com`
 - **Testnet:** `https://testnet.mirrornode.hedera.com`
 - **Previewnet:** `https://previewnet.mirrornode.hedera.com`
@@ -1419,17 +1444,20 @@ The Mirror Node REST API provides read access to historical and current network 
 ### Account Endpoints
 
 #### List Accounts
+
 ```
 GET /api/v1/accounts
 ```
 
 **Query Parameters:**
+
 - `account.id`: Filter by account ID
 - `balance`: Filter by balance
 - `limit`: Number of results (default: 25, max: 100)
 - `order`: "asc" or "desc"
 
 **Response:**
+
 ```json
 {
   "accounts": [
@@ -1450,11 +1478,13 @@ GET /api/v1/accounts
 ```
 
 #### Get Account Balance
+
 ```
 GET /api/v1/accounts/{idOrAliasOrEvmAddress}
 ```
 
 **Response:**
+
 ```json
 {
   "account": "0.0.1234",
@@ -1472,11 +1502,13 @@ GET /api/v1/accounts/{idOrAliasOrEvmAddress}
 ```
 
 #### Get Account Info
+
 ```
 GET /api/v1/accounts/{id}/info
 ```
 
 **Response:**
+
 ```json
 {
   "account_id": "0.0.1234",
@@ -1493,11 +1525,13 @@ GET /api/v1/accounts/{id}/info
 ### Token Endpoints
 
 #### Get Token Info
+
 ```
 GET /api/v1/tokens/{tokenId}
 ```
 
 **Response:**
+
 ```json
 {
   "token_id": "0.0.4567",
@@ -1519,11 +1553,13 @@ GET /api/v1/tokens/{tokenId}
 ```
 
 #### Get Token Balances
+
 ```
 GET /api/v1/tokens/{tokenId}/balances
 ```
 
 **Response:**
+
 ```json
 {
   "balances": [
@@ -1543,11 +1579,13 @@ GET /api/v1/tokens/{tokenId}/balances
 ### Transaction Endpoints
 
 #### Get Transaction
+
 ```
 GET /api/v1/transactions/{transactionId}
 ```
 
 **Response:**
+
 ```json
 {
   "transaction_id": "0.0.1234@1735689600.123456789",
@@ -1582,16 +1620,19 @@ GET /api/v1/transactions/{transactionId}
 ### Topic Endpoints
 
 #### Get Topic Messages
+
 ```
 GET /api/v1/topics/{topicId}/messages
 ```
 
 **Query Parameters:**
+
 - `timestamp`: Filter by timestamp
 - `order`: "asc" or "desc"
 - `limit`: Number of results
 
 **Response:**
+
 ```json
 {
   "messages": [
@@ -1618,6 +1659,7 @@ GET /api/v1/topics/{topicId}/messages
 **GitHub:** [hiero-ledger/hiero-did-sdk-python](https://github.com/hiero-ledger/hiero-did-sdk-python)
 
 **Features:**
+
 - Create and manage Hedera DID documents
 - Create and manage AnonCreds resources
 - Hedera Consensus Service (HCS) integration
@@ -1625,11 +1667,13 @@ GET /api/v1/topics/{topicId}/messages
 - Hedera DID Method compliant
 
 **Installation:**
+
 ```bash
 pip install hiero-did-sdk-python
 ```
 
 **Usage:**
+
 ```python
 from hiero_did_sdk_python import HederaDid, DidDocument
 
@@ -1653,11 +1697,13 @@ resolved_doc = await did.resolve("did:hedera:testnet:z6Mk...")
 **GitHub:** [hiero-ledger/hiero-did-sdk-js](https://github.com/hiero-ledger/hiero-did-sdk-js)
 
 **Installation:**
+
 ```bash
 npm install @hiero-did-sdk/core
 ```
 
 **Features:**
+
 - Complete Hedera DID lifecycle management
 - Create, update, deactivate, and resolve Hedera DIDs
 - Secure key management
@@ -1666,6 +1712,7 @@ npm install @hiero-did-sdk/core
 - AnonCreds support for verifiable credentials
 
 **Usage:**
+
 ```typescript
 import { HederaDid } from '@hiero-did-sdk/core';
 
@@ -1724,14 +1771,13 @@ SDKs include automatic retry logic:
 ```typescript
 client.setMaxAttempts(10);
 client.setMaxBackoff(3000); // 3 seconds
-client.setMinBackoff(500);  // 500ms
+client.setMinBackoff(500); // 500ms
 ```
 
 ### Fee Estimation
 
 ```typescript
-const query = new AccountBalanceQuery()
-  .setAccountId(accountId);
+const query = new AccountBalanceQuery().setAccountId(accountId);
 
 const cost = await query.getCost(client);
 console.log("Query cost:", cost.toString());
@@ -1743,9 +1789,7 @@ For historical data and better performance:
 
 ```typescript
 // Use Mirror Node REST API instead of SDK queries
-const response = await fetch(
-  `https://testnet.mirrornode.hedera.com/api/v1/accounts/${accountId}`
-);
+const response = await fetch(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${accountId}`);
 const data = await response.json();
 ```
 
@@ -1812,14 +1856,10 @@ import org.hiero.sdk.Client;
 
 ```typescript
 // Deprecated (will be removed)
-const balance = await new AccountBalanceQuery()
-  .setAccountId(accountId)
-  .execute(client);
+const balance = await new AccountBalanceQuery().setAccountId(accountId).execute(client);
 
 // Recommended alternative
-const response = await fetch(
-  `https://testnet.mirrornode.hedera.com/api/v1/accounts/${accountId}`
-);
+const response = await fetch(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${accountId}`);
 const data = await response.json();
 const balance = data.balance.balance;
 ```
@@ -1829,19 +1869,23 @@ const balance = data.balance.balance;
 ## Additional Resources
 
 ### Official Documentation
+
 - **Hiero Docs:** https://docs.hiero.org
 - **Hedera Docs:** https://docs.hedera.com
 - **Mirror Node API:** https://docs.hedera.com/hedera/sdks-and-apis/rest-api
 
 ### GitHub Repositories
+
 - **Hiero Organization:** https://github.com/hiero-ledger
 - **Hedera Organization:** https://github.com/hashgraph
 
 ### Community
+
 - **Discord:** https://hedera.com/discord
 - **Stack Overflow:** Tag questions with `hedera` and `hiero`
 
 ### Local Development
+
 - **Hiero Local Node:** https://github.com/hiero-ledger/hiero-local-node
 - **Installation:** `npm install -g @hiero-local/node`
 - **Start:** `hiero-local-node start`
@@ -1852,31 +1896,31 @@ const balance = data.balance.balance;
 
 ### Network Endpoints
 
-| Network | Consensus Node | Mirror Node REST | Mirror Node GRPC |
-|---------|---------------|------------------|------------------|
-| Mainnet | mainnet-public.hedera.com:50111 | mainnet.mirrornode.hedera.com | mainnet.mirrornode.hedera.com:443 |
-| Testnet | testnet.hedera.com:50111 | testnet.mirrornode.hedera.com | testnet.mirrornode.hedera.com:443 |
-| Previewnet | previewnet.hedera.com:50111 | previewnet.mirrornode.hedera.com | previewnet.mirrornode.hedera.com:443 |
+| Network    | Consensus Node                  | Mirror Node REST                 | Mirror Node GRPC                     |
+| ---------- | ------------------------------- | -------------------------------- | ------------------------------------ |
+| Mainnet    | mainnet-public.hedera.com:50111 | mainnet.mirrornode.hedera.com    | mainnet.mirrornode.hedera.com:443    |
+| Testnet    | testnet.hedera.com:50111        | testnet.mirrornode.hedera.com    | testnet.mirrornode.hedera.com:443    |
+| Previewnet | previewnet.hedera.com:50111     | previewnet.mirrornode.hedera.com | previewnet.mirrornode.hedera.com:443 |
 
 ### Fee Schedule (Approximate)
 
-| Operation | Cost (HBAR) |
-|-----------|-------------|
-| Account Creation | $0.05 - $1.00 |
-| Token Creation | $1.00 - $100.00 |
-| Transfer | $0.001 |
-| Consensus Message Submit | $0.0001 |
-| Contract Call | Variable |
+| Operation                | Cost (HBAR)     |
+| ------------------------ | --------------- |
+| Account Creation         | $0.05 - $1.00   |
+| Token Creation           | $1.00 - $100.00 |
+| Transfer                 | $0.001          |
+| Consensus Message Submit | $0.0001         |
+| Contract Call            | Variable        |
 
 ### Transaction Limits
 
-| Limit | Value |
-|-------|-------|
-| Max Transaction Fee | 1,000,000 tinybars (0.001 HBAR) default |
-| Max Query Payment | 1,000,000 tinybars (0.001 HBAR) default |
-| Transaction Memo | 100 bytes |
-| Transaction Valid Duration | 120 seconds default |
-| Max Auto Renew Period | 3 months (7776000 seconds) |
+| Limit                      | Value                                   |
+| -------------------------- | --------------------------------------- |
+| Max Transaction Fee        | 1,000,000 tinybars (0.001 HBAR) default |
+| Max Query Payment          | 1,000,000 tinybars (0.001 HBAR) default |
+| Transaction Memo           | 100 bytes                               |
+| Transaction Valid Duration | 120 seconds default                     |
+| Max Auto Renew Period      | 3 months (7776000 seconds)              |
 
 ---
 
@@ -1898,5 +1942,5 @@ For the most up-to-date information, always refer to the official GitHub reposit
 ---
 
 **Research End**
-*Last Updated: March 3, 2026*
-*Document Version: 1.0*
+_Last Updated: March 3, 2026_
+_Document Version: 1.0_

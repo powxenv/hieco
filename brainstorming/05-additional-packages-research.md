@@ -73,23 +73,24 @@ All research was conducted using multiple sources:
 
 ### Gaps Identified in Hedera/Hiero Ecosystem
 
-| Gap | Ethereum Equivalent | Hedera Status |
-|-----|---------------------|---------------|
-| wagmi/viem-style adapters | wagmi + viem | ❌ Missing |
-| Wallet connection UI kit | RainbowKit/ConnectKit | ❌ Missing |
-| Account abstraction tools | ERC-4337, Alchemy AA | ❌ Missing |
-| Next.js integration | wagmi Next.js adapter | ❌ Missing |
-| Nuxt integration | Nuxt Web3 modules | ❌ Missing |
-| SvelteKit integration | Viem SvelteKit | ❌ Missing |
-| NFT component library | thirdweb NFT components | ❌ Missing |
-| Relayer/Paymaster service | Gelato, Biconomy | ❌ Missing |
-| GraphQL indexing | The Graph | ⚠️ Limited |
+| Gap                       | Ethereum Equivalent     | Hedera Status |
+| ------------------------- | ----------------------- | ------------- |
+| wagmi/viem-style adapters | wagmi + viem            | ❌ Missing    |
+| Wallet connection UI kit  | RainbowKit/ConnectKit   | ❌ Missing    |
+| Account abstraction tools | ERC-4337, Alchemy AA    | ❌ Missing    |
+| Next.js integration       | wagmi Next.js adapter   | ❌ Missing    |
+| Nuxt integration          | Nuxt Web3 modules       | ❌ Missing    |
+| SvelteKit integration     | Viem SvelteKit          | ❌ Missing    |
+| NFT component library     | thirdweb NFT components | ❌ Missing    |
+| Relayer/Paymaster service | Gelato, Biconomy        | ❌ Missing    |
+| GraphQL indexing          | The Graph               | ⚠️ Limited    |
 
 ---
 
 ## Existing @hieco Packages
 
 ### Already Built
+
 - `@hieco/mirror` - Core Mirror Node REST API client
 - `@hieco/mirror-react` - React hooks with TanStack Query
 - `@hieco/mirror-preact` - Preact adapter
@@ -102,6 +103,7 @@ All research was conducted using multiple sources:
 - `@hieco/mirror-cli` - CLI tool
 
 ### Previously Proposed
+
 - `@hieco/scheduled` - Scheduled transaction toolkit
 - `@hieco/devtools` - Transaction builder & debugger
 - `@hieco/mirror-vue` - Vue adapter
@@ -118,12 +120,14 @@ All research was conducted using multiple sources:
 **Impact:** ⭐⭐⭐⭐⭐ | **Complexity:** Medium | **Time:** 7-9 days
 
 **Problem Solved:**
+
 - Next.js 13+ App Router SSR compatibility issues
 - Server components support for Hedera queries
 - Proper hydration patterns for wallet state
 - API route handlers for secure operations
 
 **Why High Priority:**
+
 - Next.js is the #1 framework for Web3 dApps in 2026
 - Every major dApp uses Next.js
 - SSR patterns are complex and error-prone
@@ -173,6 +177,7 @@ export default function RootLayout({ children }) {
 ```
 
 **Implementation Checklist:**
+
 - [ ] Server client factory with network config
 - [ ] SSR-safe wallet connection hook
 - [ ] Hydration boundary components
@@ -190,6 +195,7 @@ export default function RootLayout({ children }) {
 **Impact:** ⭐⭐⭐⭐⭐ | **Complexity:** Medium | **Time:** 8-10 days
 
 **Problem Solved:**
+
 - No unified wallet connection UI for Hedera
 - Each wallet (HashPack, Blade, Kabila) has different integration
 - Mobile wallet connection is complex (WalletConnect v2)
@@ -197,6 +203,7 @@ export default function RootLayout({ children }) {
 - No theming or branding options
 
 **Why High Priority:**
+
 - Wallet connection is the first interaction users have
 - Poor connection UX = high churn
 - RainbowKit has set the standard for EVM chains
@@ -253,6 +260,7 @@ import { ConnectButton } from '@hieco/connect';
 ```
 
 **Supported Wallets:**
+
 - **HashPack** - Most popular Hedera wallet
 - **Blade Wallet** - Browser extension
 - **Kabila** - Mobile wallet
@@ -261,6 +269,7 @@ import { ConnectButton } from '@hieco/connect';
 - **Coinbase Wallet** - For broader adoption
 
 **Implementation Checklist:**
+
 - [ ] Core connection provider
 - [ ] Wallet adapters for each wallet
 - [ ] Theme system (light/dark mode)
@@ -282,12 +291,14 @@ import { ConnectButton } from '@hieco/connect';
 **Impact:** ⭐⭐⭐⭐⭐ | **Complexity:** Low | **Time:** 6-8 days
 
 **Problem Solved:**
+
 - No pre-built components for common Hedera operations
 - Developers must build everything from scratch
 - Inconsistent UX across dApps hurts ecosystem perception
 - No standard patterns for displaying blockchain data
 
 **Why High Priority:**
+
 - Reduces development time by 80%+
 - Creates consistent UX across all Hedera dApps
 - Lower barrier to entry for new developers
@@ -453,6 +464,7 @@ import { HiecoThemeProvider } from '@hieco/components';
 ```
 
 **Implementation Checklist:**
+
 - [ ] Theme provider with Tailwind integration
 - [ ] Wallet components (5+ components)
 - [ ] Transaction components (4+ components)
@@ -474,12 +486,14 @@ import { HiecoThemeProvider } from '@hieco/components';
 **Impact:** ⭐⭐⭐⭐ | **Complexity:** High | **Time:** 12-15 days
 
 **Problem Solved:**
+
 - Hedera has no ERC-4337 equivalent for smart wallets
 - No gasless transaction support
 - No social recovery or multi-sig abstractions
 - User experience remains stuck with seed phrases
 
 **Why Important:**
+
 - Account abstraction is mainstream (200M+ wallets in 2026)
 - Gasless UX dramatically improves conversion
 - Social recovery reduces lost funds
@@ -489,68 +503,64 @@ import { HiecoThemeProvider } from '@hieco/components';
 
 ```typescript
 // Smart wallet deployment
-import { SmartWallet } from '@hieco/smart-wallet';
+import { SmartWallet } from "@hieco/smart-wallet";
 
 const wallet = await SmartWallet.deploy({
   signers: [
-    { address: '0x123...', weight: 1 },
-    { address: '0x456...', weight: 1 },
-    { address: '0x789...', weight: 1 }
+    { address: "0x123...", weight: 1 },
+    { address: "0x456...", weight: 1 },
+    { address: "0x789...", weight: 1 },
   ],
   threshold: 2, // 2 of 3 signatures required
   guardians: [
-    { address: '0xabc...', recoveryDelay: 86400 }, // 24 hours
-    { address: '0xdef...', recoveryDelay: 86400 }
-  ]
+    { address: "0xabc...", recoveryDelay: 86400 }, // 24 hours
+    { address: "0xdef...", recoveryDelay: 86400 },
+  ],
 });
 
 // Gasless transactions via relayer
 const result = await wallet.execute({
-  to: '0.0.1234',
+  to: "0.0.1234",
   amount: 100,
   paymaster: {
-    address: 'hieco-relayer',
-    policy: 'sponsor-all' // Sponsor gas for all txs
-  }
+    address: "hieco-relayer",
+    policy: "sponsor-all", // Sponsor gas for all txs
+  },
 });
 
 // Batch operations - multiple txs in one
 await wallet.batchExecute([
-  { transferHbar: { to: '0.0.1111', amount: 10 } },
-  { transferToken: { tokenId: '0.0.2222', to: '0.0.3333', amount: 50 } },
-  { contractCall: { contractId: '0.0.4444', method: 'mint', args: [] } }
+  { transferHbar: { to: "0.0.1111", amount: 10 } },
+  { transferToken: { tokenId: "0.0.2222", to: "0.0.3333", amount: 50 } },
+  { contractCall: { contractId: "0.0.4444", method: "mint", args: [] } },
 ]);
 
 // Spending limits
 wallet.setSpendingLimit({
   daily: 1000, // HBAR per day
   perTransaction: 100,
-  whitelist: ['0.0.1234', '0.0.5678'] // Only these recipients
+  whitelist: ["0.0.1234", "0.0.5678"], // Only these recipients
 });
 
 // Session keys for dApps
 const sessionKey = await wallet.createSessionKey({
-  dapp: '0x999...',
-  permissions: ['transfer:read'],
-  expiresAt: Date.now() + 3600000 // 1 hour
+  dapp: "0x999...",
+  permissions: ["transfer:read"],
+  expiresAt: Date.now() + 3600000, // 1 hour
 });
 
 // Social recovery
 const recoveryTx = await wallet.initiateRecovery({
-  guardians: ['0xabc...', '0xdef...'],
-  newSigner: '0xnew...',
-  reason: 'Lost private key'
+  guardians: ["0xabc...", "0xdef..."],
+  newSigner: "0xnew...",
+  reason: "Lost private key",
 });
 ```
 
 **React Hooks:**
 
 ```typescript
-import {
-  useSmartWallet,
-  useGaslessTransaction,
-  useSessionKey
-} from '@hieco/smart-wallet/react';
+import { useSmartWallet, useGaslessTransaction, useSessionKey } from "@hieco/smart-wallet/react";
 
 function Component() {
   const { wallet, deploy, isDeployed } = useSmartWallet();
@@ -558,8 +568,8 @@ function Component() {
 
   const handleTransfer = async () => {
     await execute({
-      to: '0.0.1234',
-      amount: 100
+      to: "0.0.1234",
+      amount: 100,
     });
     // Gas sponsored automatically!
   };
@@ -567,6 +577,7 @@ function Component() {
 ```
 
 **Implementation Checklist:**
+
 - [ ] SmartWallet contract deployment
 - [ ] Multi-sig signature aggregation
 - [ ] Guardian recovery system
@@ -586,12 +597,14 @@ function Component() {
 **Impact:** ⭐⭐⭐⭐ | **Complexity:** Medium | **Time:** 5-7 days
 
 **Problem Solved:**
+
 - Vue/Nuxt developers lack Nuxt-specific patterns
 - No SSR-safe composables
 - No module ecosystem integration
 - Vue has 20%+ market share and growing
 
 **Why Important:**
+
 - Nuxt 3 brings same maturity to Vue as Next.js to React
 - Strong file-based routing and module system
 - SSR-first mindset
@@ -649,6 +662,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 ```
 
 **Implementation Checklist:**
+
 - [ ] Nuxt module configuration
 - [ ] Server client plugin
 - [ ] SSR-safe composables
@@ -664,12 +678,14 @@ export default defineNuxtPlugin((nuxtApp) => {
 **Impact:** ⭐⭐⭐⭐ | **Complexity:** Medium | **Time:** 5-7 days
 
 **Problem Solved:**
+
 - SvelteKit SSR patterns for Hedera
 - Load functions for account/token data
 - Form actions for transactions
 - SvelteKit momentum is strong
 
 **Why Important:**
+
 - SvelteKit shipping 20-40% smaller bundles
 - Strong Lighthouse scores out of the box
 - Developer satisfaction is very high
@@ -742,6 +758,7 @@ setHieroClient({
 ```
 
 **Implementation Checklist:**
+
 - [ ] Server client factory
 - [ ] SSR-safe stores
 - [ ] Load helpers
@@ -759,6 +776,7 @@ setHieroClient({
 **Impact:** ⭐⭐⭐ | **Complexity:** Low | **Time:** 4-6 days
 
 **Problem Solved:**
+
 - NFT metadata fetching is complex
 - No standard NFT display components
 - Soulbound Token detection missing
@@ -839,6 +857,7 @@ const imageUrl = getIPFSGatewayUrl('ipfs://Qm...');
 ```
 
 **Implementation Checklist:**
+
 - [ ] NFT metadata fetcher with caching
 - [ ] IPFS gateway utilities
 - [ ] NFT image component
@@ -856,6 +875,7 @@ const imageUrl = getIPFSGatewayUrl('ipfs://Qm...');
 **Impact:** ⭐⭐⭐ | **Complexity:** Low | **Time:** 4-5 days
 
 **Problem Solved:**
+
 - Staking is increasingly important on Hedera
 - No unified staking interface
 - Reward calculations are complex
@@ -925,6 +945,7 @@ function StakingDashboard() {
 ```
 
 **Implementation Checklist:**
+
 - [ ] Node list fetcher
 - [ ] Staking position calculator
 - [ ] Reward calculator
@@ -940,6 +961,7 @@ function StakingDashboard() {
 **Impact:** ⭐⭐⭐ | **Complexity:** Low | **Time:** 3-4 days
 
 **Problem Solved:**
+
 - Form validation for blockchain data is complex
 - Account IDs, token amounts have specific formats
 - No integration with popular form libraries
@@ -1002,6 +1024,7 @@ const schema = z.object({
 ```
 
 **Implementation Checklist:**
+
 - [ ] Zod schemas for all Hedera types
 - [ ] React Hook Form resolver
 - [ ] VeeValidate rules (Vue)
@@ -1016,6 +1039,7 @@ const schema = z.object({
 **Impact:** ⭐⭐⭐ | **Complexity:** Low | **Time:** 3-4 days
 
 **Problem Solved:**
+
 - Manual documentation is time-consuming
 - Type definitions don't automatically generate docs
 - No standardized docs format across @hieco packages
@@ -1037,7 +1061,7 @@ hieco-docs generate \
   --includePrivate=false
 ```
 
-```typescript
+````typescript
 // JSDoc enhancements
 /**
  * Get account balance from Mirror Node
@@ -1052,11 +1076,11 @@ hieco-docs generate \
  * ```
  */
 export async function getAccountBalance(accountId: string): Promise<Hbar>;
-```
+````
 
 **Generated Documentation Structure:**
 
-```markdown
+````markdown
 # @hieco/mirror API Reference
 
 ## Account Methods
@@ -1066,11 +1090,14 @@ export async function getAccountBalance(accountId: string): Promise<Hbar>;
 Get account balance from Mirror Node
 
 **Signature:**
+
 ```typescript
-async function getAccountBalance(accountId: string): Promise<Hbar>
+async function getAccountBalance(accountId: string): Promise<Hbar>;
 ```
+````
 
 **Parameters:**
+
 - `accountId` - The account ID to query (e.g., "0.0.1234")
 
 **Returns:** The account balance in HBAR
@@ -1078,11 +1105,13 @@ async function getAccountBalance(accountId: string): Promise<Hbar>
 **Throws:** `MirrorNodeError` If account not found
 
 **Example:**
+
 ```typescript
 const balance = await getAccountBalance("0.0.1234");
 console.log(balance); // "100.0 ℏ"
 ```
-```
+
+````
 
 **Implementation Checklist:**
 - [ ] CLI tool
@@ -1161,35 +1190,36 @@ function Component() {
     // Gas sponsored!
   };
 }
-```
+````
 
 **Server Component:**
 
 ```typescript
 // Run your own relayer
-import { RelayerServer } from '@hieco/relay/server';
+import { RelayerServer } from "@hieco/relay/server";
 
 const relayer = new RelayerServer({
   port: 3000,
   hedera: {
-    network: 'testnet',
-    operatorId: '0.0.1111',
-    operatorKey: '0x...'
+    network: "testnet",
+    operatorId: "0.0.1111",
+    operatorKey: "0x...",
   },
   paymaster: {
-    address: '0.0.9999',
-    balance: 10000
-  }
+    address: "0.0.9999",
+    balance: 10000,
+  },
 });
 
-relayer.on('relayed', (tx) => {
-  console.log('Relayed:', tx.transactionId);
+relayer.on("relayed", (tx) => {
+  console.log("Relayed:", tx.transactionId);
 });
 
 await relayer.start();
 ```
 
 **Implementation Checklist:**
+
 - [ ] Relayer client SDK
 - [ ] Paymaster contract
 - [ ] Relayer server
@@ -1206,6 +1236,7 @@ await relayer.start();
 **Impact:** ⭐⭐⭐ | **Complexity:** Medium | **Time:** 6-8 days
 
 **Problem Solved:**
+
 - Direct RPC queries are slow and inefficient
 - Complex aggregations require multiple requests
 - No historical data indexing
@@ -1312,6 +1343,7 @@ type Attribute @entity {
 ```
 
 **Implementation Checklist:**
+
 - [ ] Subgraph schema definition
 - [ ] GraphQL client
 - [ ] Code generation
@@ -1395,6 +1427,7 @@ export default defineConfig({
 **Impact:** ⭐⭐⭐ | **Complexity:** High | **Time:** 10-12 days
 
 **Problem Solved:**
+
 - Debugging Hedera transactions is difficult
 - No visibility into wallet state
 - Console logging is insufficient
@@ -1450,6 +1483,7 @@ useAccountBalance("0.0.1234")
 ```
 
 **Implementation Checklist:**
+
 - [ ] Chrome extension manifest
 - [ ] DevTools panel UI
 - [ ] Transaction decoder
@@ -1467,18 +1501,20 @@ useAccountBalance("0.0.1234")
 
 **Highest Impact Packages:**
 
-| Package | Effort | Impact | Priority |
-|---------|--------|--------|----------|
-| `@hieco/connect` | 8-10 days | ⭐⭐⭐⭐⭐ | **P0** |
-| `@hieco/next` | 7-9 days | ⭐⭐⭐⭐⭐ | **P0** |
-| `@hieco/components` | 6-8 days | ⭐⭐⭐⭐⭐ | **P0** |
+| Package             | Effort    | Impact     | Priority |
+| ------------------- | --------- | ---------- | -------- |
+| `@hieco/connect`    | 8-10 days | ⭐⭐⭐⭐⭐ | **P0**   |
+| `@hieco/next`       | 7-9 days  | ⭐⭐⭐⭐⭐ | **P0**   |
+| `@hieco/components` | 6-8 days  | ⭐⭐⭐⭐⭐ | **P0**   |
 
 **Rationale:**
+
 - `@hieco/connect` fills the most visible gap (wallet UX)
 - `@hieco/next` enables Next.js dApps (dominant framework)
 - `@hieco/components` provides immediate DX improvement
 
 **Success Criteria:**
+
 - RainbowKit-quality wallet connection UX
 - Production-ready Next.js App Router patterns
 - 20+ pre-built components
@@ -1488,35 +1524,36 @@ useAccountBalance("0.0.1234")
 
 **Medium Priority Packages:**
 
-| Package | Effort | Impact | Priority |
-|---------|--------|--------|----------|
-| `@hieco/nuxt` | 5-7 days | ⭐⭐⭐⭐ | **P1** |
-| `@hieco/sveltekit` | 5-7 days | ⭐⭐⭐⭐ | **P1** |
-| `@hieco/smart-wallet` | 12-15 days | ⭐⭐⭐⭐ | **P1** |
+| Package               | Effort     | Impact   | Priority |
+| --------------------- | ---------- | -------- | -------- |
+| `@hieco/nuxt`         | 5-7 days   | ⭐⭐⭐⭐ | **P1**   |
+| `@hieco/sveltekit`    | 5-7 days   | ⭐⭐⭐⭐ | **P1**   |
+| `@hieco/smart-wallet` | 12-15 days | ⭐⭐⭐⭐ | **P1**   |
 
 **Rationale:**
+
 - Vue/Nuxt has 20%+ market share
 - SvelteKit momentum is strong
 - Account Abstraction is strategic long-term
 
 ### Phase 3: Specialized Utilities (Weeks 5-6) - Tier 3
 
-| Package | Effort | Impact | Priority |
-|---------|--------|--------|----------|
-| `@hieco/nft` | 4-6 days | ⭐⭐⭐ | **P2** |
-| `@hieco/staking` | 4-5 days | ⭐⭐⭐ | **P2** |
-| `@hieco/forms` | 3-4 days | ⭐⭐⭐ | **P2** |
-| `@hieco/docs` | 3-4 days | ⭐⭐⭐ | **P2** |
+| Package          | Effort   | Impact | Priority |
+| ---------------- | -------- | ------ | -------- |
+| `@hieco/nft`     | 4-6 days | ⭐⭐⭐ | **P2**   |
+| `@hieco/staking` | 4-5 days | ⭐⭐⭐ | **P2**   |
+| `@hieco/forms`   | 3-4 days | ⭐⭐⭐ | **P2**   |
+| `@hieco/docs`    | 3-4 days | ⭐⭐⭐ | **P2**   |
 
 ### Phase 4: Infrastructure (Weeks 7-10) - Tier 4
 
-| Package | Effort | Impact | Priority |
-|---------|--------|--------|----------|
-| `@hieco/relay` | 10-12 days | ⭐⭐⭐ | **P2** |
-| `@hieco/subgraph` | 6-8 days | ⭐⭐⭐ | **P2** |
-| `@hieco/devtools-extension` | 10-12 days | ⭐⭐⭐ | **P3** |
-| `@hieco/solid-start` | 4-5 days | ⭐⭐ | **P3** |
-| `@hieco/astro` | 3-4 days | ⭐⭐ | **P3** |
+| Package                     | Effort     | Impact | Priority |
+| --------------------------- | ---------- | ------ | -------- |
+| `@hieco/relay`              | 10-12 days | ⭐⭐⭐ | **P2**   |
+| `@hieco/subgraph`           | 6-8 days   | ⭐⭐⭐ | **P2**   |
+| `@hieco/devtools-extension` | 10-12 days | ⭐⭐⭐ | **P3**   |
+| `@hieco/solid-start`        | 4-5 days   | ⭐⭐   | **P3**   |
+| `@hieco/astro`              | 3-4 days   | ⭐⭐   | **P3**   |
 
 ---
 
@@ -1524,38 +1561,38 @@ useAccountBalance("0.0.1234")
 
 ### By Package
 
-| Package | Impact | Complexity | Time | Priority |
-|---------|--------|------------|------|----------|
-| `@hieco/next` | ⭐⭐⭐⭐⭐ | Medium | 7-9d | P0 |
-| `@hieco/connect` | ⭐⭐⭐⭐⭐ | Medium | 8-10d | P0 |
-| `@hieco/components` | ⭐⭐⭐⭐⭐ | Low | 6-8d | P0 |
-| `@hieco/smart-wallet` | ⭐⭐⭐⭐ | High | 12-15d | P1 |
-| `@hieco/nuxt` | ⭐⭐⭐⭐ | Medium | 5-7d | P1 |
-| `@hieco/sveltekit` | ⭐⭐⭐⭐ | Medium | 5-7d | P1 |
-| `@hieco/nft` | ⭐⭐⭐ | Low | 4-6d | P2 |
-| `@hieco/staking` | ⭐⭐⭐ | Low | 4-5d | P2 |
-| `@hieco/forms` | ⭐⭐⭐ | Low | 3-4d | P2 |
-| `@hieco/docs` | ⭐⭐⭐ | Low | 3-4d | P2 |
-| `@hieco/relay` | ⭐⭐⭐ | High | 10-12d | P2 |
-| `@hieco/subgraph` | ⭐⭐⭐ | Medium | 6-8d | P2 |
-| `@hieco/devtools-extension` | ⭐⭐⭐ | High | 10-12d | P3 |
-| `@hieco/solid-start` | ⭐⭐ | Low | 4-5d | P3 |
-| `@hieco/astro` | ⭐⭐ | Low | 3-4d | P3 |
+| Package                     | Impact     | Complexity | Time   | Priority |
+| --------------------------- | ---------- | ---------- | ------ | -------- |
+| `@hieco/next`               | ⭐⭐⭐⭐⭐ | Medium     | 7-9d   | P0       |
+| `@hieco/connect`            | ⭐⭐⭐⭐⭐ | Medium     | 8-10d  | P0       |
+| `@hieco/components`         | ⭐⭐⭐⭐⭐ | Low        | 6-8d   | P0       |
+| `@hieco/smart-wallet`       | ⭐⭐⭐⭐   | High       | 12-15d | P1       |
+| `@hieco/nuxt`               | ⭐⭐⭐⭐   | Medium     | 5-7d   | P1       |
+| `@hieco/sveltekit`          | ⭐⭐⭐⭐   | Medium     | 5-7d   | P1       |
+| `@hieco/nft`                | ⭐⭐⭐     | Low        | 4-6d   | P2       |
+| `@hieco/staking`            | ⭐⭐⭐     | Low        | 4-5d   | P2       |
+| `@hieco/forms`              | ⭐⭐⭐     | Low        | 3-4d   | P2       |
+| `@hieco/docs`               | ⭐⭐⭐     | Low        | 3-4d   | P2       |
+| `@hieco/relay`              | ⭐⭐⭐     | High       | 10-12d | P2       |
+| `@hieco/subgraph`           | ⭐⭐⭐     | Medium     | 6-8d   | P2       |
+| `@hieco/devtools-extension` | ⭐⭐⭐     | High       | 10-12d | P3       |
+| `@hieco/solid-start`        | ⭐⭐       | Low        | 4-5d   | P3       |
+| `@hieco/astro`              | ⭐⭐       | Low        | 3-4d   | P3       |
 
 ### By Category
 
-| Category | Existing | Proposed (New) |
-|----------|----------|-----------------|
-| **Core** | mirror, mirror-shared, types | - |
-| **React** | mirror-react | next, components, connect, forms |
-| **Vue** | mirror-vue (proposed) | nuxt |
-| **Svelte** | - | sveltekit |
-| **Solid** | mirror-solid | solid-start |
-| **Preact** | mirror-preact | - |
-| **Meta** | - | astro |
-| **Utilities** | testing, realtime, scheduled (proposed) | nft, staking, smart-wallet, forms, docs |
-| **DevTools** | mirror-mcp, mirror-cli | devtools-extension |
-| **Infrastructure** | - | relay, subgraph |
+| Category           | Existing                                | Proposed (New)                          |
+| ------------------ | --------------------------------------- | --------------------------------------- |
+| **Core**           | mirror, mirror-shared, types            | -                                       |
+| **React**          | mirror-react                            | next, components, connect, forms        |
+| **Vue**            | mirror-vue (proposed)                   | nuxt                                    |
+| **Svelte**         | -                                       | sveltekit                               |
+| **Solid**          | mirror-solid                            | solid-start                             |
+| **Preact**         | mirror-preact                           | -                                       |
+| **Meta**           | -                                       | astro                                   |
+| **Utilities**      | testing, realtime, scheduled (proposed) | nft, staking, smart-wallet, forms, docs |
+| **DevTools**       | mirror-mcp, mirror-cli                  | devtools-extension                      |
+| **Infrastructure** | -                                       | relay, subgraph                         |
 
 ---
 
@@ -1564,6 +1601,7 @@ useAccountBalance("0.0.1234")
 ### For Tier 1 Packages (connect, next, components)
 
 **3-Month Targets:**
+
 - 200+ GitHub stars across all packages
 - 1,000+ weekly NPM downloads combined
 - 20+ public projects using the libraries
@@ -1571,6 +1609,7 @@ useAccountBalance("0.0.1234")
 - Positive feedback in Hedera/Hiero Discord
 
 **6-Month Targets:**
+
 - 1,000+ GitHub stars
 - 5,000+ weekly downloads
 - 100+ public projects
@@ -1580,6 +1619,7 @@ useAccountBalance("0.0.1234")
 ### For Tier 2-4 Packages
 
 **6-Month Targets:**
+
 - 100+ GitHub stars
 - 500+ weekly downloads
 - 10+ public projects
@@ -1590,20 +1630,20 @@ useAccountBalance("0.0.1234")
 
 ### Technical Risks
 
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| Hedera SDK breaking changes | Medium | High | Use strict versioning, adapter pattern |
-| Mirror Node API changes | Low | Medium | Abstract API layer, version checking |
-| React 19 conflicts | Low | Medium | Test with canary, peer dependencies |
-| Wallet integration issues | High | High | Thorough testing, fallbacks |
+| Risk                        | Probability | Impact | Mitigation                             |
+| --------------------------- | ----------- | ------ | -------------------------------------- |
+| Hedera SDK breaking changes | Medium      | High   | Use strict versioning, adapter pattern |
+| Mirror Node API changes     | Low         | Medium | Abstract API layer, version checking   |
+| React 19 conflicts          | Low         | Medium | Test with canary, peer dependencies    |
+| Wallet integration issues   | High        | High   | Thorough testing, fallbacks            |
 
 ### Adoption Risks
 
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| Low community awareness | High | High | Docs, examples, social media |
-| Competition from official SDK | Low | High | Collaborate, offer to upstream |
-| Niche use case | Medium | Medium | Focus on real pain points, validate |
+| Risk                          | Probability | Impact | Mitigation                          |
+| ----------------------------- | ----------- | ------ | ----------------------------------- |
+| Low community awareness       | High        | High   | Docs, examples, social media        |
+| Competition from official SDK | Low         | High   | Collaborate, offer to upstream      |
+| Niche use case                | Medium      | Medium | Focus on real pain points, validate |
 
 ---
 

@@ -90,6 +90,7 @@ function App() {
 ```
 
 **No additional configuration required for:**
+
 - Wallet list (comes pre-configured with popular wallets)
 - Network endpoints (auto-detected from `network` prop)
 - Error handling (built-in, customizable)
@@ -104,15 +105,15 @@ import type {
   WalletConfig,
   HederaConnectProps,
   ConnectButtonProps,
-  WalletList
-} from '@hieco/connect';
+  WalletList,
+} from "@hieco/connect";
 
 // All props are typed with descriptions
 const config: HederaConnectProps = {
-  network: 'testnet', // ← autocomplete shows: 'mainnet' | 'testnet' | 'previewnet'
-  theme: 'dark',      // ← autocomplete shows theme options
+  network: "testnet", // ← autocomplete shows: 'mainnet' | 'testnet' | 'previewnet'
+  theme: "dark", // ← autocomplete shows theme options
   wallets: {
-    preferred: ['hashpack', 'blade'],
+    preferred: ["hashpack", "blade"],
     // ← autocomplete shows all wallet IDs
   },
   // ← all other props with inline docs
@@ -151,6 +152,7 @@ const { address, isConnected } = useWallet();
 ```
 
 **This gives you:**
+
 - ✅ All 5 popular wallets pre-configured
 - ✅ Automatic network detection
 - ✅ Beautiful dark/light theme (auto from system preference)
@@ -223,6 +225,7 @@ const { address, isConnected } = useWallet();
 ### DX Principle 4: Clear, Actionable Error Messages
 
 **Principle:** When something goes wrong, developers should immediately understand:
+
 1. What went wrong
 2. Why it went wrong
 3. How to fix it
@@ -231,7 +234,7 @@ const { address, isConnected } = useWallet();
 
 ```typescript
 // ❌ Bad error message (what NOT to do)
-throw new Error('Wallet connection failed');
+throw new Error("Wallet connection failed");
 
 // ✅ Good error message (what TO DO)
 throw new Error(`
@@ -275,6 +278,7 @@ Debug info: window.hashpack is undefined
 ### DX Principle 5: Comprehensive Documentation
 
 **Every feature must have:**
+
 1. Quick start example (< 2 min read)
 2. API reference with all props/options
 3. Code examples for common use cases
@@ -321,6 +325,7 @@ Debug info: window.hashpack is undefined
 ### DX Principle 6: Performance & Bundle Size
 
 **Goals:**
+
 - Bundle size: < 100KB gzipped
 - First paint: < 1 second
 - Time to interactive: < 2 seconds
@@ -331,17 +336,17 @@ Debug info: window.hashpack is undefined
 // ✅ Code splitting by wallet
 // Only load wallet connectors when needed
 const walletConnectors = {
-  hashpack: () => import('./connectors/hashpack'),
-  blade: () => import('./connectors/blade'),
-  kabila: () => import('./connectors/kabila'),
-  metamask: () => import('./connectors/metamask'),
+  hashpack: () => import("./connectors/hashpack"),
+  blade: () => import("./connectors/blade"),
+  kabila: () => import("./connectors/kabila"),
+  metamask: () => import("./connectors/metamask"),
 };
 
 // ✅ Lazy load QR code for WalletConnect
-const QRCode = React.lazy(() => import('./QRCode'));
+const QRCode = React.lazy(() => import("./QRCode"));
 
 // ✅ Tree-shakeable exports
-import { ConnectButton } from '@hieco/connect';
+import { ConnectButton } from "@hieco/connect";
 // Only ConnectButton and its dependencies are bundled
 
 // ❌ NOT: All-or-nothing bundles
@@ -495,6 +500,7 @@ Step 4: Success
 ### UX Principle 3: Error Recovery
 
 **Principle:** When something goes wrong, show the user:
+
 1. What happened (clear, simple language)
 2. Why it happened (optional, for advanced users)
 3. How to fix it (actionable steps)
@@ -776,13 +782,13 @@ const TOUCH_TARGET_SIZE = 44; // iOS HIG minimum
 
 Out of the box, `@hieco/connect` supports these wallets with zero configuration:
 
-| Wallet | Type | Priority | Notes |
-|--------|------|----------|-------|
-| **HashPack** | Browser Extension | ⭐⭐⭐⭐⭐ | Most popular Hedera wallet |
-| **Blade Wallet** | Browser Extension | ⭐⭐⭐⭐ | Clean UI, good mobile app |
-| **Kabila** | Mobile Wallet | ⭐⭐⭐⭐ | Great mobile UX |
-| **MetaMask** | Browser Extension + Snap | ⭐⭐⭐ | Via Hedera Snap |
-| **WalletConnect** | Mobile Protocol | ⭐⭐⭐⭐ | For mobile wallet apps |
+| Wallet            | Type                     | Priority   | Notes                      |
+| ----------------- | ------------------------ | ---------- | -------------------------- |
+| **HashPack**      | Browser Extension        | ⭐⭐⭐⭐⭐ | Most popular Hedera wallet |
+| **Blade Wallet**  | Browser Extension        | ⭐⭐⭐⭐   | Clean UI, good mobile app  |
+| **Kabila**        | Mobile Wallet            | ⭐⭐⭐⭐   | Great mobile UX            |
+| **MetaMask**      | Browser Extension + Snap | ⭐⭐⭐     | Via Hedera Snap            |
+| **WalletConnect** | Mobile Protocol          | ⭐⭐⭐⭐   | For mobile wallet apps     |
 
 ### 2. React Hooks API
 
@@ -966,7 +972,7 @@ interface WalletState {
 
 // State persistence
 const persist = {
-  key: '@hieco/connect',
+  key: "@hieco/connect",
   storage: localStorage, // or sessionStorage
   partialize: (state) => ({
     lastConnectedWallet: state.lastConnectedWallet,
@@ -1008,17 +1014,17 @@ interface WalletConnector {
 
 // Example: HashPack connector
 class HashPackConnector implements WalletConnector {
-  id = 'hashpack';
-  name = 'HashPack';
+  id = "hashpack";
+  name = "HashPack";
   icon = HashPackIcon;
 
   isAvailable() {
-    return typeof window.hashpack !== 'undefined';
+    return typeof window.hashpack !== "undefined";
   }
 
   async connect() {
     if (!this.isAvailable()) {
-      throw new Error('HashPack not installed');
+      throw new Error("HashPack not installed");
     }
 
     const accounts = await window.hashpack.connect();
@@ -1041,29 +1047,25 @@ class HashPackConnector implements WalletConnector {
 ```typescript
 interface HederaConnectProps {
   // Required
-  network: 'mainnet' | 'testnet' | 'previewnet';
+  network: "mainnet" | "testnet" | "previewnet";
   children: React.ReactNode;
 
   // Optional - Theme
-  theme?: Theme | 'light' | 'dark';
+  theme?: Theme | "light" | "dark";
 
   // Optional - Wallet configuration
   wallets?: {
-    preferred?: string[];           // Preferred wallets (shown first)
-    order?: string[];                // Custom order
-    exclude?: string[];              // Exclude specific wallets
-    custom?: WalletConnector[];     // Add custom wallets
+    preferred?: string[]; // Preferred wallets (shown first)
+    order?: string[]; // Custom order
+    exclude?: string[]; // Exclude specific wallets
+    custom?: WalletConnector[]; // Add custom wallets
   };
 
   // Optional - Error handling
   onError?: (error: Error) => void;
 
   // Optional - Event callbacks
-  onConnect?: (data: {
-    address: string;
-    wallet: Wallet;
-    network: Network;
-  }) => void;
+  onConnect?: (data: { address: string; wallet: Wallet; network: Network }) => void;
 
   onDisconnect?: () => void;
 
@@ -1073,12 +1075,12 @@ interface HederaConnectProps {
 
   // Optional - Advanced options
   options?: {
-    autoConnect?: boolean;           // Default: true
-    persistentState?: 'localStorage' | 'sessionStorage' | 'memory';
-    loadingTimeout?: number;         // Default: 10000ms
-    showBalance?: boolean;           // Default: true
-    balanceFormat?: 'full' | 'compact' | 'tinybars';
-    refreshInterval?: number;        // Balance refresh interval (ms)
+    autoConnect?: boolean; // Default: true
+    persistentState?: "localStorage" | "sessionStorage" | "memory";
+    loadingTimeout?: number; // Default: 10000ms
+    showBalance?: boolean; // Default: true
+    balanceFormat?: "full" | "compact" | "tinybars";
+    refreshInterval?: number; // Balance refresh interval (ms)
   };
 }
 ```
@@ -1088,10 +1090,10 @@ interface HederaConnectProps {
 ```typescript
 interface ConnectButtonProps {
   // Display options
-  showBalance?: boolean;             // Default: false
-  showNetwork?: boolean;             // Default: false
-  accountStatus?: 'avatar' | 'address' | 'full';
-  chainStatus?: 'none' | 'icon' | 'full';
+  showBalance?: boolean; // Default: false
+  showNetwork?: boolean; // Default: false
+  accountStatus?: "avatar" | "address" | "full";
+  chainStatus?: "none" | "icon" | "full";
 
   // Styling
   className?: string;
@@ -1138,7 +1140,7 @@ interface UseWalletReturn {
 
 ```typescript
 interface Theme {
-  mode: 'light' | 'dark';
+  mode: "light" | "dark";
 
   colors: {
     accent: string;
@@ -1152,7 +1154,7 @@ interface Theme {
   };
 
   borderRadius: string;
-  fontStack: 'system' | 'rounded' | 'custom';
+  fontStack: "system" | "rounded" | "custom";
 
   shadows: {
     connectButton: string;
@@ -1166,25 +1168,25 @@ interface Theme {
 }
 
 // Pre-built themes
-import { darkTheme, lightTheme, midnightTheme } from '@hieco/connect';
+import { darkTheme, lightTheme, midnightTheme } from "@hieco/connect";
 
 // Custom theme builder
-import { createTheme } from '@hieco/connect';
+import { createTheme } from "@hieco/connect";
 
 const customTheme = createTheme({
-  mode: 'dark',
+  mode: "dark",
   colors: {
-    accent: '#0098FF',
-    accentForeground: '#FFFFFF',
-    background: '#0A0A0A',
-    foreground: '#FFFFFF',
-    border: '#1A1A1A',
-    error: '#FF5A5F',
-    success: '#00D26A',
-    warning: '#FFB800',
+    accent: "#0098FF",
+    accentForeground: "#FFFFFF",
+    background: "#0A0A0A",
+    foreground: "#FFFFFF",
+    border: "#1A1A1A",
+    error: "#FF5A5F",
+    success: "#00D26A",
+    warning: "#FFB800",
   },
-  borderRadius: '12px',
-  fontStack: 'system',
+  borderRadius: "12px",
+  fontStack: "system",
 });
 ```
 
@@ -1313,14 +1315,17 @@ const theme = new Date().getHours() < 18 ? lightTheme : darkTheme;
 ### Developer Experience Metrics
 
 **Setup Time:**
+
 - Target: < 5 minutes from `npm install` to working wallet connection
 - Measurement: Time to complete quick start tutorial
 
 **API Clarity:**
+
 - Target: 90%+ API surface covered by TypeScript autocomplete
 - Measurement: Developer survey, documentation completeness
 
 **Bundle Size:**
+
 - Target: < 100KB gzipped for core package
 - Target: < 30KB gzipped per wallet connector
 - Measurement: Bundle analysis with webpack-bundle-analyzer
@@ -1328,26 +1333,31 @@ const theme = new Date().getHours() < 18 ? lightTheme : darkTheme;
 ### User Experience Metrics
 
 **Connection Success Rate:**
+
 - Target: 95%+ successful connections (excluding user cancellation)
 - Measurement: Analytics tracking
 
 **Connection Time:**
+
 - Target: < 2 seconds from click to connected state
 - Measurement: Performance monitoring
 
 **Error Recovery:**
+
 - Target: 80%+ of users recover from errors without leaving dApp
 - Measurement: Analytics tracking of error flows
 
 ### Adoption Metrics
 
 **3-Month Targets:**
+
 - 200+ GitHub stars
 - 1,000+ weekly NPM downloads
 - 20+ public projects using
 - 5+ production dApps launched
 
 **6-Month Targets:**
+
 - 1,000+ GitHub stars
 - 5,000+ weekly downloads
 - 100+ public projects
