@@ -27,8 +27,7 @@ export async function transfer(
 
   const result = await executeTransaction(
     deps.nativeClient,
-    "transfer",
-    params,
+    { type: "transfer", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -59,8 +58,7 @@ export async function createAccount(
 
   const result = await executeTransaction(
     deps.nativeClient,
-    "createAccount",
-    params,
+    { type: "createAccount", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -105,8 +103,7 @@ export async function updateAccount(
 
   const result = await executeTransaction(
     deps.nativeClient,
-    "updateAccount",
-    params,
+    { type: "updateAccount", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -137,8 +134,7 @@ export async function deleteAccount(
 
   const result = await executeTransaction(
     deps.nativeClient,
-    "deleteAccount",
-    params,
+    { type: "deleteAccount", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -169,8 +165,7 @@ export async function approveAllowance(
 
   return executeTransaction(
     deps.nativeClient,
-    "approveAllowance",
-    params,
+    { type: "approveAllowance", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,

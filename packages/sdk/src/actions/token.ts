@@ -37,8 +37,7 @@ export async function createToken(
 
   const result = await executeTransaction(
     deps.nativeClient,
-    "createToken",
-    params,
+    { type: "createToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -83,8 +82,7 @@ export async function mintToken(
 
   const result = await executeTransaction(
     deps.nativeClient,
-    "mintToken",
-    params,
+    { type: "mintToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -117,8 +115,7 @@ export async function burnToken(
 
   return executeTransaction(
     deps.nativeClient,
-    "burnToken",
-    params,
+    { type: "burnToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -139,8 +136,7 @@ export async function transferToken(
 
   return executeTransaction(
     deps.nativeClient,
-    "transferToken",
-    params,
+    { type: "transferToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -161,8 +157,7 @@ export async function transferNft(
 
   return executeTransaction(
     deps.nativeClient,
-    "transferNft",
-    params,
+    { type: "transferNft", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -183,8 +178,7 @@ export async function associateToken(
 
   return executeTransaction(
     deps.nativeClient,
-    "associateToken",
-    params,
+    { type: "associateToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -205,8 +199,7 @@ export async function dissociateToken(
 
   return executeTransaction(
     deps.nativeClient,
-    "dissociateToken",
-    params,
+    { type: "dissociateToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -227,8 +220,7 @@ export async function freezeToken(
 
   return executeTransaction(
     deps.nativeClient,
-    "freezeToken",
-    params,
+    { type: "freezeToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -249,8 +241,7 @@ export async function unfreezeToken(
 
   return executeTransaction(
     deps.nativeClient,
-    "unfreezeToken",
-    params,
+    { type: "unfreezeToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -271,8 +262,7 @@ export async function grantKyc(
 
   return executeTransaction(
     deps.nativeClient,
-    "grantKyc",
-    params,
+    { type: "grantKyc", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -293,8 +283,7 @@ export async function revokeKyc(
 
   return executeTransaction(
     deps.nativeClient,
-    "revokeKyc",
-    params,
+    { type: "revokeKyc", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -315,8 +304,7 @@ export async function pauseToken(
 
   return executeTransaction(
     deps.nativeClient,
-    "pauseToken",
-    params,
+    { type: "pauseToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -337,8 +325,7 @@ export async function unpauseToken(
 
   return executeTransaction(
     deps.nativeClient,
-    "unpauseToken",
-    params,
+    { type: "unpauseToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -359,8 +346,7 @@ export async function wipeToken(
 
   return executeTransaction(
     deps.nativeClient,
-    "wipeToken",
-    params,
+    { type: "wipeToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -381,8 +367,7 @@ export async function deleteToken(
 
   return executeTransaction(
     deps.nativeClient,
-    "deleteToken",
-    params,
+    { type: "deleteToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -403,8 +388,7 @@ export async function updateToken(
 
   return executeTransaction(
     deps.nativeClient,
-    "updateToken",
-    params,
+    { type: "updateToken", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -425,8 +409,7 @@ export async function updateTokenFeeSchedule(
 
   return executeTransaction(
     deps.nativeClient,
-    "updateTokenFeeSchedule",
-    params,
+    { type: "updateTokenFeeSchedule", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,

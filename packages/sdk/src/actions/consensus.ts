@@ -24,8 +24,7 @@ export async function createTopic(
 
   const result = await executeTransaction(
     deps.nativeClient,
-    "createTopic",
-    params,
+    { type: "createTopic", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -70,8 +69,7 @@ export async function updateTopic(
 
   return executeTransaction(
     deps.nativeClient,
-    "updateTopic",
-    params,
+    { type: "updateTopic", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -92,8 +90,7 @@ export async function deleteTopic(
 
   return executeTransaction(
     deps.nativeClient,
-    "deleteTopic",
-    params,
+    { type: "deleteTopic", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -114,8 +111,7 @@ export async function submitMessage(
 
   const result = await executeTransaction(
     deps.nativeClient,
-    "submitMessage",
-    params,
+    { type: "submitMessage", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,

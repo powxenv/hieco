@@ -2,15 +2,14 @@ import { Client, ReceiptStatusError, Status, PrivateKey } from "@hiero-ledger/sd
 import { asEntityId } from "@hieco/mirror-shared";
 import { resolveTransaction } from "./resolver.ts";
 import type {
-  TransactionType,
   TransactionMiddleware,
   TransactionContext,
   TransactionReceiptData,
   SdkResult,
   HieroClientRef,
   RetryConfig,
-  AnyTransactionParams,
   SigningContext,
+  TransactionDescriptor,
 } from "../types.ts";
 import { transactionError, invalidSignatureError } from "../errors/messages.ts";
 import type { TransactionEventEmitter } from "../events/emitter.ts";
@@ -45,8 +44,7 @@ function mapReceiptStatusError(
 
 export async function executeTransaction(
   nativeClient: Client,
-  type: TransactionType,
-  params: AnyTransactionParams,
+  tx: TransactionDescriptor,
   signing: SigningContext,
   middleware: ReadonlyArray<TransactionMiddleware>,
   emitter: TransactionEventEmitter,
@@ -54,13 +52,10 @@ export async function executeTransaction(
   perTransactionRetry?: RetryConfig | false,
 ): Promise<SdkResult<TransactionReceiptData>> {
   const startedAt = Date.now();
-  const paramsRecord: Record<string, unknown> = { ...params };
-
-  emitter.emit("transaction:before", { type, params: paramsRecord });
+  emitter.emit("transaction:before", tx);
 
   const context: TransactionContext = {
-    type,
-    params: paramsRecord,
+    transaction: tx,
     client: clientRef,
     attempt: 0,
     transactionId: undefined,
@@ -71,28 +66,30 @@ export async function executeTransaction(
   const coreExecution = async (): Promise<SdkResult<TransactionReceiptData>> => {
     try {
       const operatorKey = signing._tag === "operator" ? signing.operatorKey : undefined;
-      const nativeTx = resolveTransaction(type, paramsRecord, operatorKey, signing);
+      const nativeTx = resolveTransaction(tx.type, tx.params, operatorKey, signing);
+
+      const signedTx =
+        signing._tag === "signer"
+          ? await (await nativeTx.freezeWithSigner(signing.signer)).signWithSigner(signing.signer)
+          : await (
+              await nativeTx.freezeWith(nativeClient)
+            ).sign(PrivateKey.fromStringDer(signing.operatorKey));
+
+      const signedTxId = signedTx.transactionId?.toString() ?? "unknown";
+      emitter.emit("transaction:signed", { type: tx.type, transactionId: signedTxId });
 
       const submitted =
         signing._tag === "signer"
-          ? await (
-              await (await nativeTx.freezeWithSigner(signing.signer)).signWithSigner(signing.signer)
-            ).executeWithSigner(signing.signer)
-          : await (
-              await (await nativeTx.freezeWith(nativeClient)).sign(
-                PrivateKey.fromStringDer(signing.operatorKey),
-              )
-            ).execute(nativeClient);
+          ? await signedTx.executeWithSigner(signing.signer)
+          : await signedTx.execute(nativeClient);
 
-      const txId = submitted.transactionId?.toString() ?? "unknown";
+      const txId = submitted.transactionId?.toString() ?? signedTxId;
 
       emitter.emit("transaction:submitted", {
-        type,
+        type: tx.type,
         transactionId: txId,
         nodeId: submitted.nodeId.toString(),
       });
-
-      emitter.emit("transaction:signed", { type, transactionId: txId });
 
       const receipt =
         signing._tag === "signer"
@@ -115,7 +112,7 @@ export async function executeTransaction(
       };
 
       emitter.emit("transaction:confirmed", {
-        type,
+        type: tx.type,
         transactionId: txId,
         receipt: receiptData,
         durationMs: Date.now() - startedAt,
@@ -127,13 +124,13 @@ export async function executeTransaction(
         const txId = error.transactionId?.toString() ?? "unknown";
         const result = mapReceiptStatusError(error, txId);
         if (!result.success) {
-          emitter.emit("transaction:error", { type, error: result.error });
+          emitter.emit("transaction:error", { type: tx.type, error: result.error });
         }
         return result;
       }
 
       const sdkError = transactionError("UNKNOWN", context.transactionId ?? "unknown");
-      emitter.emit("transaction:error", { type, error: sdkError });
+      emitter.emit("transaction:error", { type: tx.type, error: sdkError });
       return { success: false, error: sdkError };
     }
   };

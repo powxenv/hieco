@@ -23,8 +23,7 @@ export async function createFile(
 
   const result = await executeTransaction(
     deps.nativeClient,
-    "createFile",
-    params,
+    { type: "createFile", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -69,8 +68,7 @@ export async function appendFile(
 
   return executeTransaction(
     deps.nativeClient,
-    "appendFile",
-    params,
+    { type: "appendFile", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -91,8 +89,7 @@ export async function updateFile(
 
   return executeTransaction(
     deps.nativeClient,
-    "updateFile",
-    params,
+    { type: "updateFile", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -113,8 +110,7 @@ export async function deleteFile(
 
   return executeTransaction(
     deps.nativeClient,
-    "deleteFile",
-    params,
+    { type: "deleteFile", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,

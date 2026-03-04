@@ -10,7 +10,3 @@ export function detectEnvironment(): RuntimeEnvironment {
 export function isBrowser(): boolean {
   return detectEnvironment() === "browser";
 }
-
-export function isNode(): boolean {
-  return detectEnvironment() === "node";
-}

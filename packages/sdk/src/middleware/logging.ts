@@ -33,22 +33,24 @@ export function createLoggingMiddleware(level: LogLevel): TransactionMiddleware 
     context: TransactionContext,
     next: () => Promise<SdkResult<TransactionReceiptData>>,
   ): Promise<SdkResult<TransactionReceiptData>> => {
+    const type = context.transaction.type;
+
     if (shouldLog(level, "info")) {
-      console.info(`[hieco-sdk] ${context.type} transaction starting`, {
-        type: context.type,
+      console.info(`[hieco-sdk] ${type} transaction starting`, {
+        type,
         attempt: context.attempt,
       });
     }
 
     if (shouldLog(level, "debug")) {
-      console.debug(`[hieco-sdk] ${context.type} params`, context.params);
+      console.debug(`[hieco-sdk] ${type} params`, context.transaction.params);
     }
 
     const result = await next();
 
     if (result.success) {
       if (shouldLog(level, "info")) {
-        console.info(`[hieco-sdk] ${context.type} transaction confirmed`, {
+        console.info(`[hieco-sdk] ${type} transaction confirmed`, {
           status: result.data.status,
           transactionId: result.data.transactionId,
           duration: formatDuration(context.startedAt),
@@ -56,7 +58,7 @@ export function createLoggingMiddleware(level: LogLevel): TransactionMiddleware 
       }
     } else {
       if (shouldLog(level, "error")) {
-        console.error(`[hieco-sdk] ${context.type} transaction failed`, {
+        console.error(`[hieco-sdk] ${type} transaction failed`, {
           error: result.error._tag,
           message: result.error.message,
           duration: formatDuration(context.startedAt),

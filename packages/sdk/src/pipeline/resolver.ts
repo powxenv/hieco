@@ -51,6 +51,7 @@ import {
 } from "@hiero-ledger/sdk";
 import type {
   TransactionType,
+  TransactionParamsMap,
   TransferParams,
   CreateAccountParams,
   UpdateAccountParams,
@@ -902,90 +903,86 @@ function resolveDeleteFile(params: DeleteFileParams): FileDeleteTransaction {
   return tx;
 }
 
-export function resolveTransaction(
-  type: TransactionType,
-  params: Record<string, unknown>,
+export function resolveTransaction<T extends TransactionType>(
+  type: T,
+  params: TransactionParamsMap[T],
   operatorKey?: string,
   signing?: SigningContext,
 ): NativeTransaction {
   switch (type) {
     case "transfer":
-      return resolveTransfer(params as unknown as TransferParams);
+      return resolveTransfer(params as TransferParams);
     case "createAccount":
-      return resolveCreateAccount(params as unknown as CreateAccountParams);
+      return resolveCreateAccount(params as CreateAccountParams);
     case "updateAccount":
-      return resolveUpdateAccount(params as unknown as UpdateAccountParams);
+      return resolveUpdateAccount(params as UpdateAccountParams);
     case "deleteAccount":
-      return resolveDeleteAccount(params as unknown as DeleteAccountParams);
+      return resolveDeleteAccount(params as DeleteAccountParams);
     case "approveAllowance":
-      return resolveApproveAllowance(params as unknown as ApproveAllowanceParams);
+      return resolveApproveAllowance(params as ApproveAllowanceParams);
     case "createToken":
-      return resolveCreateToken(params as unknown as CreateTokenParams, operatorKey, signing);
+      return resolveCreateToken(params as CreateTokenParams, operatorKey, signing);
     case "mintToken":
-      return resolveMintToken(params as unknown as MintTokenParams);
+      return resolveMintToken(params as MintTokenParams);
     case "burnToken":
-      return resolveBurnToken(params as unknown as BurnTokenParams);
+      return resolveBurnToken(params as BurnTokenParams);
     case "transferToken":
-      return resolveTransferToken(params as unknown as TransferTokenParams);
+      return resolveTransferToken(params as TransferTokenParams);
     case "transferNft":
-      return resolveTransferNft(params as unknown as TransferNftParams);
+      return resolveTransferNft(params as TransferNftParams);
     case "associateToken":
-      return resolveAssociateToken(params as unknown as AssociateTokenParams);
+      return resolveAssociateToken(params as AssociateTokenParams);
     case "dissociateToken":
-      return resolveDissociateToken(params as unknown as DissociateTokenParams);
+      return resolveDissociateToken(params as DissociateTokenParams);
     case "freezeToken":
-      return resolveFreezeToken(params as unknown as FreezeTokenParams);
+      return resolveFreezeToken(params as FreezeTokenParams);
     case "unfreezeToken":
-      return resolveUnfreezeToken(params as unknown as UnfreezeTokenParams);
+      return resolveUnfreezeToken(params as UnfreezeTokenParams);
     case "grantKyc":
-      return resolveGrantKyc(params as unknown as GrantKycParams);
+      return resolveGrantKyc(params as GrantKycParams);
     case "revokeKyc":
-      return resolveRevokeKyc(params as unknown as RevokeKycParams);
+      return resolveRevokeKyc(params as RevokeKycParams);
     case "pauseToken":
-      return resolvePauseToken(params as unknown as PauseTokenParams);
+      return resolvePauseToken(params as PauseTokenParams);
     case "unpauseToken":
-      return resolveUnpauseToken(params as unknown as UnpauseTokenParams);
+      return resolveUnpauseToken(params as UnpauseTokenParams);
     case "wipeToken":
-      return resolveWipeToken(params as unknown as WipeTokenParams);
+      return resolveWipeToken(params as WipeTokenParams);
     case "deleteToken":
-      return resolveDeleteToken(params as unknown as DeleteTokenParams);
+      return resolveDeleteToken(params as DeleteTokenParams);
     case "updateToken":
-      return resolveUpdateToken(params as unknown as UpdateTokenParams, operatorKey, signing);
+      return resolveUpdateToken(params as UpdateTokenParams, operatorKey, signing);
     case "updateTokenFeeSchedule":
-      return resolveUpdateTokenFeeSchedule(params as unknown as UpdateTokenFeeScheduleParams);
+      return resolveUpdateTokenFeeSchedule(params as UpdateTokenFeeScheduleParams);
     case "createTopic":
-      return resolveCreateTopic(params as unknown as CreateTopicParams, operatorKey, signing);
+      return resolveCreateTopic(params as CreateTopicParams, operatorKey, signing);
     case "updateTopic":
-      return resolveUpdateTopic(params as unknown as UpdateTopicParams, operatorKey, signing);
+      return resolveUpdateTopic(params as UpdateTopicParams, operatorKey, signing);
     case "deleteTopic":
-      return resolveDeleteTopic(params as unknown as DeleteTopicParams);
+      return resolveDeleteTopic(params as DeleteTopicParams);
     case "submitMessage":
-      return resolveSubmitMessage(params as unknown as SubmitMessageParams);
+      return resolveSubmitMessage(params as SubmitMessageParams);
     case "deployContract":
-      return resolveDeployContract(params as unknown as DeployContractParams, operatorKey, signing);
+      return resolveDeployContract(params as DeployContractParams, operatorKey, signing);
     case "executeContract":
-      return resolveExecuteContract(params as unknown as ExecuteContractParams);
+      return resolveExecuteContract(params as ExecuteContractParams);
     case "deleteContract":
-      return resolveDeleteContract(params as unknown as DeleteContractParams);
+      return resolveDeleteContract(params as DeleteContractParams);
     case "updateContract":
-      return resolveUpdateContract(params as unknown as UpdateContractParams, operatorKey, signing);
+      return resolveUpdateContract(params as UpdateContractParams, operatorKey, signing);
     case "scheduleTransaction":
-      return resolveScheduleTransaction(
-        params as unknown as ScheduleTransactionParams,
-        operatorKey,
-        signing,
-      );
+      return resolveScheduleTransaction(params as ScheduleTransactionParams, operatorKey, signing);
     case "signSchedule":
-      return resolveSignSchedule(params as unknown as SignScheduleParams);
+      return resolveSignSchedule(params as SignScheduleParams);
     case "deleteSchedule":
-      return resolveDeleteSchedule(params as unknown as DeleteScheduleParams);
+      return resolveDeleteSchedule(params as DeleteScheduleParams);
     case "createFile":
-      return resolveCreateFile(params as unknown as CreateFileParams);
+      return resolveCreateFile(params as CreateFileParams);
     case "appendFile":
-      return resolveAppendFile(params as unknown as AppendFileParams);
+      return resolveAppendFile(params as AppendFileParams);
     case "updateFile":
-      return resolveUpdateFile(params as unknown as UpdateFileParams);
+      return resolveUpdateFile(params as UpdateFileParams);
     case "deleteFile":
-      return resolveDeleteFile(params as unknown as DeleteFileParams);
+      return resolveDeleteFile(params as DeleteFileParams);
   }
 }

@@ -22,8 +22,7 @@ export async function scheduleTransaction(
 
   const result = await executeTransaction(
     deps.nativeClient,
-    "scheduleTransaction",
-    params,
+    { type: "scheduleTransaction", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -68,8 +67,7 @@ export async function signSchedule(
 
   return executeTransaction(
     deps.nativeClient,
-    "signSchedule",
-    params,
+    { type: "signSchedule", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -90,8 +88,7 @@ export async function deleteSchedule(
 
   return executeTransaction(
     deps.nativeClient,
-    "deleteSchedule",
-    params,
+    { type: "deleteSchedule", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,

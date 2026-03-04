@@ -18,8 +18,6 @@ function computeDelay(attempt: number, config: Required<RetryConfig>): number {
 }
 
 function isRetryable(error: SdkError, retryableStatuses: ReadonlyArray<string>): boolean {
-  if (error._tag === "RateLimitError") return true;
-
   if (error._tag === "TransactionError") {
     return retryableStatuses.includes(error.status);
   }

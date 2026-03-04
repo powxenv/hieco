@@ -28,8 +28,7 @@ export async function deployContract(
 
   const result = await executeTransaction(
     deps.nativeClient,
-    "deployContract",
-    params,
+    { type: "deployContract", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -74,8 +73,7 @@ export async function executeContract(
 
   const result = await executeTransaction(
     deps.nativeClient,
-    "executeContract",
-    params,
+    { type: "executeContract", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -161,8 +159,7 @@ export async function deleteContract(
 
   return executeTransaction(
     deps.nativeClient,
-    "deleteContract",
-    params,
+    { type: "deleteContract", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
@@ -183,8 +180,7 @@ export async function updateContract(
 
   return executeTransaction(
     deps.nativeClient,
-    "updateContract",
-    params,
+    { type: "updateContract", params },
     signingResult.data,
     deps.middleware,
     deps.emitter,
