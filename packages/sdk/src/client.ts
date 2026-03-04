@@ -107,7 +107,10 @@ import {
 } from "./actions/contract.ts";
 import { scheduleTransaction, signSchedule, deleteSchedule } from "./actions/schedule.ts";
 import { createFile, appendFile, updateFile, deleteFile } from "./actions/file.ts";
+import { AccountBuilder } from "./builders/account-builder.ts";
 import { ContractBuilder } from "./builders/contract-builder.ts";
+import { TokenBuilder } from "./builders/token-builder.ts";
+import { TopicBuilder } from "./builders/topic-builder.ts";
 import { watchTopicMessages as watchTopicMessagesSubscription } from "./subscriptions/watch-topic-messages.ts";
 
 export class HieroClient {
@@ -319,6 +322,18 @@ export class HieroClient {
     return watchTopicMessagesSubscription(this.nativeClient, params);
   }
 
+  accounts(): AccountBuilder {
+    return new AccountBuilder();
+  }
+
+  tokens(): TokenBuilder {
+    return new TokenBuilder();
+  }
+
+  topics(): TopicBuilder {
+    return new TopicBuilder();
+  }
+
   contracts(): ContractBuilder {
     return new ContractBuilder();
   }
@@ -362,6 +377,11 @@ export class HieroClient {
   private createNativeClient(): Client {
     const client = Client.forName(this.config.network);
 
+    const mirrorNetwork = mirrorUrlToNetworkEntry(this.config.mirrorUrl);
+    if (mirrorNetwork) {
+      client.setMirrorNetwork([mirrorNetwork]);
+    }
+
     if (!this.config.signer && this.config.operatorId && this.config.operatorKey) {
       client.setOperator(this.config.operatorId, this.config.operatorKey);
     }
@@ -403,5 +423,19 @@ export class HieroClient {
       emitter: this.emitter,
       clientRef: this.clientRef(),
     };
+  }
+}
+
+function mirrorUrlToNetworkEntry(mirrorUrl: string | undefined): string | undefined {
+  if (!mirrorUrl) return undefined;
+
+  try {
+    const url = mirrorUrl.includes("://") ? new URL(mirrorUrl) : new URL(`https://${mirrorUrl}`);
+    const hostname = url.hostname;
+    const port = url.port || (url.protocol === "http:" ? "80" : "443");
+    if (!hostname) return undefined;
+    return `${hostname}:${port}`;
+  } catch {
+    return undefined;
   }
 }

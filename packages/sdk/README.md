@@ -5,7 +5,7 @@ Ergonomic, type-safe SDK for Hiero blockchain transactions and queries.
 ## Features
 
 - **Zero-Boilerplate Transactions** - Simple, fluent API for HBAR transfers, token operations, smart contracts, and more
-- **Unified Client** - One client for consensus node transactions and WebSocket subscriptions
+- **Unified Client** - One client for consensus node transactions and mirror-node gRPC subscriptions
 - **Automatic Retry & Resilience** - Built-in retry logic for transient network errors (`BUSY`, `PLATFORM_TRANSACTION_NOT_CREATED`)
 - **Type-Safe Builders** - Fluent chainable builders with full TypeScript support and autocomplete
 - **Event System** - Transaction lifecycle events (before, signed, submitted, confirmed, error) for visibility
@@ -30,6 +30,7 @@ Create a `.env` file:
 HIERO_OPERATOR_ID=0.0.123456
 HIERO_PRIVATE_KEY=302e020100300506032b657004220420...
 HIERO_NETWORK=testnet
+HIERO_MIRROR_URL=https://testnet.mirrornode.hedera.com
 ```
 
 ### Step 2: Create Client and Execute Transactions
@@ -47,6 +48,7 @@ if (mirrorInfo.success) {
 
 // Transfer HBAR
 const result = await hiero.transfer({
+  from: "0.0.123456",
   to: "0.0.5678",
   amount: 10,
 });
@@ -109,6 +111,7 @@ export async function sendTip(userSigner: Signer, to: string, amount: number) {
   const client = hiero().withSigner(userSigner);
 
   return client.transfer({
+    from: "0.0.123",
     to,
     amount,
   });
@@ -124,6 +127,7 @@ Actions are the primary way to interact with the network. All actions return `Sd
 ```typescript
 // Transfer HBAR
 const result = await hiero.transfer({
+  from: "0.0.123",
   to: "0.0.5678",
   amount: 10,
   memo: "Payment",
@@ -287,6 +291,12 @@ const deleteFileResult = await hiero.deleteFile({
 Builders provide a fluent interface for constructing complex objects:
 
 ```typescript
+const account = hiero.accounts().publicKey("302a300506...").initialBalance(1).build();
+
+const token = hiero.tokens().name("MyToken").symbol("MYT").decimals(6).build();
+
+const topic = hiero.topics().memo("My Topic").build();
+
 const contract = hiero
   .contracts()
   .bytecode("0x608060...")
@@ -413,9 +423,9 @@ Error types include:
 ### Environment Variables
 
 - `HIERO_OPERATOR_ID` - Account ID of the operator (e.g., `0.0.123456`)
-- `HIERO_PRIVATE_KEY` - Private key of the operator (ED25519 or ECDSA hex format)
+- `HIERO_PRIVATE_KEY` - Operator private key in DER-encoded hex string format (compatible with `PrivateKey.fromStringDer`)
 - `HIERO_NETWORK` - Network name: `mainnet`, `testnet`, or `previewnet` (default: `testnet`)
-- `HIERO_MIRROR_URL` - Mirror node URL (optional; stored on client config)
+- `HIERO_MIRROR_URL` - Mirror node base URL used for both REST (`hiero.mirror.*`) and topic message subscriptions (`watchTopicMessages`)
 
 ### Client Options
 
@@ -445,7 +455,7 @@ const contract = hiero.contracts().bytecode("0x...").build();
 // ✅ contract is typed as DeployContractParams
 
 // Action parameters are strictly typed
-await hiero.transfer({ to: "0.0.5678", amount: 10 });
+await hiero.transfer({ from: "0.0.123", to: "0.0.5678", amount: 10 });
 // ✅ TypeScript ensures all required fields are present
 
 // Results are discriminated unions

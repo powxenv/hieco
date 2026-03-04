@@ -11,8 +11,12 @@ export function watchTopicMessages(
   if (params.endTime !== undefined) query.setEndTime(params.endTime);
   if (params.limit !== undefined) query.setLimit(params.limit);
 
-  const onError = params.onError;
-  const errorHandler = onError ? (_message: unknown, error: Error) => onError(error) : null;
+  const errorHandler = params.onError
+    ? (message: unknown, error: Error) => {
+        void message;
+        params.onError?.(error);
+      }
+    : null;
 
   const handle = query.subscribe(nativeClient, errorHandler, (message) => {
     params.handler({
