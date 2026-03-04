@@ -49,6 +49,22 @@ export type TransactionType =
   | "updateFile"
   | "deleteFile";
 
+export type TransactionDescriptor = {
+  readonly [T in TransactionType]: {
+    readonly type: T;
+    readonly params: TransactionParamsMap[T];
+  };
+}[TransactionType];
+
+export type SchedulableTransactionType = Exclude<TransactionType, "scheduleTransaction">;
+
+export type SchedulableTransactionDescriptor = {
+  readonly [T in SchedulableTransactionType]: {
+    readonly type: T;
+    readonly params: TransactionParamsMap[T];
+  };
+}[SchedulableTransactionType];
+
 export type LogLevel = "none" | "error" | "warn" | "info" | "debug" | "trace";
 
 export type TokenTypeParam = "FUNGIBLE_COMMON" | "NON_FUNGIBLE_UNIQUE";
@@ -450,10 +466,7 @@ export interface UpdateContractParams {
 }
 
 export interface ScheduleTransactionParams {
-  readonly transaction: {
-    readonly type: TransactionType;
-    readonly params: Record<string, unknown>;
-  };
+  readonly transaction: SchedulableTransactionDescriptor;
   readonly adminKey?: string | true;
   readonly payerAccountId?: EntityId;
   readonly expirationTime?: Date;
@@ -627,8 +640,7 @@ export type TransactionEvent =
   | "transaction:signed"
   | "transaction:submitted"
   | "transaction:confirmed"
-  | "transaction:error"
-  | "transaction:retry";
+  | "transaction:error";
 
 export interface TransactionEventPayloads {
   readonly "transaction:before": TransactionBeforePayload;
@@ -636,13 +648,9 @@ export interface TransactionEventPayloads {
   readonly "transaction:submitted": TransactionSubmittedPayload;
   readonly "transaction:confirmed": TransactionConfirmedPayload;
   readonly "transaction:error": TransactionErrorPayload;
-  readonly "transaction:retry": TransactionRetryPayload;
 }
 
-export interface TransactionBeforePayload {
-  readonly type: TransactionType;
-  readonly params: Record<string, unknown>;
-}
+export type TransactionBeforePayload = TransactionDescriptor;
 
 export interface TransactionSignedPayload {
   readonly type: TransactionType;
@@ -667,16 +675,8 @@ export interface TransactionErrorPayload {
   readonly error: SdkError;
 }
 
-export interface TransactionRetryPayload {
-  readonly type: TransactionType;
-  readonly attempt: number;
-  readonly reason: string;
-  readonly delayMs: number;
-}
-
 export interface TransactionContext {
-  readonly type: TransactionType;
-  readonly params: Record<string, unknown>;
+  readonly transaction: TransactionDescriptor;
   readonly client: HieroClientRef;
   readonly attempt: number;
   readonly transactionId: string | undefined;
@@ -795,17 +795,4 @@ export interface ActionDeps {
   readonly middleware: ReadonlyArray<TransactionMiddleware>;
   readonly emitter: TransactionEventEmitter;
   readonly clientRef: HieroClientRef;
-}
-
-export function requireOperatorKey(operatorKey: string | undefined): SdkResult<string> {
-  if (!operatorKey) {
-    return {
-      success: false,
-      error: configurationError(
-        "operatorKey",
-        "Operator private key is required to sign transactions",
-      ),
-    };
-  }
-  return { success: true, data: operatorKey };
 }

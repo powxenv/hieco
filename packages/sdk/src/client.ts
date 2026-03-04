@@ -1,6 +1,7 @@
 import { Client, Hbar } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
 import type { EntityId, NetworkType } from "@hieco/types";
+import { createMirrorNodeClient, type MirrorNodeClient } from "@hieco/mirror";
 import type {
   HieroClientConfig,
   TransferParams,
@@ -114,6 +115,7 @@ export class HieroClient {
   private readonly config: ResolvedConfig;
   private readonly emitter: TransactionEventEmitter;
   private readonly resolvedMiddleware: ReadonlyArray<TransactionMiddleware>;
+  readonly mirror: MirrorNodeClient;
 
   constructor(config: HieroClientConfig = {}) {
     this.config = resolveConfig(config);
@@ -126,6 +128,7 @@ export class HieroClient {
     this.nativeClient = this.createNativeClient();
     this.emitter = new TransactionEventEmitter();
     this.resolvedMiddleware = this.buildMiddlewareStack();
+    this.mirror = this.createMirrorClient();
   }
 
   get network(): NetworkType {
@@ -350,6 +353,10 @@ export class HieroClient {
       middleware: this.config.middleware,
       retry: this.config.retry,
     };
+  }
+
+  private createMirrorClient(): MirrorNodeClient {
+    return createMirrorNodeClient(this.config.network, this.config.mirrorUrl);
   }
 
   private createNativeClient(): Client {

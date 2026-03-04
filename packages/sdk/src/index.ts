@@ -10,7 +10,6 @@ export { HieroClient } from "./client.ts";
 export * from "./types.ts";
 export * from "./errors/index.ts";
 export * from "./events/index.ts";
-export * from "./signer/index.ts";
 export * from "./middleware/index.ts";
 export * from "./actions/index.ts";
 export * from "./builders/index.ts";
