@@ -34,6 +34,7 @@ import type {
   UpdateTokenFeeScheduleParams,
   UpdateTokenParams,
   WipeTokenParams,
+  TokenAllowancesQueryParams,
 } from "../../foundation/params.ts";
 import type { TokensNamespace } from "./namespace.ts";
 
@@ -298,6 +299,38 @@ export function createTokensNamespace(context: {
     return queryTokenNftInfo({ client: context.nativeClient, signing }, nftId);
   };
 
+  const allowancesList = async (
+    accountId: EntityId,
+    params?: TokenAllowancesQueryParams,
+  ): Promise<
+    Result<{
+      readonly allowances: ReadonlyArray<import("@hieco/mirror").TokenAllowance>;
+    }>
+  > => {
+    const result = await context.mirror.account.getTokenAllowances(accountId, {
+      ...(params?.limit !== undefined ? { limit: params.limit } : {}),
+      ...(params?.order !== undefined ? { order: params.order } : {}),
+      ...(params?.spenderId ? { "spender.id": params.spenderId } : {}),
+      ...(params?.tokenId ? { "token.id": params.tokenId } : {}),
+    });
+    if (!result.success) {
+      return err(
+        createError(
+          "MIRROR_QUERY_FAILED",
+          `Mirror account.getTokenAllowances failed: ${result.error.message}`,
+          {
+            hint: "Verify mirror node connectivity",
+            details: {
+              status: result.error.status ?? "unknown",
+              code: result.error.code ?? "unknown",
+            },
+          },
+        ),
+      );
+    }
+    return ok({ allowances: result.data });
+  };
+
   return {
     create,
     mint,
@@ -318,5 +351,6 @@ export function createTokensNamespace(context: {
     fees,
     info,
     nftInfo,
+    allowancesList,
   };
 }

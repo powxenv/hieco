@@ -19,6 +19,10 @@ import type {
   DeleteAccountParams,
   TransferParams,
   UpdateAccountParams,
+  HbarAllowanceParams,
+  TokenAllowanceParams,
+  NftAllowanceParams,
+  DeleteNftAllowancesParams,
 } from "../../foundation/params.ts";
 import {
   ensureAccountId,
@@ -107,6 +111,170 @@ export function createAccountsNamespace(context: {
     kind: "accounts.allowances",
     params,
   });
+
+  const allowancesDeleteNft = async (
+    params: DeleteNftAllowancesParams,
+  ): Promise<Result<TransactionReceiptData>> => {
+    const result = await context.submit({ kind: "accounts.allowances.deleteNft", params });
+    if (!result.ok) return result;
+    return ok(result.value);
+  };
+
+  allowancesDeleteNft.tx = (params: DeleteNftAllowancesParams): TransactionDescriptor => ({
+    kind: "accounts.allowances.deleteNft",
+    params,
+  });
+
+  const allowancesList = async (
+    accountId: EntityId,
+  ): Promise<
+    Result<{
+      readonly hbar: ReadonlyArray<import("@hieco/mirror").CryptoAllowance>;
+      readonly tokens: ReadonlyArray<import("@hieco/mirror").TokenAllowance>;
+      readonly nfts: ReadonlyArray<import("@hieco/mirror").NftAllowance>;
+    }>
+  > => {
+    const [hbar, tokens, nfts] = await Promise.all([
+      context.mirror.account.getCryptoAllowances(accountId),
+      context.mirror.account.getTokenAllowances(accountId),
+      context.mirror.account.getNftAllowances(accountId),
+    ]);
+
+    if (!hbar.success) {
+      return err(
+        createError(
+          "MIRROR_QUERY_FAILED",
+          `Mirror account.getCryptoAllowances failed: ${hbar.error.message}`,
+          {
+            hint: "Verify mirror node connectivity",
+            details: {
+              status: hbar.error.status ?? "unknown",
+              code: hbar.error.code ?? "unknown",
+            },
+          },
+        ),
+      );
+    }
+    if (!tokens.success) {
+      return err(
+        createError(
+          "MIRROR_QUERY_FAILED",
+          `Mirror account.getTokenAllowances failed: ${tokens.error.message}`,
+          {
+            hint: "Verify mirror node connectivity",
+            details: {
+              status: tokens.error.status ?? "unknown",
+              code: tokens.error.code ?? "unknown",
+            },
+          },
+        ),
+      );
+    }
+    if (!nfts.success) {
+      return err(
+        createError(
+          "MIRROR_QUERY_FAILED",
+          `Mirror account.getNftAllowances failed: ${nfts.error.message}`,
+          {
+            hint: "Verify mirror node connectivity",
+            details: {
+              status: nfts.error.status ?? "unknown",
+              code: nfts.error.code ?? "unknown",
+            },
+          },
+        ),
+      );
+    }
+
+    return ok({ hbar: hbar.data, tokens: tokens.data, nfts: nfts.data });
+  };
+
+  const allowanceMatch = (
+    a: HbarAllowanceParams,
+    existing: import("@hieco/mirror").CryptoAllowance,
+  ) =>
+    existing.owner === a.ownerAccountId &&
+    existing.spender === a.spenderAccountId &&
+    existing.amount >= Number(a.amount);
+
+  const tokenAllowanceMatch = (
+    a: TokenAllowanceParams,
+    existing: import("@hieco/mirror").TokenAllowance,
+  ) =>
+    existing.owner === a.ownerAccountId &&
+    existing.spender === a.spenderAccountId &&
+    existing.token_id === a.tokenId &&
+    existing.amount >= Number(a.amount);
+
+  const nftAllowanceMatch = (
+    a: NftAllowanceParams,
+    existing: import("@hieco/mirror").NftAllowance,
+  ) => {
+    if (existing.owner !== a.ownerAccountId) return false;
+    if (existing.spender !== a.spenderAccountId) return false;
+    if (existing.token_id !== a.tokenId) return false;
+    if (a.approveAll) return existing.approved_for_all;
+    if (a.serial !== undefined) return existing.serial_numbers.includes(a.serial);
+    return false;
+  };
+
+  const allowancesEnsure = async (params: {
+    readonly hbar?: ReadonlyArray<HbarAllowanceParams>;
+    readonly tokens?: ReadonlyArray<TokenAllowanceParams>;
+    readonly nfts?: ReadonlyArray<NftAllowanceParams>;
+    readonly memo?: string;
+    readonly maxFee?: import("../../foundation/params.ts").Amount;
+  }): Promise<
+    Result<
+      | {
+          readonly status: "skipped";
+          readonly reason: "already-approved";
+        }
+      | {
+          readonly status: "submitted";
+          readonly receipt: TransactionReceiptData;
+        }
+    >
+  > => {
+    const ownerAccountId =
+      params.hbar?.[0]?.ownerAccountId ??
+      params.tokens?.[0]?.ownerAccountId ??
+      params.nfts?.[0]?.ownerAccountId;
+    if (!ownerAccountId) {
+      return err(
+        createError("SIGNER_ACCOUNT_ID_REQUIRED", "Owner account id is required", {
+          hint: "Provide at least one allowance entry with ownerAccountId",
+        }),
+      );
+    }
+
+    const listResult = await allowancesList(ownerAccountId);
+    if (!listResult.ok) return listResult;
+
+    const hbarNeeded = (params.hbar ?? []).filter(
+      (a) => !listResult.value.hbar.some((existing) => allowanceMatch(a, existing)),
+    );
+    const tokenNeeded = (params.tokens ?? []).filter(
+      (a) => !listResult.value.tokens.some((existing) => tokenAllowanceMatch(a, existing)),
+    );
+    const nftNeeded = (params.nfts ?? []).filter(
+      (a) => !listResult.value.nfts.some((existing) => nftAllowanceMatch(a, existing)),
+    );
+
+    if (hbarNeeded.length === 0 && tokenNeeded.length === 0 && nftNeeded.length === 0) {
+      return ok({ status: "skipped", reason: "already-approved" });
+    }
+
+    const approval = await allowances({
+      ...(hbarNeeded.length ? { hbar: hbarNeeded } : {}),
+      ...(tokenNeeded.length ? { tokens: tokenNeeded } : {}),
+      ...(nftNeeded.length ? { nfts: nftNeeded } : {}),
+      ...(params.memo ? { memo: params.memo } : {}),
+      ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+    });
+    if (!approval.ok) return approval;
+    return ok({ status: "submitted", receipt: approval.value });
+  };
 
   const balance = async (
     accountId?: EntityId,
@@ -232,6 +400,9 @@ export function createAccountsNamespace(context: {
     update,
     delete: del,
     allowances,
+    allowancesDeleteNft,
+    allowancesList,
+    allowancesEnsure,
     balance,
     info,
     records,

@@ -105,4 +105,12 @@ export interface TokensNamespace {
   nftInfo: (
     nft: string | { readonly tokenId: EntityId; readonly serial: number },
   ) => Promise<Result<TokenNftInfoData>>;
+  allowancesList: (
+    accountId: EntityId,
+    params?: import("../../foundation/params.ts").TokenAllowancesQueryParams,
+  ) => Promise<
+    Result<{
+      readonly allowances: ReadonlyArray<import("@hieco/mirror").TokenAllowance>;
+    }>
+  >;
 }

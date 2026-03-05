@@ -1,5 +1,6 @@
 import {
   AccountAllowanceApproveTransaction,
+  AccountAllowanceDeleteTransaction,
   AccountCreateTransaction,
   AccountDeleteTransaction,
   AccountUpdateTransaction,
@@ -405,6 +406,17 @@ export function buildTransaction(
             );
           }
         }
+      }
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "accounts.allowances.deleteNft": {
+      const params = tx.params;
+      const transaction = new AccountAllowanceDeleteTransaction();
+      for (const allowance of params.nfts) {
+        const nftId = NftId.fromString(`${allowance.tokenId}/${String(allowance.serial)}`);
+        transaction.deleteAllTokenNftAllowances(nftId, allowance.ownerAccountId);
       }
       if (params.memo) transaction.setTransactionMemo(params.memo);
       if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));

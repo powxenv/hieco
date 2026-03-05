@@ -39,6 +39,38 @@ export interface AccountsNamespace {
       params: import("../../foundation/params.ts").ApproveAllowanceParams,
     ) => TransactionDescriptor;
   };
+  allowancesDeleteNft: ((
+    params: import("../../foundation/params.ts").DeleteNftAllowancesParams,
+  ) => Promise<Result<TransactionReceiptData>>) & {
+    tx: (
+      params: import("../../foundation/params.ts").DeleteNftAllowancesParams,
+    ) => TransactionDescriptor;
+  };
+  allowancesList: (accountId: EntityId) => Promise<
+    Result<{
+      readonly hbar: ReadonlyArray<import("@hieco/mirror").CryptoAllowance>;
+      readonly tokens: ReadonlyArray<import("@hieco/mirror").TokenAllowance>;
+      readonly nfts: ReadonlyArray<import("@hieco/mirror").NftAllowance>;
+    }>
+  >;
+  allowancesEnsure: (params: {
+    readonly hbar?: ReadonlyArray<import("../../foundation/params.ts").HbarAllowanceParams>;
+    readonly tokens?: ReadonlyArray<import("../../foundation/params.ts").TokenAllowanceParams>;
+    readonly nfts?: ReadonlyArray<import("../../foundation/params.ts").NftAllowanceParams>;
+    readonly memo?: string;
+    readonly maxFee?: import("../../foundation/params.ts").Amount;
+  }) => Promise<
+    Result<
+      | {
+          readonly status: "skipped";
+          readonly reason: "already-approved";
+        }
+      | {
+          readonly status: "submitted";
+          readonly receipt: TransactionReceiptData;
+        }
+    >
+  >;
   balance: (accountId?: EntityId) => Promise<
     Result<{
       readonly hbar: string;

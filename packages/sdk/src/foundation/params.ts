@@ -70,10 +70,46 @@ export interface NftAllowanceParams {
   readonly approveAll?: boolean;
 }
 
+export interface TokenAllowancesQueryParams {
+  readonly spenderId?: EntityId;
+  readonly tokenId?: EntityId;
+  readonly limit?: number;
+  readonly order?: "asc" | "desc";
+}
+
 export interface ApproveAllowanceParams {
   readonly hbar?: ReadonlyArray<HbarAllowanceParams>;
   readonly tokens?: ReadonlyArray<TokenAllowanceParams>;
   readonly nfts?: ReadonlyArray<NftAllowanceParams>;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface DeleteHbarAllowanceParams {
+  readonly ownerAccountId: EntityId;
+}
+
+export interface DeleteTokenAllowanceParams {
+  readonly tokenId: EntityId;
+  readonly ownerAccountId: EntityId;
+}
+
+export interface DeleteNftAllowanceParams {
+  readonly tokenId: EntityId;
+  readonly serial: number;
+  readonly ownerAccountId: EntityId;
+}
+
+export interface DeleteAllowanceParams {
+  readonly hbar?: ReadonlyArray<DeleteHbarAllowanceParams>;
+  readonly tokens?: ReadonlyArray<DeleteTokenAllowanceParams>;
+  readonly nfts?: ReadonlyArray<DeleteNftAllowanceParams>;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface DeleteNftAllowancesParams {
+  readonly nfts: ReadonlyArray<DeleteNftAllowanceParams>;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
@@ -464,6 +500,7 @@ export type TransactionDescriptor =
   | { readonly kind: "accounts.update"; readonly params: UpdateAccountParams }
   | { readonly kind: "accounts.delete"; readonly params: DeleteAccountParams }
   | { readonly kind: "accounts.allowances"; readonly params: ApproveAllowanceParams }
+  | { readonly kind: "accounts.allowances.deleteNft"; readonly params: DeleteNftAllowancesParams }
   | { readonly kind: "tokens.create"; readonly params: CreateTokenParams }
   | { readonly kind: "tokens.mint"; readonly params: MintTokenParams }
   | { readonly kind: "tokens.burn"; readonly params: BurnTokenParams }
