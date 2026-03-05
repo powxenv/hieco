@@ -1,12 +1,5 @@
 import type { EntityId } from "@hieco/types";
-import type {
-  ApproveAllowanceParams,
-  CreateAccountParams,
-  DeleteAccountParams,
-  TransferParams,
-  UpdateAccountParams,
-  TransactionDescriptor,
-} from "../../shared/params.ts";
+import type { TransactionDescriptor } from "../../foundation/params.ts";
 import type {
   AccountInfoData,
   AccountRecordsData,
@@ -15,47 +8,26 @@ import type {
   TransferResult,
   TransactionReceiptData,
   UpdateAccountResult,
-} from "../../shared/results-shapes.ts";
-import type { Result } from "../../shared/results.ts";
-import { err, ok } from "../../shared/results.ts";
+} from "../../foundation/results-shapes.ts";
+import type { Result } from "../../foundation/results.ts";
+import { err, ok } from "../../foundation/results.ts";
 import { AccountBalanceQuery } from "@hiero-ledger/sdk";
-import { createError } from "../../shared/errors.ts";
+import { createError } from "../../foundation/errors.ts";
+import type {
+  ApproveAllowanceParams,
+  CreateAccountParams,
+  DeleteAccountParams,
+  TransferParams,
+  UpdateAccountParams,
+} from "../../foundation/params.ts";
 import {
   ensureAccountId,
   inferAccountId,
   queryAccountRecords,
   type SigningContext,
-} from "../transactions/index.ts";
+} from "../transactions/api.ts";
 
-export interface AccountsNamespace {
-  transfer: ((params: TransferParams) => Promise<Result<TransferResult>>) & {
-    tx: (params: TransferParams) => TransactionDescriptor;
-  };
-  create: ((params: CreateAccountParams) => Promise<Result<CreateAccountResult>>) & {
-    tx: (params: CreateAccountParams) => TransactionDescriptor;
-  };
-  update: ((params: UpdateAccountParams) => Promise<Result<UpdateAccountResult>>) & {
-    tx: (params: UpdateAccountParams) => TransactionDescriptor;
-  };
-  delete: ((params: DeleteAccountParams) => Promise<Result<DeleteAccountResult>>) & {
-    tx: (params: DeleteAccountParams) => TransactionDescriptor;
-  };
-  allowances: ((params: ApproveAllowanceParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: ApproveAllowanceParams) => TransactionDescriptor;
-  };
-  balance: (accountId?: EntityId) => Promise<
-    Result<{
-      readonly hbar: string;
-      readonly tokens: ReadonlyArray<{
-        readonly tokenId: string;
-        readonly balance: string;
-        readonly decimals: number;
-      }>;
-    }>
-  >;
-  info: (accountId: EntityId) => Promise<Result<AccountInfoData>>;
-  records: (accountId?: EntityId) => Promise<Result<AccountRecordsData>>;
-}
+import type { AccountsNamespace } from "./namespace.ts";
 
 export function createAccountsNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;

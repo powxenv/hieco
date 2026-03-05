@@ -1,16 +1,9 @@
-import type { Result } from "../../shared/results.ts";
-import { err, ok } from "../../shared/results.ts";
-import { createError } from "../../shared/errors.ts";
-import type { AddressBookData, NetworkVersionData } from "../../shared/results-shapes.ts";
+import type { Result } from "../../foundation/results.ts";
+import { err, ok } from "../../foundation/results.ts";
+import { createError } from "../../foundation/errors.ts";
+import type { AddressBookData, NetworkVersionData } from "../../foundation/results-shapes.ts";
+import type { NetworkNamespace } from "./namespace.ts";
 import { AddressBookQuery, NetworkVersionInfoQuery } from "@hiero-ledger/sdk";
-
-export interface NetworkNamespace {
-  version: () => Promise<Result<NetworkVersionData>>;
-  addressBook: (options?: {
-    readonly fileId?: string;
-    readonly limit?: number;
-  }) => Promise<Result<AddressBookData>>;
-}
 
 export function createNetworkNamespace(context: {
   readonly client: import("@hiero-ledger/sdk").Client;

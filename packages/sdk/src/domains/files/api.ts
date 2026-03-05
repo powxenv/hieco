@@ -1,38 +1,22 @@
-import type {
-  AppendFileParams,
-  CreateFileParams,
-  DeleteFileParams,
-  TransactionDescriptor,
-  UpdateFileParams,
-} from "../../shared/params.ts";
+import type { TransactionDescriptor } from "../../foundation/params.ts";
 import type {
   FileContentsData,
   FileInfoData,
   FileReceipt,
   TransactionReceiptData,
-} from "../../shared/results-shapes.ts";
-import type { Result } from "../../shared/results.ts";
-import { ok } from "../../shared/results.ts";
-import { ensureFileId } from "../transactions/index.ts";
-import { err } from "../../shared/results.ts";
+} from "../../foundation/results-shapes.ts";
+import type { Result } from "../../foundation/results.ts";
+import { ok } from "../../foundation/results.ts";
+import { ensureFileId } from "../transactions/api.ts";
+import { err } from "../../foundation/results.ts";
+import type {
+  AppendFileParams,
+  CreateFileParams,
+  DeleteFileParams,
+  UpdateFileParams,
+} from "../../foundation/params.ts";
+import type { FilesNamespace } from "./namespace.ts";
 import type { EntityId } from "@hieco/types";
-
-export interface FilesNamespace {
-  create: ((params: CreateFileParams) => Promise<Result<FileReceipt>>) & {
-    tx: (params: CreateFileParams) => TransactionDescriptor;
-  };
-  append: ((params: AppendFileParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: AppendFileParams) => TransactionDescriptor;
-  };
-  update: ((params: UpdateFileParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: UpdateFileParams) => TransactionDescriptor;
-  };
-  delete: ((params: DeleteFileParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: DeleteFileParams) => TransactionDescriptor;
-  };
-  info: (fileId: EntityId) => Promise<Result<FileInfoData>>;
-  contents: (fileId: EntityId) => Promise<Result<FileContentsData>>;
-}
 
 export function createFilesNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;

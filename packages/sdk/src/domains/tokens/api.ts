@@ -1,4 +1,21 @@
 import type { EntityId } from "@hieco/types";
+import type { TransactionDescriptor } from "../../foundation/params.ts";
+import type {
+  MintReceipt,
+  TokenNftInfoData,
+  TokenInfoData,
+  TokenReceipt,
+  TransactionReceiptData,
+} from "../../foundation/results-shapes.ts";
+import type { Result } from "../../foundation/results.ts";
+import { err, ok } from "../../foundation/results.ts";
+import {
+  ensureTokenId,
+  inferAccountId,
+  queryTokenNftInfo,
+  type SigningContext,
+} from "../transactions/api.ts";
+import { createError } from "../../foundation/errors.ts";
 import type {
   AssociateTokenParams,
   BurnTokenParams,
@@ -17,82 +34,8 @@ import type {
   UpdateTokenFeeScheduleParams,
   UpdateTokenParams,
   WipeTokenParams,
-  TransactionDescriptor,
-} from "../../shared/params.ts";
-import type {
-  MintReceipt,
-  TokenNftInfoData,
-  TokenInfoData,
-  TokenReceipt,
-  TransactionReceiptData,
-} from "../../shared/results-shapes.ts";
-import type { Result } from "../../shared/results.ts";
-import { err, ok } from "../../shared/results.ts";
-import {
-  ensureTokenId,
-  inferAccountId,
-  queryTokenNftInfo,
-  type SigningContext,
-} from "../transactions/index.ts";
-import { createError } from "../../shared/errors.ts";
-
-export interface TokensNamespace {
-  create: ((params: CreateTokenParams) => Promise<Result<TokenReceipt>>) & {
-    tx: (params: CreateTokenParams) => TransactionDescriptor;
-  };
-  mint: ((params: MintTokenParams) => Promise<Result<MintReceipt>>) & {
-    tx: (params: MintTokenParams) => TransactionDescriptor;
-  };
-  burn: ((params: BurnTokenParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: BurnTokenParams) => TransactionDescriptor;
-  };
-  transfer: ((params: TransferTokenParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: TransferTokenParams) => TransactionDescriptor;
-  };
-  transferNft: ((params: TransferNftParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: TransferNftParams) => TransactionDescriptor;
-  };
-  associate: ((params: AssociateTokenParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: AssociateTokenParams) => TransactionDescriptor;
-  };
-  dissociate: ((params: DissociateTokenParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: DissociateTokenParams) => TransactionDescriptor;
-  };
-  freeze: ((params: FreezeTokenParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: FreezeTokenParams) => TransactionDescriptor;
-  };
-  unfreeze: ((params: UnfreezeTokenParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: UnfreezeTokenParams) => TransactionDescriptor;
-  };
-  grantKyc: ((params: GrantKycParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: GrantKycParams) => TransactionDescriptor;
-  };
-  revokeKyc: ((params: RevokeKycParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: RevokeKycParams) => TransactionDescriptor;
-  };
-  pause: ((params: PauseTokenParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: PauseTokenParams) => TransactionDescriptor;
-  };
-  unpause: ((params: UnpauseTokenParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: UnpauseTokenParams) => TransactionDescriptor;
-  };
-  wipe: ((params: WipeTokenParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: WipeTokenParams) => TransactionDescriptor;
-  };
-  delete: ((params: DeleteTokenParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: DeleteTokenParams) => TransactionDescriptor;
-  };
-  update: ((params: UpdateTokenParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: UpdateTokenParams) => TransactionDescriptor;
-  };
-  fees: ((params: UpdateTokenFeeScheduleParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: UpdateTokenFeeScheduleParams) => TransactionDescriptor;
-  };
-  info: (tokenId: EntityId) => Promise<Result<TokenInfoData>>;
-  nftInfo: (nft: string | { readonly tokenId: EntityId; readonly serial: number }) => Promise<
-    Result<TokenNftInfoData>
-  >;
-}
+} from "../../foundation/params.ts";
+import type { TokensNamespace } from "./namespace.ts";
 
 export function createTokensNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;

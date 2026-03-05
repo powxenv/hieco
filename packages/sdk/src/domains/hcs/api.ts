@@ -1,51 +1,27 @@
 import type { EntityId } from "@hieco/types";
 import { TopicMessageQuery } from "@hiero-ledger/sdk";
-import type {
-  CreateTopicParams,
-  DeleteTopicParams,
-  SubmitMessageParams,
-  TransactionDescriptor,
-  TopicMessageData,
-  UpdateTopicParams,
-  WatchTopicMessagesOptions,
-} from "../../shared/params.ts";
+import type { TransactionDescriptor } from "../../foundation/params.ts";
 import type {
   MessageReceipt,
   TopicInfoData,
   TopicMessagesData,
   TopicReceipt,
   TransactionReceiptData,
-} from "../../shared/results-shapes.ts";
-import type { Result } from "../../shared/results.ts";
-import { ok } from "../../shared/results.ts";
-import { ensureTopicId, ensureTopicSequence } from "../transactions/index.ts";
-import { err } from "../../shared/results.ts";
-import { createError } from "../../shared/errors.ts";
-
-export interface HcsNamespace {
-  create: ((params: CreateTopicParams) => Promise<Result<TopicReceipt>>) & {
-    tx: (params: CreateTopicParams) => TransactionDescriptor;
-  };
-  update: ((params: UpdateTopicParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: UpdateTopicParams) => TransactionDescriptor;
-  };
-  delete: ((params: DeleteTopicParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: DeleteTopicParams) => TransactionDescriptor;
-  };
-  submit: ((params: SubmitMessageParams) => Promise<Result<MessageReceipt>>) & {
-    tx: (params: SubmitMessageParams) => TransactionDescriptor;
-  };
-  watch: (
-    topicId: EntityId,
-    handler: (message: TopicMessageData) => void,
-    options?: WatchTopicMessagesOptions,
-  ) => () => void;
-  info: (topicId: EntityId) => Promise<Result<TopicInfoData>>;
-  messages: (
-    topicId: EntityId,
-    params?: import("@hieco/mirror").TopicMessagesParams,
-  ) => Promise<Result<TopicMessagesData>>;
-}
+} from "../../foundation/results-shapes.ts";
+import type { Result } from "../../foundation/results.ts";
+import { ok } from "../../foundation/results.ts";
+import { ensureTopicId, ensureTopicSequence } from "../transactions/api.ts";
+import { err } from "../../foundation/results.ts";
+import { createError } from "../../foundation/errors.ts";
+import type {
+  CreateTopicParams,
+  DeleteTopicParams,
+  SubmitMessageParams,
+  TopicMessageData,
+  UpdateTopicParams,
+  WatchTopicMessagesOptions,
+} from "../../foundation/params.ts";
+import type { HcsNamespace } from "./namespace.ts";
 
 export function createHcsNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;

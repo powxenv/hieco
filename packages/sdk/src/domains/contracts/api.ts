@@ -1,12 +1,5 @@
 import type { EntityId } from "@hieco/types";
-import type {
-  CallContractParams,
-  DeployContractParams,
-  DeleteContractParams,
-  ExecuteContractParams,
-  TransactionDescriptor,
-  UpdateContractParams,
-} from "../../shared/params.ts";
+import type { TransactionDescriptor } from "../../foundation/params.ts";
 import type {
   ContractCallResult,
   ContractBytecodeData,
@@ -17,58 +10,24 @@ import type {
   ContractLogsData,
   ContractReceipt,
   TransactionReceiptData,
-} from "../../shared/results-shapes.ts";
-import type { Result } from "../../shared/results.ts";
-import { err, ok } from "../../shared/results.ts";
+} from "../../foundation/results-shapes.ts";
+import type { Result } from "../../foundation/results.ts";
+import { err, ok } from "../../foundation/results.ts";
 import { decodeReturn } from "./abi.ts";
 import {
   ensureContractId,
   queryMirrorContractCall,
   queryMirrorContractEstimate,
-} from "../transactions/index.ts";
-import { createError } from "../../shared/errors.ts";
-
-export interface ContractsNamespace {
-  deploy: ((params: DeployContractParams) => Promise<Result<ContractReceipt>>) & {
-    tx: (params: DeployContractParams) => TransactionDescriptor;
-  };
-  execute: ((params: ExecuteContractParams) => Promise<Result<ContractExecuteReceipt>>) & {
-    tx: (params: ExecuteContractParams) => TransactionDescriptor;
-  };
-  call: (params: CallContractParams) => Promise<Result<ContractCallResult<unknown>>>;
-  delete: ((params: DeleteContractParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: DeleteContractParams) => TransactionDescriptor;
-  };
-  update: ((params: UpdateContractParams) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: UpdateContractParams) => TransactionDescriptor;
-  };
-  info: (contractId: EntityId) => Promise<Result<ContractInfoData>>;
-  logs: (
-    contractId: EntityId,
-    params?: import("@hieco/mirror").ContractLogsParams,
-  ) => Promise<Result<ContractLogsData>>;
-  bytecode: (contractId: EntityId) => Promise<Result<ContractBytecodeData>>;
-  simulate: (input: {
-    readonly contractId: EntityId;
-    readonly fn: string;
-    readonly args?: ReadonlyArray<unknown>;
-    readonly senderEvmAddress?: string;
-    readonly gas?: number;
-    readonly value?: string | number | bigint;
-    readonly gasPrice?: string | number | bigint;
-    readonly blockNumber?: string | number | bigint;
-  }) => Promise<Result<MirrorContractCallData>>;
-  estimateGas: (input: {
-    readonly contractId: EntityId;
-    readonly fn: string;
-    readonly args?: ReadonlyArray<unknown>;
-    readonly senderEvmAddress?: string;
-    readonly gas?: number;
-    readonly value?: string | number | bigint;
-    readonly gasPrice?: string | number | bigint;
-    readonly blockNumber?: string | number | bigint;
-  }) => Promise<Result<MirrorContractEstimateData>>;
-}
+} from "../transactions/api.ts";
+import { createError } from "../../foundation/errors.ts";
+import type {
+  CallContractParams,
+  DeployContractParams,
+  DeleteContractParams,
+  ExecuteContractParams,
+  UpdateContractParams,
+} from "../../foundation/params.ts";
+import type { ContractsNamespace } from "./namespace.ts";
 
 export function createContractsNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;

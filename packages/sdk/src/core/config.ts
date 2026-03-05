@@ -1,11 +1,11 @@
-import type { ClientConfig } from "../shared/params.ts";
-import type { ClientRuntimeConfig } from "../shared/client-types.ts";
+import type { ClientConfig } from "../foundation/params.ts";
+import type { ClientRuntimeConfig } from "../foundation/client-types.ts";
 import type { NetworkType } from "@hieco/types";
 import { NETWORK_CONFIGS } from "@hieco/types";
 import { isValidEntityId } from "@hieco/mirror-shared";
-import { createError } from "../shared/errors.ts";
-import type { Result } from "../shared/results.ts";
-import { err, ok } from "../shared/results.ts";
+import { createError } from "../foundation/errors.ts";
+import type { Result } from "../foundation/results.ts";
+import { err, ok } from "../foundation/results.ts";
 
 const VALID_NETWORKS: ReadonlyArray<NetworkType> = ["mainnet", "testnet", "previewnet"];
 

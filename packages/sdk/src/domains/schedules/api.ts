@@ -1,44 +1,21 @@
 import type { EntityId } from "@hieco/types";
+import type { TransactionDescriptor } from "../../foundation/params.ts";
+import type {
+  ScheduleInfoData,
+  ScheduleReceipt,
+  TransactionReceiptData,
+} from "../../foundation/results-shapes.ts";
+import type { Result } from "../../foundation/results.ts";
+import { err, ok } from "../../foundation/results.ts";
+import { createError } from "../../foundation/errors.ts";
 import type {
   ScheduleCreateParams,
   ScheduleDeleteParams,
   ScheduleSignParams,
   ScheduleWaitOptions,
-  TransactionDescriptor,
-} from "../../shared/params.ts";
-import type {
-  ScheduleInfoData,
-  ScheduleReceipt,
-  TransactionReceiptData,
-} from "../../shared/results-shapes.ts";
-import type { Result } from "../../shared/results.ts";
-import { err, ok } from "../../shared/results.ts";
-import { createError } from "../../shared/errors.ts";
-import { ensureScheduleId } from "../transactions/index.ts";
-
-export interface SchedulesNamespace {
-  create: ((params: ScheduleCreateParams) => Promise<Result<ScheduleReceipt>>) & {
-    tx: (params: ScheduleCreateParams) => TransactionDescriptor;
-  };
-  sign: ((
-    scheduleId: EntityId,
-    params?: Omit<ScheduleSignParams, "scheduleId"> & {
-      readonly signer?: import("@hiero-ledger/sdk").Signer;
-    },
-  ) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: ScheduleSignParams) => TransactionDescriptor;
-  };
-  delete: ((
-    scheduleId: EntityId,
-    params?: Omit<ScheduleDeleteParams, "scheduleId"> & {
-      readonly signer?: import("@hiero-ledger/sdk").Signer;
-    },
-  ) => Promise<Result<TransactionReceiptData>>) & {
-    tx: (params: ScheduleDeleteParams) => TransactionDescriptor;
-  };
-  info: (scheduleId: EntityId) => Promise<Result<ScheduleInfoData>>;
-  wait: (scheduleId: EntityId, options?: ScheduleWaitOptions) => Promise<Result<ScheduleInfoData>>;
-}
+} from "../../foundation/params.ts";
+import type { SchedulesNamespace } from "./namespace.ts";
+import { ensureScheduleId } from "../transactions/api.ts";
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

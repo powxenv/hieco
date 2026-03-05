@@ -2,19 +2,19 @@ import { Client, Hbar } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
 import type { EntityId } from "@hieco/types";
 import { createMirrorNodeClient, type MirrorNodeClient } from "@hieco/mirror";
-import type { ClientConfig, TransactionDescriptor } from "../shared/params.ts";
-import type { ClientRuntimeConfig } from "../shared/client-types.ts";
-import type { Result } from "../shared/results.ts";
-import { err } from "../shared/results.ts";
+import type { ClientConfig, TransactionDescriptor } from "../foundation/params.ts";
+import type { ClientRuntimeConfig } from "../foundation/client-types.ts";
+import type { Result } from "../foundation/results.ts";
+import { err } from "../foundation/results.ts";
 import { resolveConfig } from "./config.ts";
-import { createAccountsNamespace } from "../domains/accounts/index.ts";
-import { createTokensNamespace } from "../domains/tokens/index.ts";
-import { createHcsNamespace } from "../domains/hcs/index.ts";
-import { createContractsNamespace } from "../domains/contracts/index.ts";
-import { createFilesNamespace } from "../domains/files/index.ts";
-import { createSchedulesNamespace } from "../domains/schedules/index.ts";
+import { createAccountsNamespace } from "../domains/accounts/api.ts";
+import { createTokensNamespace } from "../domains/tokens/api.ts";
+import { createHcsNamespace } from "../domains/hcs/api.ts";
+import { createContractsNamespace } from "../domains/contracts/api.ts";
+import { createFilesNamespace } from "../domains/files/api.ts";
+import { createSchedulesNamespace } from "../domains/schedules/api.ts";
 import { createTransactionsNamespace } from "../domains/transactions/namespace.ts";
-import { createNetworkNamespace } from "../domains/network/index.ts";
+import { createNetworkNamespace } from "../domains/network/api.ts";
 import {
   callContract,
   queryFileContents,
@@ -25,9 +25,9 @@ import {
   resolveQueryContext,
   submitTransaction,
   queryContractBytecode,
-} from "../domains/transactions/index.ts";
-import { createError } from "../shared/errors.ts";
-import type { TransactionReceiptData } from "../shared/results-shapes.ts";
+} from "../domains/transactions/api.ts";
+import { createError } from "../foundation/errors.ts";
+import type { TransactionReceiptData } from "../foundation/results-shapes.ts";
 
 export class HieroClient {
   readonly mirror: MirrorNodeClient;
@@ -132,11 +132,14 @@ export class HieroClient {
       return queryTransactionRecord(queryContext, transactionId);
     };
 
-    const queryReceipt = (transactionId: string, options?: {
-      readonly includeChildren?: boolean;
-      readonly includeDuplicates?: boolean;
-      readonly validateStatus?: boolean;
-    }) => {
+    const queryReceipt = (
+      transactionId: string,
+      options?: {
+        readonly includeChildren?: boolean;
+        readonly includeDuplicates?: boolean;
+        readonly validateStatus?: boolean;
+      },
+    ) => {
       const signing = resolveQueryContext({
         operatorKey: this.config.key,
         signer: this.config.signer,

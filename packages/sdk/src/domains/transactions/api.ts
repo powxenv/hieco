@@ -70,7 +70,7 @@ import type {
   FunctionParamsConfig,
   CustomFeeParams,
   CustomFixedFeeParams,
-} from "../../shared/params.ts";
+} from "../../foundation/params.ts";
 import type {
   TransactionReceiptData,
   AccountRecordsData,
@@ -78,11 +78,11 @@ import type {
   TokenNftInfoData,
   MirrorContractCallData,
   MirrorContractEstimateData,
-} from "../../shared/results-shapes.ts";
-import type { Result } from "../../shared/results.ts";
-import { err, ok } from "../../shared/results.ts";
-import { createError } from "../../shared/errors.ts";
-import { toAmountString } from "../../shared/utils.ts";
+} from "../../foundation/results-shapes.ts";
+import type { Result } from "../../foundation/results.ts";
+import { err, ok } from "../../foundation/results.ts";
+import { createError } from "../../foundation/errors.ts";
+import { toAmountString } from "../../foundation/utils.ts";
 
 export type SigningContext =
   | { readonly kind: "operator"; readonly key: string }
@@ -1168,9 +1168,13 @@ export async function queryTransactionReceipt(
   } catch (error) {
     if (error instanceof Error) {
       return err(
-        createError("TX_RECEIPT_QUERY_FAILED", `Transaction receipt query failed: ${error.message}`, {
-          hint: "Verify transaction id and network connectivity",
-        }),
+        createError(
+          "TX_RECEIPT_QUERY_FAILED",
+          `Transaction receipt query failed: ${error.message}`,
+          {
+            hint: "Verify transaction id and network connectivity",
+          },
+        ),
       );
     }
     return err(
@@ -1288,16 +1292,14 @@ export async function queryMirrorContractCall(context: {
     if (context.senderEvmAddress) query.setSenderEvmAddress(context.senderEvmAddress);
     if (context.args) {
       const params = buildContractFunctionParametersFromArgs(context.args);
-      query.setFunction(
-        context.functionName,
-        params ?? new ContractFunctionParameters(),
-      );
+      query.setFunction(context.functionName, params ?? new ContractFunctionParameters());
     } else {
       query.setFunction(context.functionName, new ContractFunctionParameters());
     }
     if (context.gas !== undefined) query.setGasLimit(Long.fromNumber(context.gas));
     if (context.value !== undefined) query.setValue(Long.fromString(String(context.value)));
-    if (context.gasPrice !== undefined) query.setGasPrice(Long.fromString(String(context.gasPrice)));
+    if (context.gasPrice !== undefined)
+      query.setGasPrice(Long.fromString(String(context.gasPrice)));
     if (context.blockNumber !== undefined)
       query.setBlockNumber(Long.fromString(String(context.blockNumber)));
     const raw = await query.execute(context.client);
@@ -1338,16 +1340,14 @@ export async function queryMirrorContractEstimate(context: {
     if (context.senderEvmAddress) query.setSenderEvmAddress(context.senderEvmAddress);
     if (context.args) {
       const params = buildContractFunctionParametersFromArgs(context.args);
-      query.setFunction(
-        context.functionName,
-        params ?? new ContractFunctionParameters(),
-      );
+      query.setFunction(context.functionName, params ?? new ContractFunctionParameters());
     } else {
       query.setFunction(context.functionName, new ContractFunctionParameters());
     }
     if (context.gas !== undefined) query.setGasLimit(Long.fromNumber(context.gas));
     if (context.value !== undefined) query.setValue(Long.fromString(String(context.value)));
-    if (context.gasPrice !== undefined) query.setGasPrice(Long.fromString(String(context.gasPrice)));
+    if (context.gasPrice !== undefined)
+      query.setGasPrice(Long.fromString(String(context.gasPrice)));
     if (context.blockNumber !== undefined)
       query.setBlockNumber(Long.fromString(String(context.blockNumber)));
     const gas = await query.execute(context.client);

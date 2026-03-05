@@ -1,6 +1,6 @@
-import type { Result } from "../../shared/results.ts";
-import { err, ok } from "../../shared/results.ts";
-import { createError } from "../../shared/errors.ts";
+import type { Result } from "../../foundation/results.ts";
+import { err, ok } from "../../foundation/results.ts";
+import { createError } from "../../foundation/errors.ts";
 
 export type ReturnTypeHint =
   | "string"

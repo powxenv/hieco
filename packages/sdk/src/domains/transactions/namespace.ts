@@ -1,8 +1,8 @@
-import type { Result } from "../../shared/results.ts";
+import type { Result } from "../../foundation/results.ts";
 import type {
   TransactionRecordData,
   TransactionReceiptQueryData,
-} from "../../shared/results-shapes.ts";
+} from "../../foundation/results-shapes.ts";
 
 export type TransactionIdInput = string | { readonly transactionId: string };
 
@@ -21,9 +21,9 @@ export interface TransactionsNamespace {
 }
 
 export function createTransactionsNamespace(context: {
-  readonly queryRecord: (transactionId: string) => Promise<
-    Result<import("@hiero-ledger/sdk").TransactionRecord>
-  >;
+  readonly queryRecord: (
+    transactionId: string,
+  ) => Promise<Result<import("@hiero-ledger/sdk").TransactionRecord>>;
   readonly queryReceipt: (
     transactionId: string,
     options?: TransactionReceiptQueryOptions,
@@ -32,7 +32,9 @@ export function createTransactionsNamespace(context: {
   const resolveId = (input: TransactionIdInput): string =>
     typeof input === "string" ? input : input.transactionId;
 
-  const record = async (transactionId: TransactionIdInput): Promise<Result<TransactionRecordData>> => {
+  const record = async (
+    transactionId: TransactionIdInput,
+  ): Promise<Result<TransactionRecordData>> => {
     const id = resolveId(transactionId);
     const result = await context.queryRecord(id);
     if (!result.ok) return result;
