@@ -485,7 +485,7 @@ test("slow connection", async () => {
   "dependencies": {
     "msw": "^2.7.0",
     "@hieco/mirror": "workspace:*",
-    "@hieco/mirror-shared": "workspace:*"
+    "@hieco/utils": "workspace:*"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^5.0.0",

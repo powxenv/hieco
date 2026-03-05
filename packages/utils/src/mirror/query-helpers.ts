@@ -1,7 +1,16 @@
 import type { QueryClient } from "@tanstack/query-core";
-import type { MirrorNodeClient, EntityId } from "@hieco/mirror";
+import type { EntityId } from "../types/entity";
 
-type ApiProperty = Exclude<keyof MirrorNodeClient, "networkType" | "baseUrl" | "httpClient">;
+type ApiProperty =
+  | "account"
+  | "token"
+  | "contract"
+  | "transaction"
+  | "topic"
+  | "schedule"
+  | "network"
+  | "balance"
+  | "block";
 
 type MethodMapping = {
   readonly apiProperty: ApiProperty;
@@ -336,9 +345,11 @@ export function findMethodMapping(
   return null;
 }
 
+type MirrorNodeClientLike = Record<ApiProperty, Record<string, unknown>>;
+
 export async function prefetchQuery(
   queryClient: QueryClient,
-  client: MirrorNodeClient,
+  client: MirrorNodeClientLike,
   queryKey: readonly unknown[],
 ): Promise<void> {
   const result = findMethodMapping(queryKey);
@@ -350,11 +361,10 @@ export async function prefetchQuery(
   const { mapping, args } = result;
 
   const api = client[mapping.apiProperty];
-  const apiMethods = api as unknown as Record<string, unknown>;
-  const method = apiMethods[mapping.methodName];
+  const method = api[mapping.methodName];
 
   if (typeof method !== "function") {
-    throw new Error(`Method ${mapping.methodName} not found on ${mapping.apiProperty}`);
+    throw new Error(`Method ${String(mapping.methodName)} not found on ${mapping.apiProperty}`);
   }
 
   await queryClient.prefetchQuery({

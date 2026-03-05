@@ -52,8 +52,7 @@
   },
   "dependencies": {
     "@hieco/mirror": "workspace:*",
-    "@hieco/mirror-shared": "workspace:*",
-    "@hieco/types": "workspace:*",
+    "@hieco/utils": "workspace:*",
     "@hiero-ledger/sdk": "^2.80.0",
     "bignumber.js": "9.1.1"
   },

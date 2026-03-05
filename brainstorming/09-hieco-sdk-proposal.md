@@ -196,7 +196,7 @@ the source of truth. You define once, TypeScript infers the rest.
 │  └──────────┘                                               │
 ├─────────────────────────────────────────────────────────────┤
 │              @hiero-ledger/sdk  ·  @hieco/mirror            │
-│                     @hieco/types · @hieco/realtime           │
+│                     @hieco/utils · @hieco/realtime           │
 ├─────────────────────────────────────────────────────────────┤
 │         @hashgraph/hedera-wallet-connect (optional)         │
 │   DAppConnector → DAppSigner → fromHieroSigner() adapter   │
@@ -210,7 +210,7 @@ the source of truth. You define once, TypeScript infers the rest.
   ├── @hiero-ledger/sdk     (peer: consensus node transactions)
   ├── @hieco/mirror         (Mirror Node REST queries)
   ├── @hieco/realtime       (WebSocket subscriptions)
-  └── @hieco/types          (shared foundation types)
+  └── @hieco/utils          (shared foundation types)
 
 @hieco/sdk-react
   ├── @hieco/sdk            (core SDK)
@@ -1410,7 +1410,7 @@ teaches developers the API through autocomplete and compile-time feedback.
 ### 12.1 Entity ID as Template Literal
 
 ```typescript
-// From @hieco/types — enforced at the type level
+// From @hieco/utils — enforced at the type level
 type EntityId = `${number}.${number}.${number}`;
 
 // These compile
@@ -1450,7 +1450,7 @@ but not both. TypeScript autocomplete shows every available field with its type.
 ```typescript
 type SdkResult<T> = ApiResult<T, SdkError>;
 
-// ApiResult from @hieco/types:
+// ApiResult from @hieco/utils:
 type ApiResult<T, E = ApiError> =
   | { readonly success: true; readonly data: T }
   | { readonly success: false; readonly error: E };
@@ -1562,7 +1562,7 @@ The terminal `.create()` returns the specific receipt type.
 
 ### 13.1 Enhanced Error Types
 
-Building on `@hieco/types`' `ApiError` pattern with `_tag` discrimination:
+Building on `@hieco/utils`' `ApiError` pattern with `_tag` discrimination:
 
 ```typescript
 type SdkError =
@@ -1667,9 +1667,9 @@ if (!result.success) {
 
 ### 13.4 Error Type Guards
 
-SDK-specific type guards, consistent with `@hieco/mirror-shared`'s pattern but
+SDK-specific type guards, consistent with `@hieco/utils`'s pattern but
 operating on `SdkError` (not `ApiError`). These are separate from the `ApiError`
-type guards in `@hieco/mirror-shared` because `SdkError` has different `_tag`
+type guards in `@hieco/utils` because `SdkError` has different `_tag`
 variants — they are not interchangeable.
 
 ```typescript
@@ -2052,7 +2052,7 @@ unused exports.
 ```
 @hieco/sdk uses @hieco/mirror (not replaces)
 @hieco/sdk uses @hieco/realtime (not replaces)
-@hieco/sdk uses @hieco/types (not replaces)
+@hieco/sdk uses @hieco/utils (not replaces)
 @hieco/sdk-react uses @hieco/mirror-react (re-exports, not replaces)
 ```
 
@@ -2077,7 +2077,7 @@ const account = await mirror.account.getInfo("0.0.1234");
 
 ### 19.3 Shared Type Foundation
 
-All types flow from `@hieco/types`:
+All types flow from `@hieco/utils`:
 
 - `EntityId` — template literal type `${number}.${number}.${number}`
 - `ApiResult<T, E>` — discriminated success/error union
@@ -2088,7 +2088,7 @@ All types flow from `@hieco/types`:
 `@hieco/sdk` extends these (never replaces):
 
 ```typescript
-export type { EntityId, ApiResult, NetworkType } from "@hieco/types"
+export type { EntityId, ApiResult, NetworkType } from "@hieco/utils"
 export type { SdkError, SdkResult, TransactionReceipt, TokenReceipt, ... }
 ```
 
@@ -2247,7 +2247,7 @@ packages/sdk-react/
   "dependencies": {
     "@hieco/mirror": "workspace:*",
     "@hieco/realtime": "workspace:*",
-    "@hieco/types": "workspace:*"
+    "@hieco/utils": "workspace:*"
   },
   "devDependencies": {
     "@hiero-ledger/sdk": "^2.80.0"
@@ -2758,7 +2758,7 @@ against actual `@hiero-ledger/sdk` exports, Mirror Node REST API endpoints, exis
 | Finding                                                                                          | Change                                                                                                                                                                                                                                                                                                                                                             |
 | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `@hieco/mirror` uses singular (`client.account`), proposal uses plural (`hiero.mirror.accounts`) | Documented the intentional naming divergence with rationale in Section 11.2.                                                                                                                                                                                                                                                                                       |
-| `SdkError` type guards incompatible with `@hieco/mirror-shared` `ApiError` guards                | Added explicit documentation in Section 13.4 that SDK type guards are separate from `@hieco/mirror-shared` guards.                                                                                                                                                                                                                                                 |
+| `SdkError` type guards incompatible with `@hieco/utils` `ApiError` guards                | Added explicit documentation in Section 13.4 that SDK type guards are separate from `@hieco/utils` guards.                                                                                                                                                                                                                                                 |
 | `RelayTransport` listed in key translations table                                                | Removed — `@hieco/realtime` is used directly for WebSocket subscriptions, not through a separate transport abstraction.                                                                                                                                                                                                                                            |
 | `relay: RelayTransport` on `HieroClient` interface                                               | Removed — same rationale as above. `watchContractLogs` manages its own connection.                                                                                                                                                                                                                                                                                 |
 | `@hieco/connect` phantom package with `hashPackSigner`, `bladeSigner`, `metaMaskSigner`          | Removed entirely. Blade Wallet shut down July 2025. Ecosystem standardized on `@hashgraph/hedera-wallet-connect` (`DAppSigner` implements Hiero SDK `Signer`). Added `fromHieroSigner()` adapter to bridge ecosystem signers to our minimal 2-method interface. Architecture diagram, developer journey, Section 6.2, Section 24.4, and all code examples updated. |

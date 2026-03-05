@@ -1,7 +1,7 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 import { mirrorClient } from "../../mirror-client";
-import { asEntityId } from "@hieco/mirror-shared";
+import { asEntityId } from "@hieco/utils";
 import { entityIdSchema, limitSchema, toApiParams } from "../../schemas";
 import { handleApiResult } from "../../errors";
 

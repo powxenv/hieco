@@ -10,7 +10,7 @@ import type { Nft, TokenDistribution, TokenInfo } from "@hieco/mirror";
 import type { Transaction } from "@hieco/mirror";
 import type { PaginatedResponse } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hieco/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/utils";
 
 export type { TokenListParams, TokenBalancesParams, TokenNftsParams } from "@hieco/mirror";
 

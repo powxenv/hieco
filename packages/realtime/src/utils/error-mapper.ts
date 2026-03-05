@@ -1,4 +1,4 @@
-import type { ApiError } from "@hieco/types";
+import type { ApiError } from "@hieco/utils";
 import type { JsonRpcErrorCode } from "../types/json-rpc";
 
 export function mapJsonRpcErrorCode(code: JsonRpcErrorCode): ApiError["_tag"] {

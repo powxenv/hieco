@@ -1,4 +1,4 @@
-import type { ApiResult, ApiError } from "@hieco/mirror";
+import type { ApiResult, ApiError } from "../types/api";
 
 export function isSuccess<T>(
   result: ApiResult<T>,

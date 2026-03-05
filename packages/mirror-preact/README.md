@@ -228,7 +228,7 @@ function TokenList() {
 ## Related Packages
 
 - [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - Core REST API client
-- [`@hieco/mirror-shared`](https://github.com/powxenv/hieco/tree/main/packages/mirror-shared) - Shared utilities (internal)
+- [`@hieco/utils`](https://github.com/powxenv/hieco/tree/main/packages/utils) - Shared utilities (internal)
 - [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - WebSocket streaming client
 
 ## License

@@ -1,5 +1,5 @@
 import type { RelaySubscription, RelayMessage } from "../types/subscription";
-import type { ApiResult } from "@hieco/types";
+import type { ApiResult } from "@hieco/utils";
 import type { JsonRpcResponse } from "../types/json-rpc";
 import { mapJsonRpcErrorCode } from "../utils/error-mapper";
 

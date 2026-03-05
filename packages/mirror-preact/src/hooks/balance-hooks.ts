@@ -3,7 +3,7 @@ import type { UseQueryOptions, UseQueryResult } from "@tanstack/preact-query";
 import type { ApiResult, ApiError, QueryOperator, Timestamp } from "@hieco/mirror";
 import type { BalancesResponse } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hieco/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/utils";
 
 export type { BalancesListParams } from "@hieco/mirror";
 

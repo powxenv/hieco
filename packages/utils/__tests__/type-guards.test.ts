@@ -6,8 +6,8 @@ import {
   isNotFoundError,
   isRateLimitError,
   isValidationError,
-} from "../src/type-guards";
-import type { ApiResult, ApiError } from "@hieco/types";
+} from "../src/mirror/type-guards";
+import type { ApiResult, ApiError } from "../src/types/api";
 
 describe("isSuccess", () => {
   const successResult: ApiResult<string> = { success: true, data: "test data" };
@@ -39,8 +39,6 @@ describe("isSuccess", () => {
     test("type narrowing works: error not accessible in success branch", () => {
       const result: ApiResult<string> = { success: true, data: "value" };
       if (isSuccess(result)) {
-        // TypeScript knows 'error' doesn't exist here
-        // But at runtime, we can still check it doesn't exist
         expect("error" in result).toBe(false);
       }
     });
@@ -239,8 +237,6 @@ describe("isApiError", () => {
         error: { _tag: "NetworkError", message: "Failed" },
       };
       if (isApiError(result)) {
-        // TypeScript knows 'data' doesn't exist here
-        // But at runtime, we can still check it doesn't exist
         expect("data" in result).toBe(false);
       }
     });
@@ -353,7 +349,7 @@ describe("isApiError", () => {
     test("handles error with emoji in message", () => {
       const result: ApiResult<string> = {
         success: false,
-        error: { _tag: "RateLimitError", message: "Too many requests 🚦" },
+        error: { _tag: "RateLimitError", message: "Too many requests \ud83d\udea6" },
       };
       expect(isApiError(result)).toBe(true);
     });
@@ -630,7 +626,7 @@ describe("isNotFoundError", () => {
     test("handles NotFoundError with unicode", () => {
       const error: ApiError = {
         _tag: "NotFoundError",
-        message: "リソースが見つかりません",
+        message: "\u30ea\u30bd\u30fc\u30b9\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093",
       };
       expect(isNotFoundError(error)).toBe(true);
     });
@@ -1059,7 +1055,7 @@ describe("isValidationError", () => {
     test("handles validation error with emoji", () => {
       const error: ApiError = {
         _tag: "ValidationError",
-        message: "Invalid input 😱",
+        message: "Invalid input \ud83d\ude31",
       };
       expect(isValidationError(error)).toBe(true);
     });
@@ -1067,7 +1063,7 @@ describe("isValidationError", () => {
     test("handles validation error with unicode", () => {
       const error: ApiError = {
         _tag: "ValidationError",
-        message: "検証エラー: 無効な入力",
+        message: "\u691c\u8a3c\u30a8\u30e9\u30fc: \u7121\u52b9\u306a\u5165\u529b",
       };
       expect(isValidationError(error)).toBe(true);
     });

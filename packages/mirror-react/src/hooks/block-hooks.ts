@@ -3,7 +3,7 @@ import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
 import type { ApiResult, ApiError, Timestamp } from "@hieco/mirror";
 import type { BlocksResponse, Block } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hieco/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/utils";
 
 export type { BlocksListParams } from "@hieco/mirror";
 

@@ -16,7 +16,7 @@ import type {
   UpdateFileParams,
 } from "../../foundation/params.ts";
 import type { FilesNamespace } from "./namespace.ts";
-import type { EntityId } from "@hieco/types";
+import type { EntityId } from "@hieco/utils";
 
 export function createFilesNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;

@@ -4,9 +4,21 @@ import {
   findMethodMapping,
   invalidateQueries,
   prefetchQuery,
-} from "../src/query-helpers";
+} from "../src/mirror/query-helpers";
 import type { QueryClient } from "@tanstack/query-core";
-import type { MirrorNodeClient } from "@hieco/mirror";
+
+type MirrorNodeClientLike = Record<
+  | "account"
+  | "token"
+  | "contract"
+  | "transaction"
+  | "topic"
+  | "schedule"
+  | "network"
+  | "balance"
+  | "block",
+  Record<string, unknown>
+>;
 
 describe("isValidMirrorNodeKey", () => {
   test("returns true for valid key structure: mirror-node, network, entity", () => {
@@ -401,8 +413,12 @@ describe("invalidateQueries", () => {
     await invalidateQueries(mockQueryClient, { entityType: "account", resourceId: "0.0.123" });
 
     expect(capturedPredicate).toBeDefined();
-    const matchingQuery = { queryKey: ["mirror-node", "mainnet", "account", "info", "0.0.123"] };
-    const nonMatchingQuery = { queryKey: ["mirror-node", "mainnet", "account", "info", "0.0.456"] };
+    const matchingQuery = {
+      queryKey: ["mirror-node", "mainnet", "account", "info", "0.0.123"],
+    };
+    const nonMatchingQuery = {
+      queryKey: ["mirror-node", "mainnet", "account", "info", "0.0.456"],
+    };
     expect(capturedPredicate?.(matchingQuery)).toBe(true);
     expect(capturedPredicate?.(nonMatchingQuery)).toBe(false);
   });
@@ -429,7 +445,7 @@ describe("prefetchQuery", () => {
       prefetchQuery: async () => {},
     } as unknown as QueryClient;
 
-    const mockClient = {} as unknown as MirrorNodeClient;
+    const mockClient = {} as unknown as MirrorNodeClientLike;
     const invalidKey = ["invalid", "key"];
 
     expect(prefetchQuery(mockQueryClient, mockClient, invalidKey)).rejects.toThrow(
@@ -442,7 +458,7 @@ describe("prefetchQuery", () => {
       prefetchQuery: async () => {},
     } as unknown as QueryClient;
 
-    const mockClient = {} as unknown as MirrorNodeClient;
+    const mockClient = {} as unknown as MirrorNodeClientLike;
     const unknownEntityKey = ["mirror-node", "mainnet", "unknown", "info", "0.0.123"];
 
     expect(prefetchQuery(mockQueryClient, mockClient, unknownEntityKey)).rejects.toThrow(

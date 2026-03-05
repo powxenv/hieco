@@ -729,7 +729,7 @@ export function useTransferHbar(options: TransferHbarOptions = {}): UseTransferH
 // @hieco/react/src/hooks/useMirrorNodeAccount.ts
 import { useQuery } from "@tanstack/react-query";
 import { useClient } from "./useClient";
-import type { MirrorAccount } from "@hieco/types";
+import type { MirrorAccount } from "@hieco/utils";
 
 interface UseMirrorNodeAccountResult {
   account: MirrorAccount | null;
@@ -1244,7 +1244,7 @@ const { balance, loading, error } = useAccountBalance(accountId);
 hieco/ecosystem
 ├── packages/
 │   ├── core/           # @hieco/core
-│   ├── types/          # @hieco/types
+│   ├── utils/          # @hieco/utils
 │   ├── react/          # @hieco/react (REFERENCE)
 │   ├── svelte/         # @hieco/svelte
 │   ├── vue/            # @hieco/vue

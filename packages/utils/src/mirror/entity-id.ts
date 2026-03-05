@@ -1,4 +1,4 @@
-import type { EntityId } from "@hieco/types";
+import type { EntityId } from "../types/entity";
 
 const ENTITY_ID_REGEX = /^(\d{1,10})\.(\d{1,10})\.(\d{1,10})$/;
 

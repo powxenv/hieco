@@ -1,4 +1,4 @@
-import type { ApiResult } from "@hieco/types";
+import type { ApiResult } from "@hieco/utils";
 import type { StreamConfig, StreamState } from "../types/stream";
 
 export abstract class BaseStreamClient<TMessage, TSubscription, TUnsubscribeResult = null> {

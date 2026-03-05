@@ -1,5 +1,5 @@
-import type { ApiResult, ApiError } from "@hieco/types";
-import { isSuccess } from "@hieco/mirror-shared";
+import type { ApiResult, ApiError } from "@hieco/utils";
+import { isSuccess } from "@hieco/utils";
 
 export class MirrorMCPError extends Error {
   constructor(

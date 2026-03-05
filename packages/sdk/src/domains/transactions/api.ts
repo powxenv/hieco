@@ -63,8 +63,8 @@ import {
   ContractId,
 } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
-import type { EntityId } from "@hieco/types";
-import { asEntityId } from "@hieco/mirror-shared";
+import type { EntityId } from "@hieco/utils";
+import { asEntityId } from "@hieco/utils";
 import type {
   TransactionDescriptor,
   FunctionParamsConfig,

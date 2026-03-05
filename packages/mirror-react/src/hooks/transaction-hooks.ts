@@ -9,7 +9,7 @@ import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@h
 import type { Transaction, TransactionDetails } from "@hieco/mirror";
 import type { PaginatedResponse } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hieco/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/utils";
 
 export type { TransactionListParams, TransactionsByAccountParams } from "@hieco/mirror";
 

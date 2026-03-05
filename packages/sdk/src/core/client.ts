@@ -1,6 +1,6 @@
 import { Client, Hbar } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
-import type { EntityId } from "@hieco/types";
+import type { EntityId } from "@hieco/utils";
 import { createMirrorNodeClient, type MirrorNodeClient } from "@hieco/mirror";
 import type { ClientConfig, TransactionDescriptor } from "../foundation/params.ts";
 import type { ClientRuntimeConfig } from "../foundation/client-types.ts";

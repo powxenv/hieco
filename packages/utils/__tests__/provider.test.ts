@@ -5,7 +5,7 @@ import {
   createNetworkConfig,
   DEFAULT_MIRROR_NODE_URLS,
   type NetworkType,
-} from "../src/provider";
+} from "../src/mirror/provider";
 
 describe("isDefaultNetwork", () => {
   test("returns true for mainnet", () => {

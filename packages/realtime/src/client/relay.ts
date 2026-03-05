@@ -1,4 +1,4 @@
-import type { ApiResult } from "@hieco/types";
+import type { ApiResult } from "@hieco/utils";
 import type { StreamConfig } from "../types/stream";
 import type { RelaySubscription, RelayMessage } from "../types/subscription";
 import type { JsonRpcRequest } from "../types/json-rpc";

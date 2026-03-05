@@ -9,7 +9,7 @@ import type {
   NetworkSupply,
 } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hieco/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/utils";
 
 type NetworkQueryFnData<T> = ApiResult<T>;
 type NetworkQueryError = ApiError;

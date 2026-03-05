@@ -1,4 +1,4 @@
-import { asEntityId } from "@hieco/mirror-shared";
+import { asEntityId } from "@hieco/utils";
 import {
   formatOutput,
   formatError,

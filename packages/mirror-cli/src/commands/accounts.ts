@@ -1,6 +1,6 @@
 import { createMirrorNodeClient } from "@hieco/mirror";
-import type { NetworkType } from "@hieco/types";
-import { asEntityId } from "@hieco/mirror-shared";
+import type { NetworkType } from "@hieco/utils";
+import { asEntityId } from "@hieco/utils";
 import {
   formatOutput,
   formatError,

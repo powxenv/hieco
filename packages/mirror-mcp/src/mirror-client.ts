@@ -1,6 +1,6 @@
 import { createMirrorNodeClient } from "@hieco/mirror";
-import type { NetworkType } from "@hieco/types";
-import { NETWORK_CONFIGS } from "@hieco/types";
+import type { NetworkType } from "@hieco/utils";
+import { NETWORK_CONFIGS } from "@hieco/utils";
 
 function getNetworkType(): NetworkType {
   const network = process.env.MIRROR_NETWORK ?? "mainnet";

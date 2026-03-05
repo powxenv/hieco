@@ -38,7 +38,7 @@
       "name": "@hieco/mirror",
       "version": "0.0.1",
       "dependencies": {
-        "@hieco/types": "workspace:*",
+        "@hieco/utils": "workspace:*",
         "ky": "^1.14.3",
         "p-limit": "^7.3.0",
       },
@@ -58,8 +58,7 @@
       },
       "dependencies": {
         "@hieco/mirror": "workspace:*",
-        "@hieco/mirror-shared": "workspace:*",
-        "@hieco/types": "workspace:*",
+        "@hieco/utils": "workspace:*",
         "chalk": "^5.4.1",
         "cli-table3": "^0.6.5",
         "commander": "^13.1.0",
@@ -80,8 +79,7 @@
       },
       "dependencies": {
         "@hieco/mirror": "workspace:*",
-        "@hieco/mirror-shared": "workspace:*",
-        "@hieco/types": "workspace:*",
+        "@hieco/utils": "workspace:*",
         "@mastra/core": "^1.0.0",
         "@mastra/mcp": "^1.0.0",
         "zod": "^3.24.0",
@@ -107,7 +105,7 @@
       },
       "peerDependencies": {
         "@hieco/mirror": "workspace:*",
-        "@hieco/mirror-shared": "workspace:*",
+        "@hieco/utils": "workspace:*",
         "@tanstack/preact-query": "^5.0.0",
         "preact": ">=10",
       },
@@ -128,29 +126,10 @@
       },
       "peerDependencies": {
         "@hieco/mirror": "workspace:*",
-        "@hieco/mirror-shared": "workspace:*",
+        "@hieco/utils": "workspace:*",
         "@tanstack/react-query": "^5.0.0",
         "react": ">=18",
         "react-dom": ">=18",
-      },
-    },
-    "packages/mirror-shared": {
-      "name": "@hieco/mirror-shared",
-      "version": "0.0.1",
-      "dependencies": {
-        "@hieco/mirror": "workspace:*",
-        "@hieco/types": "workspace:*",
-      },
-      "devDependencies": {
-        "@tanstack/query-core": "^5.67.1",
-        "@typescript/native-preview": "catalog:",
-        "bun-types": "catalog:",
-        "oxfmt": "catalog:",
-        "oxlint": "catalog:",
-        "oxlint-tsgolint": "catalog:",
-      },
-      "peerDependencies": {
-        "@tanstack/query-core": "^5.67.1",
       },
     },
     "packages/mirror-solid": {
@@ -165,7 +144,7 @@
       },
       "peerDependencies": {
         "@hieco/mirror": "workspace:*",
-        "@hieco/mirror-shared": "workspace:*",
+        "@hieco/utils": "workspace:*",
         "@tanstack/solid-query": "^5.0.0",
         "solid-js": ">=1.8",
       },
@@ -182,7 +161,7 @@
       },
       "peerDependencies": {
         "@hieco/mirror": "workspace:*",
-        "@hieco/types": "workspace:*",
+        "@hieco/utils": "workspace:*",
       },
     },
     "packages/realtime-react": {
@@ -211,8 +190,7 @@
       "version": "0.0.1",
       "dependencies": {
         "@hieco/mirror": "workspace:*",
-        "@hieco/mirror-shared": "workspace:*",
-        "@hieco/types": "workspace:*",
+        "@hieco/utils": "workspace:*",
         "@hiero-ledger/sdk": "^2.80.0",
         "bignumber.js": "9.1.1",
       },
@@ -224,15 +202,19 @@
         "oxlint-tsgolint": "catalog:",
       },
     },
-    "packages/types": {
-      "name": "@hieco/types",
+    "packages/utils": {
+      "name": "@hieco/utils",
       "version": "0.0.1",
       "devDependencies": {
+        "@tanstack/query-core": "^5.67.1",
         "@typescript/native-preview": "catalog:",
         "bun-types": "catalog:",
         "oxfmt": "catalog:",
         "oxlint": "catalog:",
         "oxlint-tsgolint": "catalog:",
+      },
+      "peerDependencies": {
+        "@tanstack/query-core": "^5.67.1",
       },
     },
   },
@@ -478,8 +460,6 @@
 
     "@hieco/mirror-react": ["@hieco/mirror-react@workspace:packages/mirror-react"],
 
-    "@hieco/mirror-shared": ["@hieco/mirror-shared@workspace:packages/mirror-shared"],
-
     "@hieco/mirror-solid": ["@hieco/mirror-solid@workspace:packages/mirror-solid"],
 
     "@hieco/realtime": ["@hieco/realtime@workspace:packages/realtime"],
@@ -488,7 +468,7 @@
 
     "@hieco/sdk": ["@hieco/sdk@workspace:packages/sdk"],
 
-    "@hieco/types": ["@hieco/types@workspace:packages/types"],
+    "@hieco/utils": ["@hieco/utils@workspace:packages/utils"],
 
     "@hieco/web": ["@hieco/web@workspace:apps/web"],
 

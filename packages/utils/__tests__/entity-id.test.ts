@@ -6,8 +6,8 @@ import {
   formatEntityId,
   parseEntityIdParts,
   asEntityId,
-} from "../src/entity-id";
-import type { EntityId } from "@hieco/types";
+} from "../src/mirror/entity-id";
+import type { EntityId } from "../src/types/entity";
 
 describe("isValidEntityId", () => {
   describe("happy path - valid formats", () => {
@@ -218,11 +218,11 @@ describe("isValidEntityId", () => {
     });
 
     test("returns false for emoji in ID", () => {
-      expect(isValidEntityId("0.0.😱")).toBe(false);
+      expect(isValidEntityId("0.0.\ud83d\ude31")).toBe(false);
     });
 
     test("returns false for unicode characters", () => {
-      expect(isValidEntityId("网络.错误.测试")).toBe(false);
+      expect(isValidEntityId("\u7f51\u7edc.\u9519\u8bef.\u6d4b\u8bd5")).toBe(false);
     });
 
     test("returns false for right-to-left override", () => {
@@ -413,11 +413,11 @@ describe("parseEntityId", () => {
     });
 
     test("returns null for emoji", () => {
-      expect(parseEntityId("0.0.😱")).toBeNull();
+      expect(parseEntityId("0.0.\ud83d\ude31")).toBeNull();
     });
 
     test("returns null for unicode", () => {
-      expect(parseEntityId("网络.错误.测试")).toBeNull();
+      expect(parseEntityId("\u7f51\u7edc.\u9519\u8bef.\u6d4b\u8bd5")).toBeNull();
     });
   });
 
@@ -542,7 +542,7 @@ describe("assertEntityId", () => {
     });
 
     test("throws Error for emoji", () => {
-      expect(() => assertEntityId("0.0.😱")).toThrow("Invalid EntityId format");
+      expect(() => assertEntityId("0.0.\ud83d\ude31")).toThrow("Invalid EntityId format");
     });
   });
 
@@ -656,7 +656,6 @@ describe("formatEntityId", () => {
 
     test("handles -0 (negative zero as -0)", () => {
       expect(() => formatEntityId(-0, 0, 0)).not.toThrow();
-      // Note: -0 === 0 in JavaScript, so this is valid
     });
   });
 
@@ -887,7 +886,7 @@ describe("parseEntityIdParts", () => {
     });
 
     test("throws for emoji", () => {
-      expect(() => parseEntityIdParts("0.0.😱" as unknown as EntityId)).toThrow(
+      expect(() => parseEntityIdParts("0.0.\ud83d\ude31" as unknown as EntityId)).toThrow(
         "Invalid EntityId format",
       );
     });
@@ -994,15 +993,15 @@ describe("asEntityId", () => {
     });
 
     test("accepts emoji", () => {
-      const input = "😱🔥💀" as string;
+      const input = "\ud83d\ude31\ud83d\udd25\ud83d\udc80" as string;
       const result = asEntityId(input);
-      expect(result as unknown as string).toStrictEqual("😱🔥💀");
+      expect(result as unknown as string).toStrictEqual("\ud83d\ude31\ud83d\udd25\ud83d\udc80");
     });
 
     test("accepts unicode", () => {
-      const input = "网络错误测试" as string;
+      const input = "\u7f51\u7edc\u9519\u8bef\u6d4b\u8bd5" as string;
       const result = asEntityId(input);
-      expect(result as unknown as string).toStrictEqual("网络错误测试");
+      expect(result as unknown as string).toStrictEqual("\u7f51\u7edc\u9519\u8bef\u6d4b\u8bd5");
     });
   });
 

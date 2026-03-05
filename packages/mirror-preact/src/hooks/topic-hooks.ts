@@ -9,7 +9,7 @@ import type { ApiResult, ApiError, EntityId, PaginationParams } from "@hieco/mir
 import type { Topic, TopicMessage } from "@hieco/mirror";
 import type { PaginatedResponse } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hieco/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/utils";
 
 export type { TopicMessagesParams } from "@hieco/mirror";
 

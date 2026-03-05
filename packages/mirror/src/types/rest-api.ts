@@ -1,6 +1,6 @@
 export type {
   NetworkType,
-  NetworkConfig,
+  MirrorNetworkConfig,
   MirrorNodeConfig,
   PaginationParams,
   QueryOperator,
@@ -9,6 +9,6 @@ export type {
   EntityId,
   Timestamp,
   Key,
-} from "@hieco/types";
+} from "@hieco/utils";
 
-export { ApiErrorFactory, NETWORK_CONFIGS } from "@hieco/types";
+export { ApiErrorFactory, NETWORK_CONFIGS } from "@hieco/utils";

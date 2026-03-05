@@ -30,7 +30,7 @@ Based on the existing `@hieco/mirror-*` packages and research findings, seven st
 | `@hieco/mirror-react`  | React hooks with TanStack Query | ✅ Built |
 | `@hieco/mirror-preact` | Preact adapter                  | ✅ Built |
 | `@hieco/mirror-solid`  | Solid.js adapter                | ✅ Built |
-| `@hieco/mirror-shared` | Shared utilities                | ✅ Built |
+| `@hieco/utils` | Shared utilities and types       | ✅ Built |
 
 ---
 

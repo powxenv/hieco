@@ -62,7 +62,7 @@
   },
   "peerDependencies": {
     "@hieco/mirror": "workspace:*",
-    "@hieco/mirror-shared": "workspace:*",
+    "@hieco/utils": "workspace:*",
     "@tanstack/react-query": "^5.0.0",
     "react": ">=18",
     "react-dom": ">=18"

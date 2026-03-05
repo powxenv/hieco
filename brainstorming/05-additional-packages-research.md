@@ -95,8 +95,7 @@ All research was conducted using multiple sources:
 - `@hieco/mirror-react` - React hooks with TanStack Query
 - `@hieco/mirror-preact` - Preact adapter
 - `@hieco/mirror-solid` - Solid.js adapter
-- `@hieco/mirror-shared` - Shared utilities
-- `@hieco/types` - Common types
+- `@hieco/utils` - Shared utilities and common types
 - `@hieco/realtime` - Realtime subscription
 - `@hieco/testing` - Test utilities
 - `@hieco/mirror-mcp` - MCP server

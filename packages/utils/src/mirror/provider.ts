@@ -1,4 +1,4 @@
-import type { NetworkType } from "@hieco/mirror";
+import type { NetworkType } from "../types/network";
 
 export type { NetworkType };
 

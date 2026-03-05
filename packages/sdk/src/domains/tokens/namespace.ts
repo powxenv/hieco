@@ -1,4 +1,4 @@
-import type { EntityId } from "@hieco/types";
+import type { EntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../../foundation/params.ts";
 import type {
   MintReceipt,

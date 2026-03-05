@@ -1,12 +1,13 @@
 {
-  "name": "@hieco/types",
+  "name": "@hieco/utils",
   "version": "0.0.1",
   "private": true,
-  "description": "Shared TypeScript types for hieco packages (internal use only)",
+  "description": "Shared internal utilities and types for hieco packages",
   "keywords": [
     "hedera",
     "types",
-    "typescript"
+    "typescript",
+    "utils"
   ],
   "license": "MIT",
   "files": [
@@ -35,11 +36,15 @@
     "test:coverage": "bun test --coverage"
   },
   "devDependencies": {
+    "@tanstack/query-core": "^5.67.1",
     "@typescript/native-preview": "catalog:",
     "bun-types": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:"
+  },
+  "peerDependencies": {
+    "@tanstack/query-core": "^5.67.1"
   },
   "engines": {
     "node": ">=18.0.0"

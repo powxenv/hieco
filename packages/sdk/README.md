@@ -503,10 +503,9 @@ const contents = await client.files.contents("0.0.111");
 ```typescript
 const record = await client.transactions.record("0.0.123@1680000000.123456789");
 
-const receipt = await client.transactions.receipt(
-  "0.0.123@1680000000.123456789",
-  { includeChildren: true },
-);
+const receipt = await client.transactions.receipt("0.0.123@1680000000.123456789", {
+  includeChildren: true,
+});
 ```
 
 ## Use Cases
@@ -558,7 +557,7 @@ const gasEstimate = await client.contracts.estimateGas({
 
 ### HCS stream consumer
 
-```typescript
+````typescript
 const stop = client.hcs.watch("0.0.456", (message) => {
   console.log(message.text());
 });
@@ -570,8 +569,9 @@ setTimeout(() => stop(), 30_000);
 ```typescript
 const version = await client.network.version();
 const book = await client.network.addressBook({ limit: 10 });
-```
-```
+````
+
+````
 
 ### Treasury sweep
 
@@ -579,7 +579,7 @@ const book = await client.network.addressBook({ limit: 10 });
 for (const accountId of ["0.0.401", "0.0.402"]) {
   await client.accounts.transfer({ to: "0.0.999", from: accountId, hbar: 0.5 });
 }
-```
+````
 
 ### Token supply expansion
 
@@ -620,9 +620,8 @@ if (deploy.ok) {
 
 ## Related Packages
 
-- [`@hieco/types`](https://www.npmjs.com/package/@hieco/types) - Shared types
+- [`@hieco/utils`](https://github.com/powxenv/hieco/tree/main/packages/utils) - Shared utilities and types
 - [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - Mirror node REST API client
-- [`@hieco/mirror-shared`](https://github.com/powxenv/hieco/tree/main/packages/mirror-shared) - Shared utilities
 - [`@hiero-ledger/sdk`](https://www.npmjs.com/package/@hiero-ledger/sdk) - Official Hedera SDK
 
 ## Browser Support

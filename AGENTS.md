@@ -73,8 +73,7 @@ Before writing any code:
 Before creating utilities in any package:
 
 1. **Check existing shared packages:**
-   - `@hieco/types` - Common types used across all packages
-   - `@hieco/mirror-shared` - Mirror Node related utilities
+- `@hieco/utils` - Common types and Mirror Node utilities
 
 2. **Prevent duplication:**
    - Search existing codebase before creating new utilities

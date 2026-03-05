@@ -1,4 +1,4 @@
-import type { EntityId, NetworkType } from "@hieco/types";
+import type { EntityId, NetworkType } from "@hieco/utils";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
 
 export interface ClientRuntimeConfig {

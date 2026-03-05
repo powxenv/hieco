@@ -59,7 +59,7 @@
   },
   "peerDependencies": {
     "@hieco/mirror": "workspace:*",
-    "@hieco/types": "workspace:*"
+    "@hieco/utils": "workspace:*"
   },
   "engines": {
     "node": ">=18.0.0"
