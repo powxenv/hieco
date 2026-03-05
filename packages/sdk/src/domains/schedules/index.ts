@@ -5,12 +5,16 @@ import type {
   ScheduleSignParams,
   ScheduleWaitOptions,
   TransactionDescriptor,
-} from "./types/params.ts";
-import type { ScheduleReceipt, TransactionReceiptData } from "./types/results-shapes.ts";
-import type { Result } from "./types/results.ts";
-import { err, ok } from "./types/results.ts";
-import { createError } from "./errors.ts";
-import { ensureScheduleId } from "./transactions.ts";
+} from "../../shared/params.ts";
+import type {
+  ScheduleInfoData,
+  ScheduleReceipt,
+  TransactionReceiptData,
+} from "../../shared/results-shapes.ts";
+import type { Result } from "../../shared/results.ts";
+import { err, ok } from "../../shared/results.ts";
+import { createError } from "../../shared/errors.ts";
+import { ensureScheduleId } from "../transactions/index.ts";
 
 export interface SchedulesNamespace {
   create: ((params: ScheduleCreateParams) => Promise<Result<ScheduleReceipt>>) & {
@@ -32,17 +36,8 @@ export interface SchedulesNamespace {
   ) => Promise<Result<TransactionReceiptData>>) & {
     tx: (params: ScheduleDeleteParams) => TransactionDescriptor;
   };
-  info: (
-    scheduleId: EntityId,
-  ) => Promise<
-    Result<{ readonly scheduleId: EntityId; readonly schedule: import("@hieco/mirror").Schedule }>
-  >;
-  wait: (
-    scheduleId: EntityId,
-    options?: ScheduleWaitOptions,
-  ) => Promise<
-    Result<{ readonly scheduleId: EntityId; readonly schedule: import("@hieco/mirror").Schedule }>
-  >;
+  info: (scheduleId: EntityId) => Promise<Result<ScheduleInfoData>>;
+  wait: (scheduleId: EntityId, options?: ScheduleWaitOptions) => Promise<Result<ScheduleInfoData>>;
 }
 
 function sleep(ms: number): Promise<void> {
@@ -123,11 +118,7 @@ export function createSchedulesNamespace(context: {
     params,
   });
 
-  const info = async (
-    scheduleId: EntityId,
-  ): Promise<
-    Result<{ readonly scheduleId: EntityId; readonly schedule: import("@hieco/mirror").Schedule }>
-  > => {
+  const info = async (scheduleId: EntityId): Promise<Result<ScheduleInfoData>> => {
     const result = await context.mirror.schedule.getInfo(scheduleId);
     if (!result.success) {
       return err(
@@ -150,9 +141,7 @@ export function createSchedulesNamespace(context: {
   const wait = async (
     scheduleId: EntityId,
     options: ScheduleWaitOptions = {},
-  ): Promise<
-    Result<{ readonly scheduleId: EntityId; readonly schedule: import("@hieco/mirror").Schedule }>
-  > => {
+  ): Promise<Result<ScheduleInfoData>> => {
     const timeoutMs = options.timeoutMs ?? 120_000;
     const pollIntervalMs = options.pollIntervalMs ?? 2_000;
     const stopWhenDeleted = options.stopWhenDeleted ?? true;

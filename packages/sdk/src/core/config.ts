@@ -1,11 +1,11 @@
-import type { ClientConfig } from "./types/params.ts";
-import type { ClientRuntimeConfig } from "./types/client.ts";
+import type { ClientConfig } from "../shared/params.ts";
+import type { ClientRuntimeConfig } from "../shared/client-types.ts";
 import type { NetworkType } from "@hieco/types";
 import { NETWORK_CONFIGS } from "@hieco/types";
 import { isValidEntityId } from "@hieco/mirror-shared";
-import { createError } from "./errors.ts";
-import type { Result } from "./types/results.ts";
-import { err, ok } from "./types/results.ts";
+import { createError } from "../shared/errors.ts";
+import type { Result } from "../shared/results.ts";
+import { err, ok } from "../shared/results.ts";
 
 const VALID_NETWORKS: ReadonlyArray<NetworkType> = ["mainnet", "testnet", "previewnet"];
 
@@ -18,11 +18,15 @@ function readEnv(name: string): string | undefined {
   return typeof process !== "undefined" ? process.env[name] : undefined;
 }
 
+function isNetworkType(value: string): value is NetworkType {
+  return value === "mainnet" || value === "testnet" || value === "previewnet";
+}
+
 function resolveNetwork(explicit?: NetworkType): NetworkType {
   if (explicit && VALID_NETWORKS.includes(explicit)) return explicit;
   const env = readEnv("HIERO_NETWORK");
-  if (env && (VALID_NETWORKS as ReadonlyArray<string>).includes(env)) {
-    return env as NetworkType;
+  if (env && isNetworkType(env)) {
+    return env;
   }
   return "testnet";
 }

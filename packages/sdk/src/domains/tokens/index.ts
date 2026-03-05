@@ -18,11 +18,17 @@ import type {
   UpdateTokenParams,
   WipeTokenParams,
   TransactionDescriptor,
-} from "./types/params.ts";
-import type { MintReceipt, TokenReceipt, TransactionReceiptData } from "./types/results-shapes.ts";
-import type { Result } from "./types/results.ts";
-import { err, ok } from "./types/results.ts";
-import { ensureTokenId, inferAccountId } from "./transactions.ts";
+} from "../../shared/params.ts";
+import type {
+  MintReceipt,
+  TokenInfoData,
+  TokenReceipt,
+  TransactionReceiptData,
+} from "../../shared/results-shapes.ts";
+import type { Result } from "../../shared/results.ts";
+import { err, ok } from "../../shared/results.ts";
+import { ensureTokenId, inferAccountId } from "../transactions/index.ts";
+import { createError } from "../../shared/errors.ts";
 
 export interface TokensNamespace {
   create: ((params: CreateTokenParams) => Promise<Result<TokenReceipt>>) & {
@@ -76,12 +82,14 @@ export interface TokensNamespace {
   fees: ((params: UpdateTokenFeeScheduleParams) => Promise<Result<TransactionReceiptData>>) & {
     tx: (params: UpdateTokenFeeScheduleParams) => TransactionDescriptor;
   };
+  info: (tokenId: EntityId) => Promise<Result<TokenInfoData>>;
 }
 
 export function createTokensNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
   readonly operator?: EntityId;
   readonly signer?: import("@hiero-ledger/sdk").Signer;
+  readonly mirror: import("@hieco/mirror").MirrorNodeClient;
 }): TokensNamespace {
   const create = async (params: CreateTokenParams): Promise<Result<TokenReceipt>> => {
     const result = await context.submit({ kind: "tokens.create", params });
@@ -296,6 +304,22 @@ export function createTokensNamespace(context: {
     params,
   });
 
+  const info = async (tokenId: EntityId): Promise<Result<TokenInfoData>> => {
+    const result = await context.mirror.token.getInfo(tokenId);
+    if (!result.success) {
+      return err(
+        createError("MIRROR_QUERY_FAILED", `Mirror token.getInfo failed: ${result.error.message}`, {
+          hint: "Verify mirror node connectivity",
+          details: {
+            status: result.error.status ?? "unknown",
+            code: result.error.code ?? "unknown",
+          },
+        }),
+      );
+    }
+    return ok({ tokenId, token: result.data });
+  };
+
   return {
     create,
     mint,
@@ -314,5 +338,6 @@ export function createTokensNamespace(context: {
     delete: del,
     update,
     fees,
+    info,
   };
 }

@@ -1,4 +1,4 @@
-import type { HieroErrorShape } from "./errors.ts";
+import type { HieroErrorShape } from "./errors-types.ts";
 
 export type Result<T> =
   | { readonly ok: true; readonly value: T }

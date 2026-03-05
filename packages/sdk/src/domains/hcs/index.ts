@@ -8,15 +8,19 @@ import type {
   TopicMessageData,
   UpdateTopicParams,
   WatchTopicMessagesOptions,
-} from "./types/params.ts";
+} from "../../shared/params.ts";
 import type {
   MessageReceipt,
+  TopicInfoData,
+  TopicMessagesData,
   TopicReceipt,
   TransactionReceiptData,
-} from "./types/results-shapes.ts";
-import type { Result } from "./types/results.ts";
-import { ok } from "./types/results.ts";
-import { ensureTopicId, ensureTopicSequence } from "./transactions.ts";
+} from "../../shared/results-shapes.ts";
+import type { Result } from "../../shared/results.ts";
+import { ok } from "../../shared/results.ts";
+import { ensureTopicId, ensureTopicSequence } from "../transactions/index.ts";
+import { err } from "../../shared/results.ts";
+import { createError } from "../../shared/errors.ts";
 
 export interface HcsNamespace {
   create: ((params: CreateTopicParams) => Promise<Result<TopicReceipt>>) & {
@@ -36,11 +40,17 @@ export interface HcsNamespace {
     handler: (message: TopicMessageData) => void,
     options?: WatchTopicMessagesOptions,
   ) => () => void;
+  info: (topicId: EntityId) => Promise<Result<TopicInfoData>>;
+  messages: (
+    topicId: EntityId,
+    params?: import("@hieco/mirror").TopicMessagesParams,
+  ) => Promise<Result<TopicMessagesData>>;
 }
 
 export function createHcsNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
   readonly nativeClient: import("@hiero-ledger/sdk").Client;
+  readonly mirror: import("@hieco/mirror").MirrorNodeClient;
 }): HcsNamespace {
   const create = async (params: CreateTopicParams): Promise<Result<TopicReceipt>> => {
     const result = await context.submit({ kind: "hcs.create", params });
@@ -76,7 +86,10 @@ export function createHcsNamespace(context: {
     return ok(result.value);
   };
 
-  del.tx = (params: DeleteTopicParams): TransactionDescriptor => ({ kind: "hcs.delete", params });
+  del.tx = (params: DeleteTopicParams): TransactionDescriptor => ({
+    kind: "hcs.delete",
+    params,
+  });
 
   const submit = async (params: SubmitMessageParams): Promise<Result<MessageReceipt>> => {
     const result = await context.submit({ kind: "hcs.submit", params });
@@ -122,7 +135,7 @@ export function createHcsNamespace(context: {
         json: () => {
           const text = new TextDecoder().decode(message.contents);
           try {
-            return JSON.parse(text) as unknown;
+            return JSON.parse(text);
           } catch {
             return text;
           }
@@ -135,11 +148,52 @@ export function createHcsNamespace(context: {
     return () => handle.unsubscribe();
   };
 
+  const info = async (topicId: EntityId): Promise<Result<TopicInfoData>> => {
+    const result = await context.mirror.topic.getInfo(topicId);
+    if (!result.success) {
+      return err(
+        createError("MIRROR_QUERY_FAILED", `Mirror topic.getInfo failed: ${result.error.message}`, {
+          hint: "Verify mirror node connectivity",
+          details: {
+            status: result.error.status ?? "unknown",
+            code: result.error.code ?? "unknown",
+          },
+        }),
+      );
+    }
+    return ok({ topicId, topic: result.data });
+  };
+
+  const messages = async (
+    topicId: EntityId,
+    params?: import("@hieco/mirror").TopicMessagesParams,
+  ): Promise<Result<TopicMessagesData>> => {
+    const result = await context.mirror.topic.getMessages(topicId, params);
+    if (!result.success) {
+      return err(
+        createError(
+          "MIRROR_QUERY_FAILED",
+          `Mirror topic.getMessages failed: ${result.error.message}`,
+          {
+            hint: "Verify mirror node connectivity",
+            details: {
+              status: result.error.status ?? "unknown",
+              code: result.error.code ?? "unknown",
+            },
+          },
+        ),
+      );
+    }
+    return ok({ topicId, messages: result.data });
+  };
+
   return {
     create,
     update,
     delete: del,
     submit,
     watch,
+    info,
+    messages,
   };
 }

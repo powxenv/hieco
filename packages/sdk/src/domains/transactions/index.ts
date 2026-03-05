@@ -50,58 +50,25 @@ import {
   NftId,
   AccountId,
   Timestamp,
+  FileInfoQuery,
+  FileContentsQuery,
+  TransactionRecordQuery,
+  TransactionId,
 } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
 import type { EntityId } from "@hieco/types";
 import { asEntityId } from "@hieco/mirror-shared";
 import type {
-  ApproveAllowanceParams,
-  CreateAccountParams,
-  UpdateAccountParams,
-  DeleteAccountParams,
-  TransferParams,
-  CreateTokenParams,
-  MintTokenParams,
-  BurnTokenParams,
-  TransferTokenParams,
-  TransferNftParams,
-  AssociateTokenParams,
-  DissociateTokenParams,
-  FreezeTokenParams,
-  UnfreezeTokenParams,
-  GrantKycParams,
-  RevokeKycParams,
-  PauseTokenParams,
-  UnpauseTokenParams,
-  WipeTokenParams,
-  DeleteTokenParams,
-  UpdateTokenParams,
-  UpdateTokenFeeScheduleParams,
-  CreateTopicParams,
-  UpdateTopicParams,
-  DeleteTopicParams,
-  SubmitMessageParams,
-  DeployContractParams,
-  ExecuteContractParams,
-  DeleteContractParams,
-  UpdateContractParams,
-  ScheduleCreateParams,
-  ScheduleSignParams,
-  ScheduleDeleteParams,
-  CreateFileParams,
-  AppendFileParams,
-  UpdateFileParams,
-  DeleteFileParams,
   TransactionDescriptor,
   FunctionParamsConfig,
   CustomFeeParams,
   CustomFixedFeeParams,
-} from "./types/params.ts";
-import type { TransactionReceiptData } from "./types/results-shapes.ts";
-import type { Result } from "./types/results.ts";
-import { err, ok } from "./types/results.ts";
-import { createError } from "./errors.ts";
-import { toAmountString } from "./utils.ts";
+} from "../../shared/params.ts";
+import type { TransactionReceiptData } from "../../shared/results-shapes.ts";
+import type { Result } from "../../shared/results.ts";
+import { err, ok } from "../../shared/results.ts";
+import { createError } from "../../shared/errors.ts";
+import { toAmountString } from "../../shared/utils.ts";
 
 export type SigningContext =
   | { readonly kind: "operator"; readonly key: string }
@@ -271,51 +238,61 @@ function addSolidityParam(cfp: ContractFunctionParameters, solType: string, val:
     throw new Error(`Missing value for Solidity type: ${solType}`);
   }
   switch (solType) {
-    case "string":
-      cfp.addString(val as string);
+    case "string": {
+      if (typeof val !== "string") throw new Error(`Expected string for ${solType}`);
+      cfp.addString(val);
       return;
-    case "bool":
-      cfp.addBool(Boolean(val));
+    }
+    case "bool": {
+      if (typeof val !== "boolean") throw new Error(`Expected boolean for ${solType}`);
+      cfp.addBool(val);
       return;
-    case "address":
+    }
+    case "address": {
       cfp.addAddress(String(val));
       return;
-    case "bytes":
-      cfp.addBytes(val as Uint8Array);
+    }
+    case "bytes": {
+      if (!(val instanceof Uint8Array)) throw new Error(`Expected Uint8Array for ${solType}`);
+      cfp.addBytes(val);
       return;
-    case "bytes32":
-      cfp.addBytes32(val as Uint8Array);
+    }
+    case "bytes32": {
+      if (!(val instanceof Uint8Array)) throw new Error(`Expected Uint8Array for ${solType}`);
+      cfp.addBytes32(val);
       return;
+    }
     case "int8":
-      cfp.addInt8(Number(val));
-      return;
     case "int16":
-      cfp.addInt16(Number(val));
-      return;
     case "int32":
-      cfp.addInt32(Number(val));
+    case "uint8":
+    case "uint16":
+    case "uint32": {
+      if (typeof val !== "number") throw new Error(`Expected number for ${solType}`);
+      if (solType === "int8") cfp.addInt8(val);
+      if (solType === "int16") cfp.addInt16(val);
+      if (solType === "int32") cfp.addInt32(val);
+      if (solType === "uint8") cfp.addUint8(val);
+      if (solType === "uint16") cfp.addUint16(val);
+      if (solType === "uint32") cfp.addUint32(val);
       return;
-    case "int64":
+    }
+    case "int64": {
       cfp.addInt64(toInt64Param(val));
       return;
-    case "int256":
+    }
+    case "int256": {
       cfp.addInt256(Long.fromString(String(val)));
       return;
-    case "uint8":
-      cfp.addUint8(Number(val));
-      return;
-    case "uint16":
-      cfp.addUint16(Number(val));
-      return;
-    case "uint32":
-      cfp.addUint32(Number(val));
-      return;
-    case "uint64":
+    }
+    case "uint64": {
       cfp.addUint64(toInt64Param(val));
       return;
-    case "uint256":
+    }
+    case "uint256": {
       cfp.addUint256(Long.fromString(String(val)));
       return;
+    }
     default:
       throw new Error(`Unsupported Solidity type: ${solType}`);
   }
@@ -328,7 +305,7 @@ export function buildTransaction(
 ) {
   switch (tx.kind) {
     case "accounts.transfer": {
-      const params = tx.params as TransferParams;
+      const params = tx.params;
       const from = params.from ?? undefined;
       const transaction = new TransferTransaction();
       if (from) {
@@ -340,7 +317,7 @@ export function buildTransaction(
       return transaction;
     }
     case "accounts.create": {
-      const params = tx.params as CreateAccountParams;
+      const params = tx.params;
       const key = PrivateKey.fromStringDer(params.publicKey).publicKey;
       const transaction = new AccountCreateTransaction().setKeyWithoutAlias(key);
       if (params.initialBalance !== undefined)
@@ -356,7 +333,7 @@ export function buildTransaction(
       return transaction;
     }
     case "accounts.update": {
-      const params = tx.params as UpdateAccountParams;
+      const params = tx.params;
       const transaction = new AccountUpdateTransaction().setAccountId(params.accountId);
       if (params.key) transaction.setKey(PrivateKey.fromStringDer(params.key).publicKey);
       if (params.memo !== undefined) transaction.setAccountMemo(params.memo);
@@ -373,7 +350,7 @@ export function buildTransaction(
       return transaction;
     }
     case "accounts.delete": {
-      const params = tx.params as DeleteAccountParams;
+      const params = tx.params;
       const transaction = new AccountDeleteTransaction()
         .setAccountId(params.accountId)
         .setTransferAccountId(params.transferAccountId);
@@ -381,7 +358,7 @@ export function buildTransaction(
       return transaction;
     }
     case "accounts.allowances": {
-      const params = tx.params as ApproveAllowanceParams;
+      const params = tx.params;
       const transaction = new AccountAllowanceApproveTransaction();
       if (params.hbar) {
         for (const a of params.hbar) {
@@ -420,7 +397,7 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.create": {
-      const params = tx.params as CreateTokenParams;
+      const params = tx.params;
       const transaction = new TokenCreateTransaction()
         .setTokenName(params.name)
         .setTokenSymbol(params.symbol);
@@ -463,7 +440,7 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.mint": {
-      const params = tx.params as MintTokenParams;
+      const params = tx.params;
       const transaction = new TokenMintTransaction().setTokenId(params.tokenId);
       if (params.amount !== undefined)
         transaction.setAmount(Long.fromString(toAmountString(params.amount)));
@@ -475,7 +452,7 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.burn": {
-      const params = tx.params as BurnTokenParams;
+      const params = tx.params;
       const transaction = new TokenBurnTransaction().setTokenId(params.tokenId);
       if (params.amount !== undefined)
         transaction.setAmount(Long.fromString(toAmountString(params.amount)));
@@ -485,7 +462,7 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.transfer": {
-      const params = tx.params as TransferTokenParams;
+      const params = tx.params;
       const transaction = new TransferTransaction();
       if (params.from) {
         transaction.addTokenTransfer(
@@ -504,7 +481,7 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.transferNft": {
-      const params = tx.params as TransferNftParams;
+      const params = tx.params;
       const transaction = new TransferTransaction().addNftTransfer(
         params.tokenId,
         params.serial,
@@ -516,7 +493,7 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.associate": {
-      const params = tx.params as AssociateTokenParams;
+      const params = tx.params;
       const transaction = new TokenAssociateTransaction()
         .setAccountId(params.accountId)
         .setTokenIds([...params.tokenIds]);
@@ -525,7 +502,7 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.dissociate": {
-      const params = tx.params as DissociateTokenParams;
+      const params = tx.params;
       const transaction = new TokenDissociateTransaction()
         .setAccountId(params.accountId)
         .setTokenIds([...params.tokenIds]);
@@ -534,7 +511,7 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.freeze": {
-      const params = tx.params as FreezeTokenParams;
+      const params = tx.params;
       const transaction = new TokenFreezeTransaction()
         .setTokenId(params.tokenId)
         .setAccountId(params.accountId);
@@ -543,7 +520,7 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.unfreeze": {
-      const params = tx.params as UnfreezeTokenParams;
+      const params = tx.params;
       const transaction = new TokenUnfreezeTransaction()
         .setTokenId(params.tokenId)
         .setAccountId(params.accountId);
@@ -552,7 +529,7 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.grantKyc": {
-      const params = tx.params as GrantKycParams;
+      const params = tx.params;
       const transaction = new TokenGrantKycTransaction()
         .setTokenId(params.tokenId)
         .setAccountId(params.accountId);
@@ -561,7 +538,7 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.revokeKyc": {
-      const params = tx.params as RevokeKycParams;
+      const params = tx.params;
       const transaction = new TokenRevokeKycTransaction()
         .setTokenId(params.tokenId)
         .setAccountId(params.accountId);
@@ -570,21 +547,21 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.pause": {
-      const params = tx.params as PauseTokenParams;
+      const params = tx.params;
       const transaction = new TokenPauseTransaction().setTokenId(params.tokenId);
       if (params.memo) transaction.setTransactionMemo(params.memo);
       if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
       return transaction;
     }
     case "tokens.unpause": {
-      const params = tx.params as UnpauseTokenParams;
+      const params = tx.params;
       const transaction = new TokenUnpauseTransaction().setTokenId(params.tokenId);
       if (params.memo) transaction.setTransactionMemo(params.memo);
       if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
       return transaction;
     }
     case "tokens.wipe": {
-      const params = tx.params as WipeTokenParams;
+      const params = tx.params;
       const transaction = new TokenWipeTransaction()
         .setTokenId(params.tokenId)
         .setAccountId(params.accountId);
@@ -596,14 +573,14 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.delete": {
-      const params = tx.params as DeleteTokenParams;
+      const params = tx.params;
       const transaction = new TokenDeleteTransaction().setTokenId(params.tokenId);
       if (params.memo) transaction.setTransactionMemo(params.memo);
       if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
       return transaction;
     }
     case "tokens.update": {
-      const params = tx.params as UpdateTokenParams;
+      const params = tx.params;
       const transaction = new TokenUpdateTransaction().setTokenId(params.tokenId);
       if (params.name) transaction.setTokenName(params.name);
       if (params.symbol) transaction.setTokenSymbol(params.symbol);
@@ -633,7 +610,7 @@ export function buildTransaction(
       return transaction;
     }
     case "tokens.fees": {
-      const params = tx.params as UpdateTokenFeeScheduleParams;
+      const params = tx.params;
       const transaction = new TokenFeeScheduleUpdateTransaction()
         .setTokenId(params.tokenId)
         .setCustomFees(params.customFees.map(buildCustomFee));
@@ -642,7 +619,7 @@ export function buildTransaction(
       return transaction;
     }
     case "hcs.create": {
-      const params = tx.params as CreateTopicParams;
+      const params = tx.params;
       const transaction = new TopicCreateTransaction();
       if (params.adminKey !== undefined)
         transaction.setAdminKey(resolveKeyParam(params.adminKey, operatorKey, signing));
@@ -668,7 +645,7 @@ export function buildTransaction(
       return transaction;
     }
     case "hcs.update": {
-      const params = tx.params as UpdateTopicParams;
+      const params = tx.params;
       const transaction = new TopicUpdateTransaction().setTopicId(params.topicId);
       if (params.adminKey !== undefined)
         transaction.setAdminKey(resolveKeyParam(params.adminKey, operatorKey, signing));
@@ -701,14 +678,14 @@ export function buildTransaction(
       return transaction;
     }
     case "hcs.delete": {
-      const params = tx.params as DeleteTopicParams;
+      const params = tx.params;
       const transaction = new TopicDeleteTransaction().setTopicId(params.topicId);
       if (params.memo) transaction.setTransactionMemo(params.memo);
       if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
       return transaction;
     }
     case "hcs.submit": {
-      const params = tx.params as SubmitMessageParams;
+      const params = tx.params;
       const transaction = new TopicMessageSubmitTransaction().setTopicId(params.topicId);
       if (typeof params.message === "string") {
         transaction.setMessage(params.message);
@@ -724,7 +701,7 @@ export function buildTransaction(
       return transaction;
     }
     case "contracts.deploy": {
-      const params = tx.params as DeployContractParams;
+      const params = tx.params;
       const transaction = new ContractCreateTransaction().setBytecode(hexToBytes(params.bytecode));
       if (params.gas !== undefined) transaction.setGas(params.gas);
       if (params.constructorParams) {
@@ -750,7 +727,7 @@ export function buildTransaction(
       return transaction;
     }
     case "contracts.execute": {
-      const params = tx.params as ExecuteContractParams;
+      const params = tx.params;
       const transaction = new ContractExecuteTransaction().setContractId(params.id);
       if (params.gas !== undefined) transaction.setGas(params.gas);
       const functionParams = buildContractFunctionParametersFromArgs(params.args);
@@ -766,7 +743,7 @@ export function buildTransaction(
       return transaction;
     }
     case "contracts.delete": {
-      const params = tx.params as DeleteContractParams;
+      const params = tx.params;
       const transaction = new ContractDeleteTransaction().setContractId(params.contractId);
       if (params.transferAccountId) transaction.setTransferAccountId(params.transferAccountId);
       if (params.transferContractId) transaction.setTransferContractId(params.transferContractId);
@@ -777,7 +754,7 @@ export function buildTransaction(
       return transaction;
     }
     case "contracts.update": {
-      const params = tx.params as UpdateContractParams;
+      const params = tx.params;
       const transaction = new ContractUpdateTransaction().setContractId(params.contractId);
       if (params.adminKey !== undefined)
         transaction.setAdminKey(resolveKeyParam(params.adminKey, operatorKey, signing));
@@ -796,7 +773,7 @@ export function buildTransaction(
       return transaction;
     }
     case "files.create": {
-      const params = tx.params as CreateFileParams;
+      const params = tx.params;
       const transaction = new FileCreateTransaction();
       if (typeof params.contents === "string") {
         transaction.setContents(params.contents);
@@ -812,7 +789,7 @@ export function buildTransaction(
       return transaction;
     }
     case "files.append": {
-      const params = tx.params as AppendFileParams;
+      const params = tx.params;
       const transaction = new FileAppendTransaction().setFileId(params.fileId);
       if (typeof params.contents === "string") {
         transaction.setContents(params.contents);
@@ -826,7 +803,7 @@ export function buildTransaction(
       return transaction;
     }
     case "files.update": {
-      const params = tx.params as UpdateFileParams;
+      const params = tx.params;
       const transaction = new FileUpdateTransaction().setFileId(params.fileId);
       if (params.contents !== undefined) {
         if (typeof params.contents === "string") {
@@ -844,14 +821,14 @@ export function buildTransaction(
       return transaction;
     }
     case "files.delete": {
-      const params = tx.params as DeleteFileParams;
+      const params = tx.params;
       const transaction = new FileDeleteTransaction().setFileId(params.fileId);
       if (params.memo) transaction.setTransactionMemo(params.memo);
       if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
       return transaction;
     }
     case "schedules.create": {
-      const params = tx.params as ScheduleCreateParams;
+      const params = tx.params;
       const scheduled = buildTransaction(params.tx, operatorKey, signing);
       const transaction = new ScheduleCreateTransaction().setScheduledTransaction(scheduled);
       if (params.adminKey !== undefined)
@@ -866,14 +843,14 @@ export function buildTransaction(
       return transaction;
     }
     case "schedules.sign": {
-      const params = tx.params as ScheduleSignParams;
+      const params = tx.params;
       const transaction = new ScheduleSignTransaction().setScheduleId(params.scheduleId);
       if (params.memo) transaction.setTransactionMemo(params.memo);
       if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
       return transaction;
     }
     case "schedules.delete": {
-      const params = tx.params as ScheduleDeleteParams;
+      const params = tx.params;
       const transaction = new ScheduleDeleteTransaction().setScheduleId(params.scheduleId);
       if (params.memo) transaction.setTransactionMemo(params.memo);
       if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
@@ -1064,6 +1041,88 @@ export async function callContract(
   }
 }
 
+export async function queryFileInfo(
+  context: SubmitContext,
+  fileId: EntityId,
+): Promise<Result<import("@hiero-ledger/sdk").FileInfo>> {
+  try {
+    const query = new FileInfoQuery().setFileId(fileId);
+    const result =
+      context.signing.kind === "signer"
+        ? await query.executeWithSigner(context.signing.signer)
+        : await query.execute(context.client);
+    return ok(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      return err(
+        createError("FILE_QUERY_FAILED", `File info query failed: ${error.message}`, {
+          hint: "Verify file id and network connectivity",
+        }),
+      );
+    }
+    return err(
+      createError("FILE_QUERY_FAILED", "File info query failed", {
+        hint: "Verify file id and network connectivity",
+      }),
+    );
+  }
+}
+
+export async function queryFileContents(
+  context: SubmitContext,
+  fileId: EntityId,
+): Promise<Result<Uint8Array>> {
+  try {
+    const query = new FileContentsQuery().setFileId(fileId);
+    const result =
+      context.signing.kind === "signer"
+        ? await query.executeWithSigner(context.signing.signer)
+        : await query.execute(context.client);
+    return ok(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      return err(
+        createError("FILE_QUERY_FAILED", `File contents query failed: ${error.message}`, {
+          hint: "Verify file id and network connectivity",
+        }),
+      );
+    }
+    return err(
+      createError("FILE_QUERY_FAILED", "File contents query failed", {
+        hint: "Verify file id and network connectivity",
+      }),
+    );
+  }
+}
+
+export async function queryTransactionRecord(
+  context: SubmitContext,
+  transactionId: string,
+): Promise<Result<import("@hiero-ledger/sdk").TransactionRecord>> {
+  try {
+    const query = new TransactionRecordQuery().setTransactionId(
+      TransactionId.fromString(transactionId),
+    );
+    const result =
+      context.signing.kind === "signer"
+        ? await query.executeWithSigner(context.signing.signer)
+        : await query.execute(context.client);
+    return ok(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      return err(
+        createError("TX_RECORD_QUERY_FAILED", `Transaction record query failed: ${error.message}`, {
+          hint: "Verify transaction id and network connectivity",
+        }),
+      );
+    }
+    return err(
+      createError("TX_RECORD_QUERY_FAILED", "Transaction record query failed", {
+        hint: "Verify transaction id and network connectivity",
+      }),
+    );
+  }
+}
 export function requireSigningContext(input: {
   readonly operatorKey: string | undefined;
   readonly signer: HieroSigner | undefined;
@@ -1129,40 +1188,40 @@ export function mapReceiptField<T extends keyof TransactionReceiptData>(
       }),
     );
   }
-  return ok(value as NonNullable<TransactionReceiptData[T]>);
+  return ok(value);
 }
 
 export function ensureScheduleId(result: Result<TransactionReceiptData>): Result<EntityId> {
-  if (!result.ok) return result as Result<EntityId>;
+  if (!result.ok) return result;
   return mapReceiptField(result.value, "scheduleId", "scheduleId");
 }
 
 export function ensureTokenId(result: Result<TransactionReceiptData>): Result<EntityId> {
-  if (!result.ok) return result as Result<EntityId>;
+  if (!result.ok) return result;
   return mapReceiptField(result.value, "tokenId", "tokenId");
 }
 
 export function ensureAccountId(result: Result<TransactionReceiptData>): Result<EntityId> {
-  if (!result.ok) return result as Result<EntityId>;
+  if (!result.ok) return result;
   return mapReceiptField(result.value, "accountId", "accountId");
 }
 
 export function ensureTopicId(result: Result<TransactionReceiptData>): Result<EntityId> {
-  if (!result.ok) return result as Result<EntityId>;
+  if (!result.ok) return result;
   return mapReceiptField(result.value, "topicId", "topicId");
 }
 
 export function ensureContractId(result: Result<TransactionReceiptData>): Result<EntityId> {
-  if (!result.ok) return result as Result<EntityId>;
+  if (!result.ok) return result;
   return mapReceiptField(result.value, "contractId", "contractId");
 }
 
 export function ensureFileId(result: Result<TransactionReceiptData>): Result<EntityId> {
-  if (!result.ok) return result as Result<EntityId>;
+  if (!result.ok) return result;
   return mapReceiptField(result.value, "fileId", "fileId");
 }
 
 export function ensureTopicSequence(result: Result<TransactionReceiptData>): Result<string> {
-  if (!result.ok) return result as Result<string>;
+  if (!result.ok) return result;
   return mapReceiptField(result.value, "topicSequenceNumber", "topicSequenceNumber");
 }

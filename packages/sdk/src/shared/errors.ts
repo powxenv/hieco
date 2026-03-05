@@ -1,5 +1,5 @@
-import type { ErrorCode, ErrorDetails, HieroErrorShape } from "./types/errors.ts";
-import type { Result } from "./types/results.ts";
+import type { ErrorCode, ErrorDetails, HieroErrorShape } from "./errors-types.ts";
+import type { Result } from "./results.ts";
 
 export class HieroError extends Error implements HieroErrorShape {
   readonly code: ErrorCode;

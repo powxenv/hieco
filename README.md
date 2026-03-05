@@ -21,6 +21,7 @@ It provides:
 
 | Package                                            | Description                                 |
 | -------------------------------------------------- | ------------------------------------------- |
+| [`@hieco/sdk`](packages/sdk)                       | Type-safe Hedera SDK                        |
 | [`@hieco/mirror`](packages/mirror)                 | REST API client for Mirror Node             |
 | [`@hieco/mirror-react`](packages/mirror-react)     | React hooks with TanStack Query             |
 | [`@hieco/mirror-preact`](packages/mirror-preact)   | Preact hooks with TanStack Query            |

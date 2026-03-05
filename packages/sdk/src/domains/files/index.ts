@@ -4,11 +4,18 @@ import type {
   DeleteFileParams,
   TransactionDescriptor,
   UpdateFileParams,
-} from "./types/params.ts";
-import type { FileReceipt, TransactionReceiptData } from "./types/results-shapes.ts";
-import type { Result } from "./types/results.ts";
-import { ok } from "./types/results.ts";
-import { ensureFileId } from "./transactions.ts";
+} from "../../shared/params.ts";
+import type {
+  FileContentsData,
+  FileInfoData,
+  FileReceipt,
+  TransactionReceiptData,
+} from "../../shared/results-shapes.ts";
+import type { Result } from "../../shared/results.ts";
+import { ok } from "../../shared/results.ts";
+import { ensureFileId } from "../transactions/index.ts";
+import { err } from "../../shared/results.ts";
+import type { EntityId } from "@hieco/types";
 
 export interface FilesNamespace {
   create: ((params: CreateFileParams) => Promise<Result<FileReceipt>>) & {
@@ -23,10 +30,16 @@ export interface FilesNamespace {
   delete: ((params: DeleteFileParams) => Promise<Result<TransactionReceiptData>>) & {
     tx: (params: DeleteFileParams) => TransactionDescriptor;
   };
+  info: (fileId: EntityId) => Promise<Result<FileInfoData>>;
+  contents: (fileId: EntityId) => Promise<Result<FileContentsData>>;
 }
 
 export function createFilesNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
+  readonly queryFileInfo: (
+    fileId: EntityId,
+  ) => Promise<Result<import("@hiero-ledger/sdk").FileInfo>>;
+  readonly queryFileContents: (fileId: EntityId) => Promise<Result<Uint8Array>>;
 }): FilesNamespace {
   const create = async (params: CreateFileParams): Promise<Result<FileReceipt>> => {
     const result = await context.submit({ kind: "files.create", params });
@@ -73,12 +86,29 @@ export function createFilesNamespace(context: {
     return ok(result.value);
   };
 
-  del.tx = (params: DeleteFileParams): TransactionDescriptor => ({ kind: "files.delete", params });
+  del.tx = (params: DeleteFileParams): TransactionDescriptor => ({
+    kind: "files.delete",
+    params,
+  });
+
+  const info = async (fileId: EntityId): Promise<Result<FileInfoData>> => {
+    const result = await context.queryFileInfo(fileId);
+    if (!result.ok) return err(result.error);
+    return ok({ fileId, info: result.value });
+  };
+
+  const contents = async (fileId: EntityId): Promise<Result<FileContentsData>> => {
+    const result = await context.queryFileContents(fileId);
+    if (!result.ok) return err(result.error);
+    return ok({ fileId, contents: result.value });
+  };
 
   return {
     create,
     append,
     update,
     delete: del,
+    info,
+    contents,
   };
 }

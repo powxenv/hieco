@@ -1,4 +1,14 @@
 import type { EntityId } from "@hieco/types";
+import type {
+  AccountInfo,
+  ContractInfo,
+  ContractLog,
+  Schedule,
+  TokenInfo,
+  Topic,
+  TopicMessage,
+} from "@hieco/mirror";
+import type { FileInfo, TransactionRecord } from "@hiero-ledger/sdk";
 
 export interface TransactionReceiptData {
   readonly status: string;
@@ -89,4 +99,54 @@ export interface FileReceipt {
   readonly receipt: TransactionReceiptData;
   readonly transactionId: string;
   readonly fileId: EntityId;
+}
+
+export interface AccountInfoData {
+  readonly accountId: EntityId;
+  readonly account: AccountInfo;
+}
+
+export interface TokenInfoData {
+  readonly tokenId: EntityId;
+  readonly token: TokenInfo;
+}
+
+export interface ContractInfoData {
+  readonly contractId: EntityId;
+  readonly contract: ContractInfo;
+}
+
+export interface ContractLogsData {
+  readonly contractId: EntityId;
+  readonly logs: ReadonlyArray<ContractLog>;
+}
+
+export interface TopicInfoData {
+  readonly topicId: EntityId;
+  readonly topic: Topic;
+}
+
+export interface TopicMessagesData {
+  readonly topicId: EntityId;
+  readonly messages: ReadonlyArray<TopicMessage>;
+}
+
+export interface FileInfoData {
+  readonly fileId: EntityId;
+  readonly info: FileInfo;
+}
+
+export interface FileContentsData {
+  readonly fileId: EntityId;
+  readonly contents: Uint8Array;
+}
+
+export interface ScheduleInfoData {
+  readonly scheduleId: EntityId;
+  readonly schedule: Schedule;
+}
+
+export interface TransactionRecordData {
+  readonly transactionId: string;
+  readonly record: TransactionRecord;
 }

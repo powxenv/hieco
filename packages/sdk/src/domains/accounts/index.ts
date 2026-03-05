@@ -6,19 +6,20 @@ import type {
   TransferParams,
   UpdateAccountParams,
   TransactionDescriptor,
-} from "./types/params.ts";
+} from "../../shared/params.ts";
 import type {
+  AccountInfoData,
   CreateAccountResult,
   DeleteAccountResult,
   TransferResult,
   TransactionReceiptData,
   UpdateAccountResult,
-} from "./types/results-shapes.ts";
-import type { Result } from "./types/results.ts";
-import { err, ok } from "./types/results.ts";
+} from "../../shared/results-shapes.ts";
+import type { Result } from "../../shared/results.ts";
+import { err, ok } from "../../shared/results.ts";
 import { AccountBalanceQuery } from "@hiero-ledger/sdk";
-import { createError } from "./errors.ts";
-import { ensureAccountId, inferAccountId } from "./transactions.ts";
+import { createError } from "../../shared/errors.ts";
+import { ensureAccountId, inferAccountId } from "../transactions/index.ts";
 
 export interface AccountsNamespace {
   transfer: ((params: TransferParams) => Promise<Result<TransferResult>>) & {
@@ -46,6 +47,7 @@ export interface AccountsNamespace {
       }>;
     }>
   >;
+  info: (accountId: EntityId) => Promise<Result<AccountInfoData>>;
 }
 
 export function createAccountsNamespace(context: {
@@ -196,6 +198,26 @@ export function createAccountsNamespace(context: {
     });
   };
 
+  const info = async (accountId: EntityId): Promise<Result<AccountInfoData>> => {
+    const result = await context.mirror.account.getInfo(accountId);
+    if (!result.success) {
+      return err(
+        createError(
+          "MIRROR_QUERY_FAILED",
+          `Mirror account.getInfo failed: ${result.error.message}`,
+          {
+            hint: "Verify mirror node connectivity",
+            details: {
+              status: result.error.status ?? "unknown",
+              code: result.error.code ?? "unknown",
+            },
+          },
+        ),
+      );
+    }
+    return ok({ accountId, account: result.data });
+  };
+
   return {
     transfer,
     create,
@@ -203,5 +225,6 @@ export function createAccountsNamespace(context: {
     delete: del,
     allowances,
     balance,
+    info,
   };
 }

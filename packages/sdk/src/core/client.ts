@@ -2,26 +2,29 @@ import { Client, Hbar } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
 import type { EntityId } from "@hieco/types";
 import { createMirrorNodeClient, type MirrorNodeClient } from "@hieco/mirror";
-import type { ClientConfig } from "./types/params.ts";
-import type { ClientRuntimeConfig } from "./types/client.ts";
-import type { TransactionDescriptor } from "./types/params.ts";
-import type { Result } from "./types/results.ts";
-import { err } from "./types/results.ts";
+import type { ClientConfig, TransactionDescriptor } from "../shared/params.ts";
+import type { ClientRuntimeConfig } from "../shared/client-types.ts";
+import type { Result } from "../shared/results.ts";
+import { err } from "../shared/results.ts";
 import { resolveConfig } from "./config.ts";
-import { createAccountsNamespace } from "./accounts.ts";
-import { createTokensNamespace } from "./tokens.ts";
-import { createHcsNamespace } from "./hcs.ts";
-import { createContractsNamespace } from "./contracts.ts";
-import { createFilesNamespace } from "./files.ts";
-import { createSchedulesNamespace } from "./schedules.ts";
+import { createAccountsNamespace } from "../domains/accounts/index.ts";
+import { createTokensNamespace } from "../domains/tokens/index.ts";
+import { createHcsNamespace } from "../domains/hcs/index.ts";
+import { createContractsNamespace } from "../domains/contracts/index.ts";
+import { createFilesNamespace } from "../domains/files/index.ts";
+import { createSchedulesNamespace } from "../domains/schedules/index.ts";
+import { createTransactionsNamespace } from "../domains/transactions/namespace.ts";
 import {
   callContract,
+  queryFileContents,
+  queryFileInfo,
+  queryTransactionRecord,
   requireSigningContext,
   resolveQueryContext,
   submitTransaction,
-} from "./transactions.ts";
-import { createError } from "./errors.ts";
-import type { TransactionReceiptData } from "./types/results-shapes.ts";
+} from "../domains/transactions/index.ts";
+import { createError } from "../shared/errors.ts";
+import type { TransactionReceiptData } from "../shared/results-shapes.ts";
 
 export class HieroClient {
   readonly mirror: MirrorNodeClient;
@@ -31,6 +34,7 @@ export class HieroClient {
   readonly contracts: ReturnType<typeof createContractsNamespace>;
   readonly files: ReturnType<typeof createFilesNamespace>;
   readonly schedules: ReturnType<typeof createSchedulesNamespace>;
+  readonly transactions: ReturnType<typeof createTransactionsNamespace>;
 
   private readonly nativeClient: Client;
   private readonly config: ClientRuntimeConfig;
@@ -82,6 +86,48 @@ export class HieroClient {
       return callContract(queryContext, params);
     };
 
+    const queryInfo = (fileId: EntityId) => {
+      const signing = resolveQueryContext({
+        operatorKey: this.config.key,
+        signer: this.config.signer,
+      });
+      if (!signing.ok) return Promise.resolve(err(signing.error));
+      const queryContext = {
+        client: this.nativeClient,
+        signing: signing.value,
+        ...(this.config.operator ? { operator: this.config.operator } : {}),
+      };
+      return queryFileInfo(queryContext, fileId);
+    };
+
+    const queryContents = (fileId: EntityId) => {
+      const signing = resolveQueryContext({
+        operatorKey: this.config.key,
+        signer: this.config.signer,
+      });
+      if (!signing.ok) return Promise.resolve(err(signing.error));
+      const queryContext = {
+        client: this.nativeClient,
+        signing: signing.value,
+        ...(this.config.operator ? { operator: this.config.operator } : {}),
+      };
+      return queryFileContents(queryContext, fileId);
+    };
+
+    const queryRecord = (transactionId: string) => {
+      const signing = resolveQueryContext({
+        operatorKey: this.config.key,
+        signer: this.config.signer,
+      });
+      if (!signing.ok) return Promise.resolve(err(signing.error));
+      const queryContext = {
+        client: this.nativeClient,
+        signing: signing.value,
+        ...(this.config.operator ? { operator: this.config.operator } : {}),
+      };
+      return queryTransactionRecord(queryContext, transactionId);
+    };
+
     this.accounts = createAccountsNamespace({
       submit,
       ...(this.config.operator ? { operator: this.config.operator } : {}),
@@ -93,10 +139,22 @@ export class HieroClient {
       submit,
       ...(this.config.operator ? { operator: this.config.operator } : {}),
       ...(this.config.signer ? { signer: this.config.signer } : {}),
+      mirror: this.mirror,
     });
-    this.hcs = createHcsNamespace({ submit, nativeClient: this.nativeClient });
-    this.contracts = createContractsNamespace({ submit, call });
-    this.files = createFilesNamespace({ submit });
+    this.hcs = createHcsNamespace({
+      submit,
+      nativeClient: this.nativeClient,
+      mirror: this.mirror,
+    });
+    this.contracts = createContractsNamespace({ submit, call, mirror: this.mirror });
+    this.files = createFilesNamespace({
+      submit,
+      queryFileInfo: queryInfo,
+      queryFileContents: queryContents,
+    });
+    this.transactions = createTransactionsNamespace({
+      queryRecord,
+    });
     this.schedules = createSchedulesNamespace({
       submit,
       mirror: this.mirror,

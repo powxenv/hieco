@@ -6,17 +6,20 @@ import type {
   ExecuteContractParams,
   TransactionDescriptor,
   UpdateContractParams,
-} from "./types/params.ts";
+} from "../../shared/params.ts";
 import type {
   ContractCallResult,
   ContractExecuteReceipt,
+  ContractInfoData,
+  ContractLogsData,
   ContractReceipt,
   TransactionReceiptData,
-} from "./types/results-shapes.ts";
-import type { Result } from "./types/results.ts";
-import { err, ok } from "./types/results.ts";
+} from "../../shared/results-shapes.ts";
+import type { Result } from "../../shared/results.ts";
+import { err, ok } from "../../shared/results.ts";
 import { decodeReturn } from "./abi.ts";
-import { ensureContractId } from "./transactions.ts";
+import { ensureContractId } from "../transactions/index.ts";
+import { createError } from "../../shared/errors.ts";
 
 export interface ContractsNamespace {
   deploy: ((params: DeployContractParams) => Promise<Result<ContractReceipt>>) & {
@@ -25,13 +28,18 @@ export interface ContractsNamespace {
   execute: ((params: ExecuteContractParams) => Promise<Result<ContractExecuteReceipt>>) & {
     tx: (params: ExecuteContractParams) => TransactionDescriptor;
   };
-  call: <T = unknown>(params: CallContractParams) => Promise<Result<ContractCallResult<T>>>;
+  call: (params: CallContractParams) => Promise<Result<ContractCallResult<unknown>>>;
   delete: ((params: DeleteContractParams) => Promise<Result<TransactionReceiptData>>) & {
     tx: (params: DeleteContractParams) => TransactionDescriptor;
   };
   update: ((params: UpdateContractParams) => Promise<Result<TransactionReceiptData>>) & {
     tx: (params: UpdateContractParams) => TransactionDescriptor;
   };
+  info: (contractId: EntityId) => Promise<Result<ContractInfoData>>;
+  logs: (
+    contractId: EntityId,
+    params?: import("@hieco/mirror").ContractLogsParams,
+  ) => Promise<Result<ContractLogsData>>;
 }
 
 export function createContractsNamespace(context: {
@@ -63,6 +71,7 @@ export function createContractsNamespace(context: {
       readonly getUint256: (index?: number) => import("bignumber.js").BigNumber;
     }>
   >;
+  readonly mirror: import("@hieco/mirror").MirrorNodeClient;
 }): ContractsNamespace {
   const deploy = async (params: DeployContractParams): Promise<Result<ContractReceipt>> => {
     const result = await context.submit({ kind: "contracts.deploy", params });
@@ -94,9 +103,7 @@ export function createContractsNamespace(context: {
     params,
   });
 
-  const call = async <T = unknown>(
-    params: CallContractParams,
-  ): Promise<Result<ContractCallResult<T>>> => {
+  const call = async (params: CallContractParams): Promise<Result<ContractCallResult<unknown>>> => {
     const callParams = {
       id: params.id,
       fn: params.fn,
@@ -116,7 +123,7 @@ export function createContractsNamespace(context: {
       gasUsed: rawResult.gasUsed,
       errorMessage: rawResult.errorMessage,
       raw: rawResult.raw,
-      value: decoded.value as T,
+      value: decoded.value,
     });
   };
 
@@ -142,11 +149,56 @@ export function createContractsNamespace(context: {
     params,
   });
 
+  const info = async (contractId: EntityId): Promise<Result<ContractInfoData>> => {
+    const result = await context.mirror.contract.getInfo(contractId);
+    if (!result.success) {
+      return err(
+        createError(
+          "MIRROR_QUERY_FAILED",
+          `Mirror contract.getInfo failed: ${result.error.message}`,
+          {
+            hint: "Verify mirror node connectivity",
+            details: {
+              status: result.error.status ?? "unknown",
+              code: result.error.code ?? "unknown",
+            },
+          },
+        ),
+      );
+    }
+    return ok({ contractId, contract: result.data });
+  };
+
+  const logs = async (
+    contractId: EntityId,
+    params?: import("@hieco/mirror").ContractLogsParams,
+  ): Promise<Result<ContractLogsData>> => {
+    const result = await context.mirror.contract.getLogs(contractId, params);
+    if (!result.success) {
+      return err(
+        createError(
+          "MIRROR_QUERY_FAILED",
+          `Mirror contract.getLogs failed: ${result.error.message}`,
+          {
+            hint: "Verify mirror node connectivity",
+            details: {
+              status: result.error.status ?? "unknown",
+              code: result.error.code ?? "unknown",
+            },
+          },
+        ),
+      );
+    }
+    return ok({ contractId, logs: result.data });
+  };
+
   return {
     deploy,
     execute,
     call,
     delete: del,
     update,
+    info,
+    logs,
   };
 }

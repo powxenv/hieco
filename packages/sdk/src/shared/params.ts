@@ -355,7 +355,7 @@ export interface CallContractParams {
   readonly args?: ReadonlyArray<unknown>;
   readonly gas?: number;
   readonly senderAccountId?: EntityId;
-  readonly returns?: import("../abi.ts").ReturnTypeHint;
+  readonly returns?: import("../domains/contracts/abi.ts").ReturnTypeHint;
 }
 
 export interface DeleteContractParams {

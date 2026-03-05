@@ -2,13 +2,29 @@
 
 Ergonomic, type-safe SDK for Hedera transactions and queries.
 
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [SDK Surface](#sdk-surface)
+- [Core Concepts](#core-concepts)
+- [Transactions](#transactions)
+- [Queries and Read Models](#queries-and-read-models)
+- [Use Cases](#use-cases)
+- [Configuration](#configuration)
+- [Type Inference](#type-inference)
+- [Related Packages](#related-packages)
+- [Browser Support](#browser-support)
+- [License](#license)
+
 ## Features
 
 - **Single entrypoint** - `hiero()` factory returns a fully configured client
-- **Domain-first API** - `client.accounts`, `client.tokens`, `client.hcs`, `client.contracts`, `client.files`, `client.schedules`
+- **Domain-first API** - `client.accounts`, `client.tokens`, `client.hcs`, `client.contracts`, `client.files`, `client.schedules`, `client.transactions`
 - **Telepathic defaults** - infers sender from operator or signer
 - **Contract call defaults** - `contracts.call` uses a safe gas default (override as needed)
-- **Typed tx builders** - `client.accounts.transfer.tx()` returns a schedule-ready descriptor
+- **Schedule-ready descriptors** - `client.accounts.transfer.tx()` returns a descriptor for schedules
 - **Actionable errors** - structured error objects with `code`, `hint`, and `transactionId`
 - **Mirror node built-in** - `client.mirror.*` backed by `@hieco/mirror`
 
@@ -139,6 +155,95 @@ export async function multiPartyTransfer(
   return executedAt;
 }
 ```
+
+## SDK Surface
+
+### Client
+
+- `hiero(config?)` — creates a configured client
+- `client.as(signer)` — returns a client bound to a signer
+- `client.with({ signer, operator, key })` — returns a client with overrides
+- `client.submit(descriptor)` — submit a transaction descriptor
+- `client.destroy()` — close the native client
+
+### Accounts
+
+- `client.accounts.transfer(params)`
+- `client.accounts.transfer.tx(params)`
+- `client.accounts.create(params)`
+- `client.accounts.create.tx(params)`
+- `client.accounts.update(params)`
+- `client.accounts.update.tx(params)`
+- `client.accounts.delete(params)`
+- `client.accounts.delete.tx(params)`
+- `client.accounts.allowances(params)`
+- `client.accounts.allowances.tx(params)`
+- `client.accounts.balance(accountId?)`
+- `client.accounts.info(accountId)`
+
+### Tokens
+
+- `client.tokens.create(params)` / `.tx(params)`
+- `client.tokens.mint(params)` / `.tx(params)`
+- `client.tokens.burn(params)` / `.tx(params)`
+- `client.tokens.transfer(params)` / `.tx(params)`
+- `client.tokens.transferNft(params)` / `.tx(params)`
+- `client.tokens.associate(params)` / `.tx(params)`
+- `client.tokens.dissociate(params)` / `.tx(params)`
+- `client.tokens.freeze(params)` / `.tx(params)`
+- `client.tokens.unfreeze(params)` / `.tx(params)`
+- `client.tokens.grantKyc(params)` / `.tx(params)`
+- `client.tokens.revokeKyc(params)` / `.tx(params)`
+- `client.tokens.pause(params)` / `.tx(params)`
+- `client.tokens.unpause(params)` / `.tx(params)`
+- `client.tokens.wipe(params)` / `.tx(params)`
+- `client.tokens.delete(params)` / `.tx(params)`
+- `client.tokens.update(params)` / `.tx(params)`
+- `client.tokens.fees(params)` / `.tx(params)`
+- `client.tokens.info(tokenId)`
+
+### Consensus (HCS)
+
+- `client.hcs.create(params)` / `.tx(params)`
+- `client.hcs.update(params)` / `.tx(params)`
+- `client.hcs.delete(params)` / `.tx(params)`
+- `client.hcs.submit(params)` / `.tx(params)`
+- `client.hcs.watch(topicId, handler, options?)`
+- `client.hcs.info(topicId)`
+- `client.hcs.messages(topicId, params?)`
+
+### Contracts
+
+- `client.contracts.deploy(params)` / `.tx(params)`
+- `client.contracts.execute(params)` / `.tx(params)`
+- `client.contracts.call(params)`
+- `client.contracts.delete(params)` / `.tx(params)`
+- `client.contracts.update(params)` / `.tx(params)`
+- `client.contracts.info(contractId)`
+- `client.contracts.logs(contractId, params?)`
+
+### Files
+
+- `client.files.create(params)` / `.tx(params)`
+- `client.files.append(params)` / `.tx(params)`
+- `client.files.update(params)` / `.tx(params)`
+- `client.files.delete(params)` / `.tx(params)`
+- `client.files.info(fileId)`
+- `client.files.contents(fileId)`
+
+### Schedules
+
+- `client.schedules.create(params)` / `.tx(params)`
+- `client.schedules.sign(scheduleId, params?)` / `.tx(params)`
+- `client.schedules.delete(scheduleId, params?)` / `.tx(params)`
+- `client.schedules.info(scheduleId)`
+- `client.schedules.wait(scheduleId, options?)`
+
+### Transactions
+
+- `client.transactions.record(transactionId)`
+
+## Transactions
 
 ### Actions (Transactions)
 
@@ -279,7 +384,7 @@ const deleteFileResult = await client.files.delete({
 });
 ```
 
-### Typed tx builders
+### Schedule-ready descriptors
 
 ```typescript
 const tx = client.accounts.transfer.tx({ to: "0.0.5678", hbar: 10 });
@@ -339,6 +444,134 @@ const tx = client.accounts.transfer.tx({ to: "0.0.5678", hbar: 10 });
 
 const result = await client.tokens.create({ name: "MyToken", symbol: "MYT" });
 // ✅ result.value and result.error are discriminated
+```
+
+## Queries and Read Models
+
+### Account and token info
+
+```typescript
+const account = await client.accounts.info("0.0.123");
+const token = await client.tokens.info("0.0.987");
+```
+
+### Contract logs
+
+```typescript
+const logs = await client.contracts.logs("0.0.789", { limit: 25 });
+```
+
+### HCS messages
+
+```typescript
+const messages = await client.hcs.messages("0.0.456", { limit: 50 });
+```
+
+### File info and contents
+
+```typescript
+const info = await client.files.info("0.0.111");
+const contents = await client.files.contents("0.0.111");
+```
+
+### Transaction records
+
+```typescript
+const record = await client.transactions.record("0.0.123@1680000000.123456789");
+```
+
+## Use Cases
+
+### Reward drop to many accounts
+
+```typescript
+for (const accountId of ["0.0.201", "0.0.202", "0.0.203"]) {
+  await client.accounts.transfer({ to: accountId, hbar: 1 });
+}
+```
+
+### Token launch with treasury and fixed supply
+
+```typescript
+const token = await client.tokens.create({
+  name: "LaunchToken",
+  symbol: "LCH",
+  supply: 1_000_000,
+  decimals: 6,
+  treasury: "0.0.123",
+});
+```
+
+### Contract read + write flow
+
+```typescript
+await client.contracts.execute({
+  id: "0.0.789",
+  fn: "setValue",
+  args: [42],
+  gas: 120_000,
+});
+
+const result = await client.contracts.call({
+  id: "0.0.789",
+  fn: "getValue",
+  returns: "uint256",
+});
+```
+
+### HCS stream consumer
+
+```typescript
+const stop = client.hcs.watch("0.0.456", (message) => {
+  console.log(message.text());
+});
+
+setTimeout(() => stop(), 30_000);
+```
+
+### Treasury sweep
+
+```typescript
+for (const accountId of ["0.0.401", "0.0.402"]) {
+  await client.accounts.transfer({ to: "0.0.999", from: accountId, hbar: 0.5 });
+}
+```
+
+### Token supply expansion
+
+```typescript
+await client.tokens.mint({
+  tokenId: "0.0.987",
+  amount: 250_000,
+});
+```
+
+### File-backed config lookup
+
+```typescript
+const bytes = await client.files.contents("0.0.111");
+if (bytes.ok) {
+  const text = new TextDecoder().decode(bytes.value.contents);
+  console.log(text);
+}
+```
+
+### Contract deployment + first call
+
+```typescript
+const deploy = await client.contracts.deploy({
+  bytecode: "0x608060...",
+  gas: 150_000,
+});
+
+if (deploy.ok) {
+  await client.contracts.execute({
+    id: deploy.value.contractId,
+    fn: "initialize",
+    args: ["0.0.123"],
+    gas: 120_000,
+  });
+}
 ```
 
 ## Related Packages
