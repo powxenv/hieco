@@ -1,14 +1,6 @@
 ---
-title: @hieco/testing - Product Requirements Document
-description: Comprehensive testing utilities and mock server for Hiero/Hedera development
-category: proposals
-created: 2026-02-25
-status: complete
-tags: [hieco, testing, prd, msw, vitest, developer-experience]
-related:
-  - ./README.md
-  - ../../02-bounty-research/hiero-deep-dive.md
-  - ../../03-proposals/hieco-unified-ecosystem.md
+title: @hieco/testing PRD
+category: prd
 ---
 
 # @hieco/testing - Product Requirements Document

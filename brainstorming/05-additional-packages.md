@@ -1,13 +1,6 @@
 ---
-title: Additional Package Research for @hieco Ecosystem
-description: Independent research on potential new packages based on modern Web3 development trends and ecosystem gaps
+title: Additional Packages Research
 category: research
-created: 2026-02-28
-status: complete
-tags: [hieco, packages, research, web3, wagmi, viem, rainbowkit, account-abstraction]
-related:
-  - ../02-bounty-research/hiero-deep-dive.md
-  - ../04-ecosystem-expansion/README.md
 ---
 
 # Additional Package Research for @hieco Ecosystem
