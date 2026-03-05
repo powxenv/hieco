@@ -38,4 +38,19 @@ export interface SchedulesNamespace {
     scheduleId: EntityId,
     options?: import("../../foundation/params.ts").ScheduleWaitOptions,
   ) => Promise<Result<ScheduleInfoData>>;
+  createIdempotent: (
+    params: import("../../foundation/params.ts").ScheduleIdempotentCreateParams,
+  ) => Promise<
+    Result<
+      | { readonly status: "created"; readonly schedule: ScheduleReceipt }
+      | { readonly status: "existing"; readonly schedule: ScheduleReceipt }
+    >
+  >;
+  collectSignatures: (
+    params: import("../../foundation/params.ts").ScheduleCollectSignaturesParams,
+  ) => Promise<Result<ReadonlyArray<TransactionReceiptData>>>;
+  waitForExecution: (
+    scheduleId: EntityId,
+    options?: import("../../foundation/params.ts").ScheduleWaitExecutionOptions,
+  ) => Promise<Result<ScheduleInfoData>>;
 }

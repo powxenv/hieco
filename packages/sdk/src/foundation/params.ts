@@ -548,6 +548,29 @@ export interface ScheduleWaitOptions {
   readonly stopWhenDeleted?: boolean;
 }
 
+export interface ScheduleIdempotentCreateParams {
+  readonly tx: TransactionDescriptor;
+  readonly adminKey?: string | true;
+  readonly payerAccountId?: EntityId;
+  readonly expirationTime?: Date;
+  readonly waitForExpiry?: boolean;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface ScheduleCollectSignaturesParams {
+  readonly scheduleId: EntityId;
+  readonly signers: ReadonlyArray<import("@hiero-ledger/sdk").Signer>;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface ScheduleWaitExecutionOptions {
+  readonly timeoutMs?: number;
+  readonly pollIntervalMs?: number;
+  readonly stopWhenDeleted?: boolean;
+}
+
 export type TransactionDescriptor =
   | { readonly kind: "accounts.transfer"; readonly params: TransferParams }
   | { readonly kind: "accounts.create"; readonly params: CreateAccountParams }

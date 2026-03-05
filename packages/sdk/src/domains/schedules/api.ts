@@ -11,8 +11,11 @@ import { createError } from "../../foundation/errors.ts";
 import type {
   ScheduleCreateParams,
   ScheduleDeleteParams,
+  ScheduleIdempotentCreateParams,
+  ScheduleCollectSignaturesParams,
   ScheduleSignParams,
   ScheduleWaitOptions,
+  ScheduleWaitExecutionOptions,
 } from "../../foundation/params.ts";
 import type { SchedulesNamespace } from "./namespace.ts";
 import { ensureScheduleId } from "../transactions/api.ts";
@@ -160,11 +163,79 @@ export function createSchedulesNamespace(context: {
     );
   };
 
+  const createIdempotent = async (
+    params: ScheduleIdempotentCreateParams,
+  ): Promise<
+    Result<
+      | { readonly status: "created"; readonly schedule: ScheduleReceipt }
+      | { readonly status: "existing"; readonly schedule: ScheduleReceipt }
+    >
+  > => {
+    const result = await create(params);
+    if (result.ok) return ok({ status: "created", schedule: result.value });
+
+    const error = result.error;
+    if (
+      error.code === "TX_RECEIPT_FAILED" &&
+      error.message.includes("IDENTICAL_SCHEDULE_ALREADY_CREATED") &&
+      typeof error.details?.scheduleId === "string"
+    ) {
+      const scheduleId = error.details.scheduleId as EntityId;
+      const transactionId = error.transactionId ?? "";
+      return ok({
+        status: "existing",
+        schedule: {
+          receipt: {
+            status: "IDENTICAL_SCHEDULE_ALREADY_CREATED",
+            transactionId,
+            scheduleId,
+          },
+          transactionId,
+          scheduleId,
+        },
+      });
+    }
+
+    return result;
+  };
+
+  const collectSignatures = async (
+    params: ScheduleCollectSignaturesParams,
+  ): Promise<Result<ReadonlyArray<TransactionReceiptData>>> => {
+    const receipts: TransactionReceiptData[] = [];
+    for (const signer of params.signers) {
+      const result = await sign(params.scheduleId, {
+        signer,
+        ...(params.memo !== undefined ? { memo: params.memo } : {}),
+        ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+      });
+      if (!result.ok) return result;
+      receipts.push(result.value);
+    }
+    return ok(receipts);
+  };
+
+  const waitForExecution = async (
+    scheduleId: EntityId,
+    options: ScheduleWaitExecutionOptions = {},
+  ): Promise<Result<ScheduleInfoData>> => {
+    return wait(scheduleId, {
+      ...(options.timeoutMs !== undefined ? { timeoutMs: options.timeoutMs } : {}),
+      ...(options.pollIntervalMs !== undefined ? { pollIntervalMs: options.pollIntervalMs } : {}),
+      ...(options.stopWhenDeleted !== undefined
+        ? { stopWhenDeleted: options.stopWhenDeleted }
+        : {}),
+    });
+  };
+
   return {
     create,
+    createIdempotent,
     sign,
+    collectSignatures,
     delete: del,
     info,
     wait,
+    waitForExecution,
   };
 }
