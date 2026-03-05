@@ -1,6 +1,6 @@
 import { http, HttpResponse, type HttpHandler } from "msw";
 import type { NetworkType } from "../types/config.js";
-import type { AccountInfo, Transaction, TokenInfo, AccountBalance } from "@hieco/mirror";
+import type { AccountInfo, Transaction, TokenInfo, AccountBalance, Schedule } from "@hieco/mirror";
 import { NETWORK_URLS } from "./constants.js";
 
 const buildUrl = (network: NetworkType, path: string): string =>
@@ -48,6 +48,19 @@ export const createTransactionsListHandler = (
   transactions: readonly Transaction[],
 ): HttpHandler => createListHandler(network, "/transactions", transactions, "transactions");
 
+export const createScheduleHandler = (network: NetworkType, schedule: Schedule): HttpHandler =>
+  http.get(buildUrl(network, "/schedules/:id"), ({ params }) => {
+    if (params.id === schedule.schedule_id) {
+      return HttpResponse.json(schedule);
+    }
+    return HttpResponse.json({ error: "not_found" }, { status: 404 as const });
+  });
+
+export const createSchedulesListHandler = (
+  network: NetworkType,
+  schedules: readonly Schedule[],
+): HttpHandler => createListHandler(network, "/schedules", schedules, "schedules");
+
 export const createTokenHandler = (network: NetworkType, token: TokenInfo): HttpHandler =>
   http.get(buildUrl(network, "/tokens/:id"), ({ params }) => {
     if (params.id === token.token_id) {
@@ -88,6 +101,7 @@ export interface FixtureHandlersOptions {
   readonly network: NetworkType;
   readonly accounts?: readonly AccountInfo[];
   readonly transactions?: readonly Transaction[];
+  readonly schedules?: readonly Schedule[];
   readonly tokens?: readonly TokenInfo[];
   readonly balances?: readonly AccountBalance[];
 }
@@ -107,6 +121,13 @@ export const createFixtureHandlers = (options: FixtureHandlersOptions): HttpHand
       handlers.push(createTransactionHandler(options.network, transaction));
     }
     handlers.push(createTransactionsListHandler(options.network, options.transactions));
+  }
+
+  if (options.schedules) {
+    for (const schedule of options.schedules) {
+      handlers.push(createScheduleHandler(options.network, schedule));
+    }
+    handlers.push(createSchedulesListHandler(options.network, options.schedules));
   }
 
   if (options.tokens) {

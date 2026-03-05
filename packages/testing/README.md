@@ -16,18 +16,10 @@ Comprehensive testing library for Hiero blockchain development. Includes mock Hi
 ```bash
 # bun
 bun add @hieco/testing @hiero-ledger/sdk msw
-
-# npm
-npm install @hieco/testing @hiero-ledger/sdk msw
-
-# pnpm
-pnpm add @hieco/testing @hiero-ledger/sdk msw
-
-# yarn
-yarn add @hieco/testing @hiero-ledger/sdk msw
 ```
 
 **Peer Dependencies:**
+
 - `@hiero-ledger/sdk` - Required (optional: `true`)
 - `msw` - Required (optional: `true`)
 
@@ -47,11 +39,7 @@ const account = testKit.client.accounts.create(Hbar.fromTinybars(1000));
 const balance = testKit.client.accounts.getBalance(account.accountId);
 
 // Transfer Hbar
-testKit.client.accounts.transferBalance(
-  fromAccountId,
-  toAccountId,
-  Hbar.fromTinybars(100),
-);
+testKit.client.accounts.transferBalance(fromAccountId, toAccountId, Hbar.fromTinybars(100));
 
 // Reset all state (between tests)
 testKit.reset();
@@ -65,13 +53,25 @@ import { createTestKit } from "@hieco/testing/mock";
 const testKit = createTestKit();
 
 // Create SDK fixtures
-const account = testKit.fixtures.account();  // 100 Hbar default
+const account = testKit.fixtures.account(); // 100 Hbar default
 const token = testKit.fixtures.token({
   name: "My Token",
   symbol: "MTK",
   decimals: 8,
   initialSupply: 1_000_000,
   treasury: "0.0.1",
+});
+```
+
+### Polling (eventual consistency)
+
+```typescript
+import { poll } from "@hieco/testing/utils";
+
+const value = await poll(async (attempt) => {
+  const result = await fetch("https://example.com/health");
+  if (!result.ok) return { done: false };
+  return { done: true, value: { attempt } };
 });
 ```
 
@@ -177,11 +177,11 @@ import { createTestKit } from "@hieco/testing/mock";
 
 const testKit = createTestKit();
 
-testKit.client;    // MockHieroClient instance
-testKit.fixtures;  // Fixtures helper
+testKit.client; // MockHieroClient instance
+testKit.fixtures; // Fixtures helper
 testKit.snapshot(); // Capture snapshot
 testKit.restore(); // Restore snapshot
-testKit.reset();    // Reset all state
+testKit.reset(); // Reset all state
 ```
 
 ### SDK Fixtures
@@ -194,9 +194,9 @@ const client = new MockHieroClient();
 const fixtures = createFixtures(client);
 
 // Account fixtures
-fixtures.account();                    // Single account with 100 Hbar
+fixtures.account(); // Single account with 100 Hbar
 fixtures.account(Hbar.fromTinybars(1000)); // Custom balance
-fixtures.accounts(5);                   // Create 5 accounts
+fixtures.accounts(5); // Create 5 accounts
 
 // Token fixtures
 fixtures.token({
@@ -292,6 +292,10 @@ server.use(
 );
 ```
 
+## Notes
+
+- Package manager: this repo uses `bun`.
+
 ## Examples
 
 ### Complete Test Example
@@ -317,11 +321,7 @@ describe("Token Transfers", () => {
     const from = testKit.client.accounts.create(Hbar.fromTinybars(1000));
     const to = testKit.client.accounts.create(Hbar.fromTinybars(500));
 
-    testKit.client.accounts.transferBalance(
-      from.accountId,
-      to.accountId,
-      Hbar.fromTinybars(100),
-    );
+    testKit.client.accounts.transferBalance(from.accountId, to.accountId, Hbar.fromTinybars(100));
 
     expect(testKit.client.accounts.getBalance(from.accountId)).toBeHbar(900);
     expect(testKit.client.accounts.getBalance(to.accountId)).toBeHbar(600);

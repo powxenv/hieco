@@ -25,41 +25,48 @@ related:
 
 ### Why This Wins
 
-| Factor | Assessment |
-|--------|-------------|
-| **Novelty** | ✅ Zero overlap with official examples |
-| **Pain Point** | ✅ Critical - No testing tools exist |
-| **Adoption** | ✅ Every developer needs testing |
-| **Feasibility** | ✅ 5 weeks is sufficient |
-| **Differentiation** | ✅ Clear unique value proposition |
+| Factor              | Assessment                             |
+| ------------------- | -------------------------------------- |
+| **Novelty**         | ✅ Zero overlap with official examples |
+| **Pain Point**      | ✅ Critical - No testing tools exist   |
+| **Adoption**        | ✅ Every developer needs testing       |
+| **Feasibility**     | ✅ 5 weeks is sufficient               |
+| **Differentiation** | ✅ Clear unique value proposition      |
 
 ---
 
 ## The Three Proposals Reviewed
 
 ### 1. @hiero/devtools (Transaction Debugger)
+
 **Status:** Explored in existing research
 
 **Pros:**
+
 - Strong visual appeal
 - Solves debugging pain
 
 **Cons:**
+
 - More complex UI work
 - Less universally applicable
 
 ### 2. @hiero/mirror-client (TypeScript Mirror Node)
+
 **Status:** ❌ DUPLICATES OFFICIAL EXAMPLE
 
 **Reason to avoid:**
+
 - Official examples explicitly mention "TypeScript Mirror Node client with typed queries + pagination helpers"
 - Will have 50+ submissions
 - Cannot differentiate
 
 ### 3. @hiero/testkit (Testing Library) ⭐ **RECOMMENDED**
+
 **Status:** ✅ NOVEL, HIGH VALUE
 
 **Why it wins:**
+
 - Not mentioned in official examples
 - Addresses documented gaps in SDK research
 - Universal appeal (every developer tests)
@@ -86,15 +93,15 @@ Deep research uncovered this critical passage:
 
 ### Core Features (35-Day Timeline)
 
-| Week | Features | Deliverables |
-|------|----------|--------------|
-| 1-2 | Mock Client | In-memory Hiero client, no network needed |
-| 2-3 | Test Fixtures | Pre-configured accounts, tokens, contracts |
-| 3 | Custom Matchers | Jest/Vitest matchers for Hiero types |
-| 3-4 | State Snapshots | Deterministic test isolation |
-| 4 | Network Control | Programmatic local node lifecycle |
-| 4-5 | Developer Tools | CLI, VSCode configs, coverage presets |
-| 5 | Docs & Examples | README, API docs, 3+ example suites |
+| Week | Features        | Deliverables                               |
+| ---- | --------------- | ------------------------------------------ |
+| 1-2  | Mock Client     | In-memory Hiero client, no network needed  |
+| 2-3  | Test Fixtures   | Pre-configured accounts, tokens, contracts |
+| 3    | Custom Matchers | Jest/Vitest matchers for Hiero types       |
+| 3-4  | State Snapshots | Deterministic test isolation               |
+| 4    | Network Control | Programmatic local node lifecycle          |
+| 4-5  | Developer Tools | CLI, VSCode configs, coverage presets      |
+| 5    | Docs & Examples | README, API docs, 3+ example suites        |
 
 ### Before vs After
 
@@ -105,7 +112,7 @@ Deep research uncovered this critical passage:
 // - No mocking, no fixtures, no matchers
 // - Tests interfere with each other
 
-describe('Transfer', () => {
+describe("Transfer", () => {
   beforeAll(async () => {
     // Start Docker...
     // Wait for node...
@@ -113,7 +120,7 @@ describe('Transfer', () => {
     // Hope it works...
   });
 
-  test('transfer', async () => {
+  test("transfer", async () => {
     // Actual network call - slow!
   });
 });
@@ -124,17 +131,17 @@ describe('Transfer', () => {
 // - Full mocking, fixtures, matchers
 // - Perfect test isolation
 
-import { mockClient } from '@hiero/testkit/vitest';
+import { mockClient } from "@hiero/testkit/vitest";
 
-describe('Transfer', () => {
+describe("Transfer", () => {
   const mock = mockClient();
 
   beforeEach(() => mock.reset());
 
-  test('transfer', async () => {
+  test("transfer", async () => {
     mock.accounts.set({
       sender: { balance: Hbar.from(1000) },
-      recipient: { balance: Hbar.from(0) }
+      recipient: { balance: Hbar.from(0) },
     });
 
     // Fast! Deterministic! Type-safe!
@@ -146,12 +153,12 @@ describe('Transfer', () => {
 
 ## Competitive Landscape
 
-| Testing Tool | Blockchain | Status |
-|--------------|------------|--------|
-| viem | Ethereum | ✅ Mature |
-| Hardhat | Ethereum | ✅ Mature |
-| Foundry | Ethereum | ✅ Mature |
-| @hiero/testkit | Hiero | ❌ **DOES NOT EXIST** |
+| Testing Tool   | Blockchain | Status                |
+| -------------- | ---------- | --------------------- |
+| viem           | Ethereum   | ✅ Mature             |
+| Hardhat        | Ethereum   | ✅ Mature             |
+| Foundry        | Ethereum   | ✅ Mature             |
+| @hiero/testkit | Hiero      | ❌ **DOES NOT EXIST** |
 
 **First-mover advantage.**
 
@@ -174,15 +181,18 @@ describe('Transfer', () => {
 ### Demo Script (5 Minutes)
 
 **Minute 1-2: The Problem**
+
 - Show current Hiero test (network call, slow)
 - Explain flakiness (faucet, ports, shared state)
 
 **Minute 3-4: The Solution**
+
 - Install @hiero/testkit
 - Rewrite test with mock client
 - Show 1000x speed improvement
 
 **Minute 5: Features**
+
 - Custom matchers (readable assertions)
 - State snapshots (test isolation)
 - VSCode debugging
@@ -192,6 +202,7 @@ describe('Transfer', () => {
 ## Implementation Checklist
 
 ### Must-Have (for submission)
+
 - [x] Public GitHub repo (Apache 2.0)
 - [ ] Mock Client with in-memory state
 - [ ] Test fixtures (accounts, tokens)
@@ -205,9 +216,10 @@ describe('Transfer', () => {
 - [ ] 3+ example test suites
 - [ ] API documentation
 - [ ] CI/CD (GitHub Actions)
-- [ ] >80% test coverage
+- [ ] > 80% test coverage
 
 ### Nice-to-Have (for polish)
+
 - [ ] Coverage presets (v8, nyc)
 - [ ] Contract deployment fixtures
 - [ ] Topic fixtures
@@ -219,18 +231,18 @@ describe('Transfer', () => {
 
 ## Estimated Effort
 
-| Component | Days | Complexity |
-|-----------|------|------------|
-| Mock Client | 7 | Medium |
-| Test Fixtures | 5 | Low |
-| Custom Matchers | 4 | Low |
-| State Snapshots | 4 | Medium |
-| Network Control | 4 | Medium |
-| CLI Tool | 3 | Low |
-| VSCode Configs | 2 | Low |
-| Documentation | 4 | Low |
-| Examples | 2 | Low |
-| **TOTAL** | **35** | **Medium** |
+| Component       | Days   | Complexity |
+| --------------- | ------ | ---------- |
+| Mock Client     | 7      | Medium     |
+| Test Fixtures   | 5      | Low        |
+| Custom Matchers | 4      | Low        |
+| State Snapshots | 4      | Medium     |
+| Network Control | 4      | Medium     |
+| CLI Tool        | 3      | Low        |
+| VSCode Configs  | 2      | Low        |
+| Documentation   | 4      | Low        |
+| Examples        | 2      | Low        |
+| **TOTAL**       | **35** | **Medium** |
 
 **Fits perfectly in 5-week hackathon.**
 
@@ -239,6 +251,7 @@ describe('Transfer', () => {
 ## Success Metrics
 
 ### For Hackathon (Immediate)
+
 - ✅ Innovation: First testing library for Hiero
 - ✅ Feasibility: Achievable in 35 days
 - ✅ Execution: Working demo with clear before/after
@@ -246,6 +259,7 @@ describe('Transfer', () => {
 - ✅ Success: Every Hiero developer is potential user
 
 ### Post-Hackathon (3-6 months)
+
 - 100+ GitHub stars
 - 500+ weekly npm downloads
 - 10+ projects using it
@@ -255,14 +269,14 @@ describe('Transfer', () => {
 
 ## Why Not the Others?
 
-| Proposal | Why Not to Submit |
-|----------|-------------------|
-| **Mirror Client** | ❌ Official example (50+ submissions expected) |
-| **Scheduled Transactions** | ❌ Official example (highly competitive) |
-| **React Hooks** | ❌ Official example (highly competitive) |
-| **DevTools** | ⚠️ Good, but UI complexity increases risk |
-| **Hotswap** | ⚠️ Good, but requires local node deep integration |
-| **Observability** | ⚠️ Good, but requires infrastructure backend |
+| Proposal                   | Why Not to Submit                                 |
+| -------------------------- | ------------------------------------------------- |
+| **Mirror Client**          | ❌ Official example (50+ submissions expected)    |
+| **Scheduled Transactions** | ❌ Official example (highly competitive)          |
+| **React Hooks**            | ❌ Official example (highly competitive)          |
+| **DevTools**               | ⚠️ Good, but UI complexity increases risk         |
+| **Hotswap**                | ⚠️ Good, but requires local node deep integration |
+| **Observability**          | ⚠️ Good, but requires infrastructure backend      |
 
 ---
 
@@ -289,11 +303,12 @@ describe('Transfer', () => {
 
 ---
 
-*Recommendation compiled from comprehensive research including:*
-- *Official hackathon requirements and examples*
-- *Existing brainstorming documents*
-- *GitHub code search for current patterns*
-- *Deep research on testing pain points*
-- *Analysis of modern Web3 testing frameworks*
+_Recommendation compiled from comprehensive research including:_
+
+- _Official hackathon requirements and examples_
+- _Existing brainstorming documents_
+- _GitHub code search for current patterns_
+- _Deep research on testing pain points_
+- _Analysis of modern Web3 testing frameworks_
 
 _Last Updated: March 3, 2026_

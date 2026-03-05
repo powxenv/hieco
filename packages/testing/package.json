@@ -39,21 +39,41 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "import": "./dist/utils/index.js"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js"
+    },
+    "./mock": {
+      "types": "./dist/mock/index.d.ts",
+      "import": "./dist/mock/index.js"
+    },
     "./fixtures": {
       "types": "./dist/fixtures/index.d.ts",
       "import": "./dist/fixtures/index.js"
     },
-    "./hiero": {
-      "types": "./dist/hiero/index.d.ts",
-      "import": "./dist/hiero/index.js"
+    "./fixtures/mirror": {
+      "types": "./dist/fixtures/mirror/index.d.ts",
+      "import": "./dist/fixtures/mirror/index.js"
+    },
+    "./fixtures/sdk": {
+      "types": "./dist/fixtures/sdk/index.d.ts",
+      "import": "./dist/fixtures/sdk/index.js"
     },
     "./matchers": {
       "types": "./dist/matchers/index.d.ts",
       "import": "./dist/matchers/index.js"
     },
-    "./testkit": {
-      "types": "./dist/testkit/index.d.ts",
-      "import": "./dist/testkit/index.js"
+    "./matchers/core": {
+      "types": "./dist/matchers/core/index.d.ts",
+      "import": "./dist/matchers/core/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.js"
     },
     "./vitest": {
       "types": "./dist/vitest/index.d.ts",
@@ -69,7 +89,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external msw && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external msw && bun build ./src/utils/index.ts --outdir ./dist/utils --target node --format esm --sourcemap --external msw && bun build ./src/server/index.ts --outdir ./dist/server --target node --format esm --sourcemap --external msw && bun build ./src/mock/index.ts --outdir ./dist/mock --target node --format esm --sourcemap --external msw && bun build ./src/fixtures/index.ts --outdir ./dist/fixtures --target node --format esm --sourcemap --external msw && bun build ./src/fixtures/mirror/index.ts --outdir ./dist/fixtures/mirror --target node --format esm --sourcemap --external msw && bun build ./src/fixtures/sdk/index.ts --outdir ./dist/fixtures/sdk --target node --format esm --sourcemap --external msw && bun build ./src/matchers/index.ts --outdir ./dist/matchers --target node --format esm --sourcemap --external msw && bun build ./src/matchers/core/index.ts --outdir ./dist/matchers/core --target node --format esm --sourcemap --external msw && bun build ./src/jest/index.ts --outdir ./dist/jest --target node --format esm --sourcemap --external msw && bun build ./src/vitest/index.ts --outdir ./dist/vitest --target node --format esm --sourcemap --external msw && bun build ./src/types/index.ts --outdir ./dist/types --target node --format esm --sourcemap --external msw && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
     "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external msw",
     "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",

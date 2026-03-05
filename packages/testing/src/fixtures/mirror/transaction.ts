@@ -1,5 +1,5 @@
 import type { Transaction, EntityId } from "@hieco/mirror";
-import { state } from "../utils/state.js";
+import { state } from "./state.js";
 import type { Factory } from "./account.js";
 
 export type TransactionFixtureOptions = Partial<

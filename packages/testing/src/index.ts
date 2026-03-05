@@ -5,12 +5,16 @@ export * from "./server/handlers.js";
 
 // Fixtures (test data)
 export * from "./fixtures/index.js";
+export * as fixtures from "./fixtures/index.js";
 
 // Mock client & testkit
 export * from "./mock/index.js";
 
 // Matchers (core implementations, not framework-specific)
 export * from "./matchers/core/index.js";
+
+// Utilities
+export * from "./utils/index.js";
 
 // Types
 export * from "./types/config.js";
