@@ -35,6 +35,17 @@ export interface HcsNamespace {
     handler: (message: import("../../foundation/params.ts").TopicMessageData) => void,
     options?: import("../../foundation/params.ts").WatchTopicMessagesOptions,
   ) => () => void;
+  watchFrom: (
+    topicId: EntityId,
+    handler: (message: import("../../foundation/params.ts").TopicMessageData) => void,
+    options?: import("../../foundation/params.ts").WatchTopicMessagesFromOptions,
+  ) => { readonly stop: () => void };
+  submitJson: (
+    params: import("../../foundation/params.ts").SubmitJsonMessageParams,
+  ) => Promise<Result<import("../../foundation/results-shapes.ts").MessageReceipt>>;
+  batchSubmit: (
+    params: import("../../foundation/params.ts").BatchSubmitMessagesParams,
+  ) => Promise<Result<ReadonlyArray<import("../../foundation/results-shapes.ts").MessageReceipt>>>;
   info: (topicId: EntityId) => Promise<Result<TopicInfoData>>;
   messages: (
     topicId: EntityId,

@@ -16,10 +16,13 @@ import { createError } from "../../foundation/errors.ts";
 import type {
   CreateTopicParams,
   DeleteTopicParams,
+  BatchSubmitMessagesParams,
   SubmitMessageParams,
+  SubmitJsonMessageParams,
   TopicMessageData,
   UpdateTopicParams,
   WatchTopicMessagesOptions,
+  WatchTopicMessagesFromOptions,
 } from "../../foundation/params.ts";
 import type { HcsNamespace } from "./namespace.ts";
 
@@ -95,13 +98,14 @@ export function createHcsNamespace(context: {
     if (options.limit !== undefined) query.setLimit(options.limit);
 
     const errorHandler = options.onError
-      ? (message: unknown, error: Error) => {
+      ? (message: import("@hiero-ledger/sdk").TopicMessage | null, error: Error) => {
           void message;
           options.onError?.(error);
         }
       : null;
 
     const handle = query.subscribe(context.nativeClient, errorHandler, (message) => {
+      if (!message) return;
       const data: TopicMessageData = {
         consensusTimestamp: message.consensusTimestamp.toString(),
         contents: message.contents,
@@ -122,6 +126,160 @@ export function createHcsNamespace(context: {
     });
 
     return () => handle.unsubscribe();
+  };
+
+  const isRecord = (value: unknown): value is Record<string, unknown> => {
+    if (typeof value !== "object" || value === null) return false;
+    if (Array.isArray(value)) return false;
+    return Object.prototype.toString.call(value) === "[object Object]";
+  };
+
+  const normalizeMessage = (
+    value: unknown,
+  ): Result<string | Record<string, unknown> | Uint8Array> => {
+    if (typeof value === "string") return ok(value);
+    if (value instanceof Uint8Array) return ok(value);
+    if (isRecord(value)) return ok(value);
+    return err(
+      createError("UNEXPECTED_ERROR", "Unsupported message payload", {
+        hint: "Provide string, Uint8Array, or plain object",
+      }),
+    );
+  };
+
+  const decodeBase64 = (value: string): Uint8Array => {
+    if (typeof atob === "function") {
+      const bytes = atob(value);
+      const result = new Uint8Array(bytes.length);
+      for (let i = 0; i < bytes.length; i += 1) {
+        result[i] = bytes.charCodeAt(i);
+      }
+      return result;
+    }
+    if (typeof Buffer !== "undefined") {
+      return Uint8Array.from(Buffer.from(value, "base64"));
+    }
+    return new Uint8Array();
+  };
+
+  const decodeMessage = (message: import("@hieco/mirror").TopicMessage): TopicMessageData => {
+    const contents = message.message ? decodeBase64(message.message) : new Uint8Array();
+    const runningHash = message.running_hash
+      ? decodeBase64(message.running_hash)
+      : new Uint8Array();
+    return {
+      consensusTimestamp: message.consensus_timestamp,
+      contents,
+      runningHash,
+      sequenceNumber: message.sequence_number,
+      topicId: message.topic_id,
+      json: () => {
+        const text = new TextDecoder().decode(contents);
+        try {
+          return JSON.parse(text);
+        } catch {
+          return text;
+        }
+      },
+      text: () => new TextDecoder().decode(contents),
+    };
+  };
+
+  const watchFrom = (
+    topicId: EntityId,
+    handler: (message: TopicMessageData) => void,
+    options: WatchTopicMessagesFromOptions = {},
+  ): { readonly stop: () => void } => {
+    let active = true;
+    let cursorSequence = options.sinceSequence;
+    let cursorTimestamp = options.sinceTimestamp;
+
+    const poll = async (): Promise<void> => {
+      if (!active) return;
+      const params: import("@hieco/mirror").TopicMessagesParams = {
+        ...(options.limit ? { limit: options.limit } : {}),
+        ...(cursorSequence !== undefined ? { sequencenumber: cursorSequence } : {}),
+        ...(cursorTimestamp !== undefined ? { timestamp: cursorTimestamp } : {}),
+        order: "asc",
+      };
+      const result = await context.mirror.topic.getMessages(topicId, params);
+      if (!result.success) {
+        options.onError?.(new Error(result.error.message));
+        return;
+      }
+      for (const message of result.data) {
+        handler(decodeMessage(message));
+        cursorSequence = message.sequence_number + 1;
+        cursorTimestamp = message.consensus_timestamp;
+      }
+      if (active && options.resume !== false) {
+        setTimeout(poll, 500);
+      }
+    };
+
+    void poll();
+
+    return {
+      stop: () => {
+        active = false;
+      },
+    };
+  };
+
+  const submitJson = async (params: SubmitJsonMessageParams): Promise<Result<MessageReceipt>> => {
+    const normalized = normalizeMessage(params.data);
+    if (!normalized.ok) return normalized;
+    return submit({
+      topicId: params.topicId,
+      message: normalized.value,
+      ...(params.maxChunks !== undefined ? { maxChunks: params.maxChunks } : {}),
+      ...(params.chunkSize !== undefined ? { chunkSize: params.chunkSize } : {}),
+      ...(params.memo ? { memo: params.memo } : {}),
+      ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+    });
+  };
+
+  const batchSubmit = async (
+    params: BatchSubmitMessagesParams,
+  ): Promise<Result<ReadonlyArray<MessageReceipt>>> => {
+    const concurrency = Math.max(1, params.concurrency ?? 1);
+    const receipts: MessageReceipt[] = new Array(params.messages.length);
+    let index = 0;
+
+    const submitNext = async (): Promise<Result<void>> => {
+      const currentIndex = index;
+      if (currentIndex >= params.messages.length) return ok(undefined);
+      const current = params.messages[currentIndex];
+      index += 1;
+      if (!current) return submitNext();
+      const normalized = normalizeMessage(current);
+      if (!normalized.ok) return normalized;
+      const receipt = await submit({
+        topicId: params.topicId,
+        message: normalized.value,
+        ...(params.maxChunks !== undefined ? { maxChunks: params.maxChunks } : {}),
+        ...(params.chunkSize !== undefined ? { chunkSize: params.chunkSize } : {}),
+        ...(params.memo ? { memo: params.memo } : {}),
+        ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+      });
+      if (!receipt.ok) return receipt;
+      receipts[currentIndex] = receipt.value;
+      return submitNext();
+    };
+
+    const workers: Promise<Result<void>>[] = [];
+    for (let i = 0; i < concurrency; i += 1) {
+      workers.push(submitNext());
+    }
+
+    const results = await Promise.all(workers);
+    const failure = results.find((r) => !r.ok);
+    if (failure && !failure.ok) return failure;
+    const compact: MessageReceipt[] = [];
+    for (const receipt of receipts) {
+      if (receipt) compact.push(receipt);
+    }
+    return ok(compact);
   };
 
   const info = async (topicId: EntityId): Promise<Result<TopicInfoData>> => {
@@ -169,6 +327,9 @@ export function createHcsNamespace(context: {
     delete: del,
     submit,
     watch,
+    watchFrom,
+    submitJson,
+    batchSubmit,
     info,
     messages,
   };

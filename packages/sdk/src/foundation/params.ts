@@ -505,6 +505,33 @@ export interface WatchTopicMessagesOptions {
   readonly onError?: (error: Error) => void;
 }
 
+export interface WatchTopicMessagesFromOptions {
+  readonly sinceSequence?: number;
+  readonly sinceTimestamp?: string;
+  readonly resume?: boolean;
+  readonly limit?: number;
+  readonly onError?: (error: Error) => void;
+}
+
+export interface SubmitJsonMessageParams {
+  readonly topicId: EntityId;
+  readonly data: unknown;
+  readonly maxChunks?: number;
+  readonly chunkSize?: number;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface BatchSubmitMessagesParams {
+  readonly topicId: EntityId;
+  readonly messages: ReadonlyArray<Uint8Array | string | Record<string, unknown>>;
+  readonly concurrency?: number;
+  readonly maxChunks?: number;
+  readonly chunkSize?: number;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
 export interface TopicMessageData {
   readonly consensusTimestamp: string;
   readonly contents: Uint8Array;
