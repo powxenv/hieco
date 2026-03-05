@@ -6,7 +6,9 @@
     "emitDeclarationOnly": true,
     "noEmit": false,
     "lib": ["ESNext", "DOM"],
-    "types": ["bun-types"]
+    "types": ["bun-types"],
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true
   },
   "include": ["src/**/*", "__tests__/**/*"],
   "exclude": ["node_modules", "dist"]

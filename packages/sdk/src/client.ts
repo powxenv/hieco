@@ -1,447 +1,186 @@
 import { Client, Hbar } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
-import type { EntityId, NetworkType } from "@hieco/types";
+import type { EntityId } from "@hieco/types";
 import { createMirrorNodeClient, type MirrorNodeClient } from "@hieco/mirror";
-import type {
-  HieroClientConfig,
-  TransferParams,
-  CreateAccountParams,
-  UpdateAccountParams,
-  DeleteAccountParams,
-  ApproveAllowanceParams,
-  CreateTokenParams,
-  MintTokenParams,
-  BurnTokenParams,
-  TransferTokenParams,
-  TransferNftParams,
-  AssociateTokenParams,
-  DissociateTokenParams,
-  FreezeTokenParams,
-  UnfreezeTokenParams,
-  GrantKycParams,
-  RevokeKycParams,
-  PauseTokenParams,
-  UnpauseTokenParams,
-  WipeTokenParams,
-  DeleteTokenParams,
-  UpdateTokenParams,
-  UpdateTokenFeeScheduleParams,
-  CreateTopicParams,
-  UpdateTopicParams,
-  DeleteTopicParams,
-  SubmitMessageParams,
-  DeployContractParams,
-  ExecuteContractParams,
-  CallContractParams,
-  DeleteContractParams,
-  UpdateContractParams,
-  ScheduleTransactionParams,
-  SignScheduleParams,
-  DeleteScheduleParams,
-  CreateFileParams,
-  AppendFileParams,
-  UpdateFileParams,
-  DeleteFileParams,
-  WatchTopicMessagesParams,
-  TransferResult,
-  CreateAccountResult,
-  UpdateAccountResult,
-  DeleteAccountResult,
-  TokenReceipt,
-  MintReceipt,
-  TopicReceipt,
-  MessageReceipt,
-  ContractReceipt,
-  ContractExecuteReceipt,
-  ContractCallResult,
-  ScheduleReceipt,
-  FileReceipt,
-  TransactionReceiptData,
-  SdkResult,
-  Unsubscribe,
-  TransactionMiddleware,
-  TransactionEvent,
-  TransactionEventPayloads,
-  LogLevel,
-  HieroClientRef,
-  ActionDeps,
-} from "./types.ts";
-import { resolveConfig, validateOperatorForBrowser } from "./config.ts";
-import type { ResolvedConfig } from "./config.ts";
-import { TransactionEventEmitter } from "./events/emitter.ts";
-import { createRetryMiddleware } from "./middleware/retry.ts";
-import { createLoggingMiddleware } from "./middleware/logging.ts";
+import type { ClientConfig } from "./types/params.ts";
+import type { ClientRuntimeConfig } from "./types/client.ts";
+import type { TransactionDescriptor } from "./types/params.ts";
+import type { Result } from "./types/results.ts";
+import { err } from "./types/results.ts";
+import { resolveConfig } from "./config.ts";
+import { createAccountsNamespace } from "./accounts.ts";
+import { createTokensNamespace } from "./tokens.ts";
+import { createHcsNamespace } from "./hcs.ts";
+import { createContractsNamespace } from "./contracts.ts";
+import { createFilesNamespace } from "./files.ts";
+import { createSchedulesNamespace } from "./schedules.ts";
 import {
-  transfer,
-  createAccount,
-  updateAccount,
-  deleteAccount,
-  approveAllowance,
-} from "./actions/crypto.ts";
-import {
-  createToken,
-  mintToken,
-  burnToken,
-  transferToken,
-  transferNft,
-  associateToken,
-  dissociateToken,
-  freezeToken,
-  unfreezeToken,
-  grantKyc,
-  revokeKyc,
-  pauseToken,
-  unpauseToken,
-  wipeToken,
-  deleteToken,
-  updateToken,
-  updateTokenFeeSchedule,
-} from "./actions/token.ts";
-import { createTopic, updateTopic, deleteTopic, submitMessage } from "./actions/consensus.ts";
-import {
-  deployContract,
-  executeContract,
   callContract,
-  deleteContract,
-  updateContract,
-} from "./actions/contract.ts";
-import { scheduleTransaction, signSchedule, deleteSchedule } from "./actions/schedule.ts";
-import { createFile, appendFile, updateFile, deleteFile } from "./actions/file.ts";
-import { AccountBuilder } from "./builders/account-builder.ts";
-import { ContractBuilder } from "./builders/contract-builder.ts";
-import { TokenBuilder } from "./builders/token-builder.ts";
-import { TopicBuilder } from "./builders/topic-builder.ts";
-import { watchTopicMessages as watchTopicMessagesSubscription } from "./subscriptions/watch-topic-messages.ts";
-import { ScheduledTransactionFlow } from "./flows/scheduled-transaction-flow.ts";
-import type { ScheduledTransactionFlowInit } from "./flows/scheduled-transaction-flow.ts";
+  requireSigningContext,
+  resolveQueryContext,
+  submitTransaction,
+} from "./transactions.ts";
+import { createError } from "./errors.ts";
+import type { TransactionReceiptData } from "./types/results-shapes.ts";
 
 export class HieroClient {
-  private readonly nativeClient: Client;
-  private readonly config: ResolvedConfig;
-  private readonly emitter: TransactionEventEmitter;
-  private readonly resolvedMiddleware: ReadonlyArray<TransactionMiddleware>;
   readonly mirror: MirrorNodeClient;
+  readonly accounts: ReturnType<typeof createAccountsNamespace>;
+  readonly tokens: ReturnType<typeof createTokensNamespace>;
+  readonly hcs: ReturnType<typeof createHcsNamespace>;
+  readonly contracts: ReturnType<typeof createContractsNamespace>;
+  readonly files: ReturnType<typeof createFilesNamespace>;
+  readonly schedules: ReturnType<typeof createSchedulesNamespace>;
 
-  constructor(config: HieroClientConfig = {}) {
-    this.config = resolveConfig(config);
+  private readonly nativeClient: Client;
+  private readonly config: ClientRuntimeConfig;
 
-    const validationError = validateOperatorForBrowser(this.config);
-    if (validationError) {
-      throw new Error(validationError.message);
+  constructor(config: ClientConfig = {}) {
+    const resolved = resolveConfig(config);
+    if (!resolved.ok) {
+      throw new Error(resolved.error.message);
     }
+    this.config = resolved.value;
+    this.nativeClient = this.createNativeClient(this.config);
+    this.mirror = createMirrorNodeClient(this.config.network, this.config.mirrorUrl);
 
-    this.nativeClient = this.createNativeClient();
-    this.emitter = new TransactionEventEmitter();
-    this.resolvedMiddleware = this.buildMiddlewareStack();
-    this.mirror = this.createMirrorClient();
+    const submit = async (
+      descriptor: TransactionDescriptor,
+    ): Promise<Result<TransactionReceiptData>> => {
+      const signing = requireSigningContext({
+        operatorKey: this.config.key,
+        signer: this.config.signer,
+      });
+      if (!signing.ok) return signing;
+      return submitTransaction(
+        {
+          client: this.nativeClient,
+          signing: signing.value,
+          ...(this.config.operator ? { operator: this.config.operator } : {}),
+        },
+        descriptor,
+      );
+    };
+
+    const call = (params: {
+      readonly id: EntityId;
+      readonly fn: string;
+      readonly args?: ReadonlyArray<unknown>;
+      readonly gas: number;
+      readonly senderAccountId?: EntityId;
+    }) => {
+      const signing = resolveQueryContext({
+        operatorKey: this.config.key,
+        signer: this.config.signer,
+      });
+      if (!signing.ok) return Promise.resolve(err(signing.error));
+      const queryContext = {
+        client: this.nativeClient,
+        signing: signing.value,
+        ...(this.config.operator ? { operator: this.config.operator } : {}),
+      };
+      return callContract(queryContext, params);
+    };
+
+    this.accounts = createAccountsNamespace({
+      submit,
+      ...(this.config.operator ? { operator: this.config.operator } : {}),
+      ...(this.config.signer ? { signer: this.config.signer } : {}),
+      mirror: this.mirror,
+      nativeClient: this.nativeClient,
+    });
+    this.tokens = createTokensNamespace({
+      submit,
+      ...(this.config.operator ? { operator: this.config.operator } : {}),
+      ...(this.config.signer ? { signer: this.config.signer } : {}),
+    });
+    this.hcs = createHcsNamespace({ submit, nativeClient: this.nativeClient });
+    this.contracts = createContractsNamespace({ submit, call });
+    this.files = createFilesNamespace({ submit });
+    this.schedules = createSchedulesNamespace({
+      submit,
+      mirror: this.mirror,
+      withSigner: (signer: HieroSigner) => ({
+        submit: (descriptor) => this.with({ signer }).submit(descriptor),
+      }),
+    });
   }
 
-  get network(): NetworkType {
+  get network(): ClientRuntimeConfig["network"] {
     return this.config.network;
   }
 
-  get operatorAccountId(): EntityId | undefined {
-    return this.config.operatorId;
+  get operator(): EntityId | undefined {
+    return this.config.operator;
   }
 
-  get logLevel(): LogLevel {
-    return this.config.logLevel;
+  with(partial: {
+    readonly signer?: HieroSigner;
+    readonly operator?: EntityId;
+    readonly key?: string;
+  }) {
+    const operator = partial.operator ?? this.config.operator;
+    const key = partial.key ?? this.config.key;
+    const signer = partial.signer ?? this.config.signer;
+    return new HieroClient({
+      network: this.config.network,
+      ...(operator ? { operator } : {}),
+      ...(key ? { key } : {}),
+      ...(signer ? { signer } : {}),
+      ...(this.config.mirrorUrl ? { mirrorUrl: this.config.mirrorUrl } : {}),
+      ...(this.config.maxFee ? { maxFee: this.config.maxFee } : {}),
+    });
   }
 
-  on<E extends TransactionEvent>(
-    event: E,
-    listener: (payload: TransactionEventPayloads[E]) => void,
-  ): () => void {
-    return this.emitter.on(event, listener);
+  as(signer: HieroSigner) {
+    return this.with({ signer });
   }
 
-  off<E extends TransactionEvent>(
-    event: E,
-    listener: (payload: TransactionEventPayloads[E]) => void,
-  ): void {
-    this.emitter.off(event, listener);
-  }
-
-  async transfer(params: TransferParams): Promise<SdkResult<TransferResult>> {
-    return transfer(this.actionDeps(), params);
-  }
-
-  async createAccount(params: CreateAccountParams): Promise<SdkResult<CreateAccountResult>> {
-    return createAccount(this.actionDeps(), params);
-  }
-
-  async updateAccount(params: UpdateAccountParams): Promise<SdkResult<UpdateAccountResult>> {
-    return updateAccount(this.actionDeps(), params);
-  }
-
-  async deleteAccount(params: DeleteAccountParams): Promise<SdkResult<DeleteAccountResult>> {
-    return deleteAccount(this.actionDeps(), params);
-  }
-
-  async approveAllowance(
-    params: ApproveAllowanceParams,
-  ): Promise<SdkResult<TransactionReceiptData>> {
-    return approveAllowance(this.actionDeps(), params);
-  }
-
-  async createToken(params: CreateTokenParams): Promise<SdkResult<TokenReceipt>> {
-    return createToken(this.actionDeps(), params);
-  }
-
-  async mintToken(params: MintTokenParams): Promise<SdkResult<MintReceipt>> {
-    return mintToken(this.actionDeps(), params);
-  }
-
-  async burnToken(params: BurnTokenParams): Promise<SdkResult<TransactionReceiptData>> {
-    return burnToken(this.actionDeps(), params);
-  }
-
-  async transferToken(params: TransferTokenParams): Promise<SdkResult<TransactionReceiptData>> {
-    return transferToken(this.actionDeps(), params);
-  }
-
-  async transferNft(params: TransferNftParams): Promise<SdkResult<TransactionReceiptData>> {
-    return transferNft(this.actionDeps(), params);
-  }
-
-  async associateToken(params: AssociateTokenParams): Promise<SdkResult<TransactionReceiptData>> {
-    return associateToken(this.actionDeps(), params);
-  }
-
-  async dissociateToken(params: DissociateTokenParams): Promise<SdkResult<TransactionReceiptData>> {
-    return dissociateToken(this.actionDeps(), params);
-  }
-
-  async freezeToken(params: FreezeTokenParams): Promise<SdkResult<TransactionReceiptData>> {
-    return freezeToken(this.actionDeps(), params);
-  }
-
-  async unfreezeToken(params: UnfreezeTokenParams): Promise<SdkResult<TransactionReceiptData>> {
-    return unfreezeToken(this.actionDeps(), params);
-  }
-
-  async grantKyc(params: GrantKycParams): Promise<SdkResult<TransactionReceiptData>> {
-    return grantKyc(this.actionDeps(), params);
-  }
-
-  async revokeKyc(params: RevokeKycParams): Promise<SdkResult<TransactionReceiptData>> {
-    return revokeKyc(this.actionDeps(), params);
-  }
-
-  async pauseToken(params: PauseTokenParams): Promise<SdkResult<TransactionReceiptData>> {
-    return pauseToken(this.actionDeps(), params);
-  }
-
-  async unpauseToken(params: UnpauseTokenParams): Promise<SdkResult<TransactionReceiptData>> {
-    return unpauseToken(this.actionDeps(), params);
-  }
-
-  async wipeToken(params: WipeTokenParams): Promise<SdkResult<TransactionReceiptData>> {
-    return wipeToken(this.actionDeps(), params);
-  }
-
-  async deleteToken(params: DeleteTokenParams): Promise<SdkResult<TransactionReceiptData>> {
-    return deleteToken(this.actionDeps(), params);
-  }
-
-  async updateToken(params: UpdateTokenParams): Promise<SdkResult<TransactionReceiptData>> {
-    return updateToken(this.actionDeps(), params);
-  }
-
-  async updateTokenFeeSchedule(
-    params: UpdateTokenFeeScheduleParams,
-  ): Promise<SdkResult<TransactionReceiptData>> {
-    return updateTokenFeeSchedule(this.actionDeps(), params);
-  }
-
-  async createTopic(params: CreateTopicParams): Promise<SdkResult<TopicReceipt>> {
-    return createTopic(this.actionDeps(), params);
-  }
-
-  async updateTopic(params: UpdateTopicParams): Promise<SdkResult<TransactionReceiptData>> {
-    return updateTopic(this.actionDeps(), params);
-  }
-
-  async deleteTopic(params: DeleteTopicParams): Promise<SdkResult<TransactionReceiptData>> {
-    return deleteTopic(this.actionDeps(), params);
-  }
-
-  async submitMessage(params: SubmitMessageParams): Promise<SdkResult<MessageReceipt>> {
-    return submitMessage(this.actionDeps(), params);
-  }
-
-  async deployContract(params: DeployContractParams): Promise<SdkResult<ContractReceipt>> {
-    return deployContract(this.actionDeps(), params);
-  }
-
-  async executeContract(params: ExecuteContractParams): Promise<SdkResult<ContractExecuteReceipt>> {
-    return executeContract(this.actionDeps(), params);
-  }
-
-  async callContract(params: CallContractParams): Promise<SdkResult<ContractCallResult>> {
-    return callContract(this.actionDeps(), params);
-  }
-
-  async deleteContract(params: DeleteContractParams): Promise<SdkResult<TransactionReceiptData>> {
-    return deleteContract(this.actionDeps(), params);
-  }
-
-  async updateContract(params: UpdateContractParams): Promise<SdkResult<TransactionReceiptData>> {
-    return updateContract(this.actionDeps(), params);
-  }
-
-  async scheduleTransaction(
-    params: ScheduleTransactionParams,
-  ): Promise<SdkResult<ScheduleReceipt>> {
-    return scheduleTransaction(this.actionDeps(), params);
-  }
-
-  async signSchedule(params: SignScheduleParams): Promise<SdkResult<TransactionReceiptData>> {
-    return signSchedule(this.actionDeps(), params);
-  }
-
-  async deleteSchedule(params: DeleteScheduleParams): Promise<SdkResult<TransactionReceiptData>> {
-    return deleteSchedule(this.actionDeps(), params);
-  }
-
-  async createFile(params: CreateFileParams): Promise<SdkResult<FileReceipt>> {
-    return createFile(this.actionDeps(), params);
-  }
-
-  async appendFile(params: AppendFileParams): Promise<SdkResult<TransactionReceiptData>> {
-    return appendFile(this.actionDeps(), params);
-  }
-
-  async updateFile(params: UpdateFileParams): Promise<SdkResult<TransactionReceiptData>> {
-    return updateFile(this.actionDeps(), params);
-  }
-
-  async deleteFile(params: DeleteFileParams): Promise<SdkResult<TransactionReceiptData>> {
-    return deleteFile(this.actionDeps(), params);
-  }
-
-  watchTopicMessages(params: WatchTopicMessagesParams): Unsubscribe {
-    return watchTopicMessagesSubscription(this.nativeClient, params);
-  }
-
-  accounts(): AccountBuilder {
-    return new AccountBuilder();
-  }
-
-  tokens(): TokenBuilder {
-    return new TokenBuilder();
-  }
-
-  topics(): TopicBuilder {
-    return new TopicBuilder();
-  }
-
-  contracts(): ContractBuilder {
-    return new ContractBuilder();
-  }
-
-  scheduledTransaction(init: ScheduledTransactionFlowInit): ScheduledTransactionFlow {
-    return new ScheduledTransactionFlow(this, init);
-  }
-
-  withSigner(signer: HieroSigner): HieroClient {
-    return new HieroClient({ ...this.exportConfig(), signer });
-  }
-
-  withoutSigner(): HieroClient {
-    return new HieroClient({ ...this.exportConfig(), signer: undefined });
-  }
-
-  extend<T>(decorator: (client: HieroClient) => T): HieroClient & T {
-    const extensions = decorator(this);
-    return Object.assign(this, extensions) as HieroClient & T;
+  submit(descriptor: TransactionDescriptor): Promise<Result<TransactionReceiptData>> {
+    const signing = requireSigningContext({
+      operatorKey: this.config.key,
+      signer: this.config.signer,
+    });
+    if (!signing.ok) return Promise.resolve(err(signing.error));
+    return submitTransaction(
+      {
+        client: this.nativeClient,
+        signing: signing.value,
+        ...(this.config.operator ? { operator: this.config.operator } : {}),
+      },
+      descriptor,
+    );
   }
 
   destroy(): void {
     this.nativeClient.close();
-    this.emitter.removeAllListeners();
   }
 
-  private exportConfig(): HieroClientConfig {
-    return {
-      network: this.config.network,
-      operatorId: this.config.operatorId,
-      operatorKey: this.config.operatorKey,
-      signer: this.config.signer,
-      mirrorUrl: this.config.mirrorUrl,
-      maxTransactionFee: this.config.maxTransactionFee,
-      logLevel: this.config.logLevel,
-      middleware: this.config.middleware,
-      retry: this.config.retry,
-    };
-  }
-
-  private createMirrorClient(): MirrorNodeClient {
-    return createMirrorNodeClient(this.config.network, this.config.mirrorUrl);
-  }
-
-  private createNativeClient(): Client {
-    const client = Client.forName(this.config.network);
-
-    const mirrorNetwork = mirrorUrlToNetworkEntry(this.config.mirrorUrl);
-    if (mirrorNetwork) {
-      client.setMirrorNetwork([mirrorNetwork]);
+  private createNativeClient(config: ClientRuntimeConfig): Client {
+    const client = Client.forName(config.network);
+    if (config.mirrorUrl) {
+      try {
+        const url = config.mirrorUrl.includes("://")
+          ? new URL(config.mirrorUrl)
+          : new URL(`https://${config.mirrorUrl}`);
+        const hostname = url.hostname;
+        const port = url.port || (url.protocol === "http:" ? "80" : "443");
+        if (hostname) client.setMirrorNetwork([`${hostname}:${port}`]);
+      } catch {
+        throw new Error(
+          createError("CONFIG_INVALID_NETWORK", `Invalid mirror URL: ${config.mirrorUrl}`).message,
+        );
+      }
     }
 
-    if (!this.config.signer && this.config.operatorId && this.config.operatorKey) {
-      client.setOperator(this.config.operatorId, this.config.operatorKey);
+    if (!config.signer && config.operator && config.key) {
+      client.setOperator(config.operator, config.key);
     }
 
-    client.setDefaultMaxTransactionFee(new Hbar(this.config.maxTransactionFee));
+    if (config.maxFee) {
+      client.setDefaultMaxTransactionFee(new Hbar(config.maxFee));
+    }
 
     return client;
-  }
-
-  private buildMiddlewareStack(): ReadonlyArray<TransactionMiddleware> {
-    const stack: Array<TransactionMiddleware> = [];
-
-    if (this.config.retry !== false) {
-      stack.push(createRetryMiddleware(this.config.retry));
-    }
-
-    if (this.config.logLevel !== "none") {
-      stack.push(createLoggingMiddleware(this.config.logLevel));
-    }
-
-    stack.push(...this.config.middleware);
-
-    return stack;
-  }
-
-  private clientRef(): HieroClientRef {
-    return {
-      network: this.config.network,
-      operatorAccountId: this.config.operatorId,
-    };
-  }
-
-  private actionDeps(): ActionDeps {
-    return {
-      nativeClient: this.nativeClient,
-      operatorKey: this.config.operatorKey,
-      signer: this.config.signer,
-      middleware: this.resolvedMiddleware,
-      emitter: this.emitter,
-      clientRef: this.clientRef(),
-    };
-  }
-}
-
-function mirrorUrlToNetworkEntry(mirrorUrl: string | undefined): string | undefined {
-  if (!mirrorUrl) return undefined;
-
-  try {
-    const url = mirrorUrl.includes("://") ? new URL(mirrorUrl) : new URL(`https://${mirrorUrl}`);
-    const hostname = url.hostname;
-    const port = url.port || (url.protocol === "http:" ? "80" : "443");
-    if (!hostname) return undefined;
-    return `${hostname}:${port}`;
-  } catch {
-    return undefined;
   }
 }

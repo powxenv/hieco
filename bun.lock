@@ -214,6 +214,7 @@
         "@hieco/mirror-shared": "workspace:*",
         "@hieco/types": "workspace:*",
         "@hiero-ledger/sdk": "^2.80.0",
+        "bignumber.js": "9.1.1",
       },
       "devDependencies": {
         "@typescript/native-preview": "catalog:",

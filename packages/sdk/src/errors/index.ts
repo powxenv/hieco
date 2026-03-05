@@ -1,4 +1,2 @@
-export * from "./types.ts";
-export * from "./guards.ts";
-export * from "./messages.ts";
-export * from "./flow.ts";
+export type { HieroErrorShape, ErrorCode, ErrorDetails } from "../types/errors.ts";
+export { createError, HieroError, toHieroError, isHieroError, unwrap } from "../errors.ts";

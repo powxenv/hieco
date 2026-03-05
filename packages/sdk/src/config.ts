@@ -1,31 +1,16 @@
-import type { EntityId, NetworkType } from "@hieco/types";
+import type { ClientConfig } from "./types/params.ts";
+import type { ClientRuntimeConfig } from "./types/client.ts";
+import type { NetworkType } from "@hieco/types";
+import { NETWORK_CONFIGS } from "@hieco/types";
 import { isValidEntityId } from "@hieco/mirror-shared";
-import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
-import { configurationError } from "./errors/messages.ts";
-import type { ConfigurationError } from "./errors/types.ts";
-import { isBrowser } from "./environment.ts";
-import type { HieroClientConfig, LogLevel, RetryConfig, TransactionMiddleware } from "./types.ts";
+import { createError } from "./errors.ts";
+import type { Result } from "./types/results.ts";
+import { err, ok } from "./types/results.ts";
 
 const VALID_NETWORKS: ReadonlyArray<NetworkType> = ["mainnet", "testnet", "previewnet"];
-const VALID_LOG_LEVELS: ReadonlyArray<LogLevel> = [
-  "none",
-  "error",
-  "warn",
-  "info",
-  "debug",
-  "trace",
-];
 
-export interface ResolvedConfig {
-  readonly network: NetworkType;
-  readonly operatorId: EntityId | undefined;
-  readonly operatorKey: string | undefined;
-  readonly signer: HieroSigner | undefined;
-  readonly mirrorUrl: string | undefined;
-  readonly maxTransactionFee: string;
-  readonly logLevel: LogLevel;
-  readonly middleware: ReadonlyArray<TransactionMiddleware>;
-  readonly retry: RetryConfig | false;
+function isBrowser(): boolean {
+  return typeof globalThis.document !== "undefined";
 }
 
 function readEnv(name: string): string | undefined {
@@ -33,81 +18,79 @@ function readEnv(name: string): string | undefined {
   return typeof process !== "undefined" ? process.env[name] : undefined;
 }
 
-function isNetworkType(value: string): value is NetworkType {
-  return (VALID_NETWORKS as ReadonlyArray<string>).includes(value);
-}
-
-function isLogLevel(value: string): value is LogLevel {
-  return (VALID_LOG_LEVELS as ReadonlyArray<string>).includes(value);
-}
-
-function resolveNetwork(explicit: NetworkType | undefined): NetworkType {
-  if (explicit) return explicit;
+function resolveNetwork(explicit?: NetworkType): NetworkType {
+  if (explicit && VALID_NETWORKS.includes(explicit)) return explicit;
   const env = readEnv("HIERO_NETWORK");
-  if (env && isNetworkType(env)) return env;
+  if (env && (VALID_NETWORKS as ReadonlyArray<string>).includes(env)) {
+    return env as NetworkType;
+  }
   return "testnet";
 }
 
-function resolveOperatorId(explicit: EntityId | undefined): EntityId | undefined {
+function resolveOperator(explicit?: string): string | undefined {
   if (explicit) return explicit;
-  const env = readEnv("HIERO_OPERATOR_ID") ?? readEnv("HIERO_ACCOUNT_ID");
-  if (env && isValidEntityId(env)) return env;
-  return undefined;
+  return readEnv("HIERO_OPERATOR_ID") ?? readEnv("HIERO_ACCOUNT_ID");
 }
 
-function resolveOperatorKey(explicit: string | undefined): string | undefined {
+function resolveKey(explicit?: string): string | undefined {
   if (explicit) return explicit;
   return readEnv("HIERO_PRIVATE_KEY");
 }
 
-function resolveMirrorUrl(explicit: string | undefined): string | undefined {
+function resolveMirrorUrl(explicit: string | undefined, network: NetworkType): string | undefined {
   if (explicit) return explicit;
-  return readEnv("HIERO_MIRROR_URL");
+  const env = readEnv("HIERO_MIRROR_URL");
+  if (env) return env;
+  return NETWORK_CONFIGS[network].mirrorNode;
 }
 
-function resolveMaxFee(explicit: number | string | undefined): string {
-  if (explicit !== undefined) return String(explicit);
-  return readEnv("HIERO_MAX_TRANSACTION_FEE") ?? "2";
+function resolveMaxFee(explicit: string | number | bigint | undefined): string | undefined {
+  if (explicit === undefined) return undefined;
+  return String(explicit);
 }
 
-function resolveLogLevel(explicit: LogLevel | undefined): LogLevel {
-  if (explicit) return explicit;
-  const env = readEnv("HIERO_LOG_LEVEL");
-  if (env && isLogLevel(env)) return env;
-  return "none";
-}
+export function resolveConfig(input: ClientConfig = {}): Result<ClientRuntimeConfig> {
+  const network = resolveNetwork(input.network);
+  const operator = resolveOperator(input.operator);
+  const key = resolveKey(input.key);
+  const mirrorUrl = resolveMirrorUrl(input.mirrorUrl, network);
+  const maxFee = resolveMaxFee(input.maxFee);
 
-export function resolveConfig(config: HieroClientConfig = {}): ResolvedConfig {
-  return {
-    network: resolveNetwork(config.network),
-    operatorId: resolveOperatorId(config.operatorId),
-    operatorKey: resolveOperatorKey(config.operatorKey),
-    signer: config.signer,
-    mirrorUrl: resolveMirrorUrl(config.mirrorUrl),
-    maxTransactionFee: resolveMaxFee(config.maxTransactionFee),
-    logLevel: resolveLogLevel(config.logLevel),
-    middleware: config.middleware ?? [],
-    retry: config.retry ?? {},
+  if (operator && !isValidEntityId(operator)) {
+    return err(
+      createError("CONFIG_INVALID_OPERATOR", `Invalid operator account id: ${operator}`, {
+        hint: "Use the format shard.realm.num (example: 0.0.123)",
+      }),
+    );
+  }
+
+  if (input.network && !VALID_NETWORKS.includes(input.network)) {
+    return err(
+      createError("CONFIG_INVALID_NETWORK", `Unsupported network: ${input.network}`, {
+        hint: "Use mainnet, testnet, or previewnet",
+      }),
+    );
+  }
+
+  if (isBrowser() && !input.signer && (!operator || !key)) {
+    return err(
+      createError(
+        "SIGNER_REQUIRED",
+        "Signer is required in browser environments unless operator and key are provided",
+        {
+          hint: "Pass a wallet signer or set operator and key explicitly",
+        },
+      ),
+    );
+  }
+
+  const resolved: ClientRuntimeConfig = {
+    network,
+    ...(operator && isValidEntityId(operator) ? { operator } : {}),
+    ...(key ? { key } : {}),
+    ...(input.signer ? { signer: input.signer } : {}),
+    ...(mirrorUrl ? { mirrorUrl } : {}),
+    ...(maxFee ? { maxFee } : {}),
   };
-}
-
-export function validateOperatorForBrowser(
-  resolved: ResolvedConfig,
-): ConfigurationError | undefined {
-  const hasSigner = Boolean(resolved.signer);
-
-  if (isBrowser() && !resolved.operatorId && !hasSigner) {
-    return configurationError(
-      "operatorId",
-      "Operator account ID is required in browser environments when no signer is provided. Set it explicitly in createHieroClient({ operatorId: ... })",
-    );
-  }
-
-  if (isBrowser() && !resolved.operatorKey && !hasSigner) {
-    return configurationError(
-      "signer",
-      "A signer or operatorKey is required in browser environments. Set it explicitly in createHieroClient({ signer: ... }) or createHieroClient({ operatorKey: ... })",
-    );
-  }
-  return undefined;
+  return ok(resolved);
 }
