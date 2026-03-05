@@ -5,13 +5,7 @@ import type {
   UseQueryResult,
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
-import type {
-  ApiResult,
-  ApiError,
-  EntityId,
-  PaginationParams,
-  QueryOperator,
-} from "@hieco/mirror";
+import type { ApiResult, ApiError, EntityId, PaginationParams, QueryOperator } from "@hieco/mirror";
 import type {
   AccountInfo,
   Balance,

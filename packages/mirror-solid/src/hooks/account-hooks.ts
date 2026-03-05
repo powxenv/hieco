@@ -1,12 +1,6 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
-import type {
-  ApiResult,
-  ApiError,
-  EntityId,
-  PaginationParams,
-  QueryOperator,
-} from "@hieco/mirror";
+import type { ApiResult, ApiError, EntityId, PaginationParams, QueryOperator } from "@hieco/mirror";
 import type {
   AccountInfo,
   Balance,

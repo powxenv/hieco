@@ -1,0 +1,71 @@
+{
+  "name": "@hieco/sdk",
+  "version": "0.0.1",
+  "description": "Ergonomic, type-safe SDK for Hiero blockchain transactions and queries",
+  "keywords": [
+    "blockchain",
+    "cryptocurrency",
+    "hbar",
+    "hedera",
+    "hiero",
+    "sdk",
+    "web3"
+  ],
+  "homepage": "https://github.com/powxenv/hieco/tree/main/packages/sdk",
+  "bugs": {
+    "url": "https://github.com/powxenv/hieco/issues"
+  },
+  "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hieco",
+    "directory": "packages/sdk"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
+    "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch",
+    "typecheck": "tsgo --noEmit",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --fix --type-aware",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
+  },
+  "dependencies": {
+    "@hieco/mirror": "workspace:*",
+    "@hieco/mirror-shared": "workspace:*",
+    "@hieco/types": "workspace:*",
+    "@hiero-ledger/sdk": "^2.80.0"
+  },
+  "devDependencies": {
+    "@hieco/testing": "workspace:*",
+    "@typescript/native-preview": "catalog:",
+    "bun-types": "catalog:",
+    "msw": "^2.7.0",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

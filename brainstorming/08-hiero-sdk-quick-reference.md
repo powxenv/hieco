@@ -7,6 +7,7 @@
 ## Installation Commands
 
 ### JavaScript/TypeScript
+
 ```bash
 npm install @hiero-ledger/sdk
 # or
@@ -16,17 +17,20 @@ pnpm add @hiero-ledger/sdk
 ```
 
 ### Python
+
 ```bash
 pip install hiero-sdk-python
 pip install python-dotenv
 ```
 
 ### Go
+
 ```bash
 go get github.com/hiero-ledger/hiero-sdk-go/v2
 ```
 
 ### Rust
+
 ```toml
 # Cargo.toml
 [dependencies]
@@ -34,6 +38,7 @@ hiero-sdk = "0.6"
 ```
 
 ### Swift (SPM)
+
 ```swift
 // Package.swift
 .package(url: "https://github.com/hiero-ledger/hiero-sdk-swift", from: "0.5.0")
@@ -43,11 +48,11 @@ hiero-sdk = "0.6"
 
 ## Network Endpoints
 
-| Network | Consensus Node | Mirror Node REST |
-|---------|---------------|------------------|
-| **Mainnet** | `mainnet-public.hedera.com:50111` | `https://mainnet.mirrornode.hedera.com` |
-| **Testnet** | `testnet.hedera.com:50111` | `https://testnet.mirrornode.hedera.com` |
-| **Previewnet** | `previewnet.hedera.com:50111` | `https://previewnet.mirrornode.hedera.com` |
+| Network        | Consensus Node                    | Mirror Node REST                           |
+| -------------- | --------------------------------- | ------------------------------------------ |
+| **Mainnet**    | `mainnet-public.hedera.com:50111` | `https://mainnet.mirrornode.hedera.com`    |
+| **Testnet**    | `testnet.hedera.com:50111`        | `https://testnet.mirrornode.hedera.com`    |
+| **Previewnet** | `previewnet.hedera.com:50111`     | `https://previewnet.mirrornode.hedera.com` |
 
 ---
 
@@ -56,6 +61,7 @@ hiero-sdk = "0.6"
 ### Client Setup (All Languages)
 
 **JavaScript:**
+
 ```typescript
 import { Client } from "@hiero-ledger/sdk";
 const client = Client.forTestnet();
@@ -63,6 +69,7 @@ client.setOperator(accountId, privateKey);
 ```
 
 **Python:**
+
 ```python
 from hiero_sdk_python import Network, Client
 client = Client(Network("testnet"))
@@ -70,6 +77,7 @@ client.set_operator(operator_id, operator_key)
 ```
 
 **Go:**
+
 ```go
 import "github.com/hiero-ledger/hiero-sdk-go/v2"
 client := hiero.ClientForTestnet()
@@ -77,6 +85,7 @@ client.SetOperator(accountId, privateKey)
 ```
 
 **Rust:**
+
 ```rust
 use hiero_sdk::Client;
 let client = Client::for_testnet();
@@ -90,6 +99,7 @@ client.set_operator(&operator_id, &operator_key);
 ### Transfer HBAR
 
 **JavaScript:**
+
 ```typescript
 import { TransferTransaction, Hbar } from "@hiero-ledger/sdk";
 
@@ -102,6 +112,7 @@ const receipt = await tx.getReceipt(client);
 ```
 
 **Python:**
+
 ```python
 from hiero_sdk_python import TransferTransaction, Hbar
 
@@ -114,6 +125,7 @@ receipt = tx.get_receipt(client)
 ```
 
 **Go:**
+
 ```go
 import "github.com/hiero-ledger/hiero-sdk-go/v2"
 
@@ -128,6 +140,7 @@ receipt, _ := response.GetReceipt(client)
 ### Create Token
 
 **JavaScript:**
+
 ```typescript
 import { TokenCreateTransaction } from "@hiero-ledger/sdk";
 
@@ -146,6 +159,7 @@ const tokenId = receipt.tokenId;
 ```
 
 **Python:**
+
 ```python
 from hiero_sdk_python import TokenCreateTransaction
 
@@ -166,6 +180,7 @@ token_id = receipt.token_id
 ### HCS (Consensus Service)
 
 **Create Topic:**
+
 ```typescript
 import { TopicCreateTransaction } from "@hiero-ledger/sdk";
 
@@ -179,6 +194,7 @@ const topicId = receipt.topicId;
 ```
 
 **Submit Message:**
+
 ```typescript
 import { TopicMessageSubmitTransaction } from "@hiero-ledger/sdk";
 
@@ -197,19 +213,17 @@ const receipt = await tx.getReceipt(client);
 ### Account Balance (Deprecated - Use Mirror Node)
 
 **SDK Query (deprecated):**
+
 ```typescript
 import { AccountBalanceQuery } from "@hiero-ledger/sdk";
 
-const balance = await new AccountBalanceQuery()
-  .setAccountId(accountId)
-  .execute(client);
+const balance = await new AccountBalanceQuery().setAccountId(accountId).execute(client);
 ```
 
 **Mirror Node REST API (Recommended):**
+
 ```typescript
-const response = await fetch(
-  `https://testnet.mirrornode.hedera.com/api/v1/accounts/${accountId}`
-);
+const response = await fetch(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${accountId}`);
 const data = await response.json();
 const balance = data.balance.balance;
 ```
@@ -217,12 +231,11 @@ const balance = data.balance.balance;
 ### Account Info
 
 **JavaScript:**
+
 ```typescript
 import { AccountInfoQuery } from "@hiero-ledger/sdk";
 
-const info = await new AccountInfoQuery()
-  .setAccountId(accountId)
-  .execute(client);
+const info = await new AccountInfoQuery().setAccountId(accountId).execute(client);
 
 console.log(info.balance);
 console.log(info.tokenRelationships);
@@ -231,12 +244,11 @@ console.log(info.tokenRelationships);
 ### Token Info
 
 **JavaScript:**
+
 ```typescript
 import { TokenInfoQuery } from "@hiero-ledger/sdk";
 
-const info = await new TokenInfoQuery()
-  .setTokenId(tokenId)
-  .execute(client);
+const info = await new TokenInfoQuery().setTokenId(tokenId).execute(client);
 
 console.log(info.name, info.symbol, info.totalSupply);
 ```
@@ -248,6 +260,7 @@ console.log(info.name, info.symbol, info.totalSupply);
 ### Generate Keys
 
 **JavaScript:**
+
 ```typescript
 import { PrivateKey } from "@hiero-ledger/sdk";
 
@@ -258,6 +271,7 @@ const accountId = publicKey.toAccountId();
 ```
 
 **Python:**
+
 ```python
 from hiero_sdk_python import PrivateKey
 
@@ -269,11 +283,13 @@ private_key_der = private_key.to_string_der()
 ### Recover from Mnemonic
 
 **JavaScript:**
+
 ```typescript
 const privateKey = PrivateKey.fromMnemonic(mnemonicWords);
 ```
 
 **Python:**
+
 ```python
 private_key = PrivateKey.from_mnemonic(mnemonic_words)
 ```
@@ -282,14 +298,14 @@ private_key = PrivateKey.from_mnemonic(mnemonic_words)
 
 ## Common Transaction Types
 
-| Category | Transactions |
-|----------|-------------|
-| **Account** | `AccountCreateTransaction`, `AccountUpdateTransaction`, `AccountDeleteTransaction`, `TransferTransaction` |
-| **Token** | `TokenCreateTransaction`, `TokenMintTransaction`, `TokenBurnTransaction`, `TokenAssociateTransaction`, `TokenDissociateTransaction` |
-| **Consensus** | `TopicCreateTransaction`, `TopicMessageSubmitTransaction`, `TopicUpdateTransaction`, `TopicDeleteTransaction` |
-| **Smart Contract** | `ContractCreateTransaction`, `ContractExecuteTransaction`, `ContractCallQuery` |
-| **File** | `FileCreateTransaction`, `FileAppendTransaction`, `FileUpdateTransaction`, `FileDeleteTransaction` |
-| **Schedule** | `ScheduleCreateTransaction`, `ScheduleSignTransaction`, `ScheduleDeleteTransaction` |
+| Category           | Transactions                                                                                                                        |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **Account**        | `AccountCreateTransaction`, `AccountUpdateTransaction`, `AccountDeleteTransaction`, `TransferTransaction`                           |
+| **Token**          | `TokenCreateTransaction`, `TokenMintTransaction`, `TokenBurnTransaction`, `TokenAssociateTransaction`, `TokenDissociateTransaction` |
+| **Consensus**      | `TopicCreateTransaction`, `TopicMessageSubmitTransaction`, `TopicUpdateTransaction`, `TopicDeleteTransaction`                       |
+| **Smart Contract** | `ContractCreateTransaction`, `ContractExecuteTransaction`, `ContractCallQuery`                                                      |
+| **File**           | `FileCreateTransaction`, `FileAppendTransaction`, `FileUpdateTransaction`, `FileDeleteTransaction`                                  |
+| **Schedule**       | `ScheduleCreateTransaction`, `ScheduleSignTransaction`, `ScheduleDeleteTransaction`                                                 |
 
 ---
 
@@ -335,6 +351,7 @@ GET /api/v1/topics/{topicId}                   # Get topic info
 ## Error Handling
 
 **JavaScript Pattern:**
+
 ```typescript
 try {
   const response = await transaction.execute(client);
@@ -357,23 +374,27 @@ try {
 ## Configuration Tips
 
 ### Set Max Transaction Fee
+
 ```typescript
 client.setDefaultMaxTransactionFee(new Hbar(2));
 ```
 
 ### Set Max Query Payment
+
 ```typescript
 client.setDefaultMaxQueryPayment(new Hbar(1));
 ```
 
 ### Configure Retry Logic
+
 ```typescript
 client.setMaxAttempts(10);
 client.setMaxBackoff(3000); // 3 seconds
-client.setMinBackoff(500);  // 500ms
+client.setMinBackoff(500); // 500ms
 ```
 
 ### Set Mirror Network
+
 ```typescript
 client.setMirrorNetwork(["testnet.mirrornode.hedera.com:443"]);
 ```
@@ -383,12 +404,14 @@ client.setMirrorNetwork(["testnet.mirrornode.hedera.com:443"]);
 ## SDK Versions & Migration
 
 ### JavaScript SDK
+
 - **Old:** `@hashgraph/sdk`
 - **New:** `@hiero-ledger/sdk`
 - **Dual Publishing:** v2.70.0 - v2.82.0
 - **Cutover:** v2.83.0
 
 ### Java SDK
+
 - **Old:** `com.hedera.hashgraph:sdk`
 - **New:** `org.hiero:hiero-sdk`
 - **Cutover:** v2.80.0
@@ -405,14 +428,10 @@ client.setMirrorNetwork(["testnet.mirrornode.hedera.com:443"]);
 
 ```typescript
 // ❌ Deprecated (removing July 2026)
-const balance = await new AccountBalanceQuery()
-  .setAccountId(accountId)
-  .execute(client);
+const balance = await new AccountBalanceQuery().setAccountId(accountId).execute(client);
 
 // ✅ Recommended
-const response = await fetch(
-  `https://testnet.mirrornode.hedera.com/api/v1/accounts/${accountId}`
-);
+const response = await fetch(`https://testnet.mirrornode.hedera.com/api/v1/accounts/${accountId}`);
 const data = await response.json();
 ```
 
@@ -434,4 +453,4 @@ All Hiero SDKs are licensed under **Apache 2.0**.
 
 ---
 
-*Quick Reference Guide v1.0*
+_Quick Reference Guide v1.0_
