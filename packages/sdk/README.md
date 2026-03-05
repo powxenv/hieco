@@ -118,6 +118,54 @@ export async function sendTip(userSigner: Signer, to: string, amount: number) {
 }
 ```
 
+### Multi-Party Signing (Scheduled Transactions)
+
+When a transaction needs multiple signatures (multi-sig / threshold keys / multiple wallets), use a Scheduled Transaction.
+The network will collect signatures and execute once the required signatures are present.
+
+```typescript
+import { hiero } from "@hieco/sdk";
+import type { Signer } from "@hiero-ledger/sdk";
+
+export async function multiPartyTransfer(
+  payer: Signer,
+  signerA: Signer,
+  signerB: Signer,
+): Promise<string> {
+  const flow = hiero()
+    .withSigner(payer)
+    .scheduledTransaction({
+      create: {
+        transaction: {
+          type: "transfer",
+          params: {
+            from: "0.0.1001",
+            to: "0.0.2002",
+            amount: 5,
+          },
+        },
+        memo: "2-of-2 approval",
+      },
+    });
+
+  const created = await flow.create();
+  if (!created.success) throw new Error(created.error.message);
+
+  const sigA = await flow.sign({ signer: signerA });
+  if (!sigA.success) throw new Error(sigA.error.message);
+
+  const sigB = await flow.sign({ signer: signerB });
+  if (!sigB.success) throw new Error(sigB.error.message);
+
+  const executed = await flow.waitForExecuted({ timeoutMs: 120_000, pollIntervalMs: 2_000 });
+  if (!executed.success) throw new Error(executed.error.message);
+
+  const executedAt = executed.data.schedule.executed_timestamp;
+  if (!executedAt) throw new Error("Schedule executed but no executed_timestamp was returned");
+  return executedAt;
+}
+```
+
 ### Actions (Transactions)
 
 Actions are the primary way to interact with the network. All actions return `SdkResult<T>` — a discriminated union of success and failure.

@@ -112,6 +112,8 @@ import { ContractBuilder } from "./builders/contract-builder.ts";
 import { TokenBuilder } from "./builders/token-builder.ts";
 import { TopicBuilder } from "./builders/topic-builder.ts";
 import { watchTopicMessages as watchTopicMessagesSubscription } from "./subscriptions/watch-topic-messages.ts";
+import { ScheduledTransactionFlow } from "./flows/scheduled-transaction-flow.ts";
+import type { ScheduledTransactionFlowInit } from "./flows/scheduled-transaction-flow.ts";
 
 export class HieroClient {
   private readonly nativeClient: Client;
@@ -336,6 +338,10 @@ export class HieroClient {
 
   contracts(): ContractBuilder {
     return new ContractBuilder();
+  }
+
+  scheduledTransaction(init: ScheduledTransactionFlowInit): ScheduledTransactionFlow {
+    return new ScheduledTransactionFlow(this, init);
   }
 
   withSigner(signer: HieroSigner): HieroClient {

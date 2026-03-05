@@ -57,8 +57,10 @@
     "@hiero-ledger/sdk": "^2.80.0"
   },
   "devDependencies": {
+    "@hieco/testing": "workspace:*",
     "@typescript/native-preview": "catalog:",
     "bun-types": "catalog:",
+    "msw": "^2.7.0",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:"

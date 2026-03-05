@@ -1,4 +1,4 @@
-export type SdkError = TransactionError | InvalidSignatureError | ConfigurationError;
+export type SdkError = TransactionError | InvalidSignatureError | ConfigurationError | FlowError;
 
 export interface TransactionError {
   readonly _tag: "TransactionError";
@@ -16,4 +16,11 @@ export interface ConfigurationError {
   readonly _tag: "ConfigurationError";
   readonly field: string;
   readonly message: string;
+}
+
+export interface FlowError {
+  readonly _tag: "FlowError";
+  readonly name: string;
+  readonly message: string;
+  readonly scheduleId?: string;
 }
