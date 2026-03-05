@@ -9,6 +9,9 @@ import type {
 } from "../../shared/params.ts";
 import type {
   ContractCallResult,
+  ContractBytecodeData,
+  MirrorContractCallData,
+  MirrorContractEstimateData,
   ContractExecuteReceipt,
   ContractInfoData,
   ContractLogsData,
@@ -18,7 +21,11 @@ import type {
 import type { Result } from "../../shared/results.ts";
 import { err, ok } from "../../shared/results.ts";
 import { decodeReturn } from "./abi.ts";
-import { ensureContractId } from "../transactions/index.ts";
+import {
+  ensureContractId,
+  queryMirrorContractCall,
+  queryMirrorContractEstimate,
+} from "../transactions/index.ts";
 import { createError } from "../../shared/errors.ts";
 
 export interface ContractsNamespace {
@@ -40,6 +47,27 @@ export interface ContractsNamespace {
     contractId: EntityId,
     params?: import("@hieco/mirror").ContractLogsParams,
   ) => Promise<Result<ContractLogsData>>;
+  bytecode: (contractId: EntityId) => Promise<Result<ContractBytecodeData>>;
+  simulate: (input: {
+    readonly contractId: EntityId;
+    readonly fn: string;
+    readonly args?: ReadonlyArray<unknown>;
+    readonly senderEvmAddress?: string;
+    readonly gas?: number;
+    readonly value?: string | number | bigint;
+    readonly gasPrice?: string | number | bigint;
+    readonly blockNumber?: string | number | bigint;
+  }) => Promise<Result<MirrorContractCallData>>;
+  estimateGas: (input: {
+    readonly contractId: EntityId;
+    readonly fn: string;
+    readonly args?: ReadonlyArray<unknown>;
+    readonly senderEvmAddress?: string;
+    readonly gas?: number;
+    readonly value?: string | number | bigint;
+    readonly gasPrice?: string | number | bigint;
+    readonly blockNumber?: string | number | bigint;
+  }) => Promise<Result<MirrorContractEstimateData>>;
 }
 
 export function createContractsNamespace(context: {
@@ -72,6 +100,8 @@ export function createContractsNamespace(context: {
     }>
   >;
   readonly mirror: import("@hieco/mirror").MirrorNodeClient;
+  readonly queryBytecode: (contractId: EntityId) => Promise<Result<ContractBytecodeData>>;
+  readonly mirrorClient: import("@hiero-ledger/sdk").Client;
 }): ContractsNamespace {
   const deploy = async (params: DeployContractParams): Promise<Result<ContractReceipt>> => {
     const result = await context.submit({ kind: "contracts.deploy", params });
@@ -192,6 +222,56 @@ export function createContractsNamespace(context: {
     return ok({ contractId, logs: result.data });
   };
 
+  const bytecode = async (contractId: EntityId): Promise<Result<ContractBytecodeData>> => {
+    return context.queryBytecode(contractId);
+  };
+
+  const simulate = async (input: {
+    readonly contractId: EntityId;
+    readonly fn: string;
+    readonly args?: ReadonlyArray<unknown>;
+    readonly senderEvmAddress?: string;
+    readonly gas?: number;
+    readonly value?: string | number | bigint;
+    readonly gasPrice?: string | number | bigint;
+    readonly blockNumber?: string | number | bigint;
+  }): Promise<Result<MirrorContractCallData>> => {
+    return queryMirrorContractCall({
+      client: context.mirrorClient,
+      contractId: input.contractId,
+      functionName: input.fn,
+      ...(input.args ? { args: input.args } : {}),
+      ...(input.senderEvmAddress ? { senderEvmAddress: input.senderEvmAddress } : {}),
+      ...(input.gas !== undefined ? { gas: input.gas } : {}),
+      ...(input.value !== undefined ? { value: input.value } : {}),
+      ...(input.gasPrice !== undefined ? { gasPrice: input.gasPrice } : {}),
+      ...(input.blockNumber !== undefined ? { blockNumber: input.blockNumber } : {}),
+    });
+  };
+
+  const estimateGas = async (input: {
+    readonly contractId: EntityId;
+    readonly fn: string;
+    readonly args?: ReadonlyArray<unknown>;
+    readonly senderEvmAddress?: string;
+    readonly gas?: number;
+    readonly value?: string | number | bigint;
+    readonly gasPrice?: string | number | bigint;
+    readonly blockNumber?: string | number | bigint;
+  }): Promise<Result<MirrorContractEstimateData>> => {
+    return queryMirrorContractEstimate({
+      client: context.mirrorClient,
+      contractId: input.contractId,
+      functionName: input.fn,
+      ...(input.args ? { args: input.args } : {}),
+      ...(input.senderEvmAddress ? { senderEvmAddress: input.senderEvmAddress } : {}),
+      ...(input.gas !== undefined ? { gas: input.gas } : {}),
+      ...(input.value !== undefined ? { value: input.value } : {}),
+      ...(input.gasPrice !== undefined ? { gasPrice: input.gasPrice } : {}),
+      ...(input.blockNumber !== undefined ? { blockNumber: input.blockNumber } : {}),
+    });
+  };
+
   return {
     deploy,
     execute,
@@ -200,5 +280,8 @@ export function createContractsNamespace(context: {
     update,
     info,
     logs,
+    bytecode,
+    simulate,
+    estimateGas,
   };
 }

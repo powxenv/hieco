@@ -21,13 +21,19 @@ import type {
 } from "../../shared/params.ts";
 import type {
   MintReceipt,
+  TokenNftInfoData,
   TokenInfoData,
   TokenReceipt,
   TransactionReceiptData,
 } from "../../shared/results-shapes.ts";
 import type { Result } from "../../shared/results.ts";
 import { err, ok } from "../../shared/results.ts";
-import { ensureTokenId, inferAccountId } from "../transactions/index.ts";
+import {
+  ensureTokenId,
+  inferAccountId,
+  queryTokenNftInfo,
+  type SigningContext,
+} from "../transactions/index.ts";
 import { createError } from "../../shared/errors.ts";
 
 export interface TokensNamespace {
@@ -83,6 +89,9 @@ export interface TokensNamespace {
     tx: (params: UpdateTokenFeeScheduleParams) => TransactionDescriptor;
   };
   info: (tokenId: EntityId) => Promise<Result<TokenInfoData>>;
+  nftInfo: (nft: string | { readonly tokenId: EntityId; readonly serial: number }) => Promise<
+    Result<TokenNftInfoData>
+  >;
 }
 
 export function createTokensNamespace(context: {
@@ -90,6 +99,8 @@ export function createTokensNamespace(context: {
   readonly operator?: EntityId;
   readonly signer?: import("@hiero-ledger/sdk").Signer;
   readonly mirror: import("@hieco/mirror").MirrorNodeClient;
+  readonly nativeClient: import("@hiero-ledger/sdk").Client;
+  readonly operatorKey?: string;
 }): TokensNamespace {
   const create = async (params: CreateTokenParams): Promise<Result<TokenReceipt>> => {
     const result = await context.submit({ kind: "tokens.create", params });
@@ -320,6 +331,30 @@ export function createTokensNamespace(context: {
     return ok({ tokenId, token: result.data });
   };
 
+  const resolveNftId = (input: string | { readonly tokenId: EntityId; readonly serial: number }) =>
+    typeof input === "string" ? input : `${input.tokenId}/${String(input.serial)}`;
+
+  const nftInfo = async (
+    nft: string | { readonly tokenId: EntityId; readonly serial: number },
+  ): Promise<Result<TokenNftInfoData>> => {
+    const nftId = resolveNftId(nft);
+    const signing: SigningContext | undefined = context.signer
+      ? { kind: "signer", signer: context.signer }
+      : context.operatorKey
+        ? { kind: "operator", key: context.operatorKey }
+        : undefined;
+
+    if (!signing) {
+      return err(
+        createError("SIGNER_REQUIRED", "A signer or operator key is required to query NFTs", {
+          hint: "Pass signer in client config or provide operator key",
+        }),
+      );
+    }
+
+    return queryTokenNftInfo({ client: context.nativeClient, signing }, nftId);
+  };
+
   return {
     create,
     mint,
@@ -339,5 +374,6 @@ export function createTokensNamespace(context: {
     update,
     fees,
     info,
+    nftInfo,
   };
 }

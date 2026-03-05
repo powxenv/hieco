@@ -6,6 +6,7 @@ export * from "./shared/results-shapes.ts";
 export * from "./shared/errors-types.ts";
 export * from "./shared/errors/index.ts";
 export type { TransactionsNamespace } from "./domains/transactions/namespace.ts";
+export type { NetworkNamespace } from "./domains/network/index.ts";
 export type { AccountsNamespace } from "./domains/accounts/index.ts";
 export type { TokensNamespace } from "./domains/tokens/index.ts";
 export type { HcsNamespace } from "./domains/hcs/index.ts";

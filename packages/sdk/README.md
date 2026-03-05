@@ -221,6 +221,9 @@ export async function multiPartyTransfer(
 - `client.contracts.update(params)` / `.tx(params)`
 - `client.contracts.info(contractId)`
 - `client.contracts.logs(contractId, params?)`
+- `client.contracts.bytecode(contractId)`
+- `client.contracts.simulate({ contractId, fn, args?, senderEvmAddress?, gas?, value?, gasPrice?, blockNumber? })`
+- `client.contracts.estimateGas({ contractId, fn, args?, senderEvmAddress?, gas?, value?, gasPrice?, blockNumber? })`
 
 ### Files
 
@@ -242,6 +245,12 @@ export async function multiPartyTransfer(
 ### Transactions
 
 - `client.transactions.record(transactionId)`
+- `client.transactions.receipt(transactionId, options?)`
+
+### Network
+
+- `client.network.version()`
+- `client.network.addressBook({ fileId?, limit? })`
 
 ## Transactions
 
@@ -353,6 +362,18 @@ const callWithGasOverride = await client.contracts.call({
   gas: 200000,
   returns: "uint256",
 });
+
+const simulation = await client.contracts.simulate({
+  contractId: "0.0.789",
+  fn: "balanceOf",
+  args: ["0.0.5678"],
+});
+
+const estimate = await client.contracts.estimateGas({
+  contractId: "0.0.789",
+  fn: "balanceOf",
+  args: ["0.0.5678"],
+});
 ```
 
 #### Schedule Actions
@@ -382,6 +403,9 @@ const appendResult = await client.files.append({
 const deleteFileResult = await client.files.delete({
   fileId: "0.0.111",
 });
+
+const fileInfo = await client.files.info("0.0.111");
+const fileContents = await client.files.contents("0.0.111");
 ```
 
 ### Schedule-ready descriptors
@@ -478,6 +502,11 @@ const contents = await client.files.contents("0.0.111");
 
 ```typescript
 const record = await client.transactions.record("0.0.123@1680000000.123456789");
+
+const receipt = await client.transactions.receipt(
+  "0.0.123@1680000000.123456789",
+  { includeChildren: true },
+);
 ```
 
 ## Use Cases
@@ -500,6 +529,8 @@ const token = await client.tokens.create({
   decimals: 6,
   treasury: "0.0.123",
 });
+
+const nftInfo = await client.tokens.nftInfo({ tokenId: "0.0.987", serial: 1 });
 ```
 
 ### Contract read + write flow
@@ -517,6 +548,12 @@ const result = await client.contracts.call({
   fn: "getValue",
   returns: "uint256",
 });
+
+const gasEstimate = await client.contracts.estimateGas({
+  contractId: "0.0.789",
+  fn: "setValue",
+  args: [42],
+});
 ```
 
 ### HCS stream consumer
@@ -527,6 +564,13 @@ const stop = client.hcs.watch("0.0.456", (message) => {
 });
 
 setTimeout(() => stop(), 30_000);
+
+### Network version + address book
+
+```typescript
+const version = await client.network.version();
+const book = await client.network.addressBook({ limit: 10 });
+```
 ```
 
 ### Treasury sweep

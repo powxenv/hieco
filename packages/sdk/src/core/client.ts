@@ -14,14 +14,17 @@ import { createContractsNamespace } from "../domains/contracts/index.ts";
 import { createFilesNamespace } from "../domains/files/index.ts";
 import { createSchedulesNamespace } from "../domains/schedules/index.ts";
 import { createTransactionsNamespace } from "../domains/transactions/namespace.ts";
+import { createNetworkNamespace } from "../domains/network/index.ts";
 import {
   callContract,
   queryFileContents,
   queryFileInfo,
   queryTransactionRecord,
+  queryTransactionReceipt,
   requireSigningContext,
   resolveQueryContext,
   submitTransaction,
+  queryContractBytecode,
 } from "../domains/transactions/index.ts";
 import { createError } from "../shared/errors.ts";
 import type { TransactionReceiptData } from "../shared/results-shapes.ts";
@@ -35,6 +38,7 @@ export class HieroClient {
   readonly files: ReturnType<typeof createFilesNamespace>;
   readonly schedules: ReturnType<typeof createSchedulesNamespace>;
   readonly transactions: ReturnType<typeof createTransactionsNamespace>;
+  readonly network: ReturnType<typeof createNetworkNamespace>;
 
   private readonly nativeClient: Client;
   private readonly config: ClientRuntimeConfig;
@@ -128,25 +132,75 @@ export class HieroClient {
       return queryTransactionRecord(queryContext, transactionId);
     };
 
+    const queryReceipt = (transactionId: string, options?: {
+      readonly includeChildren?: boolean;
+      readonly includeDuplicates?: boolean;
+      readonly validateStatus?: boolean;
+    }) => {
+      const signing = resolveQueryContext({
+        operatorKey: this.config.key,
+        signer: this.config.signer,
+      });
+      if (!signing.ok) return Promise.resolve(err(signing.error));
+      const queryContext = {
+        client: this.nativeClient,
+        signing: signing.value,
+        ...(this.config.operator ? { operator: this.config.operator } : {}),
+      };
+      return queryTransactionReceipt(queryContext, transactionId, options);
+    };
+
     this.accounts = createAccountsNamespace({
       submit,
       ...(this.config.operator ? { operator: this.config.operator } : {}),
       ...(this.config.signer ? { signer: this.config.signer } : {}),
       mirror: this.mirror,
       nativeClient: this.nativeClient,
+      ...(this.config.key ? { operatorKey: this.config.key } : {}),
     });
     this.tokens = createTokensNamespace({
       submit,
       ...(this.config.operator ? { operator: this.config.operator } : {}),
       ...(this.config.signer ? { signer: this.config.signer } : {}),
       mirror: this.mirror,
+      nativeClient: this.nativeClient,
+      ...(this.config.key ? { operatorKey: this.config.key } : {}),
     });
     this.hcs = createHcsNamespace({
       submit,
       nativeClient: this.nativeClient,
       mirror: this.mirror,
     });
-    this.contracts = createContractsNamespace({ submit, call, mirror: this.mirror });
+    this.contracts = createContractsNamespace({
+      submit,
+      call,
+      mirror: this.mirror,
+      queryBytecode: (contractId) => {
+        const signing = this.config.signer
+          ? { kind: "signer" as const, signer: this.config.signer }
+          : this.config.key
+            ? { kind: "operator" as const, key: this.config.key }
+            : undefined;
+        if (!signing) {
+          return Promise.resolve(
+            err(
+              createError("SIGNER_REQUIRED", "A signer or operator key is required", {
+                hint: "Pass signer in client config or provide operator key",
+              }),
+            ),
+          );
+        }
+        return queryContractBytecode(
+          {
+            client: this.nativeClient,
+            signing,
+            ...(this.config.operator ? { operator: this.config.operator } : {}),
+          },
+          contractId,
+        );
+      },
+      mirrorClient: this.nativeClient,
+    });
     this.files = createFilesNamespace({
       submit,
       queryFileInfo: queryInfo,
@@ -154,7 +208,9 @@ export class HieroClient {
     });
     this.transactions = createTransactionsNamespace({
       queryRecord,
+      queryReceipt,
     });
+    this.network = createNetworkNamespace({ client: this.nativeClient });
     this.schedules = createSchedulesNamespace({
       submit,
       mirror: this.mirror,
@@ -164,7 +220,7 @@ export class HieroClient {
     });
   }
 
-  get network(): ClientRuntimeConfig["network"] {
+  get networkName(): ClientRuntimeConfig["network"] {
     return this.config.network;
   }
 

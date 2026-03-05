@@ -8,7 +8,14 @@ import type {
   Topic,
   TopicMessage,
 } from "@hieco/mirror";
-import type { FileInfo, TransactionRecord } from "@hiero-ledger/sdk";
+import type {
+  FileInfo,
+  TransactionRecord,
+  TransactionReceipt,
+  TokenNftInfo,
+  NetworkVersionInfo,
+  NodeAddressBook,
+} from "@hiero-ledger/sdk";
 
 export interface TransactionReceiptData {
   readonly status: string;
@@ -149,4 +156,43 @@ export interface ScheduleInfoData {
 export interface TransactionRecordData {
   readonly transactionId: string;
   readonly record: TransactionRecord;
+}
+
+export interface TransactionReceiptQueryData {
+  readonly transactionId: string;
+  readonly receipt: TransactionReceipt;
+}
+
+export interface AccountRecordsData {
+  readonly accountId: EntityId;
+  readonly records: ReadonlyArray<TransactionRecord>;
+}
+
+export interface ContractBytecodeData {
+  readonly contractId: EntityId;
+  readonly bytecode: Uint8Array;
+}
+
+export interface TokenNftInfoData {
+  readonly nftId: string;
+  readonly nfts: ReadonlyArray<TokenNftInfo>;
+}
+
+export interface NetworkVersionData {
+  readonly info: NetworkVersionInfo;
+}
+
+export interface AddressBookData {
+  readonly book: NodeAddressBook;
+}
+
+export interface MirrorContractCallData {
+  readonly contractId: EntityId;
+  readonly raw: string;
+  readonly bytes: Uint8Array;
+}
+
+export interface MirrorContractEstimateData {
+  readonly contractId: EntityId;
+  readonly gas: number;
 }

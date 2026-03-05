@@ -54,6 +54,13 @@ import {
   FileContentsQuery,
   TransactionRecordQuery,
   TransactionId,
+  TransactionReceiptQuery,
+  AccountRecordsQuery,
+  ContractByteCodeQuery,
+  TokenNftInfoQuery,
+  MirrorNodeContractCallQuery,
+  MirrorNodeContractEstimateQuery,
+  ContractId,
 } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
 import type { EntityId } from "@hieco/types";
@@ -64,7 +71,14 @@ import type {
   CustomFeeParams,
   CustomFixedFeeParams,
 } from "../../shared/params.ts";
-import type { TransactionReceiptData } from "../../shared/results-shapes.ts";
+import type {
+  TransactionReceiptData,
+  AccountRecordsData,
+  ContractBytecodeData,
+  TokenNftInfoData,
+  MirrorContractCallData,
+  MirrorContractEstimateData,
+} from "../../shared/results-shapes.ts";
 import type { Result } from "../../shared/results.ts";
 import { err, ok } from "../../shared/results.ts";
 import { createError } from "../../shared/errors.ts";
@@ -1119,6 +1133,238 @@ export async function queryTransactionRecord(
     return err(
       createError("TX_RECORD_QUERY_FAILED", "Transaction record query failed", {
         hint: "Verify transaction id and network connectivity",
+      }),
+    );
+  }
+}
+
+export async function queryTransactionReceipt(
+  context: SubmitContext,
+  transactionId: string,
+  options?: {
+    readonly includeChildren?: boolean;
+    readonly includeDuplicates?: boolean;
+    readonly validateStatus?: boolean;
+  },
+): Promise<Result<import("@hiero-ledger/sdk").TransactionReceipt>> {
+  try {
+    const query = new TransactionReceiptQuery().setTransactionId(
+      TransactionId.fromString(transactionId),
+    );
+    if (options?.includeChildren !== undefined) {
+      query.setIncludeChildren(options.includeChildren);
+    }
+    if (options?.includeDuplicates !== undefined) {
+      query.setIncludeDuplicates(options.includeDuplicates);
+    }
+    if (options?.validateStatus !== undefined) {
+      query.setValidateStatus(options.validateStatus);
+    }
+    const result =
+      context.signing.kind === "signer"
+        ? await query.executeWithSigner(context.signing.signer)
+        : await query.execute(context.client);
+    return ok(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      return err(
+        createError("TX_RECEIPT_QUERY_FAILED", `Transaction receipt query failed: ${error.message}`, {
+          hint: "Verify transaction id and network connectivity",
+        }),
+      );
+    }
+    return err(
+      createError("TX_RECEIPT_QUERY_FAILED", "Transaction receipt query failed", {
+        hint: "Verify transaction id and network connectivity",
+      }),
+    );
+  }
+}
+
+export async function queryAccountRecords(
+  context: SubmitContext,
+  accountId: EntityId,
+): Promise<Result<AccountRecordsData>> {
+  try {
+    const query = new AccountRecordsQuery().setAccountId(accountId);
+    const result =
+      context.signing.kind === "signer"
+        ? await query.executeWithSigner(context.signing.signer)
+        : await query.execute(context.client);
+    return ok({ accountId, records: result });
+  } catch (error) {
+    if (error instanceof Error) {
+      return err(
+        createError(
+          "ACCOUNT_RECORDS_QUERY_FAILED",
+          `Account records query failed: ${error.message}`,
+          {
+            hint: "Verify account id and network connectivity",
+          },
+        ),
+      );
+    }
+    return err(
+      createError("ACCOUNT_RECORDS_QUERY_FAILED", "Account records query failed", {
+        hint: "Verify account id and network connectivity",
+      }),
+    );
+  }
+}
+
+export async function queryContractBytecode(
+  context: SubmitContext,
+  contractId: EntityId,
+): Promise<Result<ContractBytecodeData>> {
+  try {
+    const query = new ContractByteCodeQuery().setContractId(contractId);
+    const result =
+      context.signing.kind === "signer"
+        ? await query.executeWithSigner(context.signing.signer)
+        : await query.execute(context.client);
+    return ok({ contractId, bytecode: result });
+  } catch (error) {
+    if (error instanceof Error) {
+      return err(
+        createError(
+          "CONTRACT_BYTECODE_QUERY_FAILED",
+          `Contract bytecode query failed: ${error.message}`,
+          {
+            hint: "Verify contract id and network connectivity",
+          },
+        ),
+      );
+    }
+    return err(
+      createError("CONTRACT_BYTECODE_QUERY_FAILED", "Contract bytecode query failed", {
+        hint: "Verify contract id and network connectivity",
+      }),
+    );
+  }
+}
+
+export async function queryTokenNftInfo(
+  context: SubmitContext,
+  nftId: string,
+): Promise<Result<TokenNftInfoData>> {
+  try {
+    const query = new TokenNftInfoQuery().setNftId(nftId);
+    const result =
+      context.signing.kind === "signer"
+        ? await query.executeWithSigner(context.signing.signer)
+        : await query.execute(context.client);
+    return ok({ nftId, nfts: result });
+  } catch (error) {
+    if (error instanceof Error) {
+      return err(
+        createError("TOKEN_NFT_QUERY_FAILED", `Token NFT query failed: ${error.message}`, {
+          hint: "Verify NFT id format (tokenId/serial) and network connectivity",
+        }),
+      );
+    }
+    return err(
+      createError("TOKEN_NFT_QUERY_FAILED", "Token NFT query failed", {
+        hint: "Verify NFT id format (tokenId/serial) and network connectivity",
+      }),
+    );
+  }
+}
+
+export async function queryMirrorContractCall(context: {
+  readonly client: Client;
+  readonly contractId: EntityId;
+  readonly functionName: string;
+  readonly args?: ReadonlyArray<unknown>;
+  readonly senderEvmAddress?: string;
+  readonly gas?: number;
+  readonly value?: string | number | bigint;
+  readonly gasPrice?: string | number | bigint;
+  readonly blockNumber?: string | number | bigint;
+}): Promise<Result<MirrorContractCallData>> {
+  try {
+    const query = new MirrorNodeContractCallQuery().setContractId(
+      ContractId.fromString(context.contractId),
+    );
+    if (context.senderEvmAddress) query.setSenderEvmAddress(context.senderEvmAddress);
+    if (context.args) {
+      const params = buildContractFunctionParametersFromArgs(context.args);
+      query.setFunction(
+        context.functionName,
+        params ?? new ContractFunctionParameters(),
+      );
+    } else {
+      query.setFunction(context.functionName, new ContractFunctionParameters());
+    }
+    if (context.gas !== undefined) query.setGasLimit(Long.fromNumber(context.gas));
+    if (context.value !== undefined) query.setValue(Long.fromString(String(context.value)));
+    if (context.gasPrice !== undefined) query.setGasPrice(Long.fromString(String(context.gasPrice)));
+    if (context.blockNumber !== undefined)
+      query.setBlockNumber(Long.fromString(String(context.blockNumber)));
+    const raw = await query.execute(context.client);
+    return ok({ contractId: context.contractId, raw, bytes: hexToBytes(raw) });
+  } catch (error) {
+    if (error instanceof Error) {
+      return err(
+        createError(
+          "MIRROR_CONTRACT_QUERY_FAILED",
+          `Mirror contract call failed: ${error.message}`,
+          { hint: "Verify mirror node and EVM address inputs" },
+        ),
+      );
+    }
+    return err(
+      createError("MIRROR_CONTRACT_QUERY_FAILED", "Mirror contract call failed", {
+        hint: "Verify mirror node and EVM address inputs",
+      }),
+    );
+  }
+}
+
+export async function queryMirrorContractEstimate(context: {
+  readonly client: Client;
+  readonly contractId: EntityId;
+  readonly functionName: string;
+  readonly args?: ReadonlyArray<unknown>;
+  readonly senderEvmAddress?: string;
+  readonly gas?: number;
+  readonly value?: string | number | bigint;
+  readonly gasPrice?: string | number | bigint;
+  readonly blockNumber?: string | number | bigint;
+}): Promise<Result<MirrorContractEstimateData>> {
+  try {
+    const query = new MirrorNodeContractEstimateQuery().setContractId(
+      ContractId.fromString(context.contractId),
+    );
+    if (context.senderEvmAddress) query.setSenderEvmAddress(context.senderEvmAddress);
+    if (context.args) {
+      const params = buildContractFunctionParametersFromArgs(context.args);
+      query.setFunction(
+        context.functionName,
+        params ?? new ContractFunctionParameters(),
+      );
+    } else {
+      query.setFunction(context.functionName, new ContractFunctionParameters());
+    }
+    if (context.gas !== undefined) query.setGasLimit(Long.fromNumber(context.gas));
+    if (context.value !== undefined) query.setValue(Long.fromString(String(context.value)));
+    if (context.gasPrice !== undefined) query.setGasPrice(Long.fromString(String(context.gasPrice)));
+    if (context.blockNumber !== undefined)
+      query.setBlockNumber(Long.fromString(String(context.blockNumber)));
+    const gas = await query.execute(context.client);
+    return ok({ contractId: context.contractId, gas });
+  } catch (error) {
+    if (error instanceof Error) {
+      return err(
+        createError(
+          "MIRROR_CONTRACT_QUERY_FAILED",
+          `Mirror contract estimate failed: ${error.message}`,
+          { hint: "Verify mirror node and EVM address inputs" },
+        ),
+      );
+    }
+    return err(
+      createError("MIRROR_CONTRACT_QUERY_FAILED", "Mirror contract estimate failed", {
+        hint: "Verify mirror node and EVM address inputs",
       }),
     );
   }

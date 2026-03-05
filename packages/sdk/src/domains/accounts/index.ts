@@ -9,6 +9,7 @@ import type {
 } from "../../shared/params.ts";
 import type {
   AccountInfoData,
+  AccountRecordsData,
   CreateAccountResult,
   DeleteAccountResult,
   TransferResult,
@@ -19,7 +20,12 @@ import type { Result } from "../../shared/results.ts";
 import { err, ok } from "../../shared/results.ts";
 import { AccountBalanceQuery } from "@hiero-ledger/sdk";
 import { createError } from "../../shared/errors.ts";
-import { ensureAccountId, inferAccountId } from "../transactions/index.ts";
+import {
+  ensureAccountId,
+  inferAccountId,
+  queryAccountRecords,
+  type SigningContext,
+} from "../transactions/index.ts";
 
 export interface AccountsNamespace {
   transfer: ((params: TransferParams) => Promise<Result<TransferResult>>) & {
@@ -48,6 +54,7 @@ export interface AccountsNamespace {
     }>
   >;
   info: (accountId: EntityId) => Promise<Result<AccountInfoData>>;
+  records: (accountId?: EntityId) => Promise<Result<AccountRecordsData>>;
 }
 
 export function createAccountsNamespace(context: {
@@ -56,6 +63,7 @@ export function createAccountsNamespace(context: {
   readonly signer?: import("@hiero-ledger/sdk").Signer;
   readonly mirror: import("@hieco/mirror").MirrorNodeClient;
   readonly nativeClient?: import("@hiero-ledger/sdk").Client;
+  readonly operatorKey?: string;
 }): AccountsNamespace {
   const transfer = async (params: TransferParams): Promise<Result<TransferResult>> => {
     const inferred = params.from
@@ -218,6 +226,34 @@ export function createAccountsNamespace(context: {
     return ok({ accountId, account: result.data });
   };
 
+  const records = async (accountId?: EntityId): Promise<Result<AccountRecordsData>> => {
+    const inferred = accountId ? ok(accountId) : inferAccountId(context.signer, context.operator);
+    if (!inferred.ok) return err(inferred.error);
+    if (!context.nativeClient) {
+      return err(
+        createError("SIGNER_REQUIRED", "A signer or operator key is required to query records", {
+          hint: "Pass signer in client config or provide operator key",
+        }),
+      );
+    }
+
+    const signing: SigningContext | undefined = context.signer
+      ? { kind: "signer", signer: context.signer }
+      : context.operatorKey
+        ? { kind: "operator", key: context.operatorKey }
+        : undefined;
+
+    if (!signing) {
+      return err(
+        createError("SIGNER_REQUIRED", "A signer or operator key is required to query records", {
+          hint: "Pass signer in client config or provide operator key",
+        }),
+      );
+    }
+
+    return queryAccountRecords({ client: context.nativeClient, signing }, inferred.value);
+  };
+
   return {
     transfer,
     create,
@@ -226,5 +262,6 @@ export function createAccountsNamespace(context: {
     allowances,
     balance,
     info,
+    records,
   };
 }
