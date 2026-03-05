@@ -15,6 +15,7 @@ import { createFilesNamespace } from "../domains/files/api.ts";
 import { createSchedulesNamespace } from "../domains/schedules/api.ts";
 import { createTransactionsNamespace } from "../domains/transactions/namespace.ts";
 import { createNetworkNamespace } from "../domains/network/api.ts";
+import { createReadsNamespace } from "../domains/reads/api.ts";
 import {
   callContract,
   queryFileContents,
@@ -39,6 +40,7 @@ export class HieroClient {
   readonly schedules: ReturnType<typeof createSchedulesNamespace>;
   readonly transactions: ReturnType<typeof createTransactionsNamespace>;
   readonly network: ReturnType<typeof createNetworkNamespace>;
+  readonly reads: ReturnType<typeof createReadsNamespace>;
 
   private readonly nativeClient: Client;
   private readonly config: ClientRuntimeConfig;
@@ -214,6 +216,7 @@ export class HieroClient {
       queryReceipt,
     });
     this.network = createNetworkNamespace({ client: this.nativeClient });
+    this.reads = createReadsNamespace({ mirror: this.mirror });
     this.schedules = createSchedulesNamespace({
       submit,
       mirror: this.mirror,

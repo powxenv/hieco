@@ -2661,4 +2661,3 @@ The headless approach for `@hieco/connect` offers:
 **License:** MIT (for documentation structure)
 
 ---
-

@@ -8,7 +8,6 @@ category: research
 **Research Date:** March 3, 2026
 **Research Scope:** Complete API documentation, functions, modules, and usage patterns for all Hiero SDKs
 
-
 ## Executive Summary
 
 Hiero is the open-source distributed ledger technology of Linux Foundation Decentralized Trust, originally contributed by Hedera Hashgraph. The Hiero SDKs provide comprehensive access to the Hedera network across multiple programming languages.
@@ -1938,7 +1937,6 @@ _Document Version: 1.0_
 
 **Last Updated:** March 3, 2026
 
-
 ## Network Endpoints
 
 | Network        | Consensus Node                    | Mirror Node REST                           |
@@ -2354,7 +2352,6 @@ _Quick Reference Guide v1.0_
 
 > The developer experience layer for Hiero. From first connection to complex
 > transaction orchestration — intuitive, powerful, and genuinely enjoyable.
-
 
 ## 1. Problem Statement
 
@@ -5079,7 +5076,7 @@ against actual `@hiero-ledger/sdk` exports, Mirror Node REST API endpoints, exis
 | Finding                                                                                          | Change                                                                                                                                                                                                                                                                                                                                                             |
 | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `@hieco/mirror` uses singular (`client.account`), proposal uses plural (`hiero.mirror.accounts`) | Documented the intentional naming divergence with rationale in Section 11.2.                                                                                                                                                                                                                                                                                       |
-| `SdkError` type guards incompatible with `@hieco/utils` `ApiError` guards                | Added explicit documentation in Section 13.4 that SDK type guards are separate from `@hieco/utils` guards.                                                                                                                                                                                                                                                 |
+| `SdkError` type guards incompatible with `@hieco/utils` `ApiError` guards                        | Added explicit documentation in Section 13.4 that SDK type guards are separate from `@hieco/utils` guards.                                                                                                                                                                                                                                                         |
 | `RelayTransport` listed in key translations table                                                | Removed — `@hieco/realtime` is used directly for WebSocket subscriptions, not through a separate transport abstraction.                                                                                                                                                                                                                                            |
 | `relay: RelayTransport` on `HieroClient` interface                                               | Removed — same rationale as above. `watchContractLogs` manages its own connection.                                                                                                                                                                                                                                                                                 |
 | `@hieco/connect` phantom package with `hashPackSigner`, `bladeSigner`, `metaMaskSigner`          | Removed entirely. Blade Wallet shut down July 2025. Ecosystem standardized on `@hashgraph/hedera-wallet-connect` (`DAppSigner` implements Hiero SDK `Signer`). Added `fromHieroSigner()` adapter to bridge ecosystem signers to our minimal 2-method interface. Architecture diagram, developer journey, Section 6.2, Section 24.4, and all code examples updated. |

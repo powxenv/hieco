@@ -14,6 +14,9 @@ export interface TransactionListParams extends PaginationParams {
   transactionhash?: string;
   transactiontype?: string;
   "transfers.account"?: EntityId | QueryOperator<EntityId> | QueryOperator<EntityId>[];
+  "token.transfers.account"?: EntityId | QueryOperator<EntityId> | QueryOperator<EntityId>[];
+  "token.transfers.token"?: EntityId | QueryOperator<EntityId> | QueryOperator<EntityId>[];
+  "token.transfers.amount"?: QueryOperator<number>;
   type?: "credit" | "debit";
 }
 
@@ -121,6 +124,23 @@ export class TransactionApi extends BaseApi {
         } else {
           builder.add("transfers.account", params["transfers.account"]);
         }
+      }
+      if (params["token.transfers.account"]) {
+        if (Array.isArray(params["token.transfers.account"])) {
+          builder.addIn("token.transfers.account", params["token.transfers.account"]);
+        } else {
+          builder.add("token.transfers.account", params["token.transfers.account"]);
+        }
+      }
+      if (params["token.transfers.token"]) {
+        if (Array.isArray(params["token.transfers.token"])) {
+          builder.addIn("token.transfers.token", params["token.transfers.token"]);
+        } else {
+          builder.add("token.transfers.token", params["token.transfers.token"]);
+        }
+      }
+      if (params["token.transfers.amount"]) {
+        builder.add("token.transfers.amount", params["token.transfers.amount"]);
       }
       if (params.type) {
         builder.add("type", params.type);

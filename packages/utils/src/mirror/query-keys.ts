@@ -24,6 +24,8 @@ export const mirrorNodeKeys = {
     info: (network: string, id: string) => ["mirror-node", network, "token", "info", id] as const,
     balances: (network: string, id: string) =>
       ["mirror-node", network, "token", "balances", id] as const,
+    balancesSnapshot: (network: string, id: string) =>
+      ["mirror-node", network, "token", "balances", "snapshot", id] as const,
     nfts: (network: string, id: string) => ["mirror-node", network, "token", "nfts", id] as const,
     nft: (network: string, tokenId: string, serialNumber: number) =>
       ["mirror-node", network, "token", "nft", tokenId, serialNumber] as const,

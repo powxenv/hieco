@@ -1,5 +1,10 @@
 import type { ApiResult, PaginationParams, QueryOperator, Timestamp } from "../../types/rest-api";
-import type { Nft, TokenDistribution, TokenInfo } from "../../types/entities/token";
+import type {
+  Nft,
+  TokenBalancesResponse,
+  TokenDistribution,
+  TokenInfo,
+} from "../../types/entities/token";
 import type { Transaction } from "../../types/entities/transaction";
 import type { EntityId } from "../../types/rest-api";
 import type { CursorPaginator, PaginatedResponse } from "../builders";
@@ -64,6 +69,32 @@ export class TokenApi extends BaseApi {
     }
 
     return this.getList<TokenDistribution>(`tokens/${tokenId}/balances`, builder.build());
+  }
+
+  async getBalancesSnapshot(
+    tokenId: EntityId,
+    params?: TokenBalancesParams,
+  ): Promise<ApiResult<TokenBalancesResponse>> {
+    const builder = this.createQueryBuilder();
+
+    if (params) {
+      builder.addPagination(params);
+
+      if (params.account) {
+        builder.add("account.id", params.account);
+      }
+      if (params["account.balance"]) {
+        builder.add("account.balance", params["account.balance"]);
+      }
+      if (params["account.publickey"]) {
+        builder.add("account.publickey", params["account.publickey"]);
+      }
+      if (params.timestamp) {
+        builder.addTimestamp(params.timestamp);
+      }
+    }
+
+    return this.getSingle<TokenBalancesResponse>(`tokens/${tokenId}/balances`, builder.build());
   }
 
   async getNfts(

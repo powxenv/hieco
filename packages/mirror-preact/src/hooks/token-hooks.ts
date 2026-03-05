@@ -6,7 +6,7 @@ import type {
   UseInfiniteQueryResult,
 } from "@tanstack/preact-query";
 import type { ApiResult, ApiError, EntityId, PaginationParams, QueryOperator } from "@hieco/mirror";
-import type { Nft, TokenDistribution, TokenInfo } from "@hieco/mirror";
+import type { Nft, TokenBalancesResponse, TokenDistribution, TokenInfo } from "@hieco/mirror";
 import type { Transaction } from "@hieco/mirror";
 import type { PaginatedResponse } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
@@ -41,6 +41,24 @@ export interface UseTokenBalancesOptions extends Omit<
 
 export type UseTokenBalancesResult = UseQueryResult<
   TokenQueryFnData<TokenDistribution[]>,
+  TokenQueryError
+>;
+
+export interface UseTokenBalancesSnapshotOptions extends Omit<
+  UseQueryOptions<TokenQueryFnData<TokenBalancesResponse>, TokenQueryError>,
+  "queryKey" | "queryFn"
+> {
+  tokenId: EntityId;
+  params?: {
+    limit?: number;
+    order?: "asc" | "desc";
+    account?: EntityId;
+    "account.balance"?: QueryOperator<number>;
+  };
+}
+
+export type UseTokenBalancesSnapshotResult = UseQueryResult<
+  TokenQueryFnData<TokenBalancesResponse>,
   TokenQueryError
 >;
 
@@ -127,9 +145,25 @@ export function useTokenBalances(options: UseTokenBalancesOptions): UseTokenBala
 
   return useQuery({
     ...options,
-    queryKey: mirrorNodeKeys.token.balances(network, options.tokenId),
+    queryKey: mirrorNodeKeys.token.balancesSnapshot(network, options.tokenId),
     queryFn: async () => {
       return client.token.getBalances(options.tokenId, options.params);
+    },
+    enabled: options.enabled !== false,
+  });
+}
+
+export function useTokenBalancesSnapshot(
+  options: UseTokenBalancesSnapshotOptions,
+): UseTokenBalancesSnapshotResult {
+  const client = useMirrorNodeClient();
+  const { network } = useNetwork();
+
+  return useQuery({
+    ...options,
+    queryKey: mirrorNodeKeys.token.balances(network, options.tokenId),
+    queryFn: async () => {
+      return client.token.getBalancesSnapshot(options.tokenId, options.params);
     },
     enabled: options.enabled !== false,
   });

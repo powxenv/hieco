@@ -4,6 +4,7 @@ export * from "./entities/account";
 export type {
   TokenInfo,
   TokenDistribution,
+  TokenBalancesResponse,
   Nft,
   CustomFees,
   FixedFee,

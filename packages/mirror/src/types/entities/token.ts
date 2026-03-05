@@ -78,6 +78,14 @@ export interface TokenDistribution {
   readonly decimals: number;
 }
 
+export interface TokenBalancesResponse {
+  readonly timestamp: Timestamp | null;
+  readonly balances: readonly TokenDistribution[];
+  readonly links: {
+    readonly next?: string;
+  };
+}
+
 export interface Nft {
   readonly account: EntityId;
   readonly created_timestamp: Timestamp;

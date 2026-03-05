@@ -6,6 +6,7 @@ import type {
   EntityId,
   PaginationParams,
   QueryOperator,
+  TokenBalancesResponse,
   TokenDistribution,
   TokenInfo,
   Nft,
@@ -38,6 +39,22 @@ export interface CreateTokenBalancesOptions {
 }
 
 export type CreateTokenBalancesResult = UseQueryResult<ApiResult<TokenDistribution[]>, ApiError>;
+
+export interface CreateTokenBalancesSnapshotOptions {
+  readonly tokenId: EntityId;
+  readonly params?: {
+    readonly limit?: number;
+    readonly order?: "asc" | "desc";
+    readonly account?: EntityId;
+    readonly "account.balance"?: QueryOperator<number>;
+  };
+  readonly enabled?: boolean;
+}
+
+export type CreateTokenBalancesSnapshotResult = UseQueryResult<
+  ApiResult<TokenBalancesResponse>,
+  ApiError
+>;
 
 export interface CreateTokenNftsOptions {
   readonly tokenId: EntityId;
@@ -117,9 +134,29 @@ export function createTokenBalances(
   return useQuery(() => {
     const opts = options();
     return {
-      queryKey: mirrorNodeKeys.token.balances(network(), opts.tokenId),
+      queryKey: mirrorNodeKeys.token.balancesSnapshot(network(), opts.tokenId),
       queryFn: async () => {
         return client().token.getBalances(opts.tokenId, opts.params);
+      },
+      get enabled() {
+        return opts.enabled ?? true;
+      },
+    };
+  });
+}
+
+export function createTokenBalancesSnapshot(
+  options: Accessor<CreateTokenBalancesSnapshotOptions>,
+): CreateTokenBalancesSnapshotResult {
+  const client = useMirrorNodeClient();
+  const { network } = useNetwork();
+
+  return useQuery(() => {
+    const opts = options();
+    return {
+      queryKey: mirrorNodeKeys.token.balances(network(), opts.tokenId),
+      queryFn: async () => {
+        return client().token.getBalancesSnapshot(opts.tokenId, opts.params);
       },
       get enabled() {
         return opts.enabled ?? true;

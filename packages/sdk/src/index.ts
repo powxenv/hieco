@@ -13,3 +13,4 @@ export type { HcsNamespace } from "./domains/hcs/namespace.ts";
 export type { ContractsNamespace } from "./domains/contracts/namespace.ts";
 export type { FilesNamespace } from "./domains/files/namespace.ts";
 export type { SchedulesNamespace } from "./domains/schedules/namespace.ts";
+export type { ReadsNamespace } from "./domains/reads/namespace.ts";

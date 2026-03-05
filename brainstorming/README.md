@@ -12,20 +12,21 @@ This directory contains comprehensive research, analysis, and proposals for the 
 
 ### Quick Navigation
 
-| Section | Description | Lines |
-| ------- | ----------- | ----- |
-| [01-research.md](./01-research.md) | Hackathon overview + all 5 bounty analyses + Hiero deep dive | ~2889 |
-| [02-proposals.md](./02-proposals.md) | Novel DX proposals + unified ecosystem | ~2253 |
-| [03-testing-prd.md](./03-testing-prd.md) | @hieco/testing PRD | ~1122 |
-| [04-connect-prd.md](./04-connect-prd.md) | @hieco/connect PRD (styled + headless) | ~2664 |
-| [05-additional-packages.md](./05-additional-packages.md) | Additional package research | ~1691 |
-| [06-sdk.md](./06-sdk.md) | SDK research + proposals | ~6110 |
+| Section                                                  | Description                                                  | Lines |
+| -------------------------------------------------------- | ------------------------------------------------------------ | ----- |
+| [01-research.md](./01-research.md)                       | Hackathon overview + all 5 bounty analyses + Hiero deep dive | ~2889 |
+| [02-proposals.md](./02-proposals.md)                     | Novel DX proposals + unified ecosystem                       | ~2253 |
+| [03-testing-prd.md](./03-testing-prd.md)                 | @hieco/testing PRD                                           | ~1122 |
+| [04-connect-prd.md](./04-connect-prd.md)                 | @hieco/connect PRD (styled + headless)                       | ~2664 |
+| [05-additional-packages.md](./05-additional-packages.md) | Additional package research                                  | ~1691 |
+| [06-sdk.md](./06-sdk.md)                                 | SDK research + proposals                                     | ~6110 |
 
 ---
 
 ## File Descriptions
 
 ### 01-research.md
+
 - Hackathon overview (dates, prizes, bounty pools)
 - All 5 bounty track analyses:
   - Neuron: MLAT Aviation Surveillance
@@ -37,17 +38,20 @@ This directory contains comprehensive research, analysis, and proposals for the 
 - Hiero ecosystem gap analysis
 
 ### 02-proposals.md
+
 - Novel DX-focused library proposals
 - @hiero/devtools - Visual Transaction Debugger
 - @hieco unified ecosystem design
 
 ### 03-testing-prd.md
+
 - @hieco/testing PRD
 - Mock Mirror Node server
 - Test utilities and fixtures
 - React testing utilities
 
 ### 04-connect-prd.md
+
 - @hieco/connect PRD (styled wallet connection UI)
 - @hieco/connect headless PRD
 - Full API specification
@@ -55,11 +59,13 @@ This directory contains comprehensive research, analysis, and proposals for the 
 - Implementation checklist
 
 ### 05-additional-packages.md
+
 - Modern Web3 development trends (2026)
 - Gap analysis vs Ethereum ecosystem
 - Package opportunity identification
 
 ### 06-sdk.md
+
 - Complete Hiero SDK API Reference
 - JavaScript, Python, Go, Rust, Swift, C++ SDKs
 - REST API documentation
@@ -72,13 +78,13 @@ This directory contains comprehensive research, analysis, and proposals for the 
 
 ### Priority Packages (from research)
 
-| Priority | Package | Impact | Complexity |
-| -------- | ------- | ------ | ---------- |
-| 1 | @hieco/testing | ⭐⭐⭐⭐⭐ | Low |
-| 2 | @hieco/scheduled | ⭐⭐⭐⭐ | Medium |
-| 3 | @hieco/devtools | ⭐⭐⭐⭐⭐ | Medium |
-| 4 | @hieco/connect | ⭐⭐⭐⭐⭐ | Medium |
-| 5 | @hieco/mirror-realtime | ⭐⭐⭐⭐ | Medium |
+| Priority | Package                | Impact     | Complexity |
+| -------- | ---------------------- | ---------- | ---------- |
+| 1        | @hieco/testing         | ⭐⭐⭐⭐⭐ | Low        |
+| 2        | @hieco/scheduled       | ⭐⭐⭐⭐   | Medium     |
+| 3        | @hieco/devtools        | ⭐⭐⭐⭐⭐ | Medium     |
+| 4        | @hieco/connect         | ⭐⭐⭐⭐⭐ | Medium     |
+| 5        | @hieco/mirror-realtime | ⭐⭐⭐⭐   | Medium     |
 
 ### Success Metrics
 
