@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { mockContract, mockTopic, mockTopicMessage, mockSchedule } from "../src/fixtures";
+import { mockContract, mockTopic, mockTopicMessage, mockSchedule } from "../src/fixtures/mirror";
 
 describe("mockContract", () => {
   test("generates valid contract with defaults", () => {

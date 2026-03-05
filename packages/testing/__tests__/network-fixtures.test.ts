@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { mockExchangeRate, mockNetworkNode, mockNetworkSupply } from "../src/fixtures";
+import { mockExchangeRate, mockNetworkNode, mockNetworkSupply } from "../src/fixtures/mirror";
 
 describe("mockExchangeRate", () => {
   test("generates valid exchange rate with defaults", () => {

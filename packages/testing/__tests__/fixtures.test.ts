@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { mockAccount, mockTransaction, mockToken, mockBalance } from "../src/fixtures";
+import { mockAccount, mockTransaction, mockToken, mockBalance } from "../src/fixtures/mirror";
 
 describe("mockAccount", () => {
   test("generates valid account with defaults", () => {

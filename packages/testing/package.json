@@ -1,18 +1,17 @@
 {
   "name": "@hieco/testing",
   "version": "0.0.1",
-  "description": "Testing utilities for Hedera Mirror Node and Hiero SDK development with MSW fixtures and helpers",
+  "description": "Comprehensive testing library for Hiero blockchain development with mock client, fixtures, and custom matchers",
   "keywords": [
     "fixtures",
-    "hedera",
     "hiero",
     "hiero-sdk",
     "jest",
-    "mirror-node",
-    "mock-service-worker",
-    "msw",
-    "test-utils",
+    "matchers",
+    "mock",
+    "mock-client",
     "testing",
+    "testkit",
     "vitest"
   ],
   "homepage": "https://github.com/powxenv/hieco/tree/main/packages/testing",
@@ -48,6 +47,14 @@
       "types": "./dist/hiero/index.d.ts",
       "import": "./dist/hiero/index.js"
     },
+    "./matchers": {
+      "types": "./dist/matchers/index.d.ts",
+      "import": "./dist/matchers/index.js"
+    },
+    "./testkit": {
+      "types": "./dist/testkit/index.d.ts",
+      "import": "./dist/testkit/index.js"
+    },
     "./vitest": {
       "types": "./dist/vitest/index.d.ts",
       "import": "./dist/vitest/index.js"
@@ -55,7 +62,8 @@
     "./jest": {
       "types": "./dist/jest/index.d.ts",
       "import": "./dist/jest/index.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "publishConfig": {
     "access": "public"
@@ -76,6 +84,7 @@
     "@hieco/mirror-shared": "workspace:*"
   },
   "devDependencies": {
+    "@hiero-ledger/sdk": "^2.80.0",
     "@types/jest": "^29.5.12",
     "@typescript/native-preview": "catalog:",
     "bun-types": "catalog:",
@@ -84,6 +93,7 @@
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
+    "tsafe": "^1.8.12",
     "vitest": "^2.1.0"
   },
   "peerDependencies": {
