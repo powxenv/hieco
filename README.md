@@ -28,7 +28,6 @@ It provides:
 | [`@hieco/mirror-cli`](packages/mirror-cli)         | CLI tool for Mirror Node REST API           |
 | [`@hieco/realtime`](packages/realtime)             | WebSocket client for HIP-694 JSON-RPC Relay |
 | [`@hieco/realtime-react`](packages/realtime-react) | React hooks for realtime                    |
-| [`@hieco/testing`](packages/testing)               | Testing utilities with MSW fixtures         |
 
 ## Documentation
 
