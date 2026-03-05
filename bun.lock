@@ -231,6 +231,7 @@
       "dependencies": {
         "@hieco/mirror": "workspace:*",
         "@hieco/mirror-shared": "workspace:*",
+        "@hieco/types": "workspace:*",
       },
       "devDependencies": {
         "@hiero-ledger/sdk": "^2.80.0",

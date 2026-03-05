@@ -9,7 +9,7 @@ import type {
   PrivateKey,
   PublicKey,
 } from "@hiero-ledger/sdk";
-import type { EntityId } from "@hieco/mirror";
+import type { EntityId } from "@hieco/types";
 
 export type {
   Client,

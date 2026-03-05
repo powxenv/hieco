@@ -58,7 +58,7 @@ const token = testKit.fixtures.token({
   name: "My Token",
   symbol: "MTK",
   decimals: 8,
-  initialSupply: 1_000_000,
+  initialSupply: 1_000_000n,
   treasury: "0.0.1",
 });
 ```
@@ -86,7 +86,7 @@ import { Hbar } from "@hiero-ledger/sdk";
 
 test("Hbar balance", () => {
   const balance = Hbar.fromTinybars(1000);
-  expect(balance).toBeHbar(100);
+  expect(balance).toBeHbar(1000);
 });
 
 test("Entity ID", () => {
@@ -156,7 +156,7 @@ client.contracts.getCalls(contractId: EntityId): ContractCall[]
 
 // Topic management
 client.topics.create(memo: string): TopicState
-client.topics.submitMessage(topicId: EntityId, message: TopicMessage): void
+client.topics.submitMessage(topicId: EntityId, message: Uint8Array): void
 
 // Time control
 client.setTime(timestamp: Date): void

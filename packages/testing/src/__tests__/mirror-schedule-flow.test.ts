@@ -1,10 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach } from "@jest/globals";
 import { createMirrorNodeClient } from "@hieco/mirror";
 import { http, HttpResponse } from "msw";
-import { setupMirrorMock } from "../server/setup.js";
-import { NETWORK_URLS } from "../server/constants.js";
-import { mockSchedule } from "../fixtures/mirror/schedule.js";
-import { poll } from "../utils/poll.js";
+import { setupMirrorMock, NETWORK_URLS, poll, fixtures } from "../index.js";
 
 describe("mirror schedule polling", () => {
   const network = "testnet" as const;
@@ -33,7 +30,7 @@ describe("mirror schedule polling", () => {
         }
 
         calls += 1;
-        const schedule = mockSchedule.build({
+        const schedule = fixtures.mirror.mockSchedule.build({
           schedule_id: scheduleId,
           executed_timestamp: calls >= 3 ? executedTimestamp : null,
           deleted: false,

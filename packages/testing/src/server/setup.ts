@@ -133,7 +133,7 @@ const createDefaultHandlers = (network: NetworkType) => [
       consensus_timestamp: timestamp,
       result: "SUCCESS",
       name: "CRYPTOTRANSFER",
-      charged_fee: 100000,
+      charged_tx_fee: 100000,
       transaction_hash: "abc123",
       transactions: [],
       token_transfers: [],
@@ -375,6 +375,24 @@ const createDefaultHandlers = (network: NetworkType) => [
     return HttpResponse.json({
       schedules: [],
       links: {},
+    });
+  }),
+
+  http.get(`${NETWORK_URLS[network]}/api/v1/schedules/:id`, ({ params }) => {
+    const timestamp = Date.now().toString();
+    return HttpResponse.json({
+      admin_key: null,
+      consensus_timestamp: timestamp,
+      creator_account_id: "0.0.1",
+      deleted: false,
+      executed_timestamp: null,
+      expiration_time: null,
+      memo: "",
+      payer_account_id: "0.0.1",
+      schedule_id: params.id,
+      signatures: [],
+      transaction_body: "0x",
+      wait_for_expiry: false,
     });
   }),
 
