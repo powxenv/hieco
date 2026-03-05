@@ -108,6 +108,13 @@ export interface FileReceipt {
   readonly fileId: EntityId;
 }
 
+export interface FileChunkedReceipt {
+  readonly receipt: TransactionReceiptData;
+  readonly transactionId: string;
+  readonly fileId: EntityId;
+  readonly chunks: number;
+}
+
 export interface AccountInfoData {
   readonly accountId: EntityId;
   readonly account: AccountInfo;

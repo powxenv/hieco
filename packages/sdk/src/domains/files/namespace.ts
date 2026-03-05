@@ -4,6 +4,7 @@ import type {
   FileContentsData,
   FileInfoData,
   FileReceipt,
+  FileChunkedReceipt,
   TransactionReceiptData,
 } from "../../foundation/results-shapes.ts";
 import type { Result } from "../../foundation/results.ts";
@@ -29,6 +30,18 @@ export interface FilesNamespace {
   ) => Promise<Result<TransactionReceiptData>>) & {
     tx: (params: import("../../foundation/params.ts").DeleteFileParams) => TransactionDescriptor;
   };
+  upload: (
+    params: import("../../foundation/params.ts").UploadFileParams,
+  ) => Promise<Result<FileChunkedReceipt>>;
+  updateLarge: (
+    params: import("../../foundation/params.ts").UpdateLargeFileParams,
+  ) => Promise<Result<FileChunkedReceipt>>;
   info: (fileId: EntityId) => Promise<Result<FileInfoData>>;
   contents: (fileId: EntityId) => Promise<Result<FileContentsData>>;
+  contentsText: (
+    fileId: EntityId,
+  ) => Promise<Result<{ readonly fileId: EntityId; readonly text: string }>>;
+  contentsJson: <T = unknown>(
+    fileId: EntityId,
+  ) => Promise<Result<{ readonly fileId: EntityId; readonly json: T }>>;
 }
