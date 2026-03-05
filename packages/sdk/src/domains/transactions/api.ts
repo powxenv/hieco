@@ -768,6 +768,18 @@ export function buildTransaction(
       if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
       return transaction;
     }
+    case "contracts.execute.typed": {
+      const params = tx.params;
+      const transaction = new ContractExecuteTransaction().setContractId(params.id);
+      if (params.gas !== undefined) transaction.setGas(params.gas);
+      const functionParams = buildContractFunctionParameters(params.params);
+      transaction.setFunction(params.fn, functionParams);
+      if (params.payableAmount !== undefined)
+        transaction.setPayableAmount(toHbar(params.payableAmount));
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
     case "contracts.delete": {
       const params = tx.params;
       const transaction = new ContractDeleteTransaction().setContractId(params.contractId);
@@ -1062,6 +1074,87 @@ export async function callContract(
     return err(
       createError("CONTRACT_CALL_FAILED", `Contract call to ${params.id} failed`, {
         hint: "Verify ABI, function name, and argument types",
+      }),
+    );
+  }
+}
+
+export async function callContractWithParams(
+  context: SubmitContext,
+  params: {
+    readonly id: EntityId;
+    readonly fn: string;
+    readonly params: FunctionParamsConfig;
+    readonly gas: number;
+    readonly senderAccountId?: EntityId;
+  },
+): Promise<
+  Result<{
+    readonly gasUsed: number;
+    readonly errorMessage: string;
+    readonly raw: Uint8Array;
+    readonly getString: (index?: number) => string;
+    readonly getBool: (index?: number) => boolean;
+    readonly getAddress: (index?: number) => string;
+    readonly getBytes32: (index?: number) => Uint8Array;
+    readonly getInt8: (index?: number) => number;
+    readonly getInt16: (index?: number) => number;
+    readonly getInt32: (index?: number) => number;
+    readonly getInt64: (index?: number) => import("bignumber.js").BigNumber;
+    readonly getInt256: (index?: number) => import("bignumber.js").BigNumber;
+    readonly getUint8: (index?: number) => number;
+    readonly getUint16: (index?: number) => number;
+    readonly getUint32: (index?: number) => number;
+    readonly getUint64: (index?: number) => import("bignumber.js").BigNumber;
+    readonly getUint256: (index?: number) => import("bignumber.js").BigNumber;
+  }>
+> {
+  try {
+    const query = new ContractCallQuery().setContractId(params.id);
+    query.setGas(params.gas);
+    if (params.senderAccountId) query.setSenderAccountId(params.senderAccountId);
+    const fnParams = buildContractFunctionParameters(params.params);
+    query.setFunction(params.fn, fnParams);
+
+    const result =
+      context.signing.kind === "signer"
+        ? await query.executeWithSigner(context.signing.signer)
+        : await query.execute(context.client);
+
+    return ok({
+      gasUsed: result.gasUsed.toNumber(),
+      errorMessage: result.errorMessage ?? "",
+      raw: result.asBytes(),
+      getString: (index?: number) => result.getString(index),
+      getBool: (index?: number) => result.getBool(index),
+      getAddress: (index?: number) => result.getAddress(index),
+      getBytes32: (index?: number) => result.getBytes32(index),
+      getInt8: (index?: number) => result.getInt8(index),
+      getInt16: (index?: number) => result.getInt16(index),
+      getInt32: (index?: number) => result.getInt32(index),
+      getInt64: (index?: number) => result.getInt64(index),
+      getInt256: (index?: number) => result.getInt256(index),
+      getUint8: (index?: number) => result.getUint8(index),
+      getUint16: (index?: number) => result.getUint16(index),
+      getUint32: (index?: number) => result.getUint32(index),
+      getUint64: (index?: number) => result.getUint64(index),
+      getUint256: (index?: number) => result.getUint256(index),
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      return err(
+        createError(
+          "CONTRACT_CALL_FAILED",
+          `Contract call to ${params.id} failed: ${error.message}`,
+          {
+            hint: "Verify ABI types, function name, and argument values",
+          },
+        ),
+      );
+    }
+    return err(
+      createError("CONTRACT_CALL_FAILED", `Contract call to ${params.id} failed`, {
+        hint: "Verify ABI types, function name, and argument values",
       }),
     );
   }

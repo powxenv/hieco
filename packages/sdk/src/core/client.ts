@@ -18,6 +18,7 @@ import { createNetworkNamespace } from "../domains/network/api.ts";
 import { createReadsNamespace } from "../domains/reads/api.ts";
 import {
   callContract,
+  callContractWithParams,
   queryFileContents,
   queryFileInfo,
   queryTransactionRecord,
@@ -90,6 +91,26 @@ export class HieroClient {
         ...(this.config.operator ? { operator: this.config.operator } : {}),
       };
       return callContract(queryContext, params);
+    };
+
+    const callWithParams = (params: {
+      readonly id: EntityId;
+      readonly fn: string;
+      readonly params: import("../foundation/params.ts").FunctionParamsConfig;
+      readonly gas: number;
+      readonly senderAccountId?: EntityId;
+    }) => {
+      const signing = resolveQueryContext({
+        operatorKey: this.config.key,
+        signer: this.config.signer,
+      });
+      if (!signing.ok) return Promise.resolve(err(signing.error));
+      const queryContext = {
+        client: this.nativeClient,
+        signing: signing.value,
+        ...(this.config.operator ? { operator: this.config.operator } : {}),
+      };
+      return callContractWithParams(queryContext, params);
     };
 
     const queryInfo = (fileId: EntityId) => {
@@ -179,6 +200,7 @@ export class HieroClient {
     this.contracts = createContractsNamespace({
       submit,
       call,
+      callWithParams,
       mirror: this.mirror,
       queryBytecode: (contractId) => {
         const signing = this.config.signer

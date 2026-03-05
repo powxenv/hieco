@@ -385,6 +385,16 @@ export interface ExecuteContractParams {
   readonly maxFee?: Amount;
 }
 
+export interface ExecuteContractParamsTyped {
+  readonly id: EntityId;
+  readonly fn: string;
+  readonly params: FunctionParamsConfig;
+  readonly gas?: number;
+  readonly payableAmount?: Amount;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
 export interface CallContractParams {
   readonly id: EntityId;
   readonly fn: string;
@@ -541,6 +551,7 @@ export type TransactionDescriptor =
   | { readonly kind: "hcs.submit"; readonly params: SubmitMessageParams }
   | { readonly kind: "contracts.deploy"; readonly params: DeployContractParams }
   | { readonly kind: "contracts.execute"; readonly params: ExecuteContractParams }
+  | { readonly kind: "contracts.execute.typed"; readonly params: ExecuteContractParamsTyped }
   | { readonly kind: "contracts.delete"; readonly params: DeleteContractParams }
   | { readonly kind: "contracts.update"; readonly params: UpdateContractParams }
   | { readonly kind: "files.create"; readonly params: CreateFileParams }

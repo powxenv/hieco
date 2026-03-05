@@ -19,6 +19,45 @@ export type ReturnTypeHint =
   | "uint64"
   | "uint256";
 
+export interface AbiFunctionSpec {
+  readonly name: string;
+  readonly inputs?: ReadonlyArray<string>;
+  readonly outputs?: ReturnTypeHint;
+}
+
+export interface AbiSpec {
+  readonly functions: ReadonlyArray<AbiFunctionSpec>;
+}
+
+export function resolveAbiFunction(abi: AbiSpec, name: string): Result<AbiFunctionSpec> {
+  const match = abi.functions.find((fn) => fn.name === name);
+  if (!match) {
+    return err(
+      createError("CONTRACT_ARGUMENT_MISMATCH", `Function not found in ABI: ${name}`, {
+        hint: "Ensure function name exists in the provided ABI",
+      }),
+    );
+  }
+  return ok(match);
+}
+
+export function buildParamsFromAbi(
+  fn: AbiFunctionSpec,
+  values: ReadonlyArray<unknown>,
+): Result<import("../../foundation/params.ts").FunctionParamsConfig> {
+  const inputs = fn.inputs ?? [];
+  if (inputs.length !== values.length) {
+    return err(
+      createError(
+        "CONTRACT_ARGUMENT_MISMATCH",
+        `Expected ${inputs.length} arguments but got ${values.length}`,
+        { hint: "Ensure argument count matches ABI inputs" },
+      ),
+    );
+  }
+  return ok({ types: inputs, values });
+}
+
 type ContractResultReader = {
   readonly raw: Uint8Array;
   readonly getString: (index?: number) => string;

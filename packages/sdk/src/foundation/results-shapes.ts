@@ -203,3 +203,9 @@ export interface MirrorContractEstimateData {
   readonly contractId: EntityId;
   readonly gas: number;
 }
+
+export interface ContractPreflightData {
+  readonly estimate: MirrorContractEstimateData;
+  readonly simulation: MirrorContractCallData;
+  readonly suggestedGas: number;
+}
