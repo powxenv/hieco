@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/solid-query";
 import type { EntityId } from "@hieco/mirror";
 import type { AccountInfo, Balance, TokenRelationship } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys, isSuccess } from "@hieco/mirror-shared";
+import { mirrorNodeKeys, isSuccess } from "@hieco/utils";
 
 export interface CreateAccountOverviewOptions {
   readonly accountId: EntityId;

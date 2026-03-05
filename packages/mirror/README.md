@@ -333,8 +333,7 @@ For React, Preact, and SolidJS, use the framework-specific packages:
 
 ## Related Packages
 
-- [`@hieco/types`](https://github.com/powxenv/hieco/tree/main/packages/types) - Shared TypeScript types (internal)
-- [`@hieco/mirror-shared`](https://github.com/powxenv/hieco/tree/main/packages/mirror-shared) - Shared utilities (internal)
+- [`@hieco/utils`](https://github.com/powxenv/hieco/tree/main/packages/utils) - Shared utilities and types (internal)
 - [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - WebSocket streaming client
 
 ## License

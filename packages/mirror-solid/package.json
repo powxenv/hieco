@@ -58,7 +58,7 @@
   },
   "peerDependencies": {
     "@hieco/mirror": "workspace:*",
-    "@hieco/mirror-shared": "workspace:*",
+    "@hieco/utils": "workspace:*",
     "@tanstack/solid-query": "^5.0.0",
     "solid-js": ">=1.8"
   },

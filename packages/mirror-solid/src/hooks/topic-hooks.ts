@@ -4,7 +4,7 @@ import type { ApiResult, ApiError, EntityId, PaginationParams } from "@hieco/mir
 import type { PaginatedResponse, Topic, TopicMessage } from "@hieco/mirror";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hieco/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/utils";
 import { createMirrorNodeInfiniteQuery } from "../utils";
 
 export type { TopicMessagesParams } from "@hieco/mirror";

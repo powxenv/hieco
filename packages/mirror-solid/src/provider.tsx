@@ -6,7 +6,7 @@ import {
   createNetworkConfig,
   isDefaultNetwork,
   getNetworkUrl,
-} from "@hieco/mirror-shared";
+} from "@hieco/utils";
 
 export type { AnyNetwork, NetworkConfig };
 

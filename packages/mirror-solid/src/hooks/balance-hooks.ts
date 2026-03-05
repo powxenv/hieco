@@ -4,7 +4,7 @@ import type { ApiResult, ApiError, QueryOperator, Timestamp } from "@hieco/mirro
 import type { BalancesResponse } from "@hieco/mirror";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hieco/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/utils";
 
 export type { BalancesListParams } from "@hieco/mirror";
 

@@ -4,7 +4,7 @@ import type { Accessor } from "solid-js";
 import type { UseQueryResult } from "@tanstack/solid-query";
 import type { ApiResult, ApiError, EntityId, TransactionDetails } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys } from "@hieco/mirror-shared";
+import { mirrorNodeKeys } from "@hieco/utils";
 
 export interface CreatePollTransactionOptions {
   readonly transactionId: EntityId;
