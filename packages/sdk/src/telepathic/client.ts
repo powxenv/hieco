@@ -4,6 +4,7 @@ import { HieroClient as CoreClient } from "../core/client.ts";
 import type { TopicWatchHandle } from "../domains/hcs/namespace.ts";
 import type * as Params from "../foundation/params.ts";
 import type * as Shapes from "../foundation/results-shapes.ts";
+import type { ClientRuntimeConfig } from "../foundation/client-types.ts";
 import type { Result } from "../foundation/results.ts";
 import { fluentAction } from "./fluent.ts";
 import { capabilityAudit } from "./capability.ts";
@@ -460,6 +461,14 @@ export interface TelepathicClient {
   ) => Promise<Result<Shapes.TransactionReceiptData>>;
   readonly destroy: () => void;
 }
+
+export type HieroFactory = ((config?: Params.ClientConfig) => TelepathicClient) & {
+  readonly validateConfig: (config?: Params.ClientConfig) => Result<ClientRuntimeConfig>;
+  readonly fromEnv: (options?: { readonly allowMissingSigner?: boolean }) => TelepathicClient;
+  readonly forTestnet: () => TelepathicClient;
+  readonly forMainnet: () => TelepathicClient;
+  readonly forPreviewnet: () => TelepathicClient;
+};
 
 function createTelepathic(client: CoreClient): TelepathicClient {
   const base = client;
@@ -1023,6 +1032,14 @@ function createTelepathic(client: CoreClient): TelepathicClient {
   return api;
 }
 
-export function hiero(config: Params.ClientConfig = {}): TelepathicClient {
-  return createTelepathic(new CoreClient(config));
-}
+const hieroFactory = (config: Params.ClientConfig = {}): TelepathicClient =>
+  createTelepathic(new CoreClient(config));
+
+export const hiero: HieroFactory = Object.assign(hieroFactory, {
+  validateConfig: (config?: Params.ClientConfig) => CoreClient.validateConfig(config ?? {}),
+  fromEnv: (options?: { readonly allowMissingSigner?: boolean }) =>
+    createTelepathic(CoreClient.fromEnv(options)),
+  forTestnet: () => createTelepathic(CoreClient.forTestnet()),
+  forMainnet: () => createTelepathic(CoreClient.forMainnet()),
+  forPreviewnet: () => createTelepathic(CoreClient.forPreviewnet()),
+});

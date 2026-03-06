@@ -2,6 +2,8 @@ export type ErrorCode =
   | "CONFIG_INVALID_NETWORK"
   | "CONFIG_INVALID_OPERATOR"
   | "CONFIG_INVALID_KEY"
+  | "CONFIG_INVALID_MIRROR_URL"
+  | "CONFIG_INVALID_MAX_FEE"
   | "SIGNER_REQUIRED"
   | "SIGNER_ACCOUNT_ID_REQUIRED"
   | "SIGNER_ACCOUNT_KEY_REQUIRED"
@@ -35,4 +37,27 @@ export interface HieroErrorShape {
   readonly hint?: string;
   readonly transactionId?: string;
   readonly details?: ErrorDetails;
+}
+
+export type ErrorKind =
+  | "config"
+  | "signer"
+  | "mirror"
+  | "network"
+  | "transaction"
+  | "contract"
+  | "schedule"
+  | "file"
+  | "hedera"
+  | "unexpected"
+  | "unknown";
+
+export interface ErrorClassification {
+  readonly kind: ErrorKind;
+  readonly code?: ErrorCode;
+  readonly status?: string;
+  readonly retryable: boolean;
+  readonly message: string;
+  readonly hint?: string;
+  readonly transactionId?: string;
 }

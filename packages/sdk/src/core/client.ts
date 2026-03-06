@@ -6,7 +6,7 @@ import type { ClientConfig, TransactionDescriptor } from "../foundation/params.t
 import type { ClientRuntimeConfig } from "../foundation/client-types.ts";
 import type { Result } from "../foundation/results.ts";
 import { err } from "../foundation/results.ts";
-import { resolveConfig } from "./config.ts";
+import { loadConfigFromEnv, resolveConfig, validateConfig } from "./config.ts";
 import { createAccountsNamespace } from "../domains/accounts/api.ts";
 import { createTokensNamespace } from "../domains/tokens/api.ts";
 import { createHcsNamespace } from "../domains/hcs/api.ts";
@@ -154,6 +154,30 @@ export class HieroClient {
         submit: (descriptor) => this.with({ signer }).submit(descriptor),
       }),
     });
+  }
+
+  static forTestnet(): HieroClient {
+    return new HieroClient({ network: "testnet" });
+  }
+
+  static forMainnet(): HieroClient {
+    return new HieroClient({ network: "mainnet" });
+  }
+
+  static forPreviewnet(): HieroClient {
+    return new HieroClient({ network: "previewnet" });
+  }
+
+  static validateConfig(config: ClientConfig = {}): Result<ClientRuntimeConfig> {
+    return validateConfig(config);
+  }
+
+  static fromEnv(options?: { readonly allowMissingSigner?: boolean }): HieroClient {
+    const resolved = loadConfigFromEnv(options);
+    if (!resolved.ok) {
+      throw new Error(resolved.error.message);
+    }
+    return new HieroClient(resolved.value);
   }
 
   get networkName(): ClientRuntimeConfig["network"] {
