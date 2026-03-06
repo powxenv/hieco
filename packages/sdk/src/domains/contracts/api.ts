@@ -3,6 +3,7 @@ import type { TransactionDescriptor } from "../../foundation/params.ts";
 import type {
   ContractCallResult,
   ContractBytecodeData,
+  ContractDeployArtifactResult,
   MirrorContractCallData,
   MirrorContractEstimateData,
   ContractExecuteReceipt,
@@ -34,6 +35,9 @@ import type { ContractsNamespace } from "./namespace.ts";
 
 export function createContractsNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
+  readonly uploadFile: (
+    params: import("../../foundation/params.ts").UploadFileParams,
+  ) => Promise<Result<import("../../foundation/results-shapes.ts").FileChunkedReceipt>>;
   readonly call: (params: {
     readonly id: EntityId;
     readonly fn: string;
@@ -81,6 +85,86 @@ export function createContractsNamespace(context: {
       receipt: result.value,
       transactionId: result.value.transactionId,
       contractId: contractId.value,
+    });
+  };
+
+  const toBytecodeHex = (value: string | Uint8Array): string =>
+    typeof value === "string"
+      ? value.startsWith("0x")
+        ? value.slice(2)
+        : value
+      : Array.from(value)
+          .map((byte) => byte.toString(16).padStart(2, "0"))
+          .join("");
+
+  const deployArtifact = async (
+    params: import("../../foundation/params.ts").DeployArtifactParams,
+  ): Promise<Result<ContractDeployArtifactResult>> => {
+    const bytecodeHex = toBytecodeHex(params.bytecode);
+    const shouldUseFile = params.forceFile === true || bytecodeHex.length / 2 > 24 * 1024;
+
+    if (!shouldUseFile) {
+      const deployed = await deploy({
+        bytecode: bytecodeHex,
+        ...(params.gas !== undefined ? { gas: params.gas } : {}),
+        ...(params.constructorParams ? { constructorParams: params.constructorParams } : {}),
+        ...(params.adminKey !== undefined ? { adminKey: params.adminKey } : {}),
+        ...(params.initialBalance !== undefined ? { initialBalance: params.initialBalance } : {}),
+        ...(params.autoRenewPeriodSeconds !== undefined
+          ? { autoRenewPeriodSeconds: params.autoRenewPeriodSeconds }
+          : {}),
+        ...(params.autoRenewAccountId ? { autoRenewAccountId: params.autoRenewAccountId } : {}),
+        ...(params.maxAutomaticTokenAssociations !== undefined
+          ? { maxAutomaticTokenAssociations: params.maxAutomaticTokenAssociations }
+          : {}),
+        ...(params.stakedAccountId ? { stakedAccountId: params.stakedAccountId } : {}),
+        ...(params.stakedNodeId !== undefined ? { stakedNodeId: params.stakedNodeId } : {}),
+        ...(params.declineStakingReward !== undefined
+          ? { declineStakingReward: params.declineStakingReward }
+          : {}),
+        ...(params.memo ? { memo: params.memo } : {}),
+        ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+      });
+      if (!deployed.ok) return deployed;
+      return ok(deployed.value);
+    }
+
+    const uploaded = await context.uploadFile({
+      contents: bytecodeHex,
+      ...(params.fileKeys ? { keys: params.fileKeys } : {}),
+      ...(params.chunkSize !== undefined ? { chunkSize: params.chunkSize } : {}),
+      ...(params.memo ? { memo: params.memo } : {}),
+      ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+    });
+    if (!uploaded.ok) return uploaded;
+
+    const deployed = await deploy({
+      bytecodeFileId: uploaded.value.fileId,
+      ...(params.gas !== undefined ? { gas: params.gas } : {}),
+      ...(params.constructorParams ? { constructorParams: params.constructorParams } : {}),
+      ...(params.adminKey !== undefined ? { adminKey: params.adminKey } : {}),
+      ...(params.initialBalance !== undefined ? { initialBalance: params.initialBalance } : {}),
+      ...(params.autoRenewPeriodSeconds !== undefined
+        ? { autoRenewPeriodSeconds: params.autoRenewPeriodSeconds }
+        : {}),
+      ...(params.autoRenewAccountId ? { autoRenewAccountId: params.autoRenewAccountId } : {}),
+      ...(params.maxAutomaticTokenAssociations !== undefined
+        ? { maxAutomaticTokenAssociations: params.maxAutomaticTokenAssociations }
+        : {}),
+      ...(params.stakedAccountId ? { stakedAccountId: params.stakedAccountId } : {}),
+      ...(params.stakedNodeId !== undefined ? { stakedNodeId: params.stakedNodeId } : {}),
+      ...(params.declineStakingReward !== undefined
+        ? { declineStakingReward: params.declineStakingReward }
+        : {}),
+      ...(params.memo ? { memo: params.memo } : {}),
+      ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+    });
+    if (!deployed.ok) return deployed;
+
+    return ok({
+      ...deployed.value,
+      fileId: uploaded.value.fileId,
+      chunks: uploaded.value.chunks,
     });
   };
 
@@ -389,6 +473,7 @@ export function createContractsNamespace(context: {
 
   return {
     deploy,
+    deployArtifact,
     execute,
     call,
     callTyped,

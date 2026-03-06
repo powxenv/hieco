@@ -19,6 +19,7 @@ import { createReadsNamespace } from "../domains/reads/api.ts";
 import {
   callContract,
   callContractWithParams,
+  queryLiveHash,
   queryFileContents,
   queryFileInfo,
   queryTransactionRecord,
@@ -42,9 +43,28 @@ export class HieroClient {
   readonly transactions: ReturnType<typeof createTransactionsNamespace>;
   readonly network: ReturnType<typeof createNetworkNamespace>;
   readonly reads: ReturnType<typeof createReadsNamespace>;
+  readonly evm: {
+    readonly sendRaw: (
+      params: import("../foundation/params.ts").EthereumSendRawParams,
+    ) => Promise<Result<TransactionReceiptData>>;
+  };
+  readonly legacy: {
+    readonly liveHash: {
+      readonly get: (
+        params: import("../foundation/params.ts").LiveHashQueryParams,
+      ) => Promise<Result<import("../foundation/results-shapes.ts").LiveHashData>>;
+      readonly add: (
+        params: import("../foundation/params.ts").LiveHashAddParams,
+      ) => Promise<Result<TransactionReceiptData>>;
+      readonly delete: (
+        params: import("../foundation/params.ts").LiveHashDeleteParams,
+      ) => Promise<Result<TransactionReceiptData>>;
+    };
+  };
 
   private readonly nativeClient: Client;
   private readonly config: ClientRuntimeConfig;
+  private legacyLiveHashWarned = false;
 
   constructor(config: ClientConfig = {}) {
     const resolved = resolveConfig(config);
@@ -128,6 +148,7 @@ export class HieroClient {
     });
     this.contracts = createContractsNamespace({
       submit,
+      uploadFile: (params) => this.files.upload(params),
       call,
       callWithParams,
       mirror: this.mirror,
@@ -147,6 +168,25 @@ export class HieroClient {
     });
     this.network = createNetworkNamespace({ client: this.nativeClient });
     this.reads = createReadsNamespace({ mirror: this.mirror });
+    this.evm = {
+      sendRaw: (params) => this.submit({ kind: "evm.ethereum", params }),
+    };
+    this.legacy = {
+      liveHash: {
+        get: (params) => {
+          this.warnLegacyLiveHash();
+          return this.withQueryContext((queryContext) => queryLiveHash(queryContext, params));
+        },
+        add: (params) => {
+          this.warnLegacyLiveHash();
+          return this.submit({ kind: "legacy.liveHash.add", params });
+        },
+        delete: (params) => {
+          this.warnLegacyLiveHash();
+          return this.submit({ kind: "legacy.liveHash.delete", params });
+        },
+      },
+    };
     this.schedules = createSchedulesNamespace({
       submit,
       mirror: this.mirror,
@@ -203,6 +243,106 @@ export class HieroClient {
       ...(signer ? { signer } : {}),
       ...(this.config.mirrorUrl ? { mirrorUrl: this.config.mirrorUrl } : {}),
       ...(this.config.maxFee ? { maxFee: this.config.maxFee } : {}),
+      ...(this.config.maxAttempts !== undefined ? { maxAttempts: this.config.maxAttempts } : {}),
+      ...(this.config.maxNodeAttempts !== undefined
+        ? { maxNodeAttempts: this.config.maxNodeAttempts }
+        : {}),
+      ...(this.config.requestTimeoutMs !== undefined
+        ? { requestTimeoutMs: this.config.requestTimeoutMs }
+        : {}),
+      ...(this.config.grpcDeadlineMs !== undefined
+        ? { grpcDeadlineMs: this.config.grpcDeadlineMs }
+        : {}),
+      ...(this.config.minBackoffMs !== undefined ? { minBackoffMs: this.config.minBackoffMs } : {}),
+      ...(this.config.maxBackoffMs !== undefined ? { maxBackoffMs: this.config.maxBackoffMs } : {}),
+    });
+  }
+
+  setNetwork(network: import("@hieco/utils").NetworkType): HieroClient {
+    return new HieroClient({
+      ...this.config,
+      network,
+    });
+  }
+
+  setMirrorNetwork(mirrorNetwork: string | ReadonlyArray<string>): HieroClient {
+    if (typeof mirrorNetwork === "string") {
+      return new HieroClient({
+        ...this.config,
+        mirrorUrl: mirrorNetwork,
+      });
+    }
+    const first = mirrorNetwork[0];
+    if (!first) return this;
+    return new HieroClient({
+      ...this.config,
+      mirrorUrl: first,
+    });
+  }
+
+  updateNetwork(): Promise<Result<{ readonly updated: true }>> {
+    const candidate: unknown = this.nativeClient;
+    if (
+      typeof candidate === "object" &&
+      candidate !== null &&
+      "updateNetwork" in candidate &&
+      typeof candidate.updateNetwork === "function"
+    ) {
+      return Promise.resolve(candidate.updateNetwork()).then(() => ({
+        ok: true as const,
+        value: { updated: true as const },
+      }));
+    }
+    return Promise.resolve({ ok: true, value: { updated: true } });
+  }
+
+  setOperator(operator: EntityId, key: string): HieroClient {
+    return new HieroClient({
+      ...this.config,
+      operator,
+      key,
+    });
+  }
+
+  setMaxAttempts(maxAttempts: number): HieroClient {
+    return new HieroClient({
+      ...this.config,
+      maxAttempts,
+    });
+  }
+
+  setMaxNodeAttempts(maxNodeAttempts: number): HieroClient {
+    return new HieroClient({
+      ...this.config,
+      maxNodeAttempts,
+    });
+  }
+
+  setRequestTimeout(requestTimeoutMs: number): HieroClient {
+    return new HieroClient({
+      ...this.config,
+      requestTimeoutMs,
+    });
+  }
+
+  setGrpcDeadline(grpcDeadlineMs: number): HieroClient {
+    return new HieroClient({
+      ...this.config,
+      grpcDeadlineMs,
+    });
+  }
+
+  setMinBackoff(minBackoffMs: number): HieroClient {
+    return new HieroClient({
+      ...this.config,
+      minBackoffMs,
+    });
+  }
+
+  setMaxBackoff(maxBackoffMs: number): HieroClient {
+    return new HieroClient({
+      ...this.config,
+      maxBackoffMs,
     });
   }
 
@@ -297,6 +437,33 @@ export class HieroClient {
       client.setDefaultMaxTransactionFee(new Hbar(config.maxFee));
     }
 
+    if (config.maxAttempts !== undefined) {
+      client.setMaxAttempts(config.maxAttempts);
+    }
+    if (config.maxNodeAttempts !== undefined) {
+      client.setMaxNodeAttempts(config.maxNodeAttempts);
+    }
+    if (config.requestTimeoutMs !== undefined) {
+      client.setRequestTimeout(config.requestTimeoutMs);
+    }
+    if (config.grpcDeadlineMs !== undefined) {
+      client.setGrpcDeadline(config.grpcDeadlineMs);
+    }
+    if (config.minBackoffMs !== undefined) {
+      client.setMinBackoff(config.minBackoffMs);
+    }
+    if (config.maxBackoffMs !== undefined) {
+      client.setMaxBackoff(config.maxBackoffMs);
+    }
+
     return client;
+  }
+
+  private warnLegacyLiveHash(): void {
+    if (this.legacyLiveHashWarned) return;
+    this.legacyLiveHashWarned = true;
+    console.warn(
+      "[hieco-sdk] legacy.liveHash is deprecated upstream and may be unavailable on your network.",
+    );
   }
 }

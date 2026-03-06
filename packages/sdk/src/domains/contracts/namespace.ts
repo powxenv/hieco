@@ -5,6 +5,7 @@ import type {
   ContractBytecodeData,
   MirrorContractCallData,
   MirrorContractEstimateData,
+  ContractDeployArtifactResult,
   ContractExecuteReceipt,
   ContractInfoData,
   ContractLogsData,
@@ -22,6 +23,9 @@ export interface ContractsNamespace {
       params: import("../../foundation/params.ts").DeployContractParams,
     ) => TransactionDescriptor;
   };
+  deployArtifact: (
+    params: import("../../foundation/params.ts").DeployArtifactParams,
+  ) => Promise<Result<ContractDeployArtifactResult>>;
   execute: ((
     params: import("../../foundation/params.ts").ExecuteContractParams,
   ) => Promise<Result<ContractExecuteReceipt>>) & {

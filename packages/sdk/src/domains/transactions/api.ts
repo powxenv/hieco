@@ -77,6 +77,12 @@ import {
   NodeUpdateTransaction,
   MirrorNodeContractCallQuery,
   MirrorNodeContractEstimateQuery,
+  LiveHashAddTransaction,
+  LiveHashDeleteTransaction,
+  LiveHashQuery,
+  EthereumTransaction,
+  SystemDeleteTransaction,
+  SystemUndeleteTransaction,
   ContractId,
 } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
@@ -284,6 +290,15 @@ function toFreezeType(
     default:
       return FreezeType.FreezeOnly;
   }
+}
+
+function toEthereumBytes(data: Uint8Array | string): Uint8Array {
+  if (data instanceof Uint8Array) return data;
+  const cleanHex = data.startsWith("0x") ? data.slice(2) : data;
+  if (cleanHex.length === 0 || cleanHex.length % 2 !== 0) {
+    throw new Error("Ethereum data must be non-empty hex bytes");
+  }
+  return hexToBytes(cleanHex);
 }
 
 function toReceiptData(
@@ -574,6 +589,53 @@ export function buildTransaction(
               a.spenderAccountId,
             );
           }
+        }
+      }
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "accounts.allowances.adjust": {
+      const params = tx.params;
+      const transaction = new AccountAllowanceApproveTransaction();
+      for (const allowance of params.hbar ?? []) {
+        const amount = Number(toAmountString(allowance.amount));
+        if (amount < 0) {
+          throw new Error("accounts.allowances.adjust hbar amount must be non-negative");
+        }
+        transaction.approveHbarAllowance(
+          allowance.ownerAccountId,
+          allowance.spenderAccountId,
+          toHbar(allowance.amount),
+        );
+      }
+      for (const allowance of params.tokens ?? []) {
+        const amount = Number(toAmountString(allowance.amount));
+        if (amount < 0) {
+          throw new Error("accounts.allowances.adjust token amount must be non-negative");
+        }
+        transaction.approveTokenAllowance(
+          allowance.tokenId,
+          allowance.ownerAccountId,
+          allowance.spenderAccountId,
+          Long.fromString(toAmountString(allowance.amount)),
+        );
+      }
+      for (const allowance of params.nfts ?? []) {
+        if (allowance.approveAll) {
+          transaction.approveTokenNftAllowanceAllSerials(
+            allowance.tokenId,
+            allowance.ownerAccountId,
+            allowance.spenderAccountId,
+          );
+          continue;
+        }
+        if (allowance.serial !== undefined) {
+          transaction.approveTokenNftAllowance(
+            NftId.fromString(`${allowance.tokenId}/${String(allowance.serial)}`),
+            allowance.ownerAccountId,
+            allowance.spenderAccountId,
+          );
         }
       }
       if (params.memo) transaction.setTransactionMemo(params.memo);
@@ -897,7 +959,13 @@ export function buildTransaction(
     }
     case "contracts.deploy": {
       const params = tx.params;
-      const transaction = new ContractCreateTransaction().setBytecode(hexToBytes(params.bytecode));
+      const transaction = new ContractCreateTransaction();
+      if (params.bytecode) {
+        transaction.setBytecode(hexToBytes(params.bytecode));
+      }
+      if (params.bytecodeFileId) {
+        transaction.setBytecodeFileId(FileId.fromString(params.bytecodeFileId));
+      }
       if (params.gas !== undefined) transaction.setGas(params.gas);
       if (params.constructorParams) {
         transaction.setConstructorParameters(
@@ -1191,6 +1259,59 @@ export function buildTransaction(
       }
       if (params.fileId) transaction.setFileId(FileId.fromString(params.fileId));
       if (params.fileHash) transaction.setFileHash(params.fileHash);
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "system.delete": {
+      const params = tx.params;
+      const transaction = new SystemDeleteTransaction();
+      if (params.fileId) transaction.setFileId(FileId.fromString(params.fileId));
+      if (params.contractId) transaction.setContractId(ContractId.fromString(params.contractId));
+      if (params.expirationTime)
+        transaction.setExpirationTime(Timestamp.fromDate(params.expirationTime));
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "system.undelete": {
+      const params = tx.params;
+      const transaction = new SystemUndeleteTransaction();
+      if (params.fileId) transaction.setFileId(FileId.fromString(params.fileId));
+      if (params.contractId) transaction.setContractId(ContractId.fromString(params.contractId));
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "legacy.liveHash.add": {
+      const params = tx.params;
+      const transaction = new LiveHashAddTransaction()
+        .setAccountId(params.accountId)
+        .setHash(params.hash)
+        .setDuration(Long.fromNumber(params.durationSeconds))
+        .setKeys(params.keys.map((key) => PrivateKey.fromStringDer(key).publicKey));
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "legacy.liveHash.delete": {
+      const params = tx.params;
+      const transaction = new LiveHashDeleteTransaction()
+        .setAccountId(params.accountId)
+        .setHash(params.hash);
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "evm.ethereum": {
+      const params = tx.params;
+      const transaction = new EthereumTransaction().setEthereumData(
+        toEthereumBytes(params.ethereumData),
+      );
+      if (params.callDataFileId)
+        transaction.setCallDataFileId(FileId.fromString(params.callDataFileId));
+      if (params.maxGasAllowance !== undefined)
+        transaction.setMaxGasAllowanceHbar(toHbar(params.maxGasAllowance));
       if (params.memo) transaction.setTransactionMemo(params.memo);
       if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
       return transaction;
@@ -1708,6 +1829,36 @@ export async function queryTokenNftInfo(
     return err(
       createError("TOKEN_NFT_QUERY_FAILED", "Token NFT query failed", {
         hint: "Verify NFT id format (tokenId/serial) and network connectivity",
+      }),
+    );
+  }
+}
+
+export async function queryLiveHash(
+  context: SubmitContext,
+  params: {
+    readonly accountId: EntityId;
+    readonly hash: Uint8Array;
+  },
+): Promise<Result<import("../../foundation/results-shapes.ts").LiveHashData>> {
+  try {
+    const query = new LiveHashQuery().setAccountId(params.accountId).setHash(params.hash);
+    const result =
+      context.signing.kind === "signer"
+        ? await query.executeWithSigner(context.signing.signer)
+        : await query.execute(context.client);
+    return ok({ liveHash: result });
+  } catch (error) {
+    if (error instanceof Error) {
+      return err(
+        createError("NETWORK_QUERY_FAILED", `Live hash query failed: ${error.message}`, {
+          hint: "Live hash is deprecated and may be unavailable on the target network",
+        }),
+      );
+    }
+    return err(
+      createError("NETWORK_QUERY_FAILED", "Live hash query failed", {
+        hint: "Live hash is deprecated and may be unavailable on the target network",
       }),
     );
   }

@@ -8,4 +8,10 @@ export interface ClientRuntimeConfig {
   readonly signer?: HieroSigner;
   readonly mirrorUrl?: string;
   readonly maxFee?: string;
+  readonly maxAttempts?: number;
+  readonly maxNodeAttempts?: number;
+  readonly requestTimeoutMs?: number;
+  readonly grpcDeadlineMs?: number;
+  readonly minBackoffMs?: number;
+  readonly maxBackoffMs?: number;
 }

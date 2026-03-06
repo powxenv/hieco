@@ -14,6 +14,7 @@ import { err, ok } from "../../foundation/results.ts";
 import { AccountBalanceQuery } from "@hiero-ledger/sdk";
 import { createError } from "../../foundation/errors.ts";
 import type {
+  AdjustAllowanceParams,
   ApproveAllowanceParams,
   CreateAccountParams,
   DeleteAccountParams,
@@ -111,6 +112,19 @@ export function createAccountsNamespace(context: {
 
   allowances.tx = (params: ApproveAllowanceParams): TransactionDescriptor => ({
     kind: "accounts.allowances",
+    params,
+  });
+
+  const allowancesAdjust = async (
+    params: AdjustAllowanceParams,
+  ): Promise<Result<TransactionReceiptData>> => {
+    const result = await context.submit({ kind: "accounts.allowances.adjust", params });
+    if (!result.ok) return result;
+    return ok(result.value);
+  };
+
+  allowancesAdjust.tx = (params: AdjustAllowanceParams): TransactionDescriptor => ({
+    kind: "accounts.allowances.adjust",
     params,
   });
 
@@ -402,6 +416,7 @@ export function createAccountsNamespace(context: {
     update,
     delete: deleteAccount,
     allowances,
+    allowancesAdjust,
     allowancesDeleteNft,
     allowancesList,
     allowancesEnsure,

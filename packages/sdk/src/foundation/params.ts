@@ -10,6 +10,12 @@ export interface ClientConfig {
   readonly signer?: HieroSigner;
   readonly mirrorUrl?: string;
   readonly maxFee?: Amount;
+  readonly maxAttempts?: number;
+  readonly maxNodeAttempts?: number;
+  readonly requestTimeoutMs?: number;
+  readonly grpcDeadlineMs?: number;
+  readonly minBackoffMs?: number;
+  readonly maxBackoffMs?: number;
 }
 
 export interface TransferParams {
@@ -110,6 +116,35 @@ export interface DeleteAllowanceParams {
 
 export interface DeleteNftAllowancesParams {
   readonly nfts: ReadonlyArray<DeleteNftAllowanceParams>;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface AdjustHbarAllowanceParams {
+  readonly ownerAccountId: EntityId;
+  readonly spenderAccountId: EntityId;
+  readonly amount: Amount;
+}
+
+export interface AdjustTokenAllowanceParams {
+  readonly tokenId: EntityId;
+  readonly ownerAccountId: EntityId;
+  readonly spenderAccountId: EntityId;
+  readonly amount: Amount;
+}
+
+export interface AdjustNftAllowanceParams {
+  readonly tokenId: EntityId;
+  readonly ownerAccountId: EntityId;
+  readonly spenderAccountId: EntityId;
+  readonly serial?: number;
+  readonly approveAll?: boolean;
+}
+
+export interface AdjustAllowanceParams {
+  readonly hbar?: ReadonlyArray<AdjustHbarAllowanceParams>;
+  readonly tokens?: ReadonlyArray<AdjustTokenAllowanceParams>;
+  readonly nfts?: ReadonlyArray<AdjustNftAllowanceParams>;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
@@ -359,8 +394,7 @@ export interface FunctionParamsConfig {
   readonly values: ReadonlyArray<unknown>;
 }
 
-export interface DeployContractParams {
-  readonly bytecode: string;
+export interface DeployContractBase {
   readonly gas?: number;
   readonly constructorParams?: ConstructorParamsConfig;
   readonly adminKey?: string | true;
@@ -373,6 +407,28 @@ export interface DeployContractParams {
   readonly declineStakingReward?: boolean;
   readonly memo?: string;
   readonly maxFee?: Amount;
+}
+
+export type DeployContractParams =
+  | (DeployContractBase & {
+      readonly bytecode: string;
+      readonly bytecodeFileId?: never;
+    })
+  | (DeployContractBase & {
+      readonly bytecode?: never;
+      readonly bytecodeFileId: EntityId;
+    });
+
+export interface DeployArtifactParams extends DeployContractBase {
+  readonly bytecode: string | Uint8Array;
+  readonly chunkSize?: number;
+  readonly fileKeys?: ReadonlyArray<string>;
+  readonly forceFile?: boolean;
+}
+
+export interface AccountInfoFlowOptions {
+  readonly maxAttempts?: number;
+  readonly retryDelayMs?: number;
 }
 
 export interface ExecuteContractParams {
@@ -621,6 +677,50 @@ export interface FreezeNetworkParams {
   readonly maxFee?: Amount;
 }
 
+export interface SystemDeleteParams {
+  readonly fileId?: EntityId;
+  readonly contractId?: EntityId;
+  readonly expirationTime?: Date;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface SystemUndeleteParams {
+  readonly fileId?: EntityId;
+  readonly contractId?: EntityId;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface LiveHashAddParams {
+  readonly accountId: EntityId;
+  readonly hash: Uint8Array;
+  readonly keys: ReadonlyArray<string>;
+  readonly durationSeconds: number;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface LiveHashDeleteParams {
+  readonly accountId: EntityId;
+  readonly hash: Uint8Array;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface LiveHashQueryParams {
+  readonly accountId: EntityId;
+  readonly hash: Uint8Array;
+}
+
+export interface EthereumSendRawParams {
+  readonly ethereumData: Uint8Array | string;
+  readonly callDataFileId?: EntityId;
+  readonly maxGasAllowance?: Amount;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
 export interface PrngParams {
   readonly range?: number;
   readonly memo?: string;
@@ -713,7 +813,10 @@ export type TransactionDescriptor =
   | { readonly kind: "accounts.update"; readonly params: UpdateAccountParams }
   | { readonly kind: "accounts.delete"; readonly params: DeleteAccountParams }
   | { readonly kind: "accounts.allowances"; readonly params: ApproveAllowanceParams }
+  | { readonly kind: "accounts.allowances.adjust"; readonly params: AdjustAllowanceParams }
   | { readonly kind: "accounts.allowances.deleteNft"; readonly params: DeleteNftAllowancesParams }
+  | { readonly kind: "legacy.liveHash.add"; readonly params: LiveHashAddParams }
+  | { readonly kind: "legacy.liveHash.delete"; readonly params: LiveHashDeleteParams }
   | { readonly kind: "tokens.create"; readonly params: CreateTokenParams }
   | { readonly kind: "tokens.mint"; readonly params: MintTokenParams }
   | { readonly kind: "tokens.burn"; readonly params: BurnTokenParams }
@@ -753,6 +856,9 @@ export type TransactionDescriptor =
   | { readonly kind: "nodes.update"; readonly params: NodeUpdateParams }
   | { readonly kind: "nodes.delete"; readonly params: NodeDeleteParams }
   | { readonly kind: "system.freeze"; readonly params: FreezeNetworkParams }
+  | { readonly kind: "system.delete"; readonly params: SystemDeleteParams }
+  | { readonly kind: "system.undelete"; readonly params: SystemUndeleteParams }
+  | { readonly kind: "evm.ethereum"; readonly params: EthereumSendRawParams }
   | { readonly kind: "util.random"; readonly params: PrngParams }
   | { readonly kind: "batch.atomic"; readonly params: BatchAtomicParams }
   | { readonly kind: "schedules.create"; readonly params: ScheduleCreateParams }

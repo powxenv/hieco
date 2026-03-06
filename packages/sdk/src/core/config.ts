@@ -83,6 +83,18 @@ function parseMaxFee(value: string | undefined): Result<string | undefined> {
   return ok(normalized);
 }
 
+function parsePositiveNumber(value: number | undefined, label: string): Result<number | undefined> {
+  if (value === undefined) return ok(undefined);
+  if (!Number.isFinite(value) || value <= 0) {
+    return err(
+      createError("CONFIG_INVALID_NETWORK", `${label} must be a positive number`, {
+        hint: `Provide a positive ${label}`,
+      }),
+    );
+  }
+  return ok(value);
+}
+
 function validateKey(value: string | undefined): Result<true> {
   if (!value) return ok(true);
   try {
@@ -106,6 +118,19 @@ export function resolveConfig(input: ClientConfig = {}): Result<ClientRuntimeCon
 
   const maxFeeResult = parseMaxFee(maxFee);
   if (!maxFeeResult.ok) return maxFeeResult;
+
+  const maxAttemptsResult = parsePositiveNumber(input.maxAttempts, "maxAttempts");
+  if (!maxAttemptsResult.ok) return maxAttemptsResult;
+  const maxNodeAttemptsResult = parsePositiveNumber(input.maxNodeAttempts, "maxNodeAttempts");
+  if (!maxNodeAttemptsResult.ok) return maxNodeAttemptsResult;
+  const requestTimeoutResult = parsePositiveNumber(input.requestTimeoutMs, "requestTimeoutMs");
+  if (!requestTimeoutResult.ok) return requestTimeoutResult;
+  const grpcDeadlineResult = parsePositiveNumber(input.grpcDeadlineMs, "grpcDeadlineMs");
+  if (!grpcDeadlineResult.ok) return grpcDeadlineResult;
+  const minBackoffResult = parsePositiveNumber(input.minBackoffMs, "minBackoffMs");
+  if (!minBackoffResult.ok) return minBackoffResult;
+  const maxBackoffResult = parsePositiveNumber(input.maxBackoffMs, "maxBackoffMs");
+  if (!maxBackoffResult.ok) return maxBackoffResult;
 
   const keyValidation = validateKey(key);
   if (!keyValidation.ok) return keyValidation;
@@ -153,6 +178,16 @@ export function resolveConfig(input: ClientConfig = {}): Result<ClientRuntimeCon
     ...(input.signer ? { signer: input.signer } : {}),
     ...(mirrorUrl ? { mirrorUrl } : {}),
     ...(maxFeeResult.value ? { maxFee: maxFeeResult.value } : {}),
+    ...(maxAttemptsResult.value !== undefined ? { maxAttempts: maxAttemptsResult.value } : {}),
+    ...(maxNodeAttemptsResult.value !== undefined
+      ? { maxNodeAttempts: maxNodeAttemptsResult.value }
+      : {}),
+    ...(requestTimeoutResult.value !== undefined
+      ? { requestTimeoutMs: requestTimeoutResult.value }
+      : {}),
+    ...(grpcDeadlineResult.value !== undefined ? { grpcDeadlineMs: grpcDeadlineResult.value } : {}),
+    ...(minBackoffResult.value !== undefined ? { minBackoffMs: minBackoffResult.value } : {}),
+    ...(maxBackoffResult.value !== undefined ? { maxBackoffMs: maxBackoffResult.value } : {}),
   };
   return ok(resolved);
 }

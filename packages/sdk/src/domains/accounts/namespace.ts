@@ -39,6 +39,13 @@ export interface AccountsNamespace {
       params: import("../../foundation/params.ts").ApproveAllowanceParams,
     ) => TransactionDescriptor;
   };
+  allowancesAdjust: ((
+    params: import("../../foundation/params.ts").AdjustAllowanceParams,
+  ) => Promise<Result<TransactionReceiptData>>) & {
+    tx: (
+      params: import("../../foundation/params.ts").AdjustAllowanceParams,
+    ) => TransactionDescriptor;
+  };
   allowancesDeleteNft: ((
     params: import("../../foundation/params.ts").DeleteNftAllowancesParams,
   ) => Promise<Result<TransactionReceiptData>>) & {

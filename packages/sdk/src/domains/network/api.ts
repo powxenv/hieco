@@ -54,5 +54,47 @@ export function createNetworkNamespace(context: {
     }
   };
 
-  return { version, addressBook };
+  const ping = async (nodeAccountId: string): Promise<Result<{ readonly ok: true }>> => {
+    try {
+      await context.client.ping(nodeAccountId);
+      return ok({ ok: true });
+    } catch (error) {
+      if (error instanceof Error) {
+        return err(
+          createError("NETWORK_QUERY_FAILED", `Network ping failed: ${error.message}`, {
+            hint: "Verify node account id and network connectivity",
+          }),
+        );
+      }
+      return err(
+        createError("NETWORK_QUERY_FAILED", "Network ping failed", {
+          hint: "Verify node account id and network connectivity",
+        }),
+      );
+    }
+  };
+
+  const pingAll = async (): Promise<
+    Result<import("../../foundation/results-shapes.ts").PingAllData>
+  > => {
+    try {
+      await context.client.pingAll();
+      return ok({ nodes: [] });
+    } catch (error) {
+      if (error instanceof Error) {
+        return err(
+          createError("NETWORK_QUERY_FAILED", `Network pingAll failed: ${error.message}`, {
+            hint: "Verify network connectivity",
+          }),
+        );
+      }
+      return err(
+        createError("NETWORK_QUERY_FAILED", "Network pingAll failed", {
+          hint: "Verify network connectivity",
+        }),
+      );
+    }
+  };
+
+  return { version, addressBook, ping, pingAll };
 }

@@ -10,6 +10,7 @@ import type {
 } from "@hieco/mirror";
 import type {
   FileInfo,
+  LiveHash,
   TransactionRecord,
   TransactionReceipt,
   TokenNftInfo,
@@ -81,6 +82,14 @@ export interface ContractReceipt {
   readonly receipt: TransactionReceiptData;
   readonly transactionId: string;
   readonly contractId: EntityId;
+}
+
+export interface ContractDeployArtifactResult {
+  readonly receipt: TransactionReceiptData;
+  readonly transactionId: string;
+  readonly contractId: EntityId;
+  readonly fileId?: EntityId;
+  readonly chunks?: number;
 }
 
 export interface ContractExecuteReceipt {
@@ -191,6 +200,20 @@ export interface NetworkVersionData {
 
 export interface AddressBookData {
   readonly book: NodeAddressBook;
+}
+
+export interface PingNodeResult {
+  readonly nodeAccountId: string;
+  readonly ok: boolean;
+  readonly error?: string;
+}
+
+export interface PingAllData {
+  readonly nodes: ReadonlyArray<PingNodeResult>;
+}
+
+export interface LiveHashData {
+  readonly liveHash: LiveHash;
 }
 
 export interface MirrorContractCallData {
