@@ -19,13 +19,26 @@ This file contains instructions for AI agents working on this project.
   - `grep` - Search file contents with regex
   - `grep_searchGitHub` - Search real-world code from GitHub repositories
 
-**Never assume or hallucinate.** If uncertain about anything, always use these tools.
+**Never assume or hallucinate.** Only use external tools when necessary.
 
 When encountering errors or unfamiliar APIs:
 
-1. Stop and search for official documentation
-2. Verify all assumptions with sources
-3. Never guess syntax, parameters, or behavior
+1. **For installed libraries in node_modules:**
+   - Check the library source code directly in `node_modules/<package-name>`
+   - Read the README, types, or source files to understand usage
+   - Do NOT use MCP servers for libraries that are already installed
+
+2. **For external libraries or new dependencies:**
+   - Only search the internet when you genuinely need external information
+   - Use MCP tools for official documentation when unavailable locally
+   - Never guess syntax, parameters, or behavior
+
+**Do NOT search the internet for:**
+
+- Basic programming concepts
+- Common language features
+- Information available in the codebase
+- Things you can determine by reading the code or types
 
 ## Tool Requirements
 
