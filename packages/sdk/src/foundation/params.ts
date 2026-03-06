@@ -498,6 +498,142 @@ export interface DeleteFileParams {
   readonly maxFee?: Amount;
 }
 
+export interface TokenAirdropTokenTransferParams {
+  readonly tokenId: EntityId;
+  readonly accountId: EntityId;
+  readonly amount: Amount;
+  readonly expectedDecimals?: number;
+  readonly approved?: boolean;
+}
+
+export interface TokenAirdropNftTransferParams {
+  readonly tokenId: EntityId;
+  readonly serial: number;
+  readonly from: EntityId;
+  readonly to: EntityId;
+  readonly approved?: boolean;
+}
+
+export interface TokenAirdropParams {
+  readonly tokenTransfers?: ReadonlyArray<TokenAirdropTokenTransferParams>;
+  readonly nftTransfers?: ReadonlyArray<TokenAirdropNftTransferParams>;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface PendingAirdropReference {
+  readonly senderId: EntityId;
+  readonly receiverId: EntityId;
+  readonly tokenId?: EntityId;
+  readonly nft?: {
+    readonly tokenId: EntityId;
+    readonly serial: number;
+  };
+}
+
+export interface TokenClaimAirdropParams {
+  readonly pendingAirdropIds: ReadonlyArray<string | PendingAirdropReference>;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface TokenCancelAirdropParams {
+  readonly pendingAirdropIds: ReadonlyArray<string | PendingAirdropReference>;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface TokenRejectParams {
+  readonly owner?: EntityId;
+  readonly tokenIds?: ReadonlyArray<EntityId>;
+  readonly nfts?: ReadonlyArray<{
+    readonly tokenId: EntityId;
+    readonly serial: number;
+  }>;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface TokenUpdateNftsParams {
+  readonly tokenId: EntityId;
+  readonly serialNumbers: ReadonlyArray<number>;
+  readonly metadata: Uint8Array;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface NodeServiceEndpointParams {
+  readonly ipAddressV4?: Uint8Array;
+  readonly domainName?: string;
+  readonly port: number;
+}
+
+export interface NodeCreateParams {
+  readonly accountId: EntityId;
+  readonly description?: string;
+  readonly gossipEndpoints: ReadonlyArray<NodeServiceEndpointParams>;
+  readonly serviceEndpoints?: ReadonlyArray<NodeServiceEndpointParams>;
+  readonly gossipCaCertificate: Uint8Array;
+  readonly grpcCertificateHash?: Uint8Array;
+  readonly grpcWebProxyEndpoint?: NodeServiceEndpointParams;
+  readonly adminKey?: string | true;
+  readonly declineReward?: boolean;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface NodeUpdateParams {
+  readonly nodeId: string | number | bigint;
+  readonly accountId?: EntityId;
+  readonly description?: string;
+  readonly clearDescription?: boolean;
+  readonly gossipEndpoints?: ReadonlyArray<NodeServiceEndpointParams>;
+  readonly serviceEndpoints?: ReadonlyArray<NodeServiceEndpointParams>;
+  readonly gossipCaCertificate?: Uint8Array;
+  readonly grpcCertificateHash?: Uint8Array;
+  readonly grpcWebProxyEndpoint?: NodeServiceEndpointParams;
+  readonly clearGrpcWebProxyEndpoint?: boolean;
+  readonly adminKey?: string | true;
+  readonly declineReward?: boolean;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface NodeDeleteParams {
+  readonly nodeId: string | number | bigint;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export type FreezeIntent =
+  | "freeze-only"
+  | "prepare-upgrade"
+  | "freeze-upgrade"
+  | "freeze-abort"
+  | "telemetry-upgrade";
+
+export interface FreezeNetworkParams {
+  readonly startTimestamp?: Date | string | number;
+  readonly fileId?: EntityId;
+  readonly fileHash?: Uint8Array | string;
+  readonly type?: FreezeIntent;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface PrngParams {
+  readonly range?: number;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
+export interface BatchAtomicParams {
+  readonly txs: ReadonlyArray<TransactionDescriptor>;
+  readonly batchKey: string;
+  readonly memo?: string;
+  readonly maxFee?: Amount;
+}
+
 export interface WatchTopicMessagesOptions {
   readonly startTime?: Date;
   readonly endTime?: Date;
@@ -608,6 +744,17 @@ export type TransactionDescriptor =
   | { readonly kind: "files.append"; readonly params: AppendFileParams }
   | { readonly kind: "files.update"; readonly params: UpdateFileParams }
   | { readonly kind: "files.delete"; readonly params: DeleteFileParams }
+  | { readonly kind: "tokens.airdrop"; readonly params: TokenAirdropParams }
+  | { readonly kind: "tokens.claimAirdrop"; readonly params: TokenClaimAirdropParams }
+  | { readonly kind: "tokens.cancelAirdrop"; readonly params: TokenCancelAirdropParams }
+  | { readonly kind: "tokens.reject"; readonly params: TokenRejectParams }
+  | { readonly kind: "tokens.updateNfts"; readonly params: TokenUpdateNftsParams }
+  | { readonly kind: "nodes.create"; readonly params: NodeCreateParams }
+  | { readonly kind: "nodes.update"; readonly params: NodeUpdateParams }
+  | { readonly kind: "nodes.delete"; readonly params: NodeDeleteParams }
+  | { readonly kind: "system.freeze"; readonly params: FreezeNetworkParams }
+  | { readonly kind: "util.random"; readonly params: PrngParams }
+  | { readonly kind: "batch.atomic"; readonly params: BatchAtomicParams }
   | { readonly kind: "schedules.create"; readonly params: ScheduleCreateParams }
   | { readonly kind: "schedules.sign"; readonly params: ScheduleSignParams }
   | { readonly kind: "schedules.delete"; readonly params: ScheduleDeleteParams };

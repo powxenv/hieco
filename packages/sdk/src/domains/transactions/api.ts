@@ -1,11 +1,17 @@
 import {
   AccountAllowanceApproveTransaction,
   AccountAllowanceDeleteTransaction,
+  AccountId,
   AccountCreateTransaction,
   AccountDeleteTransaction,
+  BatchTransaction,
   AccountUpdateTransaction,
   Client,
+  FreezeTransaction,
+  FreezeType,
   ContractCallQuery,
+  PendingAirdropId,
+  PrngTransaction,
   ContractCreateTransaction,
   ContractDeleteTransaction,
   ContractExecuteTransaction,
@@ -14,6 +20,7 @@ import {
   FileAppendTransaction,
   FileCreateTransaction,
   FileDeleteTransaction,
+  FileId,
   FileUpdateTransaction,
   Hbar,
   PrivateKey,
@@ -49,8 +56,8 @@ import {
   CustomRoyaltyFee,
   FeeAssessmentMethod,
   NftId,
-  AccountId,
   Timestamp,
+  ServiceEndpoint,
   FileInfoQuery,
   FileContentsQuery,
   TransactionRecordQuery,
@@ -59,6 +66,15 @@ import {
   AccountRecordsQuery,
   ContractByteCodeQuery,
   TokenNftInfoQuery,
+  TokenAirdropTransaction,
+  TokenCancelAirdropTransaction,
+  TokenClaimAirdropTransaction,
+  TokenId,
+  TokenRejectTransaction,
+  TokenUpdateNftsTransaction,
+  NodeCreateTransaction,
+  NodeDeleteTransaction,
+  NodeUpdateTransaction,
   MirrorNodeContractCallQuery,
   MirrorNodeContractEstimateQuery,
   ContractId,
@@ -71,6 +87,8 @@ import type {
   FunctionParamsConfig,
   CustomFeeParams,
   CustomFixedFeeParams,
+  NodeServiceEndpointParams,
+  PendingAirdropReference,
 } from "../../foundation/params.ts";
 import type {
   TransactionReceiptData,
@@ -179,6 +197,93 @@ function hexToBytes(hex: string): Uint8Array {
     bytes[i] = parseInt(cleanHex.slice(i * 2, i * 2 + 2), 16);
   }
   return bytes;
+}
+
+function parsePendingAirdropReference(
+  reference: string | PendingAirdropReference,
+): PendingAirdropId {
+  if (typeof reference !== "string") {
+    if (reference.tokenId) {
+      return new PendingAirdropId({
+        senderId: AccountId.fromString(reference.senderId),
+        receiverId: AccountId.fromString(reference.receiverId),
+        tokenId: TokenId.fromString(reference.tokenId),
+      });
+    }
+
+    if (reference.nft) {
+      return new PendingAirdropId({
+        senderId: AccountId.fromString(reference.senderId),
+        receiverId: AccountId.fromString(reference.receiverId),
+        nftId: NftId.fromString(`${reference.nft.tokenId}/${String(reference.nft.serial)}`),
+      });
+    }
+
+    throw new Error("Pending airdrop reference must include tokenId or nft");
+  }
+
+  const parts = reference.split("|");
+  const sender = parts[0];
+  const receiver = parts[1];
+  const target = parts[2];
+
+  if (!sender || !receiver || !target) {
+    throw new Error(
+      "Invalid pending airdrop id. Use sender|receiver|tokenId or sender|receiver|tokenId/serial",
+    );
+  }
+
+  if (target.includes("/")) {
+    return new PendingAirdropId({
+      senderId: AccountId.fromString(sender),
+      receiverId: AccountId.fromString(receiver),
+      nftId: NftId.fromString(target),
+    });
+  }
+
+  return new PendingAirdropId({
+    senderId: AccountId.fromString(sender),
+    receiverId: AccountId.fromString(receiver),
+    tokenId: TokenId.fromString(target),
+  });
+}
+
+function toServiceEndpoint(input: NodeServiceEndpointParams): ServiceEndpoint {
+  const endpoint = new ServiceEndpoint();
+  if (input.ipAddressV4) {
+    endpoint.setIpAddressV4(input.ipAddressV4);
+  } else if (input.domainName) {
+    endpoint.setDomainName(input.domainName);
+  }
+  endpoint.setPort(input.port);
+  return endpoint;
+}
+
+function toNodeId(value: string | number | bigint): Long {
+  if (typeof value === "number") {
+    return Long.fromNumber(value);
+  }
+  if (typeof value === "bigint") {
+    return Long.fromString(value.toString());
+  }
+  return Long.fromString(value);
+}
+
+function toFreezeType(
+  value: import("../../foundation/params.ts").FreezeIntent | undefined,
+): FreezeType {
+  switch (value) {
+    case "prepare-upgrade":
+      return FreezeType.PrepareUpgrade;
+    case "freeze-upgrade":
+      return FreezeType.FreezeUpgrade;
+    case "freeze-abort":
+      return FreezeType.FreezeAbort;
+    case "telemetry-upgrade":
+      return FreezeType.TelemetryUpgrade;
+    default:
+      return FreezeType.FreezeOnly;
+  }
 }
 
 export function buildContractFunctionParameters(
@@ -317,7 +422,7 @@ export function buildTransaction(
   tx: TransactionDescriptor,
   operatorKey: string | undefined,
   signing?: SigningContext,
-) {
+): import("@hiero-ledger/sdk").Transaction {
   switch (tx.kind) {
     case "accounts.transfer": {
       const params = tx.params;
@@ -865,6 +970,187 @@ export function buildTransaction(
       if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
       return transaction;
     }
+    case "tokens.airdrop": {
+      const params = tx.params;
+      const transaction = new TokenAirdropTransaction();
+      for (const transfer of params.tokenTransfers ?? []) {
+        if (transfer.approved) {
+          if (transfer.expectedDecimals !== undefined) {
+            transaction.addApprovedTokenTransferWithDecimals(
+              TokenId.fromString(transfer.tokenId),
+              AccountId.fromString(transfer.accountId),
+              Long.fromString(toAmountString(transfer.amount)),
+              transfer.expectedDecimals,
+            );
+          } else {
+            transaction.addApprovedTokenTransfer(
+              TokenId.fromString(transfer.tokenId),
+              AccountId.fromString(transfer.accountId),
+              Long.fromString(toAmountString(transfer.amount)),
+            );
+          }
+        } else if (transfer.expectedDecimals !== undefined) {
+          transaction.addTokenTransferWithDecimals(
+            TokenId.fromString(transfer.tokenId),
+            AccountId.fromString(transfer.accountId),
+            Long.fromString(toAmountString(transfer.amount)),
+            transfer.expectedDecimals,
+          );
+        } else {
+          transaction.addTokenTransfer(
+            TokenId.fromString(transfer.tokenId),
+            AccountId.fromString(transfer.accountId),
+            Long.fromString(toAmountString(transfer.amount)),
+          );
+        }
+      }
+      for (const transfer of params.nftTransfers ?? []) {
+        if (transfer.approved) {
+          transaction.addApprovedNftTransfer(
+            TokenId.fromString(transfer.tokenId),
+            Long.fromNumber(transfer.serial),
+            AccountId.fromString(transfer.from),
+            AccountId.fromString(transfer.to),
+          );
+        } else {
+          transaction.addNftTransfer(
+            TokenId.fromString(transfer.tokenId),
+            Long.fromNumber(transfer.serial),
+            AccountId.fromString(transfer.from),
+            AccountId.fromString(transfer.to),
+          );
+        }
+      }
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "tokens.claimAirdrop": {
+      const params = tx.params;
+      const transaction = new TokenClaimAirdropTransaction();
+      for (const item of params.pendingAirdropIds) {
+        transaction.addPendingAirdropId(parsePendingAirdropReference(item));
+      }
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "tokens.cancelAirdrop": {
+      const params = tx.params;
+      const transaction = new TokenCancelAirdropTransaction();
+      for (const item of params.pendingAirdropIds) {
+        transaction.addPendingAirdropId(parsePendingAirdropReference(item));
+      }
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "tokens.reject": {
+      const params = tx.params;
+      const transaction = new TokenRejectTransaction();
+      if (params.owner) transaction.setOwnerId(AccountId.fromString(params.owner));
+      if (params.tokenIds) {
+        for (const tokenId of params.tokenIds) {
+          transaction.addTokenId(TokenId.fromString(tokenId));
+        }
+      }
+      if (params.nfts) {
+        for (const nft of params.nfts) {
+          transaction.addNftId(NftId.fromString(`${nft.tokenId}/${String(nft.serial)}`));
+        }
+      }
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "tokens.updateNfts": {
+      const params = tx.params;
+      const transaction = new TokenUpdateNftsTransaction()
+        .setTokenId(params.tokenId)
+        .setSerialNumbers(params.serialNumbers.map((value) => Long.fromNumber(value)))
+        .setMetadata(params.metadata);
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "nodes.create": {
+      const params = tx.params;
+      const transaction = new NodeCreateTransaction()
+        .setAccountId(params.accountId)
+        .setGossipEndpoints(params.gossipEndpoints.map(toServiceEndpoint))
+        .setGossipCaCertificate(params.gossipCaCertificate);
+      if (params.description !== undefined) transaction.setDescription(params.description);
+      if (params.serviceEndpoints) {
+        transaction.setServiceEndpoints(params.serviceEndpoints.map(toServiceEndpoint));
+      }
+      if (params.grpcCertificateHash) transaction.setCertificateHash(params.grpcCertificateHash);
+      if (params.grpcWebProxyEndpoint) {
+        transaction.setGrpcWebProxyEndpoint(toServiceEndpoint(params.grpcWebProxyEndpoint));
+      }
+      if (params.adminKey !== undefined) {
+        transaction.setAdminKey(resolveKeyParam(params.adminKey, operatorKey, signing));
+      }
+      if (params.declineReward !== undefined) transaction.setDeclineReward(params.declineReward);
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "nodes.update": {
+      const params = tx.params;
+      const transaction = new NodeUpdateTransaction().setNodeId(toNodeId(params.nodeId));
+      if (params.accountId) transaction.setAccountId(params.accountId);
+      if (params.description !== undefined) transaction.setDescription(params.description);
+      if (params.clearDescription) transaction.clearDescription();
+      if (params.gossipEndpoints) {
+        transaction.setGossipEndpoints(params.gossipEndpoints.map(toServiceEndpoint));
+      }
+      if (params.serviceEndpoints) {
+        transaction.setServiceEndpoints(params.serviceEndpoints.map(toServiceEndpoint));
+      }
+      if (params.gossipCaCertificate)
+        transaction.setGossipCaCertificate(params.gossipCaCertificate);
+      if (params.grpcCertificateHash) transaction.setCertificateHash(params.grpcCertificateHash);
+      if (params.grpcWebProxyEndpoint) {
+        transaction.setGrpcWebProxyEndpoint(toServiceEndpoint(params.grpcWebProxyEndpoint));
+      }
+      if (params.clearGrpcWebProxyEndpoint) {
+        transaction.deleteGrpcWebProxyEndpoint();
+      }
+      if (params.adminKey !== undefined) {
+        transaction.setAdminKey(resolveKeyParam(params.adminKey, operatorKey, signing));
+      }
+      if (params.declineReward !== undefined) transaction.setDeclineReward(params.declineReward);
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "nodes.delete": {
+      const params = tx.params;
+      const transaction = new NodeDeleteTransaction().setNodeId(toNodeId(params.nodeId));
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "system.freeze": {
+      const params = tx.params;
+      const transaction = new FreezeTransaction().setFreezeType(toFreezeType(params.type));
+      if (params.startTimestamp !== undefined) {
+        transaction.setStartTimestamp(Timestamp.fromDate(params.startTimestamp));
+      }
+      if (params.fileId) transaction.setFileId(FileId.fromString(params.fileId));
+      if (params.fileHash) transaction.setFileHash(params.fileHash);
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
+    case "util.random": {
+      const params = tx.params;
+      const transaction = new PrngTransaction();
+      if (params.range !== undefined) transaction.setRange(params.range);
+      if (params.memo) transaction.setTransactionMemo(params.memo);
+      if (params.maxFee !== undefined) transaction.setMaxTransactionFee(toHbar(params.maxFee));
+      return transaction;
+    }
     case "schedules.create": {
       const params = tx.params;
       const scheduled = buildTransaction(params.tx, operatorKey, signing);
@@ -895,6 +1181,10 @@ export function buildTransaction(
       return transaction;
     }
   }
+
+  throw new Error(
+    `Unsupported descriptor kind: ${(tx as { readonly kind?: string }).kind ?? "unknown"}`,
+  );
 }
 
 export async function submitTransaction(
@@ -902,6 +1192,73 @@ export async function submitTransaction(
   descriptor: TransactionDescriptor,
 ): Promise<Result<TransactionReceiptData>> {
   try {
+    if (descriptor.kind === "batch.atomic") {
+      if (context.signing.kind !== "operator") {
+        return err(
+          createError("SIGNER_REQUIRED", "batch.atomic requires operator key signing", {
+            hint: "Initialize client with operator and key",
+          }),
+        );
+      }
+
+      if (descriptor.params.txs.length === 0) {
+        return err(
+          createError("UNEXPECTED_ERROR", "batch.atomic requires at least one inner transaction", {
+            hint: "Provide one or more transaction descriptors",
+          }),
+        );
+      }
+
+      const batchKey = PrivateKey.fromStringDer(descriptor.params.batchKey);
+      const batch = new BatchTransaction();
+      for (const innerDescriptor of descriptor.params.txs) {
+        if (innerDescriptor.kind === "batch.atomic") {
+          return err(
+            createError("UNEXPECTED_ERROR", "Nested batch.atomic is not supported", {
+              hint: "Flatten inner transactions into a single batch",
+            }),
+          );
+        }
+
+        const inner = buildTransaction(innerDescriptor, context.signing.key, context.signing);
+        await inner.batchify(context.client, batchKey.publicKey);
+        batch.addInnerTransaction(inner);
+      }
+
+      if (descriptor.params.memo) batch.setTransactionMemo(descriptor.params.memo);
+      if (descriptor.params.maxFee !== undefined)
+        batch.setMaxTransactionFee(toHbar(descriptor.params.maxFee));
+
+      const signed = await (
+        await (await batch.freezeWith(context.client)).sign(
+          PrivateKey.fromStringDer(context.signing.key),
+        )
+      ).sign(batchKey);
+
+      const submitted = await signed.execute(context.client);
+      const txId = submitted.transactionId?.toString() ?? "unknown";
+      const receipt = await submitted.getReceipt(context.client);
+      const accountIdStr = receipt.accountId?.toString();
+
+      return ok({
+        status: receipt.status.toString(),
+        transactionId: txId,
+        ...(accountIdStr ? { accountId: asEntityId(accountIdStr) } : {}),
+        ...(receipt.fileId ? { fileId: asEntityId(receipt.fileId.toString()) } : {}),
+        ...(receipt.contractId ? { contractId: asEntityId(receipt.contractId.toString()) } : {}),
+        ...(receipt.topicId ? { topicId: asEntityId(receipt.topicId.toString()) } : {}),
+        ...(receipt.tokenId ? { tokenId: asEntityId(receipt.tokenId.toString()) } : {}),
+        ...(receipt.scheduleId ? { scheduleId: asEntityId(receipt.scheduleId.toString()) } : {}),
+        ...(receipt.totalSupply !== undefined && receipt.totalSupply !== null
+          ? { totalSupply: receipt.totalSupply.toString() }
+          : {}),
+        ...(receipt.serials ? { serialNumbers: receipt.serials.map((s) => s.toNumber()) } : {}),
+        ...(receipt.topicSequenceNumber
+          ? { topicSequenceNumber: receipt.topicSequenceNumber.toString() }
+          : {}),
+      });
+    }
+
     const operatorKey = context.signing.kind === "operator" ? context.signing.key : undefined;
     const nativeTx = buildTransaction(descriptor, operatorKey, context.signing);
 

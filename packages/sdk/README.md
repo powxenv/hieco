@@ -1,633 +1,433 @@
 # @hieco/sdk
 
-Ergonomic, type-safe SDK for Hedera transactions and queries.
+`@hieco/sdk` gives you one client, `hiero()`, for working with Hedera/Hiero.
 
-## Table of Contents
+This guide keeps the happy path simple: start with fluent calls, then use the API reference when you need exact method-by-method mappings.
 
-- [Features](#features)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [SDK Surface](#sdk-surface)
-- [Core Concepts](#core-concepts)
-- [Transactions](#transactions)
-- [Queries and Read Models](#queries-and-read-models)
-- [Use Cases](#use-cases)
-- [Configuration](#configuration)
-- [Type Inference](#type-inference)
-- [Related Packages](#related-packages)
-- [Browser Support](#browser-support)
-- [License](#license)
+## Contents
 
-## Features
+- [@hieco/sdk](#hiecosdk)
+  - [Contents](#contents)
+  - [Install](#install)
+  - [Set up your client](#set-up-your-client)
+  - [Runtime notes: Node vs Browser](#runtime-notes-node-vs-browser)
+    - [Node/server](#nodeserver)
+    - [Browser](#browser)
+  - [Fluent in practice](#fluent-in-practice)
+  - [Use cases](#use-cases)
+    - [1) Shared client file used across your app](#1-shared-client-file-used-across-your-app)
+    - [2) Let a connected wallet signer submit transfers](#2-let-a-connected-wallet-signer-submit-transfers)
+    - [3) Multi-party approval with schedules](#3-multi-party-approval-with-schedules)
+    - [4) Build in one layer, submit in another](#4-build-in-one-layer-submit-in-another)
+  - [API reference](#api-reference)
+    - [Accounts](#accounts)
+    - [Tokens](#tokens)
+    - [Topics](#topics)
+    - [Contracts](#contracts)
+    - [Files](#files)
+    - [Schedules](#schedules)
+    - [Transactions, network, reads](#transactions-network-reads)
+    - [Node/system/util/batch](#nodesystemutilbatch)
+  - [Descriptors](#descriptors)
+  - [Error handling](#error-handling)
+  - [Troubleshooting](#troubleshooting)
+  - [Best practices](#best-practices)
 
-- **Single entrypoint** - `hiero()` factory returns a fully configured client
-- **Domain-first API** - `client.accounts`, `client.tokens`, `client.hcs`, `client.contracts`, `client.files`, `client.schedules`, `client.transactions`
-- **Telepathic defaults** - infers sender from operator or signer
-- **Contract call defaults** - `contracts.call` uses a safe gas default (override as needed)
-- **Schedule-ready descriptors** - `client.accounts.transfer.tx()` returns a descriptor for schedules
-- **Actionable errors** - structured error objects with `code`, `hint`, and `transactionId`
-- **Mirror node built-in** - `client.mirror.*` backed by `@hieco/mirror`
-
-## Installation
+## Install
 
 ```bash
-bun add @hieco/sdk @hiero-ledger/sdk
+bun add @hieco/sdk
 ```
 
-## Quick Start
-
-### Step 1: Set Environment Variables
-
-Create a `.env` file:
-
-```env
-HIERO_OPERATOR_ID=0.0.123456
-HIERO_PRIVATE_KEY=302e020100300506032b657004220420...
-HIERO_NETWORK=testnet
-HIERO_MIRROR_URL=https://testnet.mirrornode.hedera.com
+```bash
+npm install @hieco/sdk
 ```
 
-### Step 2: Create Client and Execute Transactions
+## Set up your client
 
-```typescript
-import { hiero } from "@hieco/sdk";
+Pass config directly:
 
-const client = hiero();
-
-const mirrorInfo = await client.mirror.account.getInfo("0.0.123");
-
-if (mirrorInfo.success) {
-  console.log(mirrorInfo.data.account);
-}
-
-const transfer = await client.accounts.transfer({
-  to: "0.0.5678",
-  hbar: 10,
-});
-
-if (transfer.ok) {
-  console.log(`Transfer complete. Transaction ID: ${transfer.value.transactionId}`);
-} else {
-  console.error(`Transfer failed: ${transfer.error.message}`);
-}
-```
-
-## Core Concepts
-
-### Client Configuration
-
-The client auto-detects configuration from environment variables, but you can override:
-
-```typescript
+```ts
 import { hiero } from "@hieco/sdk";
 
 const client = hiero({
-  network: "mainnet",
-  operator: "0.0.123",
-  key: "302e0201...",
-  mirrorUrl: "https://mainnet.mirrornode.hedera.com",
+  network: "testnet",
+  operator: "0.0.1234",
+  key: "302e020100300506032b657004220420...",
+  mirrorUrl: "https://testnet.mirrornode.hedera.com",
   maxFee: 2,
 });
 ```
 
-### Default (Reusable) Configuration
+Or use environment variables:
 
-Create a tiny helper in your app for a shared client:
+- `HIERO_NETWORK`
+- `HIERO_OPERATOR_ID` (or `HIERO_ACCOUNT_ID`)
+- `HIERO_PRIVATE_KEY`
+- `HIERO_MIRROR_URL`
 
-```typescript
+Switch signer context when needed:
+
+```ts
+import { hiero } from "@hieco/sdk";
+import type { Signer } from "@hieco/sdk";
+
+const client = hiero();
+const walletClient = client.as({} as Signer);
+const scopedClient = client.with({ operator: "0.0.5555" });
+```
+
+## Runtime notes: Node vs Browser
+
+The API is the same in both environments, but configuration behavior is different.
+
+### Node/server
+
+- Environment variables are read automatically.
+- Using `operator` + `key` is the common setup.
+- Best place for long-lived service keys.
+
+```ts
 import { hiero } from "@hieco/sdk";
 
-export const client = hiero({
+const client = hiero();
+const result = await client.account.send().to("0.0.2002").hbar(1).now();
+```
+
+### Browser
+
+- Environment variables are not read by the SDK runtime config.
+- Use a wallet signer (`client.as(signer)`) for user actions.
+- Avoid embedding operator private keys in frontend bundles.
+
+```ts
+import { hiero } from "@hieco/sdk";
+import type { Signer } from "@hieco/sdk";
+
+export async function transferFromWallet(signer: Signer, to: string) {
+  const client = hiero({ network: "testnet" }).as(signer);
+  return client.account.send().to(to).hbar(1).now();
+}
+```
+
+## Fluent in practice
+
+The flow is simple:
+
+- chain the action
+- call `now()` to run
+- call `tx()` if you need a descriptor
+- call `queue()` to schedule it
+
+Example:
+
+```ts
+const payment = await client.account
+  .send()
+  .from("0.0.1001")
+  .to("0.0.2002")
+  .hbar(1)
+  .memo("invoice-42")
+  .now();
+```
+
+Helpers used most often:
+
+- `memo`, `fee`
+- `from`, `to`, `hbar`, `amount`
+- `token`, `account`, `topic`, `contract`, `file`
+- `fn`, `args`, `gas`, `typed`
+- `with`, `set`, `push`, `reset`
+
+Schedule from the same chain:
+
+```ts
+const scheduled = await client.account.send().to("0.0.2002").hbar(1).queue({ memo: "multisig" });
+```
+
+## Use cases
+
+### 1) Shared client file used across your app
+
+Create one client in a single module:
+
+```ts
+// src/lib/hedera.ts
+import { hiero } from "@hieco/sdk";
+
+export const hedera = hiero({
   network: "testnet",
+  operator: process.env.HIERO_OPERATOR_ID,
+  key: process.env.HIERO_PRIVATE_KEY,
 });
 ```
 
-### Wallet / Per-User Signer
+Use it anywhere:
 
-When each user connects their own wallet, pass a Hedera JS SDK `Signer` and execute transactions with that signer:
+```ts
+// src/features/payouts/send-payout.ts
+import { hedera } from "../../lib/hedera";
 
-```typescript
-import { hiero } from "@hieco/sdk";
-import type { Signer } from "@hiero-ledger/sdk";
-
-export async function sendTip(userSigner: Signer, to: string, amount: number) {
-  const client = hiero().as(userSigner);
-
-  return client.accounts.transfer({
-    to,
-    hbar: amount,
-  });
+export async function sendPayout(to: string, amount: number) {
+  return hedera.account.send().to(to).hbar(amount).memo("weekly-payout").now();
 }
 ```
 
-### Multi-Party Signing (Scheduled Transactions)
+### 2) Let a connected wallet signer submit transfers
 
-When a transaction needs multiple signatures (multi-sig / threshold keys / multiple wallets), use a Scheduled Transaction.
-The network will collect signatures and execute once the required signatures are present.
+Use one app-level client, then scope it to the user's signer:
 
-```typescript
+```ts
 import { hiero } from "@hieco/sdk";
-import type { Signer } from "@hiero-ledger/sdk";
+import type { Signer } from "@hieco/sdk";
 
-export async function multiPartyTransfer(
-  payer: Signer,
-  signerA: Signer,
-  signerB: Signer,
-): Promise<string> {
-  const client = hiero().as(payer);
+const appClient = hiero({ network: "testnet" });
 
-  const schedule = await client.schedules.create({
-    tx: client.accounts.transfer.tx({ to: "0.0.2002", hbar: 5 }),
-  });
-  if (!schedule.ok) throw new Error(schedule.error.message);
-
-  const sigA = await client.schedules.sign(schedule.value.scheduleId, { signer: signerA });
-  if (!sigA.ok) throw new Error(sigA.error.message);
-
-  const sigB = await client.schedules.sign(schedule.value.scheduleId, { signer: signerB });
-  if (!sigB.ok) throw new Error(sigB.error.message);
-
-  const executed = await client.schedules.wait(schedule.value.scheduleId);
-  if (!executed.ok) throw new Error(executed.error.message);
-
-  const executedAt = executed.value.schedule.executed_timestamp;
-  if (!executedAt) throw new Error("Schedule executed but no executed_timestamp was returned");
-  return executedAt;
+export async function transferWithWallet(signer: Signer, from: string, to: string, amount: number) {
+  const userClient = appClient.as(signer);
+  return userClient.account.send().from(from).to(to).hbar(amount).now();
 }
 ```
 
-## SDK Surface
+### 3) Multi-party approval with schedules
 
-### Client
+Create once, collect signatures from different users, then wait for execution:
 
-- `hiero(config?)` — creates a configured client
-- `client.as(signer)` — returns a client bound to a signer
-- `client.with({ signer, operator, key })` — returns a client with overrides
-- `client.submit(descriptor)` — submit a transaction descriptor
-- `client.destroy()` — close the native client
+```ts
+import { hiero } from "@hieco/sdk";
+import type { Signer } from "@hieco/sdk";
+
+const client = hiero({ network: "testnet", operator: "0.0.1234", key: "..." });
+
+export async function runTwoPartyTransfer(recipient: string, signerA: Signer, signerB: Signer) {
+  const queued = await client.account.send().to(recipient).hbar(10).queue({ memo: "2-party" });
+  if (!queued.ok) return queued;
+
+  const scheduleId = queued.value.scheduleId;
+
+  const first = await client.schedule.sign(scheduleId, { signer: signerA }).now();
+  if (!first.ok) return first;
+
+  const second = await client.schedule.sign(scheduleId, { signer: signerB }).now();
+  if (!second.ok) return second;
+
+  return client.schedule.waitForExecution(scheduleId, { timeoutMs: 120_000 }).now();
+}
+```
+
+### 4) Build in one layer, submit in another
+
+Useful when a service builds intent and a different service controls submission:
+
+```ts
+import { hiero } from "@hieco/sdk";
+
+const client = hiero({ network: "testnet" });
+
+export function buildRewardTx(from: string, to: string, amount: number) {
+  return client.account.send().from(from).to(to).hbar(amount).tx();
+}
+
+export async function submitRewardTx(descriptor: ReturnType<typeof buildRewardTx>) {
+  if (!descriptor.ok) return descriptor;
+  return client.tx.submit(descriptor.value);
+}
+```
+
+## API reference
+
+The table below is where we compare method names directly.
 
 ### Accounts
 
-- `client.accounts.transfer(params)`
-- `client.accounts.transfer.tx(params)`
-- `client.accounts.create(params)`
-- `client.accounts.create.tx(params)`
-- `client.accounts.update(params)`
-- `client.accounts.update.tx(params)`
-- `client.accounts.delete(params)`
-- `client.accounts.delete.tx(params)`
-- `client.accounts.allowances(params)`
-- `client.accounts.allowances.tx(params)`
-- `client.accounts.balance(accountId?)`
-- `client.accounts.info(accountId)`
+| Fluent                                              | Classic                                       |
+| --------------------------------------------------- | --------------------------------------------- |
+| `client.account.send(params?).now()`                | `client.accounts.transfer(params)`            |
+| `client.account.create(params?).now()`              | `client.accounts.create(params)`              |
+| `client.account.update(params?).now()`              | `client.accounts.update(params)`              |
+| `client.account.delete(params?).now()`              | `client.accounts.delete(params)`              |
+| `client.account.allow(params?).now()`               | `client.accounts.allowances(params)`          |
+| `client.account.revokeNftAllowances(params?).now()` | `client.accounts.allowancesDeleteNft(params)` |
+| `client.account.allowanceSnapshot(accountId).now()` | `client.accounts.allowancesList(accountId)`   |
+| `client.account.ensureAllowances(params).now()`     | `client.accounts.allowancesEnsure(params)`    |
+| `client.account.balance(accountId?).now()`          | `client.accounts.balance(accountId?)`         |
+| `client.account.info(accountId).now()`              | `client.accounts.info(accountId)`             |
+| `client.account.records(accountId?).now()`          | `client.accounts.records(accountId?)`         |
 
 ### Tokens
 
-- `client.tokens.create(params)` / `.tx(params)`
-- `client.tokens.mint(params)` / `.tx(params)`
-- `client.tokens.burn(params)` / `.tx(params)`
-- `client.tokens.transfer(params)` / `.tx(params)`
-- `client.tokens.transferNft(params)` / `.tx(params)`
-- `client.tokens.associate(params)` / `.tx(params)`
-- `client.tokens.dissociate(params)` / `.tx(params)`
-- `client.tokens.freeze(params)` / `.tx(params)`
-- `client.tokens.unfreeze(params)` / `.tx(params)`
-- `client.tokens.grantKyc(params)` / `.tx(params)`
-- `client.tokens.revokeKyc(params)` / `.tx(params)`
-- `client.tokens.pause(params)` / `.tx(params)`
-- `client.tokens.unpause(params)` / `.tx(params)`
-- `client.tokens.wipe(params)` / `.tx(params)`
-- `client.tokens.delete(params)` / `.tx(params)`
-- `client.tokens.update(params)` / `.tx(params)`
-- `client.tokens.fees(params)` / `.tx(params)`
-- `client.tokens.info(tokenId)`
+| Fluent                                              | Classic                                                |
+| --------------------------------------------------- | ------------------------------------------------------ |
+| `client.token.create(params?).now()`                | `client.tokens.create(params)`                         |
+| `client.token.mint(params?).now()`                  | `client.tokens.mint(params)`                           |
+| `client.token.burn(params?).now()`                  | `client.tokens.burn(params)`                           |
+| `client.token.send(params?).now()`                  | `client.tokens.transfer(params)`                       |
+| `client.token.sendNft(params?).now()`               | `client.tokens.transferNft(params)`                    |
+| `client.token.associate(params?).now()`             | `client.tokens.associate(params)`                      |
+| `client.token.dissociate(params?).now()`            | `client.tokens.dissociate(params)`                     |
+| `client.token.freeze(params?).now()`                | `client.tokens.freeze(params)`                         |
+| `client.token.unfreeze(params?).now()`              | `client.tokens.unfreeze(params)`                       |
+| `client.token.grantKyc(params?).now()`              | `client.tokens.grantKyc(params)`                       |
+| `client.token.revokeKyc(params?).now()`             | `client.tokens.revokeKyc(params)`                      |
+| `client.token.pause(params?).now()`                 | `client.tokens.pause(params)`                          |
+| `client.token.unpause(params?).now()`               | `client.tokens.unpause(params)`                        |
+| `client.token.wipe(params?).now()`                  | `client.tokens.wipe(params)`                           |
+| `client.token.delete(params?).now()`                | `client.tokens.delete(params)`                         |
+| `client.token.update(params?).now()`                | `client.tokens.update(params)`                         |
+| `client.token.fees(params?).now()`                  | `client.tokens.fees(params)`                           |
+| `client.token.airdrop(params?).now()`               | `client.submit({ kind: "tokens.airdrop", ... })`       |
+| `client.token.claimAirdrop(params?).now()`          | `client.submit({ kind: "tokens.claimAirdrop", ... })`  |
+| `client.token.cancelAirdrop(params?).now()`         | `client.submit({ kind: "tokens.cancelAirdrop", ... })` |
+| `client.token.reject(params?).now()`                | `client.submit({ kind: "tokens.reject", ... })`        |
+| `client.token.updateNfts(params?).now()`            | `client.submit({ kind: "tokens.updateNfts", ... })`    |
+| `client.token.info(tokenId).now()`                  | `client.tokens.info(tokenId)`                          |
+| `client.token.nft(nft).now()`                       | `client.tokens.nftInfo(nft)`                           |
+| `client.token.allowances(accountId, params?).now()` | `client.tokens.allowancesList(accountId, params?)`     |
 
-### Consensus (HCS)
+### Topics
 
-- `client.hcs.create(params)` / `.tx(params)`
-- `client.hcs.update(params)` / `.tx(params)`
-- `client.hcs.delete(params)` / `.tx(params)`
-- `client.hcs.submit(params)` / `.tx(params)`
-- `client.hcs.watch(topicId, handler, options?)`
-- `client.hcs.info(topicId)`
-- `client.hcs.messages(topicId, params?)`
+| Fluent                                          | Classic                                 |
+| ----------------------------------------------- | --------------------------------------- |
+| `client.topic.create(params?).now()`            | `client.hcs.create(params)`             |
+| `client.topic.update(params?).now()`            | `client.hcs.update(params)`             |
+| `client.topic.delete(params?).now()`            | `client.hcs.delete(params)`             |
+| `client.topic.send(params?).now()`              | `client.hcs.submit(params)`             |
+| `client.topic.sendJson(params?).now()`          | `client.hcs.submitJson(params)`         |
+| `client.topic.sendMany(params?).now()`          | `client.hcs.batchSubmit(params)`        |
+| `client.topic.watch(...)`                       | `client.hcs.watch(...)`                 |
+| `client.topic.watchFrom(...)`                   | `client.hcs.watchFrom(...)`             |
+| `client.topic.info(topicId).now()`              | `client.hcs.info(topicId)`              |
+| `client.topic.messages(topicId, params?).now()` | `client.hcs.messages(topicId, params?)` |
 
 ### Contracts
 
-- `client.contracts.deploy(params)` / `.tx(params)`
-- `client.contracts.execute(params)` / `.tx(params)`
-- `client.contracts.call(params)`
-- `client.contracts.delete(params)` / `.tx(params)`
-- `client.contracts.update(params)` / `.tx(params)`
-- `client.contracts.info(contractId)`
-- `client.contracts.logs(contractId, params?)`
-- `client.contracts.bytecode(contractId)`
-- `client.contracts.simulate({ contractId, fn, args?, senderEvmAddress?, gas?, value?, gasPrice?, blockNumber? })`
-- `client.contracts.estimateGas({ contractId, fn, args?, senderEvmAddress?, gas?, value?, gasPrice?, blockNumber? })`
+| Fluent                                            | Classic                                      |
+| ------------------------------------------------- | -------------------------------------------- |
+| `client.contract.deploy(params?).now()`           | `client.contracts.deploy(params)`            |
+| `client.contract.run(params?).now()`              | `client.contracts.execute(params)`           |
+| `client.contract.runTyped(params?).now()`         | `client.contracts.executeTyped(params)`      |
+| `client.contract.call(params).now()`              | `client.contracts.call(params)`              |
+| `client.contract.callTyped(params).now()`         | `client.contracts.callTyped(params)`         |
+| `client.contract.preflight(params).now()`         | `client.contracts.preflight(params)`         |
+| `client.contract.withAbi(abi)`                    | `client.contracts.withAbi(abi)`              |
+| `client.contract.delete(params?).now()`           | `client.contracts.delete(params)`            |
+| `client.contract.update(params?).now()`           | `client.contracts.update(params)`            |
+| `client.contract.info(contractId).now()`          | `client.contracts.info(contractId)`          |
+| `client.contract.logs(contractId, params?).now()` | `client.contracts.logs(contractId, params?)` |
+| `client.contract.bytecode(contractId).now()`      | `client.contracts.bytecode(contractId)`      |
+| `client.contract.simulate(params).now()`          | `client.contracts.simulate(params)`          |
+| `client.contract.estimate(params).now()`          | `client.contracts.estimateGas(params)`       |
 
 ### Files
 
-- `client.files.create(params)` / `.tx(params)`
-- `client.files.append(params)` / `.tx(params)`
-- `client.files.update(params)` / `.tx(params)`
-- `client.files.delete(params)` / `.tx(params)`
-- `client.files.info(fileId)`
-- `client.files.contents(fileId)`
+| Fluent                                   | Classic                             |
+| ---------------------------------------- | ----------------------------------- |
+| `client.file.create(params?).now()`      | `client.files.create(params)`       |
+| `client.file.append(params?).now()`      | `client.files.append(params)`       |
+| `client.file.update(params?).now()`      | `client.files.update(params)`       |
+| `client.file.delete(params?).now()`      | `client.files.delete(params)`       |
+| `client.file.upload(params?).now()`      | `client.files.upload(params)`       |
+| `client.file.updateLarge(params?).now()` | `client.files.updateLarge(params)`  |
+| `client.file.info(fileId).now()`         | `client.files.info(fileId)`         |
+| `client.file.contents(fileId).now()`     | `client.files.contents(fileId)`     |
+| `client.file.text(fileId).now()`         | `client.files.contentsText(fileId)` |
+| `client.file.json(fileId).now()`         | `client.files.contentsJson(fileId)` |
 
 ### Schedules
 
-- `client.schedules.create(params)` / `.tx(params)`
-- `client.schedules.sign(scheduleId, params?)` / `.tx(params)`
-- `client.schedules.delete(scheduleId, params?)` / `.tx(params)`
-- `client.schedules.info(scheduleId)`
-- `client.schedules.wait(scheduleId, options?)`
+| Fluent                                                         | Classic                                                   |
+| -------------------------------------------------------------- | --------------------------------------------------------- |
+| `client.schedule.create(params?).now()`                        | `client.schedules.create(params)`                         |
+| `client.schedule.sign(scheduleId, params?).now()`              | `client.schedules.sign(scheduleId, params?)`              |
+| `client.schedule.delete(scheduleId, params?).now()`            | `client.schedules.delete(scheduleId, params?)`            |
+| `client.schedule.info(scheduleId).now()`                       | `client.schedules.info(scheduleId)`                       |
+| `client.schedule.wait(scheduleId, options?).now()`             | `client.schedules.wait(scheduleId, options?)`             |
+| `client.schedule.createIdempotent(params?).now()`              | `client.schedules.createIdempotent(params)`               |
+| `client.schedule.collect(params?).now()`                       | `client.schedules.collectSignatures(params)`              |
+| `client.schedule.waitForExecution(scheduleId, options?).now()` | `client.schedules.waitForExecution(scheduleId, options?)` |
 
-### Transactions
+### Transactions, network, reads
 
-- `client.transactions.record(transactionId)`
-- `client.transactions.receipt(transactionId, options?)`
+| Fluent                                       | Classic                                                |
+| -------------------------------------------- | ------------------------------------------------------ |
+| `client.tx.submit(descriptor)`               | `client.submit(descriptor)`                            |
+| `client.tx.record(transactionId)`            | `client.transactions.record(transactionId)`            |
+| `client.tx.receipt(transactionId, options?)` | `client.transactions.receipt(transactionId, options?)` |
+| `client.net.version().now()`                 | `client.network.version()`                             |
+| `client.net.addressBook(options?).now()`     | `client.network.addressBook(options?)`                 |
+| `client.reads.*`                             | `client.reads.*`                                       |
 
-### Network
+### Node/system/util/batch
 
-- `client.network.version()`
-- `client.network.addressBook({ fileId?, limit? })`
+These are fluent helper methods:
 
-## Transactions
+- `client.node.create(params?).now()`
+- `client.node.update(params?).now()`
+- `client.node.delete(params?).now()`
+- `client.system.freeze(params?).now()`
+- `client.util.random(params?).now()`
+- `client.batch.atomic(params?).now()`
 
-### Actions (Transactions)
+## Descriptors
 
-#### Account Actions
+Use descriptors when you want to build intent first and submit later.
 
-```typescript
-const transferResult = await client.accounts.transfer({
-  to: "0.0.5678",
-  hbar: 10,
+```ts
+import { hiero } from "@hieco/sdk";
+
+const client = hiero();
+
+const descriptor = client.accounts.transfer.tx({
+  from: "0.0.1001",
+  to: "0.0.2002",
+  hbar: 1,
 });
 
-const createResult = await client.accounts.create({
-  initialBalance: 1,
-  publicKey: "302a300506...",
-});
-
-const deleteResult = await client.accounts.delete({
-  accountId: "0.0.123",
-  transferAccountId: "0.0.9999",
-});
+const result = await client.tx.submit(descriptor);
 ```
 
-#### Token Actions
+From fluent chain to descriptor:
 
-```typescript
-const createTokenResult = await client.tokens.create({
-  name: "MyToken",
-  symbol: "MYT",
-  decimals: 6,
-  supply: 1_000_000,
-});
-
-const mintResult = await client.tokens.mint({
-  tokenId: "0.0.987",
-  amount: 100_000,
-});
-
-const burnResult = await client.tokens.burn({
-  tokenId: "0.0.987",
-  amount: 50_000,
-});
-
-const associateResult = await client.tokens.associate({
-  accountId: "0.0.5678",
-  tokenIds: ["0.0.987"],
-});
-
-const transferResult = await client.tokens.transfer({
-  tokenId: "0.0.987",
-  to: "0.0.5678",
-  amount: 100,
-});
+```ts
+const descriptor = client.account.send().from("0.0.1001").to("0.0.2002").hbar(1).tx();
+if (!descriptor.ok) throw new Error(descriptor.error.message);
+await client.tx.submit(descriptor.value);
 ```
 
-#### Consensus Actions
+## Error handling
 
-```typescript
-const createTopicResult = await client.hcs.create({
-  memo: "My Topic",
-});
+Every call returns `Result<T>`.
 
-const submitResult = await client.hcs.submit({
-  topicId: "0.0.456",
-  message: "Hello, Hedera!",
-});
+```ts
+import { hiero, unwrap } from "@hieco/sdk";
 
-const updateResult = await client.hcs.update({
-  topicId: "0.0.456",
-  memo: "Updated Topic",
-});
+const client = hiero();
+const result = await client.account.send().to("0.0.2002").hbar(1).now();
 
-const deleteTopicResult = await client.hcs.delete({
-  topicId: "0.0.456",
-});
-```
+if (!result.ok) {
+  console.error(result.error.code, result.error.message, result.error.hint);
+}
 
-#### Contract Actions
-
-```typescript
-const deployResult = await client.contracts.deploy({
-  bytecode: "0x608060...",
-  gas: 100000,
-  constructorParams: {
-    types: ["uint256"],
-    values: [42],
-  },
-});
-
-const executeResult = await client.contracts.execute({
-  id: "0.0.789",
-  fn: "transfer",
-  args: ["0.0.5678", 100],
-  gas: 50000,
-});
-
-const callResult = await client.contracts.call({
-  id: "0.0.789",
-  fn: "balanceOf",
-  args: ["0.0.5678"],
-  returns: "uint256",
-});
-
-const callWithGasOverride = await client.contracts.call({
-  id: "0.0.789",
-  fn: "balanceOf",
-  args: ["0.0.5678"],
-  gas: 200000,
-  returns: "uint256",
-});
-
-const simulation = await client.contracts.simulate({
-  contractId: "0.0.789",
-  fn: "balanceOf",
-  args: ["0.0.5678"],
-});
-
-const estimate = await client.contracts.estimateGas({
-  contractId: "0.0.789",
-  fn: "balanceOf",
-  args: ["0.0.5678"],
-});
-```
-
-#### Schedule Actions
-
-```typescript
-const scheduleResult = await client.schedules.create({
-  tx: client.accounts.transfer.tx({ to: "0.0.5678", hbar: 10 }),
-  payerAccountId: "0.0.123",
-});
-
-const deleteScheduleResult = await client.schedules.delete("0.0.999");
-```
-
-#### File Actions
-
-```typescript
-const createFileResult = await client.files.create({
-  contents: Buffer.from("file contents"),
-  keys: [publicKey],
-});
-
-const appendResult = await client.files.append({
-  fileId: "0.0.111",
-  contents: Buffer.from("additional contents"),
-});
-
-const deleteFileResult = await client.files.delete({
-  fileId: "0.0.111",
-});
-
-const fileInfo = await client.files.info("0.0.111");
-const fileContents = await client.files.contents("0.0.111");
-```
-
-### Schedule-ready descriptors
-
-```typescript
-const tx = client.accounts.transfer.tx({ to: "0.0.5678", hbar: 10 });
-const scheduled = await client.schedules.create({ tx });
-```
-
-### Error Handling
-
-```typescript
-import { unwrap } from "@hieco/sdk";
-
-const receipt = unwrap(await client.accounts.transfer({ to: "0.0.5678", hbar: 10 }));
+const receipt = unwrap(result);
 console.log(receipt.transactionId);
 ```
 
-## Error Handling
+## Troubleshooting
 
-All operations return `Result<T>`:
+| Code                      | Meaning                           | Typical fix                                       |
+| ------------------------- | --------------------------------- | ------------------------------------------------- |
+| `CONFIG_INVALID_NETWORK`  | invalid network value             | use `mainnet`, `testnet`, or `previewnet`         |
+| `CONFIG_INVALID_OPERATOR` | account id format is invalid      | use `shard.realm.num`, for example `0.0.1234`     |
+| `SIGNER_REQUIRED`         | signer or operator key is missing | pass `key` or bind a signer with `client.as(...)` |
+| `TX_PRECHECK_FAILED`      | transaction failed precheck       | verify balances, keys, fees, and params           |
+| `TX_RECEIPT_FAILED`       | receipt status is failure         | inspect status and transaction id details         |
+| `MIRROR_QUERY_FAILED`     | mirror request failed             | check mirror URL, network, and mirror health      |
 
-```typescript
-const result = await client.accounts.transfer({ to: "0.0.5678", hbar: 10 });
+## Best practices
 
-if (result.ok) {
-  console.log(`Success: ${result.value.transactionId}`);
-} else {
-  console.error(result.error.code, result.error.message);
-}
-```
-
-## Configuration
-
-### Environment Variables
-
-- `HIERO_OPERATOR_ID` - Account ID of the operator (e.g., `0.0.123456`)
-- `HIERO_PRIVATE_KEY` - Operator private key in DER-encoded hex string format (compatible with `PrivateKey.fromStringDer`)
-- `HIERO_NETWORK` - Network name: `mainnet`, `testnet`, or `previewnet` (default: `testnet`)
-- `HIERO_MIRROR_URL` - Mirror node base URL used for mirror REST
-
-### Client Options
-
-```typescript
-interface ClientConfig {
-  network?: "mainnet" | "testnet" | "previewnet";
-  operator?: string;
-  key?: string;
-  signer?: Signer;
-  mirrorUrl?: string;
-  maxFee?: number | string | bigint;
-}
-```
-
-## Type Inference
-
-```typescript
-const tx = client.accounts.transfer.tx({ to: "0.0.5678", hbar: 10 });
-// ✅ tx is typed and schedule-ready
-
-const result = await client.tokens.create({ name: "MyToken", symbol: "MYT" });
-// ✅ result.value and result.error are discriminated
-```
-
-## Queries and Read Models
-
-### Account and token info
-
-```typescript
-const account = await client.accounts.info("0.0.123");
-const token = await client.tokens.info("0.0.987");
-```
-
-### Contract logs
-
-```typescript
-const logs = await client.contracts.logs("0.0.789", { limit: 25 });
-```
-
-### HCS messages
-
-```typescript
-const messages = await client.hcs.messages("0.0.456", { limit: 50 });
-```
-
-### File info and contents
-
-```typescript
-const info = await client.files.info("0.0.111");
-const contents = await client.files.contents("0.0.111");
-```
-
-### Transaction records
-
-```typescript
-const record = await client.transactions.record("0.0.123@1680000000.123456789");
-
-const receipt = await client.transactions.receipt("0.0.123@1680000000.123456789", {
-  includeChildren: true,
-});
-```
-
-## Use Cases
-
-### Reward drop to many accounts
-
-```typescript
-for (const accountId of ["0.0.201", "0.0.202", "0.0.203"]) {
-  await client.accounts.transfer({ to: accountId, hbar: 1 });
-}
-```
-
-### Token launch with treasury and fixed supply
-
-```typescript
-const token = await client.tokens.create({
-  name: "LaunchToken",
-  symbol: "LCH",
-  supply: 1_000_000,
-  decimals: 6,
-  treasury: "0.0.123",
-});
-
-const nftInfo = await client.tokens.nftInfo({ tokenId: "0.0.987", serial: 1 });
-```
-
-### Contract read + write flow
-
-```typescript
-await client.contracts.execute({
-  id: "0.0.789",
-  fn: "setValue",
-  args: [42],
-  gas: 120_000,
-});
-
-const result = await client.contracts.call({
-  id: "0.0.789",
-  fn: "getValue",
-  returns: "uint256",
-});
-
-const gasEstimate = await client.contracts.estimateGas({
-  contractId: "0.0.789",
-  fn: "setValue",
-  args: [42],
-});
-```
-
-### HCS stream consumer
-
-````typescript
-const stop = client.hcs.watch("0.0.456", (message) => {
-  console.log(message.text());
-});
-
-setTimeout(() => stop(), 30_000);
-
-### Network version + address book
-
-```typescript
-const version = await client.network.version();
-const book = await client.network.addressBook({ limit: 10 });
-````
-
-````
-
-### Treasury sweep
-
-```typescript
-for (const accountId of ["0.0.401", "0.0.402"]) {
-  await client.accounts.transfer({ to: "0.0.999", from: accountId, hbar: 0.5 });
-}
-````
-
-### Token supply expansion
-
-```typescript
-await client.tokens.mint({
-  tokenId: "0.0.987",
-  amount: 250_000,
-});
-```
-
-### File-backed config lookup
-
-```typescript
-const bytes = await client.files.contents("0.0.111");
-if (bytes.ok) {
-  const text = new TextDecoder().decode(bytes.value.contents);
-  console.log(text);
-}
-```
-
-### Contract deployment + first call
-
-```typescript
-const deploy = await client.contracts.deploy({
-  bytecode: "0x608060...",
-  gas: 150_000,
-});
-
-if (deploy.ok) {
-  await client.contracts.execute({
-    id: deploy.value.contractId,
-    fn: "initialize",
-    args: ["0.0.123"],
-    gas: 120_000,
-  });
-}
-```
-
-## Related Packages
-
-- [`@hieco/utils`](https://github.com/powxenv/hieco/tree/main/packages/utils) - Shared utilities and types
-- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - Mirror node REST API client
-- [`@hiero-ledger/sdk`](https://www.npmjs.com/package/@hiero-ledger/sdk) - Official Hedera SDK
-
-## Browser Support
-
-Node.js >= 18.0.0. For browser usage, use a bundler like Vite or webpack.
-
-## License
-
-MIT
+- Reuse one client per process and call `client.destroy()` when shutting down.
+- Keep private keys in env vars or wallet providers, not in source files.
+- Use `tx()` descriptors when you want reusable transaction objects.
+- Use schedules for multi-party signing flows.
+- Use `client.reads` for mirror-heavy read paths.
+- In tests, assert on `error.code` rather than exact error strings.
