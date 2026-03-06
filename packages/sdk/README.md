@@ -37,8 +37,16 @@ const client = hieco({
 - Descriptor extraction uses `.tx()`
 - Scheduling uses `.queue()`
 
+Optional shortcut:
+
+- `client.do.*` runs the same operation directly without calling `.now()`
+
 ```ts
 const result = await client.account.send().to("0.0.2002").hbar(1).memo("invoice-42").now();
+```
+
+```ts
+const result = await client.do.account.send({ to: "0.0.2002", hbar: 1 });
 ```
 
 ## 4 workflows in 3 lines
@@ -181,6 +189,9 @@ All follow the same `...().now()` pattern for execution.
 - `client.tx.submit(descriptor).now()`
 - `client.tx.record(transactionId).now()`
 - `client.tx.receipt(transactionId, options?).now()`
+- `client.do.tx.submit(descriptor)`
+- `client.do.tx.record(transactionId)`
+- `client.do.tx.receipt(transactionId, options?)`
 - `client.net.version().now()`
 - `client.net.addressBook(options?).now()`
 - `client.net.ping(nodeAccountId).now()`
@@ -190,9 +201,13 @@ All follow the same `...().now()` pattern for execution.
 - `client.net.setMirrorNetwork(mirror)`
 - `client.reads.*.*(...).now()`
 - `client.evm.sendRaw(params?).now()`
+- `client.do.evm.sendRaw(params?)`
 - `client.legacy.liveHash.add(params?).now()`
 - `client.legacy.liveHash.delete(params?).now()`
 - `client.legacy.liveHash.get(params).now()`
+- `client.do.legacy.liveHash.add(params?)`
+- `client.do.legacy.liveHash.delete(params?)`
+- `client.do.legacy.liveHash.get(params)`
 
 ## Descriptors and scheduling
 

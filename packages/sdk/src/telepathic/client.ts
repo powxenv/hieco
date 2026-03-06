@@ -73,6 +73,16 @@ type Queryify<T> = T extends (...args: infer A) => Promise<Result<infer R>>
     ? { readonly [K in keyof T]: Queryify<T[K]> }
     : T;
 
+type DoifyReturn<T> = T extends { readonly now: () => Promise<Result<infer R>> }
+  ? Promise<Result<R>>
+  : T;
+
+type Doify<T> = T extends (...args: infer A) => infer R
+  ? (...args: A) => DoifyReturn<R>
+  : T extends object
+    ? { readonly [K in keyof T]: Doify<T[K]> }
+    : T;
+
 export interface TelepathicClient {
   readonly tx: {
     readonly submit: (
@@ -483,6 +493,7 @@ export interface TelepathicClient {
       readonly get: (params: Params.LiveHashQueryParams) => QueryResult<Shapes.LiveHashData>;
     };
   };
+  readonly do: Doify<Omit<TelepathicClient, "do">>;
   readonly reads: Queryify<CoreClient["reads"]>;
   readonly as: (signer: HieroSigner) => TelepathicClient;
   readonly with: (input: {
@@ -555,6 +566,41 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
       result[key] = value;
     }
     return result as Queryify<T>;
+  };
+
+  const isObject = (value: unknown): value is Record<string, unknown> =>
+    typeof value === "object" && value !== null;
+
+  const hasNow = (value: unknown): value is { readonly now: () => Promise<unknown> } =>
+    isObject(value) && "now" in value && typeof value.now === "function";
+
+  const wrapDoTree = <T extends object>(input: T): Doify<T> => {
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(input)) {
+      if (key === "do") continue;
+      if (typeof value === "function") {
+        result[key] = (...args: ReadonlyArray<unknown>) => {
+          const output = (value as (...innerArgs: ReadonlyArray<unknown>) => unknown)(...args);
+          if (hasNow(output)) {
+            return output.now();
+          }
+          if (isObject(output)) {
+            if ("do" in output) {
+              return output;
+            }
+            return wrapDoTree(output);
+          }
+          return output;
+        };
+        continue;
+      }
+      if (isObject(value)) {
+        result[key] = wrapDoTree(value);
+        continue;
+      }
+      result[key] = value;
+    }
+    return result as Doify<T>;
   };
 
   const tx = {
@@ -1190,9 +1236,14 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
     setMinBackoff: (minBackoffMs: number) => createTelepathic(base.setMinBackoff(minBackoffMs)),
     setMaxBackoff: (maxBackoffMs: number) => createTelepathic(base.setMaxBackoff(maxBackoffMs)),
     destroy: () => base.destroy(),
-  };
+  } as Omit<TelepathicClient, "do">;
 
-  return api;
+  const withDo = {
+    ...api,
+    do: wrapDoTree(api),
+  } satisfies TelepathicClient;
+
+  return withDo;
 }
 
 const hieroFactory = (config: Params.ClientConfig = {}): TelepathicClient =>
