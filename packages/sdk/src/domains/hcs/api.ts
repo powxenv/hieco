@@ -126,7 +126,7 @@ export function createHcsNamespace(context: {
     });
 
     const stop = () => handle.unsubscribe();
-    const callable = (() => stop()) as (() => void) & { readonly stop: () => void };
+    const callable: TopicWatchHandle = Object.assign(() => stop(), { stop });
     Object.defineProperty(callable, "stop", {
       value: stop,
       enumerable: true,
@@ -230,7 +230,7 @@ export function createHcsNamespace(context: {
     const stop = () => {
       active = false;
     };
-    const callable = (() => stop()) as (() => void) & { readonly stop: () => void };
+    const callable: TopicWatchHandle = Object.assign(() => stop(), { stop });
     Object.defineProperty(callable, "stop", {
       value: stop,
       enumerable: true,

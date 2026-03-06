@@ -1,4 +1,5 @@
 import type { EntityId } from "@hieco/utils";
+import { asEntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../../foundation/params.ts";
 import type {
   ScheduleInfoData,
@@ -31,6 +32,14 @@ export function createSchedulesNamespace(context: {
     readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
   };
 }): SchedulesNamespace {
+  const submitWithOptionalSigner = (
+    signer: import("@hiero-ledger/sdk").Signer | undefined,
+    descriptor: TransactionDescriptor,
+  ): Promise<Result<TransactionReceiptData>> => {
+    const submit = signer ? context.withSigner(signer).submit : context.submit;
+    return submit(descriptor);
+  };
+
   const create = async (params: ScheduleCreateParams): Promise<Result<ScheduleReceipt>> => {
     const result = await context.submit({ kind: "schedules.create", params });
     if (!result.ok) return result;
@@ -54,13 +63,12 @@ export function createSchedulesNamespace(context: {
       readonly signer?: import("@hiero-ledger/sdk").Signer;
     } = {},
   ): Promise<Result<TransactionReceiptData>> => {
-    const submit = params.signer ? context.withSigner(params.signer).submit : context.submit;
     const scheduleParams: ScheduleSignParams = {
       scheduleId,
       ...(params.memo !== undefined ? { memo: params.memo } : {}),
       ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
     };
-    const result = await submit({
+    const result = await submitWithOptionalSigner(params.signer, {
       kind: "schedules.sign",
       params: scheduleParams,
     });
@@ -79,13 +87,12 @@ export function createSchedulesNamespace(context: {
       readonly signer?: import("@hiero-ledger/sdk").Signer;
     } = {},
   ): Promise<Result<TransactionReceiptData>> => {
-    const submit = params.signer ? context.withSigner(params.signer).submit : context.submit;
     const scheduleParams: ScheduleDeleteParams = {
       scheduleId,
       ...(params.memo !== undefined ? { memo: params.memo } : {}),
       ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
     };
-    const result = await submit({
+    const result = await submitWithOptionalSigner(params.signer, {
       kind: "schedules.delete",
       params: scheduleParams,
     });
@@ -180,7 +187,7 @@ export function createSchedulesNamespace(context: {
       error.message.includes("IDENTICAL_SCHEDULE_ALREADY_CREATED") &&
       typeof error.details?.scheduleId === "string"
     ) {
-      const scheduleId = error.details.scheduleId as EntityId;
+      const scheduleId = asEntityId(error.details.scheduleId);
       const transactionId = error.transactionId ?? "";
       return ok({
         status: "existing",

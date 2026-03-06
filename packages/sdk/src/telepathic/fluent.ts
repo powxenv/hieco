@@ -4,31 +4,27 @@ import { actionPlan, type ActionPlan } from "./action.ts";
 
 type MaybeArray<T> = T | ReadonlyArray<T>;
 
-function mergeState<T>(target: Partial<T>, patch: Partial<T>): Partial<T> {
-  return { ...target, ...patch };
-}
-
 export class FluentAction<P extends object, T> {
-  readonly #seed: Partial<P> | undefined;
+  readonly #seed: Readonly<Record<string, unknown>> | undefined;
   readonly #createPlan: (params: P) => ActionPlan<T>;
-  #state: Partial<P>;
+  #state: Record<string, unknown>;
 
   constructor(input: {
     readonly createPlan: (params: P) => ActionPlan<T>;
     readonly seed?: Partial<P>;
   }) {
     this.#createPlan = input.createPlan;
-    this.#seed = input.seed;
-    this.#state = input.seed ?? ({} as Partial<P>);
+    this.#seed = input.seed ? { ...input.seed } : undefined;
+    this.#state = input.seed ? { ...input.seed } : {};
   }
 
   with(patch: Partial<P>): this {
-    this.#state = mergeState(this.#state, patch);
+    this.#state = { ...this.#state, ...patch };
     return this;
   }
 
   reset(): this {
-    this.#state = this.#seed ?? {};
+    this.#state = this.#seed ? { ...this.#seed } : {};
     return this;
   }
 
@@ -172,21 +168,19 @@ export class FluentAction<P extends object, T> {
     return this.#setField("value", amount);
   }
 
-  set<K extends keyof P>(key: K, value: P[K]): this {
-    const patch: Partial<P> = {};
-    patch[key] = value;
-    return this.with(patch);
+  set<K extends Extract<keyof P, string>>(key: K, value: P[K]): this {
+    return this.#setField(key, value);
   }
 
-  push<K extends keyof P>(key: K, value: P[K] extends MaybeArray<infer U> ? U : never): this {
+  push<K extends Extract<keyof P, string>>(
+    key: K,
+    value: P[K] extends MaybeArray<infer U> ? U : never,
+  ): this {
     const current = this.#state[key];
-    const patch: Partial<P> = {};
     if (Array.isArray(current)) {
-      patch[key] = [...current, value] as P[K];
-      return this.with(patch);
+      return this.#setField(key, [...current, value]);
     }
-    patch[key] = [value] as P[K];
-    return this.with(patch);
+    return this.#setField(key, [value]);
   }
 
   now() {
@@ -213,7 +207,7 @@ export class FluentAction<P extends object, T> {
   }
 
   #setField(key: string, value: unknown): this {
-    this.#state = mergeState(this.#state, { [key]: value } as Partial<P>);
+    this.#state = { ...this.#state, [key]: value };
     return this;
   }
 }
@@ -238,7 +232,7 @@ export function fluentAction<P extends object, T>(input: {
   >;
   readonly seed?: Partial<P>;
 }): FluentAction<P, T> {
-  const seed = input.seed ?? ({} as Partial<P>);
+  const seed = input.seed ?? {};
   const descriptor = input.tx;
   const schedule = input.schedule;
   return new FluentAction<P, T>({

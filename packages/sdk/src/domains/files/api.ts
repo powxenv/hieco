@@ -36,12 +36,60 @@ export function createFilesNamespace(context: {
 
   const splitChunks = (data: Uint8Array, chunkSize: number): ReadonlyArray<Uint8Array> => {
     if (data.length === 0) return [new Uint8Array()];
-    if (chunkSize <= 0) return [data];
     const chunks: Uint8Array[] = [];
     for (let offset = 0; offset < data.length; offset += chunkSize) {
       chunks.push(data.subarray(offset, offset + chunkSize));
     }
     return chunks;
+  };
+
+  const resolveChunkSize = (chunkSize: number | undefined): Result<number> => {
+    const value = chunkSize ?? defaultChunkSize;
+    if (value <= 0) {
+      return err(
+        createError("UNEXPECTED_ERROR", "Chunk size must be greater than 0", {
+          hint: "Provide a chunkSize greater than zero",
+        }),
+      );
+    }
+    return ok(value);
+  };
+
+  const appendChunks = async (
+    fileId: EntityId,
+    firstChunk: Uint8Array,
+    remainingChunks: ReadonlyArray<Uint8Array>,
+    input: {
+      readonly memo?: string;
+      readonly maxFee?: import("../../foundation/params.ts").Amount;
+    },
+  ): Promise<
+    Result<{ readonly receipt: TransactionReceiptData; readonly transactionId: string }>
+  > => {
+    const firstAppend = await append({
+      fileId,
+      contents: firstChunk,
+      ...(input.memo ? { memo: input.memo } : {}),
+      ...(input.maxFee !== undefined ? { maxFee: input.maxFee } : {}),
+    });
+    if (!firstAppend.ok) return firstAppend;
+
+    let receipt = firstAppend.value;
+    let transactionId = firstAppend.value.transactionId;
+
+    for (const chunk of remainingChunks) {
+      const appendResult = await append({
+        fileId,
+        contents: chunk,
+        ...(input.memo ? { memo: input.memo } : {}),
+        ...(input.maxFee !== undefined ? { maxFee: input.maxFee } : {}),
+      });
+      if (!appendResult.ok) return appendResult;
+      receipt = appendResult.value;
+      transactionId = appendResult.value.transactionId;
+    }
+
+    return ok({ receipt, transactionId });
   };
   const create = async (params: CreateFileParams): Promise<Result<FileReceipt>> => {
     const result = await context.submit({ kind: "files.create", params });
@@ -120,7 +168,7 @@ export function createFilesNamespace(context: {
     const text = await contentsText(fileId);
     if (!text.ok) return text;
     try {
-      const json = JSON.parse(text.value.text) as T;
+      const json: T = JSON.parse(text.value.text);
       return ok({ fileId, json });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Invalid JSON";
@@ -134,16 +182,9 @@ export function createFilesNamespace(context: {
   };
 
   const upload = async (params: UploadFileParams): Promise<Result<FileChunkedReceipt>> => {
-    const chunkSize = params.chunkSize ?? defaultChunkSize;
-    if (chunkSize <= 0) {
-      return err(
-        createError("UNEXPECTED_ERROR", "Chunk size must be greater than 0", {
-          hint: "Provide a chunkSize greater than zero",
-        }),
-      );
-    }
-    const bytes = toBytes(params.contents);
-    const chunks = splitChunks(bytes, chunkSize);
+    const chunkSize = resolveChunkSize(params.chunkSize);
+    if (!chunkSize.ok) return chunkSize;
+    const chunks = splitChunks(toBytes(params.contents), chunkSize.value);
     const first = chunks[0] ?? new Uint8Array();
     const rest = chunks.length > 1 ? chunks.slice(1) : [];
 
@@ -157,37 +198,45 @@ export function createFilesNamespace(context: {
     if (!createResult.ok) return createResult;
 
     const fileId = createResult.value.fileId;
-    let receipt = createResult.value.receipt;
-    let transactionId = createResult.value.transactionId;
-
-    for (const chunk of rest) {
-      const appendResult = await append({
+    if (rest.length === 0) {
+      return ok({
+        receipt: createResult.value.receipt,
+        transactionId: createResult.value.transactionId,
         fileId,
-        contents: chunk,
-        ...(params.memo ? { memo: params.memo } : {}),
-        ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+        chunks: chunks.length,
       });
-      if (!appendResult.ok) return appendResult;
-      receipt = appendResult.value;
-      transactionId = appendResult.value.transactionId;
     }
 
-    return ok({ receipt, transactionId, fileId, chunks: chunks.length });
+    const firstChunk = rest[0];
+    if (!firstChunk) {
+      return err(
+        createError("UNEXPECTED_ERROR", "Missing append chunk while uploading file", {
+          hint: "Verify chunk splitting for upload contents",
+          details: { fileId },
+        }),
+      );
+    }
+    const remainingChunks = rest.slice(1);
+    const appendResult = await appendChunks(fileId, firstChunk, remainingChunks, {
+      ...(params.memo ? { memo: params.memo } : {}),
+      ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+    });
+    if (!appendResult.ok) return appendResult;
+
+    return ok({
+      receipt: appendResult.value.receipt,
+      transactionId: appendResult.value.transactionId,
+      fileId,
+      chunks: chunks.length,
+    });
   };
 
   const updateLarge = async (
     params: UpdateLargeFileParams,
   ): Promise<Result<FileChunkedReceipt>> => {
-    const chunkSize = params.chunkSize ?? defaultChunkSize;
-    if (chunkSize <= 0) {
-      return err(
-        createError("UNEXPECTED_ERROR", "Chunk size must be greater than 0", {
-          hint: "Provide a chunkSize greater than zero",
-        }),
-      );
-    }
-    const bytes = toBytes(params.contents);
-    const chunks = splitChunks(bytes, chunkSize);
+    const chunkSize = resolveChunkSize(params.chunkSize);
+    if (!chunkSize.ok) return chunkSize;
+    const chunks = splitChunks(toBytes(params.contents), chunkSize.value);
     const first = chunks[0] ?? new Uint8Array();
     const rest = chunks.length > 1 ? chunks.slice(1) : [];
 
@@ -199,22 +248,37 @@ export function createFilesNamespace(context: {
     });
     if (!updateResult.ok) return updateResult;
 
-    let receipt = updateResult.value;
-    let transactionId = updateResult.value.transactionId;
-
-    for (const chunk of rest) {
-      const appendResult = await append({
+    if (rest.length === 0) {
+      return ok({
+        receipt: updateResult.value,
+        transactionId: updateResult.value.transactionId,
         fileId: params.fileId,
-        contents: chunk,
-        ...(params.memo ? { memo: params.memo } : {}),
-        ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+        chunks: chunks.length,
       });
-      if (!appendResult.ok) return appendResult;
-      receipt = appendResult.value;
-      transactionId = appendResult.value.transactionId;
     }
 
-    return ok({ receipt, transactionId, fileId: params.fileId, chunks: chunks.length });
+    const firstChunk = rest[0];
+    if (!firstChunk) {
+      return err(
+        createError("UNEXPECTED_ERROR", "Missing append chunk while updating file", {
+          hint: "Verify chunk splitting for update contents",
+          details: { fileId: params.fileId },
+        }),
+      );
+    }
+    const remainingChunks = rest.slice(1);
+    const appendResult = await appendChunks(params.fileId, firstChunk, remainingChunks, {
+      ...(params.memo ? { memo: params.memo } : {}),
+      ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+    });
+    if (!appendResult.ok) return appendResult;
+
+    return ok({
+      receipt: appendResult.value.receipt,
+      transactionId: appendResult.value.transactionId,
+      fileId: params.fileId,
+      chunks: chunks.length,
+    });
   };
 
   return {

@@ -140,7 +140,7 @@ async function readMirrorPage<T>(
   const keys = Object.keys(page).filter((key) => key !== "links");
   const arrayKey = keys.find((key) => Array.isArray(page[key]));
   const items =
-    arrayKey && Array.isArray(page[arrayKey]) ? (page[arrayKey] as ReadonlyArray<T>) : [];
+    arrayKey && Array.isArray(page[arrayKey]) ? page[arrayKey] : ([] as ReadonlyArray<unknown>);
   return ok(toReadPage({ items, ...(page.links?.next ? { next: page.links.next } : {}) }));
 }
 
