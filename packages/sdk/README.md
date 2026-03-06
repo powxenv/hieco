@@ -2,7 +2,7 @@
 
 `@hieco/sdk` provides one unified API: `hieco(...)`.
 
-`hieco` is a DX-first layer built on top of the Hiero/Hedera SDK stack (`@hiero-ledger/sdk`) so you keep network power while writing much cleaner app code.
+`hieco` is a DX-first layer built on top of the Hiero/Hedera SDK stack (`@hiero-ledger/sdk`) and includes `@hieco/mirror` for read operations—so you get both ledger and mirror node power in one unified API.
 
 ## Install
 
@@ -261,6 +261,37 @@ export async function transferFromWallet(signer: Signer, to: string) {
 - `client.reads.*.*(...).now()`
 - `client.evm.sendRaw(params?).now()`
 - `client.do.evm.sendRaw(params?)`
+
+## Mirror node
+
+The SDK automatically includes mirror node support from `@hieco/mirror`. All read operations use the mirror node under the hood.
+
+### Mapping to `@hieco/mirror`
+
+| `@hieco/mirror` | `hieco` SDK |
+|----------------|--------------|
+| `client.account.*` | `client.reads.accounts.*` |
+| `client.token.*` | `client.reads.tokens.*` |
+| `client.transaction.*` | `client.reads.transactions.*` |
+| `client.contract.*` | `client.reads.contracts.*` |
+| `client.topic.*` | `client.reads.topics.*` |
+| `client.schedule.*` | `client.reads.schedules.*` |
+| `client.network.*` | `client.reads.network.*` |
+| `client.balance.*` | `client.reads.balances.*` |
+| `client.block.*` | `client.reads.blocks.*` |
+
+```ts
+const client = hieco({ network: "testnet" });
+
+// These all use mirror node:
+await client.account.balance("0.0.123").now();
+await client.account.info("0.0.123").now();
+await client.reads.accounts.info("0.0.123").now();
+await client.reads.tokens.balances("0.0.456").now();
+await client.reads.contracts.results("0.0.789").now();
+```
+
+You don't need to configure mirror separately — it's handled automatically based on the network.
 - `client.legacy.liveHash.add(params?).now()`
 - `client.legacy.liveHash.delete(params?).now()`
 - `client.legacy.liveHash.get(params).now()`
