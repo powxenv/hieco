@@ -176,13 +176,72 @@ export async function transferFromWallet(signer: Signer, to: string) {
 - `client.contract.estimate(params).now()`
 - `client.contract.estimateGas(params).now()`
 
-### Topics, files, schedules
+### Topics
 
-- `client.topic.*`
-- `client.file.*`
-- `client.schedule.*`
+- `client.topic.create(params?).now()`
+- `client.topic.update(params?).now()`
+- `client.topic.delete(params?).now()`
+- `client.topic.send(params?).now()`
+- `client.topic.submit(params?).now()`
+- `client.topic.sendJson(params?).now()`
+- `client.topic.submitJson(params?).now()`
+- `client.topic.sendMany(params?).now()`
+- `client.topic.batchSubmit(params?).now()`
+- `client.topic.watch(topicId, handler, options?)`
+- `client.topic.watchFrom(topicId, handler, options?)`
+- `client.topic.info(topicId).now()`
+- `client.topic.messages(topicId, params?).now()`
 
-All follow the same `...().now()` pattern for execution.
+### Files
+
+- `client.file.create(params?).now()`
+- `client.file.append(params?).now()`
+- `client.file.update(params?).now()`
+- `client.file.delete(params?).now()`
+- `client.file.upload(params?).now()`
+- `client.file.updateLarge(params?).now()`
+- `client.file.info(fileId).now()`
+- `client.file.contents(fileId).now()`
+- `client.file.text(fileId).now()`
+- `client.file.contentsText(fileId).now()`
+- `client.file.json(fileId).now()`
+- `client.file.contentsJson(fileId).now()`
+
+### Schedules
+
+- `client.schedule.create(params?).now()`
+- `client.schedule.sign(scheduleId, params?).now()`
+- `client.schedule.delete(scheduleId, params?).now()`
+- `client.schedule.info(scheduleId).now()`
+- `client.schedule.wait(scheduleId, options?).now()`
+- `client.schedule.createIdempotent(params?).now()`
+- `client.schedule.collect(params?).now()`
+- `client.schedule.collectSignatures(params?).now()`
+- `client.schedule.waitForExecution(scheduleId, options?).now()`
+
+### Node, system, utility, batch
+
+- `client.node.create(params?).now()`
+- `client.node.update(params?).now()`
+- `client.node.delete(params?).now()`
+- `client.system.freeze(params?).now()`
+- `client.system.deleteEntity(params?).now()`
+- `client.system.undeleteEntity(params?).now()`
+- `client.util.random(params?).now()`
+- `client.batch.atomic(params?).now()`
+
+### Client methods
+
+- `client.as(signer)` — scope to a wallet signer
+- `client.with({ signer?, operator?, key? })` — reconfigure client
+- `client.setOperator(operator, key)` — set operator after creation
+- `client.setMaxAttempts(n)` — max retry attempts
+- `client.setMaxNodeAttempts(n)` — max node retries
+- `client.setRequestTimeout(ms)` — request timeout
+- `client.setGrpcDeadline(ms)` — gRPC deadline
+- `client.setMinBackoff(ms)` — min backoff between retries
+- `client.setMaxBackoff(ms)` — max backoff between retries
+- `client.destroy()` — clean up client resources
 
 ### Network, tx, reads, evm, legacy
 
