@@ -24,7 +24,7 @@ import type {
   WatchTopicMessagesOptions,
   WatchTopicMessagesFromOptions,
 } from "../../foundation/params.ts";
-import type { HcsNamespace } from "./namespace.ts";
+import type { HcsNamespace, TopicWatchHandle } from "./namespace.ts";
 
 export function createHcsNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
@@ -91,7 +91,7 @@ export function createHcsNamespace(context: {
     topicId: EntityId,
     handler: (message: TopicMessageData) => void,
     options: WatchTopicMessagesOptions = {},
-  ): (() => void) => {
+  ): TopicWatchHandle => {
     const query = new TopicMessageQuery().setTopicId(topicId);
     if (options.startTime !== undefined) query.setStartTime(options.startTime);
     if (options.endTime !== undefined) query.setEndTime(options.endTime);
@@ -125,7 +125,15 @@ export function createHcsNamespace(context: {
       handler(data);
     });
 
-    return () => handle.unsubscribe();
+    const stop = () => handle.unsubscribe();
+    const callable = (() => stop()) as (() => void) & { readonly stop: () => void };
+    Object.defineProperty(callable, "stop", {
+      value: stop,
+      enumerable: true,
+      configurable: false,
+      writable: false,
+    });
+    return callable;
   };
 
   const isRecord = (value: unknown): value is Record<string, unknown> => {
@@ -189,7 +197,7 @@ export function createHcsNamespace(context: {
     topicId: EntityId,
     handler: (message: TopicMessageData) => void,
     options: WatchTopicMessagesFromOptions = {},
-  ): { readonly stop: () => void } => {
+  ): TopicWatchHandle => {
     let active = true;
     let cursorSequence = options.sinceSequence;
     let cursorTimestamp = options.sinceTimestamp;
@@ -219,11 +227,17 @@ export function createHcsNamespace(context: {
 
     void poll();
 
-    return {
-      stop: () => {
-        active = false;
-      },
+    const stop = () => {
+      active = false;
     };
+    const callable = (() => stop()) as (() => void) & { readonly stop: () => void };
+    Object.defineProperty(callable, "stop", {
+      value: stop,
+      enumerable: true,
+      configurable: false,
+      writable: false,
+    });
+    return callable;
   };
 
   const submitJson = async (params: SubmitJsonMessageParams): Promise<Result<MessageReceipt>> => {

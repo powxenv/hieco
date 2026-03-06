@@ -2,7 +2,9 @@ import type { Result } from "../../foundation/results.ts";
 import type {
   TransactionRecordData,
   TransactionReceiptQueryData,
+  TransactionReceiptData,
 } from "../../foundation/results-shapes.ts";
+import type { TransactionDescriptor } from "../../foundation/params.ts";
 
 export type TransactionIdInput = string | { readonly transactionId: string };
 
@@ -13,6 +15,7 @@ export type TransactionReceiptQueryOptions = {
 };
 
 export interface TransactionsNamespace {
+  submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
   record: (transactionId: TransactionIdInput) => Promise<Result<TransactionRecordData>>;
   receipt: (
     transactionId: TransactionIdInput,
@@ -21,6 +24,7 @@ export interface TransactionsNamespace {
 }
 
 export function createTransactionsNamespace(context: {
+  readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
   readonly queryRecord: (
     transactionId: string,
   ) => Promise<Result<import("@hiero-ledger/sdk").TransactionRecord>>;
@@ -51,5 +55,9 @@ export function createTransactionsNamespace(context: {
     return { ok: true, value: { transactionId: id, receipt: result.value } };
   };
 
-  return { record, receipt };
+  return {
+    submit: (descriptor: TransactionDescriptor) => context.submit(descriptor),
+    record,
+    receipt,
+  };
 }

@@ -24,7 +24,7 @@ import {
   queryTransactionRecord,
   queryTransactionReceipt,
   requireSigningContext,
-  resolveQueryContext,
+  resolveQueryContext as resolveSigningForQuery,
   submitTransaction,
   queryContractBytecode,
 } from "../domains/transactions/api.ts";
@@ -55,23 +55,8 @@ export class HieroClient {
     this.nativeClient = this.createNativeClient(this.config);
     this.mirror = createMirrorNodeClient(this.config.network, this.config.mirrorUrl);
 
-    const submit = async (
-      descriptor: TransactionDescriptor,
-    ): Promise<Result<TransactionReceiptData>> => {
-      const signing = requireSigningContext({
-        operatorKey: this.config.key,
-        signer: this.config.signer,
-      });
-      if (!signing.ok) return signing;
-      return submitTransaction(
-        {
-          client: this.nativeClient,
-          signing: signing.value,
-          ...(this.config.operator ? { operator: this.config.operator } : {}),
-        },
-        descriptor,
-      );
-    };
+    const submit = (descriptor: TransactionDescriptor): Promise<Result<TransactionReceiptData>> =>
+      this.submit(descriptor);
 
     const call = (params: {
       readonly id: EntityId;
@@ -80,17 +65,7 @@ export class HieroClient {
       readonly gas: number;
       readonly senderAccountId?: EntityId;
     }) => {
-      const signing = resolveQueryContext({
-        operatorKey: this.config.key,
-        signer: this.config.signer,
-      });
-      if (!signing.ok) return Promise.resolve(err(signing.error));
-      const queryContext = {
-        client: this.nativeClient,
-        signing: signing.value,
-        ...(this.config.operator ? { operator: this.config.operator } : {}),
-      };
-      return callContract(queryContext, params);
+      return this.withQueryContext((queryContext) => callContract(queryContext, params));
     };
 
     const callWithParams = (params: {
@@ -100,59 +75,21 @@ export class HieroClient {
       readonly gas: number;
       readonly senderAccountId?: EntityId;
     }) => {
-      const signing = resolveQueryContext({
-        operatorKey: this.config.key,
-        signer: this.config.signer,
-      });
-      if (!signing.ok) return Promise.resolve(err(signing.error));
-      const queryContext = {
-        client: this.nativeClient,
-        signing: signing.value,
-        ...(this.config.operator ? { operator: this.config.operator } : {}),
-      };
-      return callContractWithParams(queryContext, params);
+      return this.withQueryContext((queryContext) => callContractWithParams(queryContext, params));
     };
 
     const queryInfo = (fileId: EntityId) => {
-      const signing = resolveQueryContext({
-        operatorKey: this.config.key,
-        signer: this.config.signer,
-      });
-      if (!signing.ok) return Promise.resolve(err(signing.error));
-      const queryContext = {
-        client: this.nativeClient,
-        signing: signing.value,
-        ...(this.config.operator ? { operator: this.config.operator } : {}),
-      };
-      return queryFileInfo(queryContext, fileId);
+      return this.withQueryContext((queryContext) => queryFileInfo(queryContext, fileId));
     };
 
     const queryContents = (fileId: EntityId) => {
-      const signing = resolveQueryContext({
-        operatorKey: this.config.key,
-        signer: this.config.signer,
-      });
-      if (!signing.ok) return Promise.resolve(err(signing.error));
-      const queryContext = {
-        client: this.nativeClient,
-        signing: signing.value,
-        ...(this.config.operator ? { operator: this.config.operator } : {}),
-      };
-      return queryFileContents(queryContext, fileId);
+      return this.withQueryContext((queryContext) => queryFileContents(queryContext, fileId));
     };
 
     const queryRecord = (transactionId: string) => {
-      const signing = resolveQueryContext({
-        operatorKey: this.config.key,
-        signer: this.config.signer,
-      });
-      if (!signing.ok) return Promise.resolve(err(signing.error));
-      const queryContext = {
-        client: this.nativeClient,
-        signing: signing.value,
-        ...(this.config.operator ? { operator: this.config.operator } : {}),
-      };
-      return queryTransactionRecord(queryContext, transactionId);
+      return this.withQueryContext((queryContext) =>
+        queryTransactionRecord(queryContext, transactionId),
+      );
     };
 
     const queryReceipt = (
@@ -163,17 +100,9 @@ export class HieroClient {
         readonly validateStatus?: boolean;
       },
     ) => {
-      const signing = resolveQueryContext({
-        operatorKey: this.config.key,
-        signer: this.config.signer,
-      });
-      if (!signing.ok) return Promise.resolve(err(signing.error));
-      const queryContext = {
-        client: this.nativeClient,
-        signing: signing.value,
-        ...(this.config.operator ? { operator: this.config.operator } : {}),
-      };
-      return queryTransactionReceipt(queryContext, transactionId, options);
+      return this.withQueryContext((queryContext) =>
+        queryTransactionReceipt(queryContext, transactionId, options),
+      );
     };
 
     this.accounts = createAccountsNamespace({
@@ -202,30 +131,8 @@ export class HieroClient {
       call,
       callWithParams,
       mirror: this.mirror,
-      queryBytecode: (contractId) => {
-        const signing = this.config.signer
-          ? { kind: "signer" as const, signer: this.config.signer }
-          : this.config.key
-            ? { kind: "operator" as const, key: this.config.key }
-            : undefined;
-        if (!signing) {
-          return Promise.resolve(
-            err(
-              createError("SIGNER_REQUIRED", "A signer or operator key is required", {
-                hint: "Pass signer in client config or provide operator key",
-              }),
-            ),
-          );
-        }
-        return queryContractBytecode(
-          {
-            client: this.nativeClient,
-            signing,
-            ...(this.config.operator ? { operator: this.config.operator } : {}),
-          },
-          contractId,
-        );
-      },
+      queryBytecode: (contractId) =>
+        this.withQueryContext((queryContext) => queryContractBytecode(queryContext, contractId)),
       mirrorClient: this.nativeClient,
     });
     this.files = createFilesNamespace({
@@ -234,6 +141,7 @@ export class HieroClient {
       queryFileContents: queryContents,
     });
     this.transactions = createTransactionsNamespace({
+      submit,
       queryRecord,
       queryReceipt,
     });
@@ -279,23 +187,65 @@ export class HieroClient {
   }
 
   submit(descriptor: TransactionDescriptor): Promise<Result<TransactionReceiptData>> {
-    const signing = requireSigningContext({
-      operatorKey: this.config.key,
-      signer: this.config.signer,
-    });
-    if (!signing.ok) return Promise.resolve(err(signing.error));
-    return submitTransaction(
-      {
-        client: this.nativeClient,
-        signing: signing.value,
-        ...(this.config.operator ? { operator: this.config.operator } : {}),
-      },
-      descriptor,
-    );
+    const context = this.resolveSubmitContext();
+    if (!context.ok) return Promise.resolve(err(context.error));
+    return submitTransaction(context.value, descriptor);
   }
 
   destroy(): void {
     this.nativeClient.close();
+  }
+
+  private resolveSubmitContext(): Result<{
+    readonly client: Client;
+    readonly signing: import("../domains/transactions/api.ts").SigningContext;
+    readonly operator?: EntityId;
+  }> {
+    const signing = requireSigningContext({
+      operatorKey: this.config.key,
+      signer: this.config.signer,
+    });
+    if (!signing.ok) return signing;
+    return {
+      ok: true,
+      value: {
+        client: this.nativeClient,
+        signing: signing.value,
+        ...(this.config.operator ? { operator: this.config.operator } : {}),
+      },
+    };
+  }
+
+  private resolveQueryContext(): Result<{
+    readonly client: Client;
+    readonly signing: import("../domains/transactions/api.ts").SigningContext;
+    readonly operator?: EntityId;
+  }> {
+    const signing = resolveSigningForQuery({
+      operatorKey: this.config.key,
+      signer: this.config.signer,
+    });
+    if (!signing.ok) return signing;
+    return {
+      ok: true,
+      value: {
+        client: this.nativeClient,
+        signing: signing.value,
+        ...(this.config.operator ? { operator: this.config.operator } : {}),
+      },
+    };
+  }
+
+  private withQueryContext<T>(
+    run: (queryContext: {
+      readonly client: Client;
+      readonly signing: import("../domains/transactions/api.ts").SigningContext;
+      readonly operator?: EntityId;
+    }) => Promise<Result<T>>,
+  ): Promise<Result<T>> {
+    const queryContext = this.resolveQueryContext();
+    if (!queryContext.ok) return Promise.resolve(err(queryContext.error));
+    return run(queryContext.value);
   }
 
   private createNativeClient(config: ClientRuntimeConfig): Client {

@@ -114,11 +114,11 @@ export const capabilityAudit = {
     ],
   },
   compatibility: {
-    legacySurfaceRetired: true,
+    legacySurfaceRetired: false,
     oneLineFlows: [
       "client.account.send({ to, hbar }).now()",
       "client.token.create({ name, symbol }).now()",
-      "client.hcs.send({ topicId, message }).now()",
+      "client.topic.send({ topicId, message }).now()",
       "client.contract.run({ id, fn, args }).now()",
       "client.file.upload({ contents }).now()",
       "client.token.airdrop({ tokenTransfers }).now()",

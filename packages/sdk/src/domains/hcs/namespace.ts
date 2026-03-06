@@ -34,12 +34,12 @@ export interface HcsNamespace {
     topicId: EntityId,
     handler: (message: import("../../foundation/params.ts").TopicMessageData) => void,
     options?: import("../../foundation/params.ts").WatchTopicMessagesOptions,
-  ) => () => void;
+  ) => TopicWatchHandle;
   watchFrom: (
     topicId: EntityId,
     handler: (message: import("../../foundation/params.ts").TopicMessageData) => void,
     options?: import("../../foundation/params.ts").WatchTopicMessagesFromOptions,
-  ) => { readonly stop: () => void };
+  ) => TopicWatchHandle;
   submitJson: (
     params: import("../../foundation/params.ts").SubmitJsonMessageParams,
   ) => Promise<Result<import("../../foundation/results-shapes.ts").MessageReceipt>>;
@@ -52,3 +52,5 @@ export interface HcsNamespace {
     params?: import("@hieco/mirror").TopicMessagesParams,
   ) => Promise<Result<TopicMessagesData>>;
 }
+
+export type TopicWatchHandle = (() => void) & { readonly stop: () => void };

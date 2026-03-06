@@ -310,6 +310,46 @@ function toReceiptData(
   };
 }
 
+function toContractCallResultData(result: import("@hiero-ledger/sdk").ContractFunctionResult): {
+  readonly gasUsed: number;
+  readonly errorMessage: string;
+  readonly raw: Uint8Array;
+  readonly getString: (index?: number) => string;
+  readonly getBool: (index?: number) => boolean;
+  readonly getAddress: (index?: number) => string;
+  readonly getBytes32: (index?: number) => Uint8Array;
+  readonly getInt8: (index?: number) => number;
+  readonly getInt16: (index?: number) => number;
+  readonly getInt32: (index?: number) => number;
+  readonly getInt64: (index?: number) => import("bignumber.js").BigNumber;
+  readonly getInt256: (index?: number) => import("bignumber.js").BigNumber;
+  readonly getUint8: (index?: number) => number;
+  readonly getUint16: (index?: number) => number;
+  readonly getUint32: (index?: number) => number;
+  readonly getUint64: (index?: number) => import("bignumber.js").BigNumber;
+  readonly getUint256: (index?: number) => import("bignumber.js").BigNumber;
+} {
+  return {
+    gasUsed: result.gasUsed.toNumber(),
+    errorMessage: result.errorMessage ?? "",
+    raw: result.asBytes(),
+    getString: (index?: number) => result.getString(index),
+    getBool: (index?: number) => result.getBool(index),
+    getAddress: (index?: number) => result.getAddress(index),
+    getBytes32: (index?: number) => result.getBytes32(index),
+    getInt8: (index?: number) => result.getInt8(index),
+    getInt16: (index?: number) => result.getInt16(index),
+    getInt32: (index?: number) => result.getInt32(index),
+    getInt64: (index?: number) => result.getInt64(index),
+    getInt256: (index?: number) => result.getInt256(index),
+    getUint8: (index?: number) => result.getUint8(index),
+    getUint16: (index?: number) => result.getUint16(index),
+    getUint32: (index?: number) => result.getUint32(index),
+    getUint64: (index?: number) => result.getUint64(index),
+    getUint256: (index?: number) => result.getUint256(index),
+  };
+}
+
 export function buildContractFunctionParameters(
   config: FunctionParamsConfig,
 ): ContractFunctionParameters {
@@ -1370,25 +1410,7 @@ export async function callContract(
         ? await query.executeWithSigner(context.signing.signer)
         : await query.execute(context.client);
 
-    return ok({
-      gasUsed: result.gasUsed.toNumber(),
-      errorMessage: result.errorMessage ?? "",
-      raw: result.asBytes(),
-      getString: (index?: number) => result.getString(index),
-      getBool: (index?: number) => result.getBool(index),
-      getAddress: (index?: number) => result.getAddress(index),
-      getBytes32: (index?: number) => result.getBytes32(index),
-      getInt8: (index?: number) => result.getInt8(index),
-      getInt16: (index?: number) => result.getInt16(index),
-      getInt32: (index?: number) => result.getInt32(index),
-      getInt64: (index?: number) => result.getInt64(index),
-      getInt256: (index?: number) => result.getInt256(index),
-      getUint8: (index?: number) => result.getUint8(index),
-      getUint16: (index?: number) => result.getUint16(index),
-      getUint32: (index?: number) => result.getUint32(index),
-      getUint64: (index?: number) => result.getUint64(index),
-      getUint256: (index?: number) => result.getUint256(index),
-    });
+    return ok(toContractCallResultData(result));
   } catch (error) {
     if (error instanceof Error) {
       return err(
@@ -1451,25 +1473,7 @@ export async function callContractWithParams(
         ? await query.executeWithSigner(context.signing.signer)
         : await query.execute(context.client);
 
-    return ok({
-      gasUsed: result.gasUsed.toNumber(),
-      errorMessage: result.errorMessage ?? "",
-      raw: result.asBytes(),
-      getString: (index?: number) => result.getString(index),
-      getBool: (index?: number) => result.getBool(index),
-      getAddress: (index?: number) => result.getAddress(index),
-      getBytes32: (index?: number) => result.getBytes32(index),
-      getInt8: (index?: number) => result.getInt8(index),
-      getInt16: (index?: number) => result.getInt16(index),
-      getInt32: (index?: number) => result.getInt32(index),
-      getInt64: (index?: number) => result.getInt64(index),
-      getInt256: (index?: number) => result.getInt256(index),
-      getUint8: (index?: number) => result.getUint8(index),
-      getUint16: (index?: number) => result.getUint16(index),
-      getUint32: (index?: number) => result.getUint32(index),
-      getUint64: (index?: number) => result.getUint64(index),
-      getUint256: (index?: number) => result.getUint256(index),
-    });
+    return ok(toContractCallResultData(result));
   } catch (error) {
     if (error instanceof Error) {
       return err(
