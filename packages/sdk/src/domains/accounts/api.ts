@@ -88,13 +88,15 @@ export function createAccountsNamespace(context: {
     params,
   });
 
-  const del = async (params: DeleteAccountParams): Promise<Result<DeleteAccountResult>> => {
+  const deleteAccount = async (
+    params: DeleteAccountParams,
+  ): Promise<Result<DeleteAccountResult>> => {
     const result = await context.submit({ kind: "accounts.delete", params });
     if (!result.ok) return result;
     return ok({ receipt: result.value, transactionId: result.value.transactionId });
   };
 
-  del.tx = (params: DeleteAccountParams): TransactionDescriptor => ({
+  deleteAccount.tx = (params: DeleteAccountParams): TransactionDescriptor => ({
     kind: "accounts.delete",
     params,
   });
@@ -398,7 +400,7 @@ export function createAccountsNamespace(context: {
     transfer,
     create,
     update,
-    delete: del,
+    delete: deleteAccount,
     allowances,
     allowancesDeleteNft,
     allowancesList,

@@ -114,7 +114,7 @@ export const capabilityAudit = {
     ],
   },
   compatibility: {
-    legacySurfaceRetired: false,
+    namespaceSurfaceRetired: false,
     oneLineFlows: [
       "client.account.send({ to, hbar }).now()",
       "client.token.create({ name, symbol }).now()",

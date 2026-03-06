@@ -59,13 +59,15 @@ export function createHcsNamespace(context: {
     params,
   });
 
-  const del = async (params: DeleteTopicParams): Promise<Result<TransactionReceiptData>> => {
+  const deleteTopic = async (
+    params: DeleteTopicParams,
+  ): Promise<Result<TransactionReceiptData>> => {
     const result = await context.submit({ kind: "hcs.delete", params });
     if (!result.ok) return result;
     return ok(result.value);
   };
 
-  del.tx = (params: DeleteTopicParams): TransactionDescriptor => ({
+  deleteTopic.tx = (params: DeleteTopicParams): TransactionDescriptor => ({
     kind: "hcs.delete",
     params,
   });
@@ -338,7 +340,7 @@ export function createHcsNamespace(context: {
   return {
     create,
     update,
-    delete: del,
+    delete: deleteTopic,
     submit,
     watch,
     watchFrom,

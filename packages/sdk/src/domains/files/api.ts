@@ -130,13 +130,13 @@ export function createFilesNamespace(context: {
     params,
   });
 
-  const del = async (params: DeleteFileParams): Promise<Result<TransactionReceiptData>> => {
+  const deleteFile = async (params: DeleteFileParams): Promise<Result<TransactionReceiptData>> => {
     const result = await context.submit({ kind: "files.delete", params });
     if (!result.ok) return result;
     return ok(result.value);
   };
 
-  del.tx = (params: DeleteFileParams): TransactionDescriptor => ({
+  deleteFile.tx = (params: DeleteFileParams): TransactionDescriptor => ({
     kind: "files.delete",
     params,
   });
@@ -285,7 +285,7 @@ export function createFilesNamespace(context: {
     create,
     append,
     update,
-    delete: del,
+    delete: deleteFile,
     upload,
     updateLarge,
     info,

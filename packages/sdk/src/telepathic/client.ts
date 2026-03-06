@@ -1,6 +1,6 @@
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
 import type { EntityId } from "@hieco/utils";
-import { HieroClient as LegacyClient } from "../core/client.ts";
+import { HieroClient as CoreClient } from "../core/client.ts";
 import type { TopicWatchHandle } from "../domains/hcs/namespace.ts";
 import type * as Params from "../foundation/params.ts";
 import type * as Shapes from "../foundation/results-shapes.ts";
@@ -307,7 +307,7 @@ export interface TelepathicClient {
     }) => QueryResult<Shapes.ContractPreflightData>;
     readonly withAbi: (
       abi: import("../domains/contracts/abi.ts").AbiSpec,
-    ) => ReturnType<LegacyClient["contracts"]["withAbi"]>;
+    ) => ReturnType<CoreClient["contracts"]["withAbi"]>;
     readonly delete: (
       params?: Partial<Params.DeleteContractParams>,
     ) => BuilderResult<Shapes.TransactionReceiptData, Params.DeleteContractParams>;
@@ -321,13 +321,13 @@ export interface TelepathicClient {
     ) => QueryResult<Shapes.ContractLogsData>;
     readonly bytecode: (contractId: EntityId) => QueryResult<Shapes.ContractBytecodeData>;
     readonly simulate: (
-      params: Parameters<LegacyClient["contracts"]["simulate"]>[0],
+      params: Parameters<CoreClient["contracts"]["simulate"]>[0],
     ) => QueryResult<Shapes.MirrorContractCallData>;
     readonly estimate: (
-      params: Parameters<LegacyClient["contracts"]["estimateGas"]>[0],
+      params: Parameters<CoreClient["contracts"]["estimateGas"]>[0],
     ) => QueryResult<Shapes.MirrorContractEstimateData>;
     readonly estimateGas: (
-      params: Parameters<LegacyClient["contracts"]["estimateGas"]>[0],
+      params: Parameters<CoreClient["contracts"]["estimateGas"]>[0],
     ) => QueryResult<Shapes.MirrorContractEstimateData>;
   };
   readonly file: {
@@ -437,18 +437,18 @@ export interface TelepathicClient {
   };
   readonly transaction: TelepathicClient["tx"];
   readonly networkQuery: TelepathicClient["net"];
-  readonly accounts: LegacyClient["accounts"];
-  readonly tokens: LegacyClient["tokens"];
-  readonly hcs: LegacyClient["hcs"];
-  readonly contracts: LegacyClient["contracts"];
-  readonly files: LegacyClient["files"];
-  readonly schedules: LegacyClient["schedules"];
-  readonly transactions: LegacyClient["transactions"];
-  readonly network: LegacyClient["network"];
-  readonly reads: LegacyClient["reads"];
-  readonly mirror: LegacyClient["mirror"];
-  readonly networkName: LegacyClient["networkName"];
-  readonly operator: LegacyClient["operator"];
+  readonly accounts: CoreClient["accounts"];
+  readonly tokens: CoreClient["tokens"];
+  readonly hcs: CoreClient["hcs"];
+  readonly contracts: CoreClient["contracts"];
+  readonly files: CoreClient["files"];
+  readonly schedules: CoreClient["schedules"];
+  readonly transactions: CoreClient["transactions"];
+  readonly network: CoreClient["network"];
+  readonly reads: CoreClient["reads"];
+  readonly mirror: CoreClient["mirror"];
+  readonly networkName: CoreClient["networkName"];
+  readonly operator: CoreClient["operator"];
   readonly as: (signer: HieroSigner) => TelepathicClient;
   readonly with: (input: {
     readonly signer?: HieroSigner;
@@ -461,11 +461,12 @@ export interface TelepathicClient {
   readonly destroy: () => void;
 }
 
-function createTelepathic(base: LegacyClient): TelepathicClient {
+function createTelepathic(client: CoreClient): TelepathicClient {
+  const base = client;
   const schedule = (
     params: Omit<Params.ScheduleCreateParams, "tx">,
     descriptor: Params.TransactionDescriptor,
-  ) => base.schedules.create({ tx: descriptor, ...params });
+  ) => client.schedules.create({ tx: descriptor, ...params });
 
   const plan = <P extends object, T>(
     seed: Partial<P>,
@@ -491,9 +492,9 @@ function createTelepathic(base: LegacyClient): TelepathicClient {
   const query = <T>(execute: () => Promise<Result<T>>) => ({ now: execute });
 
   const tx = {
-    submit: (descriptor: Params.TransactionDescriptor) => base.submit(descriptor),
+    submit: (descriptor: Params.TransactionDescriptor) => client.submit(descriptor),
     record: (transactionId: string | { readonly transactionId: string }) =>
-      base.transactions.record(transactionId),
+      client.transactions.record(transactionId),
     receipt: (
       transactionId: string | { readonly transactionId: string },
       options?: {
@@ -501,13 +502,13 @@ function createTelepathic(base: LegacyClient): TelepathicClient {
         readonly includeDuplicates?: boolean;
         readonly validateStatus?: boolean;
       },
-    ) => base.transactions.receipt(transactionId, options),
+    ) => client.transactions.receipt(transactionId, options),
   };
 
   const net = {
-    version: () => query(() => base.network.version()),
+    version: () => query(() => client.network.version()),
     addressBook: (options?: { readonly fileId?: string; readonly limit?: number }) =>
-      query(() => base.network.addressBook(options)),
+      query(() => client.network.addressBook(options)),
   };
 
   const api = {
@@ -518,69 +519,69 @@ function createTelepathic(base: LegacyClient): TelepathicClient {
       send: (params: Partial<Params.TransferParams> = {}) =>
         plan<Params.TransferParams, Shapes.TransferResult>(
           params,
-          (value) => base.accounts.transfer(value),
-          (value) => base.accounts.transfer.tx(value),
+          (value) => client.accounts.transfer(value),
+          (value) => client.accounts.transfer.tx(value),
         ),
       transfer: (params: Partial<Params.TransferParams> = {}) =>
         plan<Params.TransferParams, Shapes.TransferResult>(
           params,
-          (value) => base.accounts.transfer(value),
-          (value) => base.accounts.transfer.tx(value),
+          (value) => client.accounts.transfer(value),
+          (value) => client.accounts.transfer.tx(value),
         ),
       create: (params: Partial<Params.CreateAccountParams> = {}) =>
         plan<Params.CreateAccountParams, Shapes.CreateAccountResult>(
           params,
-          (value) => base.accounts.create(value),
-          (value) => base.accounts.create.tx(value),
+          (value) => client.accounts.create(value),
+          (value) => client.accounts.create.tx(value),
         ),
       update: (params: Partial<Params.UpdateAccountParams> = {}) =>
         plan<Params.UpdateAccountParams, Shapes.UpdateAccountResult>(
           params,
-          (value) => base.accounts.update(value),
-          (value) => base.accounts.update.tx(value),
+          (value) => client.accounts.update(value),
+          (value) => client.accounts.update.tx(value),
         ),
       delete: (params: Partial<Params.DeleteAccountParams> = {}) =>
         plan<Params.DeleteAccountParams, Shapes.DeleteAccountResult>(
           params,
-          (value) => base.accounts.delete(value),
-          (value) => base.accounts.delete.tx(value),
+          (value) => client.accounts.delete(value),
+          (value) => client.accounts.delete.tx(value),
         ),
       allow: (params: Partial<Params.ApproveAllowanceParams> = {}) =>
         plan<Params.ApproveAllowanceParams, Shapes.TransactionReceiptData>(
           params,
-          (value) => base.accounts.allowances(value),
-          (value) => base.accounts.allowances.tx(value),
+          (value) => client.accounts.allowances(value),
+          (value) => client.accounts.allowances.tx(value),
         ),
       allowances: (params: Partial<Params.ApproveAllowanceParams> = {}) =>
         plan<Params.ApproveAllowanceParams, Shapes.TransactionReceiptData>(
           params,
-          (value) => base.accounts.allowances(value),
-          (value) => base.accounts.allowances.tx(value),
+          (value) => client.accounts.allowances(value),
+          (value) => client.accounts.allowances.tx(value),
         ),
       revokeNftAllowances: (params: Partial<Params.DeleteNftAllowancesParams> = {}) =>
         plan<Params.DeleteNftAllowancesParams, Shapes.TransactionReceiptData>(
           params,
-          (value) => base.accounts.allowancesDeleteNft(value),
-          (value) => base.accounts.allowancesDeleteNft.tx(value),
+          (value) => client.accounts.allowancesDeleteNft(value),
+          (value) => client.accounts.allowancesDeleteNft.tx(value),
         ),
       allowancesDeleteNft: (params: Partial<Params.DeleteNftAllowancesParams> = {}) =>
         plan<Params.DeleteNftAllowancesParams, Shapes.TransactionReceiptData>(
           params,
-          (value) => base.accounts.allowancesDeleteNft(value),
-          (value) => base.accounts.allowancesDeleteNft.tx(value),
+          (value) => client.accounts.allowancesDeleteNft(value),
+          (value) => client.accounts.allowancesDeleteNft.tx(value),
         ),
       allowanceSnapshot: (accountId: EntityId) =>
-        query(() => base.accounts.allowancesList(accountId)),
+        query(() => client.accounts.allowancesList(accountId)),
       ensureAllowances: (params: {
         readonly hbar?: ReadonlyArray<Params.HbarAllowanceParams>;
         readonly tokens?: ReadonlyArray<Params.TokenAllowanceParams>;
         readonly nfts?: ReadonlyArray<Params.NftAllowanceParams>;
         readonly memo?: string;
         readonly maxFee?: Params.Amount;
-      }) => query(() => base.accounts.allowancesEnsure(params)),
-      balance: (accountId?: EntityId) => query(() => base.accounts.balance(accountId)),
-      info: (accountId: EntityId) => query(() => base.accounts.info(accountId)),
-      records: (accountId?: EntityId) => query(() => base.accounts.records(accountId)),
+      }) => query(() => client.accounts.allowancesEnsure(params)),
+      balance: (accountId?: EntityId) => query(() => client.accounts.balance(accountId)),
+      info: (accountId: EntityId) => query(() => client.accounts.info(accountId)),
+      records: (accountId?: EntityId) => query(() => client.accounts.records(accountId)),
     },
     token: {
       create: (params: Partial<Params.CreateTokenParams> = {}) =>
@@ -1023,5 +1024,5 @@ function createTelepathic(base: LegacyClient): TelepathicClient {
 }
 
 export function hiero(config: Params.ClientConfig = {}): TelepathicClient {
-  return createTelepathic(new LegacyClient(config));
+  return createTelepathic(new CoreClient(config));
 }

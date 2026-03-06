@@ -224,13 +224,15 @@ export function createTokensNamespace(context: {
     params,
   });
 
-  const del = async (params: DeleteTokenParams): Promise<Result<TransactionReceiptData>> => {
+  const deleteToken = async (
+    params: DeleteTokenParams,
+  ): Promise<Result<TransactionReceiptData>> => {
     const result = await context.submit({ kind: "tokens.delete", params });
     if (!result.ok) return result;
     return ok(result.value);
   };
 
-  del.tx = (params: DeleteTokenParams): TransactionDescriptor => ({
+  deleteToken.tx = (params: DeleteTokenParams): TransactionDescriptor => ({
     kind: "tokens.delete",
     params,
   });
@@ -346,7 +348,7 @@ export function createTokensNamespace(context: {
     pause,
     unpause,
     wipe,
-    delete: del,
+    delete: deleteToken,
     update,
     fees,
     info,

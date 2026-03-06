@@ -165,13 +165,15 @@ export function createContractsNamespace(context: {
     return ok({ receipt: result.value, transactionId: result.value.transactionId });
   };
 
-  const del = async (params: DeleteContractParams): Promise<Result<TransactionReceiptData>> => {
+  const deleteContract = async (
+    params: DeleteContractParams,
+  ): Promise<Result<TransactionReceiptData>> => {
     const result = await context.submit({ kind: "contracts.delete", params });
     if (!result.ok) return result;
     return ok(result.value);
   };
 
-  del.tx = (params: DeleteContractParams): TransactionDescriptor => ({
+  deleteContract.tx = (params: DeleteContractParams): TransactionDescriptor => ({
     kind: "contracts.delete",
     params,
   });
@@ -393,7 +395,7 @@ export function createContractsNamespace(context: {
     executeTyped,
     preflight,
     withAbi,
-    delete: del,
+    delete: deleteContract,
     update,
     info,
     logs,

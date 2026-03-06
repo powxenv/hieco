@@ -81,7 +81,7 @@ export function createSchedulesNamespace(context: {
     params,
   });
 
-  const del = async (
+  const deleteSchedule = async (
     scheduleId: EntityId,
     params: Omit<ScheduleDeleteParams, "scheduleId"> & {
       readonly signer?: import("@hiero-ledger/sdk").Signer;
@@ -100,7 +100,7 @@ export function createSchedulesNamespace(context: {
     return ok(result.value);
   };
 
-  del.tx = (params: ScheduleDeleteParams): TransactionDescriptor => ({
+  deleteSchedule.tx = (params: ScheduleDeleteParams): TransactionDescriptor => ({
     kind: "schedules.delete",
     params,
   });
@@ -240,7 +240,7 @@ export function createSchedulesNamespace(context: {
     createIdempotent,
     sign,
     collectSignatures,
-    delete: del,
+    delete: deleteSchedule,
     info,
     wait,
     waitForExecution,
