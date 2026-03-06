@@ -1,80 +1,66 @@
-import type { Result } from "../foundation/results.ts";
-import type { TransactionDescriptor, ScheduleCreateParams } from "../foundation/params.ts";
-import type { ScheduleReceipt } from "../foundation/results-shapes.ts";
-import { err, ok } from "../foundation/results.ts";
-import { createError } from "../foundation/errors.ts";
-
-type ActionExecutor<R> = () => Promise<R>;
-
-type DescriptorFactory = () => TransactionDescriptor;
-
-type ScheduleExecutor = (
-  params: Omit<ScheduleCreateParams, "tx">,
-  descriptor: TransactionDescriptor,
-) => Promise<Result<ScheduleReceipt>>;
-
-export class ActionPlan<T> {
-  readonly #execute: ActionExecutor<T>;
-  readonly #descriptor: DescriptorFactory | undefined;
-  readonly #schedule: ScheduleExecutor | undefined;
-
-  constructor(input: {
-    readonly execute: ActionExecutor<T>;
-    readonly descriptor?: DescriptorFactory;
-    readonly schedule?: ScheduleExecutor;
-  }) {
-    this.#execute = input.execute;
-    this.#descriptor = input.descriptor;
-    this.#schedule = input.schedule;
-  }
-
-  now(): Promise<T> {
-    return this.#execute();
-  }
-
-  tx(): Result<TransactionDescriptor> {
-    if (!this.#descriptor) {
-      return err(
-        createError("UNEXPECTED_ERROR", "This operation has no single transaction descriptor", {
-          hint: "Use now() directly",
-        }),
-      );
-    }
-    try {
-      return ok(this.#descriptor());
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Descriptor resolution failed";
-      return err(
-        createError("UNEXPECTED_ERROR", message, {
-          hint: "Verify required fields before calling tx()",
-        }),
-      );
-    }
-  }
-
-  schedule(params: Omit<ScheduleCreateParams, "tx"> = {}): Promise<Result<ScheduleReceipt>> {
-    if (!this.#descriptor || !this.#schedule) {
-      return Promise.resolve(
-        err(
-          createError("UNEXPECTED_ERROR", "This operation cannot be scheduled", {
-            hint: "Use now() directly",
-          }),
-        ),
-      );
-    }
-
-    const descriptor = this.tx();
-    if (!descriptor.ok) {
-      return Promise.resolve(err(descriptor.error));
-    }
-    return this.#schedule(params, descriptor.value);
-  }
+export interface ActionPlan<T> {
+  readonly now: () => Promise<T>;
+  readonly tx: () => import("../foundation/results.ts").Result<
+    import("../foundation/params.ts").TransactionDescriptor
+  >;
+  readonly schedule: (params?: {
+    readonly adminKey?: string | true;
+    readonly payerAccountId?: import("@hieco/utils").EntityId;
+    readonly expirationTime?: Date;
+    readonly waitForExpiry?: boolean;
+    readonly memo?: string;
+    readonly maxFee?: import("../foundation/params.ts").Amount;
+  }) => Promise<
+    import("../foundation/results.ts").Result<
+      import("../foundation/results-shapes.ts").ScheduleReceipt
+    >
+  >;
 }
 
 export function actionPlan<T>(input: {
-  readonly execute: ActionExecutor<T>;
-  readonly descriptor?: DescriptorFactory;
-  readonly schedule?: ScheduleExecutor;
+  readonly execute: () => Promise<T>;
+  readonly descriptor?: () => import("../foundation/params.ts").TransactionDescriptor;
+  readonly schedule?: (
+    params: {
+      readonly adminKey?: string | true;
+      readonly payerAccountId?: import("@hieco/utils").EntityId;
+      readonly expirationTime?: Date;
+      readonly waitForExpiry?: boolean;
+      readonly memo?: string;
+      readonly maxFee?: import("../foundation/params.ts").Amount;
+    },
+    descriptor: import("../foundation/params.ts").TransactionDescriptor,
+  ) => Promise<
+    import("../foundation/results.ts").Result<
+      import("../foundation/results-shapes.ts").ScheduleReceipt
+    >
+  >;
 }): ActionPlan<T> {
-  return new ActionPlan(input);
+  return {
+    now: input.execute,
+    tx: () => {
+      if (!input.descriptor) {
+        return {
+          ok: false,
+          error: {
+            code: "UNEXPECTED_ERROR",
+            message: "Transaction descriptor is unavailable for this action",
+          },
+        };
+      }
+      return { ok: true, value: input.descriptor() };
+    },
+    schedule: async (params = {}) => {
+      if (!input.descriptor || !input.schedule) {
+        return {
+          ok: false,
+          error: {
+            code: "UNEXPECTED_ERROR",
+            message: "Scheduling is unavailable for this action",
+          },
+        };
+      }
+      return input.schedule(params, input.descriptor());
+    },
+  };
 }

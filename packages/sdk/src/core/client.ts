@@ -253,8 +253,12 @@ export class HieroClient {
       ...(this.config.grpcDeadlineMs !== undefined
         ? { grpcDeadlineMs: this.config.grpcDeadlineMs }
         : {}),
-      ...(this.config.minBackoffMs !== undefined ? { minBackoffMs: this.config.minBackoffMs } : {}),
-      ...(this.config.maxBackoffMs !== undefined ? { maxBackoffMs: this.config.maxBackoffMs } : {}),
+      ...(this.config.minBackoffMs !== undefined
+        ? { minBackoffMs: this.config.minBackoffMs }
+        : {}),
+      ...(this.config.maxBackoffMs !== undefined
+        ? { maxBackoffMs: this.config.maxBackoffMs }
+        : {}),
     });
   }
 
