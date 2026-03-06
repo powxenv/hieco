@@ -33,155 +33,160 @@ export class FluentAction<P extends object, T> {
   }
 
   memo(value: string): this {
-    return this.with({ memo: value } as unknown as Partial<P>);
+    return this.#setField("memo", value);
   }
 
   fee(value: Amount): this {
-    return this.with({ maxFee: value } as unknown as Partial<P>);
+    return this.#setField("maxFee", value);
   }
 
   from(value: EntityId): this {
-    return this.with({ from: value } as unknown as Partial<P>);
+    return this.#setField("from", value);
   }
 
   to(value: EntityId): this {
-    return this.with({ to: value } as unknown as Partial<P>);
+    return this.#setField("to", value);
   }
 
   hbar(value: Amount): this {
-    return this.with({ hbar: value } as unknown as Partial<P>);
+    return this.#setField("hbar", value);
   }
 
   amount(value: Amount): this {
-    return this.with({ amount: value } as unknown as Partial<P>);
+    return this.#setField("amount", value);
   }
 
   key(value: string | true): this {
-    return this.with({ key: value } as unknown as Partial<P>);
+    return this.#setField("key", value);
   }
 
   publicKey(value: string): this {
-    return this.with({ publicKey: value } as unknown as Partial<P>);
+    return this.#setField("publicKey", value);
   }
 
   id(value: EntityId): this {
-    return this.with({ id: value } as unknown as Partial<P>);
+    return this.#setField("id", value);
   }
 
   token(value: EntityId): this {
-    return this.with({ tokenId: value } as unknown as Partial<P>);
+    return this.#setField("tokenId", value);
   }
 
   account(value: EntityId): this {
-    return this.with({ accountId: value } as unknown as Partial<P>);
+    return this.#setField("accountId", value);
   }
 
   topic(value: EntityId): this {
-    return this.with({ topicId: value } as unknown as Partial<P>);
+    return this.#setField("topicId", value);
   }
 
   contract(value: EntityId): this {
-    return this.with({ contractId: value } as unknown as Partial<P>);
+    return this.#setField("contractId", value);
   }
 
   file(value: EntityId): this {
-    return this.with({ fileId: value } as unknown as Partial<P>);
+    return this.#setField("fileId", value);
   }
 
   schedule(value: EntityId): this {
-    return this.with({ scheduleId: value } as unknown as Partial<P>);
+    return this.#setField("scheduleId", value);
   }
 
   serial(value: number): this {
-    return this.with({ serial: value } as unknown as Partial<P>);
+    return this.#setField("serial", value);
   }
 
   serials(values: ReadonlyArray<number>): this {
-    return this.with({ serials: values } as unknown as Partial<P>);
+    return this.#setField("serials", values);
   }
 
   tokenIds(values: ReadonlyArray<EntityId>): this {
-    return this.with({ tokenIds: values } as unknown as Partial<P>);
+    return this.#setField("tokenIds", values);
   }
 
   owner(value: EntityId): this {
-    return this.with({ ownerAccountId: value } as unknown as Partial<P>);
+    return this.#setField("ownerAccountId", value);
   }
 
   spender(value: EntityId): this {
-    return this.with({ spenderAccountId: value } as unknown as Partial<P>);
+    return this.#setField("spenderAccountId", value);
   }
 
   payer(value: EntityId): this {
-    return this.with({ payerAccountId: value } as unknown as Partial<P>);
+    return this.#setField("payerAccountId", value);
   }
 
   treasury(value: EntityId): this {
-    return this.with({ treasury: value } as unknown as Partial<P>);
+    return this.#setField("treasury", value);
   }
 
   name(value: string): this {
-    return this.with({ name: value } as unknown as Partial<P>);
+    return this.#setField("name", value);
   }
 
   symbol(value: string): this {
-    return this.with({ symbol: value } as unknown as Partial<P>);
+    return this.#setField("symbol", value);
   }
 
   decimals(value: number): this {
-    return this.with({ decimals: value } as unknown as Partial<P>);
+    return this.#setField("decimals", value);
   }
 
   supply(value: Amount): this {
-    return this.with({ supply: value } as unknown as Partial<P>);
+    return this.#setField("supply", value);
   }
 
   gas(value: number): this {
-    return this.with({ gas: value } as unknown as Partial<P>);
+    return this.#setField("gas", value);
   }
 
   fn(value: string): this {
-    return this.with({ fn: value } as unknown as Partial<P>);
+    return this.#setField("fn", value);
   }
 
   args(values: ReadonlyArray<unknown>): this {
-    return this.with({ args: values } as unknown as Partial<P>);
+    return this.#setField("args", values);
   }
 
   typed(values: FunctionParamsConfig): this {
-    return this.with({ params: values } as unknown as Partial<P>);
+    return this.#setField("params", values);
   }
 
   payable(value: Amount): this {
-    return this.with({ payableAmount: value } as unknown as Partial<P>);
+    return this.#setField("payableAmount", value);
   }
 
   message(value: string | Record<string, unknown> | Uint8Array): this {
-    return this.with({ message: value } as unknown as Partial<P>);
+    return this.#setField("message", value);
   }
 
   contents(value: Uint8Array | string): this {
-    return this.with({ contents: value } as unknown as Partial<P>);
+    return this.#setField("contents", value);
   }
 
   keys(values: ReadonlyArray<string>): this {
-    return this.with({ keys: values } as unknown as Partial<P>);
+    return this.#setField("keys", values);
   }
 
   value(amount: Amount): this {
-    return this.with({ value: amount } as unknown as Partial<P>);
+    return this.#setField("value", amount);
   }
 
   set<K extends keyof P>(key: K, value: P[K]): this {
-    return this.with({ [key]: value } as unknown as Partial<P>);
+    const patch: Partial<P> = {};
+    patch[key] = value;
+    return this.with(patch);
   }
 
   push<K extends keyof P>(key: K, value: P[K] extends MaybeArray<infer U> ? U : never): this {
     const current = this.#state[key];
+    const patch: Partial<P> = {};
     if (Array.isArray(current)) {
-      return this.with({ [key]: [...current, value] } as unknown as Partial<P>);
+      patch[key] = [...current, value] as P[K];
+      return this.with(patch);
     }
-    return this.with({ [key]: [value] } as unknown as Partial<P>);
+    patch[key] = [value] as P[K];
+    return this.with(patch);
   }
 
   now() {
@@ -205,6 +210,11 @@ export class FluentAction<P extends object, T> {
 
   #params(): P {
     return this.#state as P;
+  }
+
+  #setField(key: string, value: unknown): this {
+    this.#state = mergeState(this.#state, { [key]: value } as Partial<P>);
+    return this;
   }
 }
 

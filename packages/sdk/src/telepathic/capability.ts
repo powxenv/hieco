@@ -1,6 +1,4 @@
-import type { CapabilityReport } from "./types.ts";
-
-export const capabilityAudit: CapabilityReport = {
+export const capabilityAudit = {
   ledger: {
     coveredTransactions: [
       "accounts.transfer",

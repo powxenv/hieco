@@ -6,9 +6,61 @@ import type * as Shapes from "../foundation/results-shapes.ts";
 import type { Result } from "../foundation/results.ts";
 import { fluentAction } from "./fluent.ts";
 import { capabilityAudit } from "./capability.ts";
-import type { TelepathicClient as TelepathicClientShape } from "./types.ts";
 
-function createTelepathic(base: LegacyClient): TelepathicClientShape {
+export interface TelepathicClient {
+  readonly audit: typeof capabilityAudit;
+  readonly tx: {
+    readonly submit: (
+      descriptor: Params.TransactionDescriptor,
+    ) => Promise<Result<Shapes.TransactionReceiptData>>;
+    readonly record: (
+      transactionId: string | { readonly transactionId: string },
+    ) => Promise<Result<Shapes.TransactionRecordData>>;
+    readonly receipt: (
+      transactionId: string | { readonly transactionId: string },
+      options?: {
+        readonly includeChildren?: boolean;
+        readonly includeDuplicates?: boolean;
+        readonly validateStatus?: boolean;
+      },
+    ) => Promise<Result<Shapes.TransactionReceiptQueryData>>;
+  };
+  readonly account: Readonly<Record<string, unknown>>;
+  readonly token: Readonly<Record<string, unknown>>;
+  readonly topic: Readonly<Record<string, unknown>>;
+  readonly contract: Readonly<Record<string, unknown>>;
+  readonly file: Readonly<Record<string, unknown>>;
+  readonly schedule: Readonly<Record<string, unknown>>;
+  readonly node: Readonly<Record<string, unknown>>;
+  readonly system: Readonly<Record<string, unknown>>;
+  readonly util: Readonly<Record<string, unknown>>;
+  readonly batch: Readonly<Record<string, unknown>>;
+  readonly net: Readonly<Record<string, unknown>>;
+  readonly accounts: LegacyClient["accounts"];
+  readonly tokens: LegacyClient["tokens"];
+  readonly hcs: LegacyClient["hcs"];
+  readonly contracts: LegacyClient["contracts"];
+  readonly files: LegacyClient["files"];
+  readonly schedules: LegacyClient["schedules"];
+  readonly transactions: LegacyClient["transactions"];
+  readonly network: LegacyClient["network"];
+  readonly reads: LegacyClient["reads"];
+  readonly mirror: LegacyClient["mirror"];
+  readonly networkName: LegacyClient["networkName"];
+  readonly operator: LegacyClient["operator"];
+  readonly as: (signer: HieroSigner) => TelepathicClient;
+  readonly with: (input: {
+    readonly signer?: HieroSigner;
+    readonly operator?: EntityId;
+    readonly key?: string;
+  }) => TelepathicClient;
+  readonly submit: (
+    descriptor: Params.TransactionDescriptor,
+  ) => Promise<Result<Shapes.TransactionReceiptData>>;
+  readonly destroy: () => void;
+}
+
+function createTelepathic(base: LegacyClient): TelepathicClient {
   const schedule = (
     params: Omit<Params.ScheduleCreateParams, "tx">,
     descriptor: Params.TransactionDescriptor,
@@ -496,12 +548,6 @@ function createTelepathic(base: LegacyClient): TelepathicClientShape {
   return api;
 }
 
-export function telepathic(config: Params.ClientConfig = {}): TelepathicClientShape {
+export function hiero(config: Params.ClientConfig = {}): TelepathicClient {
   return createTelepathic(new LegacyClient(config));
 }
-
-export function hiero(config: Params.ClientConfig = {}): TelepathicClientShape {
-  return createTelepathic(new LegacyClient(config));
-}
-
-export type TelepathicClient = TelepathicClientShape;

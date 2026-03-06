@@ -286,6 +286,30 @@ function toFreezeType(
   }
 }
 
+function toReceiptData(
+  receipt: import("@hiero-ledger/sdk").TransactionReceipt,
+  transactionId: string,
+): TransactionReceiptData {
+  const accountIdStr = receipt.accountId?.toString();
+  return {
+    status: receipt.status.toString(),
+    transactionId,
+    ...(accountIdStr ? { accountId: asEntityId(accountIdStr) } : {}),
+    ...(receipt.fileId ? { fileId: asEntityId(receipt.fileId.toString()) } : {}),
+    ...(receipt.contractId ? { contractId: asEntityId(receipt.contractId.toString()) } : {}),
+    ...(receipt.topicId ? { topicId: asEntityId(receipt.topicId.toString()) } : {}),
+    ...(receipt.tokenId ? { tokenId: asEntityId(receipt.tokenId.toString()) } : {}),
+    ...(receipt.scheduleId ? { scheduleId: asEntityId(receipt.scheduleId.toString()) } : {}),
+    ...(receipt.totalSupply !== undefined && receipt.totalSupply !== null
+      ? { totalSupply: receipt.totalSupply.toString() }
+      : {}),
+    ...(receipt.serials ? { serialNumbers: receipt.serials.map((s) => s.toNumber()) } : {}),
+    ...(receipt.topicSequenceNumber
+      ? { topicSequenceNumber: receipt.topicSequenceNumber.toString() }
+      : {}),
+  };
+}
+
 export function buildContractFunctionParameters(
   config: FunctionParamsConfig,
 ): ContractFunctionParameters {
@@ -918,11 +942,7 @@ export function buildTransaction(
     case "files.create": {
       const params = tx.params;
       const transaction = new FileCreateTransaction();
-      if (typeof params.contents === "string") {
-        transaction.setContents(params.contents);
-      } else {
-        transaction.setContents(params.contents);
-      }
+      transaction.setContents(params.contents);
       if (params.keys) {
         transaction.setKeys(params.keys.map((k) => PrivateKey.fromStringDer(k).publicKey));
       }
@@ -934,11 +954,7 @@ export function buildTransaction(
     case "files.append": {
       const params = tx.params;
       const transaction = new FileAppendTransaction().setFileId(params.fileId);
-      if (typeof params.contents === "string") {
-        transaction.setContents(params.contents);
-      } else {
-        transaction.setContents(params.contents);
-      }
+      transaction.setContents(params.contents);
       if (params.maxChunks !== undefined) transaction.setMaxChunks(params.maxChunks);
       if (params.chunkSize !== undefined) transaction.setChunkSize(params.chunkSize);
       if (params.memo) transaction.setTransactionMemo(params.memo);
@@ -949,11 +965,7 @@ export function buildTransaction(
       const params = tx.params;
       const transaction = new FileUpdateTransaction().setFileId(params.fileId);
       if (params.contents !== undefined) {
-        if (typeof params.contents === "string") {
-          transaction.setContents(params.contents);
-        } else {
-          transaction.setContents(params.contents);
-        }
+        transaction.setContents(params.contents);
       }
       if (params.keys) {
         transaction.setKeys(params.keys.map((k) => PrivateKey.fromStringDer(k).publicKey));
@@ -1182,9 +1194,7 @@ export function buildTransaction(
     }
   }
 
-  throw new Error(
-    `Unsupported descriptor kind: ${(tx as { readonly kind?: string }).kind ?? "unknown"}`,
-  );
+  throw new Error(`Unsupported descriptor kind: ${tx.kind}`);
 }
 
 export async function submitTransaction(
@@ -1238,25 +1248,7 @@ export async function submitTransaction(
       const submitted = await signed.execute(context.client);
       const txId = submitted.transactionId?.toString() ?? "unknown";
       const receipt = await submitted.getReceipt(context.client);
-      const accountIdStr = receipt.accountId?.toString();
-
-      return ok({
-        status: receipt.status.toString(),
-        transactionId: txId,
-        ...(accountIdStr ? { accountId: asEntityId(accountIdStr) } : {}),
-        ...(receipt.fileId ? { fileId: asEntityId(receipt.fileId.toString()) } : {}),
-        ...(receipt.contractId ? { contractId: asEntityId(receipt.contractId.toString()) } : {}),
-        ...(receipt.topicId ? { topicId: asEntityId(receipt.topicId.toString()) } : {}),
-        ...(receipt.tokenId ? { tokenId: asEntityId(receipt.tokenId.toString()) } : {}),
-        ...(receipt.scheduleId ? { scheduleId: asEntityId(receipt.scheduleId.toString()) } : {}),
-        ...(receipt.totalSupply !== undefined && receipt.totalSupply !== null
-          ? { totalSupply: receipt.totalSupply.toString() }
-          : {}),
-        ...(receipt.serials ? { serialNumbers: receipt.serials.map((s) => s.toNumber()) } : {}),
-        ...(receipt.topicSequenceNumber
-          ? { topicSequenceNumber: receipt.topicSequenceNumber.toString() }
-          : {}),
-      });
+      return ok(toReceiptData(receipt, txId));
     }
 
     const operatorKey = context.signing.kind === "operator" ? context.signing.key : undefined;
@@ -1285,26 +1277,7 @@ export async function submitTransaction(
         ? await submitted.getReceiptWithSigner(context.signing.signer)
         : await submitted.getReceipt(context.client);
 
-    const accountIdStr = receipt.accountId?.toString();
-    const receiptData: TransactionReceiptData = {
-      status: receipt.status.toString(),
-      transactionId: txId,
-      ...(accountIdStr ? { accountId: asEntityId(accountIdStr) } : {}),
-      ...(receipt.fileId ? { fileId: asEntityId(receipt.fileId.toString()) } : {}),
-      ...(receipt.contractId ? { contractId: asEntityId(receipt.contractId.toString()) } : {}),
-      ...(receipt.topicId ? { topicId: asEntityId(receipt.topicId.toString()) } : {}),
-      ...(receipt.tokenId ? { tokenId: asEntityId(receipt.tokenId.toString()) } : {}),
-      ...(receipt.scheduleId ? { scheduleId: asEntityId(receipt.scheduleId.toString()) } : {}),
-      ...(receipt.totalSupply !== undefined && receipt.totalSupply !== null
-        ? { totalSupply: receipt.totalSupply.toString() }
-        : {}),
-      ...(receipt.serials ? { serialNumbers: receipt.serials.map((s) => s.toNumber()) } : {}),
-      ...(receipt.topicSequenceNumber
-        ? { topicSequenceNumber: receipt.topicSequenceNumber.toString() }
-        : {}),
-    };
-
-    return ok(receiptData);
+    return ok(toReceiptData(receipt, txId));
   } catch (error) {
     if (error instanceof ReceiptStatusError) {
       const txId = error.transactionId?.toString() ?? "unknown";

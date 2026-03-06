@@ -2,7 +2,7 @@ export { HieroClient } from "./core/client.ts";
 export { hiero } from "./telepathic/client.ts";
 export type { TelepathicClient } from "./telepathic/client.ts";
 export { capabilityAudit } from "./telepathic/capability.ts";
-export type { CapabilityReport } from "./telepathic/types.ts";
+export type CapabilityReport = typeof import("./telepathic/capability.ts").capabilityAudit;
 export * from "./foundation/params.ts";
 export * from "./foundation/results.ts";
 export * from "./foundation/results-shapes.ts";
