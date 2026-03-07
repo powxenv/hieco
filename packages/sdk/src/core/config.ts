@@ -110,6 +110,7 @@ function validateKey(value: string | undefined): Result<true> {
 }
 
 export function resolveConfig(input: ClientConfig = {}): Result<ClientRuntimeConfig> {
+  const browser = isBrowser();
   const network = resolveNetwork(input.network);
   const operator = resolveOperator(input.operator);
   const key = resolveKey(input.key);
@@ -159,15 +160,19 @@ export function resolveConfig(input: ClientConfig = {}): Result<ClientRuntimeCon
     );
   }
 
-  if (isBrowser() && !input.signer && (!operator || !key)) {
+  if (browser && key) {
     return err(
-      createError(
-        "SIGNER_REQUIRED",
-        "Signer is required in browser environments unless operator and key are provided",
-        {
-          hint: "Pass a wallet signer or set operator and key explicitly",
-        },
-      ),
+      createError("CONFIG_INVALID_KEY", "Private keys are not allowed in browser environments", {
+        hint: "Use a wallet signer in the browser and keep operator keys on the server",
+      }),
+    );
+  }
+
+  if (browser && !input.signer) {
+    return err(
+      createError("SIGNER_REQUIRED", "Signer is required in browser environments", {
+        hint: "Pass a wallet signer",
+      }),
     );
   }
 

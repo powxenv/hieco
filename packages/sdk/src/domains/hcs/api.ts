@@ -203,6 +203,17 @@ export function createHcsNamespace(context: {
     let active = true;
     let cursorSequence = options.sinceSequence;
     let cursorTimestamp = options.sinceTimestamp;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    const scheduleNextPoll = () => {
+      if (!active || options.resume === false) {
+        return;
+      }
+
+      timeoutId = setTimeout(() => {
+        void poll();
+      }, 500);
+    };
 
     const poll = async (): Promise<void> => {
       if (!active) return;
@@ -215,6 +226,7 @@ export function createHcsNamespace(context: {
       const result = await context.mirror.topic.getMessages(topicId, params);
       if (!result.success) {
         options.onError?.(new Error(result.error.message));
+        scheduleNextPoll();
         return;
       }
       for (const message of result.data) {
@@ -222,15 +234,16 @@ export function createHcsNamespace(context: {
         cursorSequence = message.sequence_number + 1;
         cursorTimestamp = message.consensus_timestamp;
       }
-      if (active && options.resume !== false) {
-        setTimeout(poll, 500);
-      }
+      scheduleNextPoll();
     };
 
     void poll();
 
     const stop = () => {
       active = false;
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+      }
     };
     const callable: TopicWatchHandle = Object.assign(() => stop(), { stop });
     Object.defineProperty(callable, "stop", {
