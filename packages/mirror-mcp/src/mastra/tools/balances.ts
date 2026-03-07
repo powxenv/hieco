@@ -1,6 +1,6 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../client";
+import { getMirrorClient } from "../../client";
 import { limitSchema } from "../../schemas";
 import { handleApiResult } from "../../errors";
 
@@ -17,7 +17,7 @@ export const getBalances = createTool({
     timestamp: z.string().optional().describe("ISO timestamp to query balances at a specific time"),
   }),
   execute: async ({ account, accountBalance, limit, order, publicKey, timestamp }) => {
-    const result = await mirrorClient.balance.getBalances({
+    const result = await getMirrorClient().balance.getBalances({
       account,
       "account.balance": accountBalance,
       limit,
@@ -41,7 +41,7 @@ export const listBalances = createTool({
     timestamp: z.string().optional().describe("ISO timestamp to query balances at a specific time"),
   }),
   execute: async ({ account, accountBalance, limit, order, publicKey, timestamp }) => {
-    const result = await mirrorClient.balance.listPaginated({
+    const result = await getMirrorClient().balance.listPaginated({
       account,
       "account.balance": accountBalance,
       limit,

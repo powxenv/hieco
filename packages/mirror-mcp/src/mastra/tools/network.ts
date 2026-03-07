@@ -1,6 +1,6 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../client";
+import { getMirrorClient } from "../../client";
 import { limitSchema, nodeIdSchema, timestampSchema } from "../../schemas";
 import { handleApiResult } from "../../errors";
 
@@ -11,7 +11,7 @@ export const getExchangeRate = createTool({
     timestamp: timestampSchema.describe("ISO timestamp to query exchange rate at a specific time"),
   }),
   execute: async ({ timestamp }) => {
-    const result = await mirrorClient.network.getExchangeRate({ timestamp });
+    const result = await getMirrorClient().network.getExchangeRate({ timestamp });
     return handleApiResult(result, "getExchangeRate");
   },
 });
@@ -25,7 +25,7 @@ export const getNetworkFees = createTool({
     timestamp: timestampSchema.describe("ISO timestamp to query fees at a specific time"),
   }),
   execute: async ({ timestamp, limit, order }) => {
-    const result = await mirrorClient.network.getFees({
+    const result = await getMirrorClient().network.getFees({
       timestamp,
       limit,
       order,
@@ -44,7 +44,7 @@ export const getNetworkNodes = createTool({
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
   }),
   execute: async ({ fileId, nodeId, limit, order }) => {
-    const result = await mirrorClient.network.getNodes({
+    const result = await getMirrorClient().network.getNodes({
       "file.id": fileId,
       "node.id": nodeId,
       limit,
@@ -59,7 +59,7 @@ export const getNetworkStake = createTool({
   description: "Get current network staking information including node stakes",
   inputSchema: z.object({}),
   execute: async () => {
-    const result = await mirrorClient.network.getStake();
+    const result = await getMirrorClient().network.getStake();
     return handleApiResult(result, "getNetworkStake");
   },
 });
@@ -69,7 +69,7 @@ export const getNetworkSupply = createTool({
   description: "Get current HBAR token supply information",
   inputSchema: z.object({}),
   execute: async () => {
-    const result = await mirrorClient.network.getSupply();
+    const result = await getMirrorClient().network.getSupply();
     return handleApiResult(result, "getNetworkSupply");
   },
 });
@@ -84,7 +84,7 @@ export const listNetworkNodes = createTool({
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
   }),
   execute: async ({ fileId, nodeId, limit, order }) => {
-    const result = await mirrorClient.network.listPaginated({
+    const result = await getMirrorClient().network.listPaginated({
       "file.id": fileId,
       "node.id": nodeId,
       limit,

@@ -1,6 +1,6 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../client";
+import { getMirrorClient } from "../../client";
 import { asEntityId } from "@hieco/utils";
 import { entityIdSchema, limitSchema, toApiParams } from "../../schemas";
 import { handleApiResult } from "../../errors";
@@ -12,7 +12,7 @@ export const getScheduleInfo = createTool({
     scheduleId: entityIdSchema.describe("Hedera schedule ID in format 0.0.123"),
   }),
   execute: async ({ scheduleId }) => {
-    const result = await mirrorClient.schedule.getInfo(asEntityId(scheduleId));
+    const result = await getMirrorClient().schedule.getInfo(asEntityId(scheduleId));
     return handleApiResult(result, "getScheduleInfo");
   },
 });
@@ -49,7 +49,7 @@ export const listSchedules = createTool({
       order: params.order,
       waitForExpiryExpiration: params.waitForExpiryExpiration,
     });
-    const result = await mirrorClient.schedule.listPaginated(apiParams);
+    const result = await getMirrorClient().schedule.listPaginated(apiParams);
     return handleApiResult(result, "listSchedules");
   },
 });

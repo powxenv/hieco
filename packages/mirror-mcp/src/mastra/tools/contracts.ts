@@ -1,7 +1,7 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 import type { ContractCallParams } from "@hieco/mirror";
-import { mirrorClient } from "../../client";
+import { getMirrorClient } from "../../client";
 import { asEntityId } from "@hieco/utils";
 import { entityIdSchema, limitSchema, timestampSchema, toApiParams } from "../../schemas";
 import { handleApiResult } from "../../errors";
@@ -14,7 +14,7 @@ export const getContractInfo = createTool({
     timestamp: timestampSchema.describe("ISO timestamp to query contract state at a specific time"),
   }),
   execute: async ({ contractIdOrAddress, timestamp }) => {
-    const result = await mirrorClient.contract.getInfo(contractIdOrAddress, {
+    const result = await getMirrorClient().contract.getInfo(contractIdOrAddress, {
       timestamp,
     });
     return handleApiResult(result, "getContractInfo");
@@ -47,7 +47,7 @@ export const callContract = createTool({
       ...(value !== undefined ? { value } : {}),
     };
 
-    const result = await mirrorClient.contract.call(callParams);
+    const result = await getMirrorClient().contract.call(callParams);
     return handleApiResult(result, "callContract");
   },
 });
@@ -73,7 +73,7 @@ export const getContractResults = createTool({
     timestamp,
     transactionIndex,
   }) => {
-    const result = await mirrorClient.contract.getResults(asEntityId(contractId), {
+    const result = await getMirrorClient().contract.getResults(asEntityId(contractId), {
       "block.hash": blockHash,
       block_number: blockNumber,
       from,
@@ -93,7 +93,7 @@ export const getContractResult = createTool({
     timestamp: z.string().describe("ISO timestamp of the contract result"),
   }),
   execute: async ({ contractId, timestamp }) => {
-    const result = await mirrorClient.contract.getResult(asEntityId(contractId), timestamp);
+    const result = await getMirrorClient().contract.getResult(asEntityId(contractId), timestamp);
     return handleApiResult(result, "getContractResult");
   },
 });
@@ -107,7 +107,7 @@ export const getContractState = createTool({
     timestamp: timestampSchema.describe("ISO timestamp to query state at a specific time"),
   }),
   execute: async ({ contractId, slot, timestamp }) => {
-    const result = await mirrorClient.contract.getState(asEntityId(contractId), {
+    const result = await getMirrorClient().contract.getState(asEntityId(contractId), {
       slot,
       timestamp,
     });
@@ -138,7 +138,7 @@ export const getContractLogs = createTool({
     topic3,
     transactionHash,
   }) => {
-    const result = await mirrorClient.contract.getLogs(asEntityId(contractId), {
+    const result = await getMirrorClient().contract.getLogs(asEntityId(contractId), {
       index,
       timestamp,
       topic0,
@@ -163,7 +163,7 @@ export const getAllContractResults = createTool({
     transactionIndex: z.number().optional().describe("Filter by transaction index"),
   }),
   execute: async ({ from, blockHash, blockNumber, internal, timestamp, transactionIndex }) => {
-    const result = await mirrorClient.contract.getAllResults({
+    const result = await getMirrorClient().contract.getAllResults({
       from,
       block_hash: blockHash,
       block_number: blockNumber,
@@ -183,9 +183,12 @@ export const getResultByTransaction = createTool({
     nonce: z.number().optional().describe("Transaction nonce"),
   }),
   execute: async ({ transactionIdOrHash, nonce }) => {
-    const result = await mirrorClient.contract.getResultByTransactionIdOrHash(transactionIdOrHash, {
-      nonce,
-    });
+    const result = await getMirrorClient().contract.getResultByTransactionIdOrHash(
+      transactionIdOrHash,
+      {
+        nonce,
+      },
+    );
     return handleApiResult(result, "getResultByTransaction");
   },
 });
@@ -198,7 +201,7 @@ export const getResultActions = createTool({
     index: z.number().optional().describe("Filter by action index"),
   }),
   execute: async ({ transactionIdOrHash, index }) => {
-    const result = await mirrorClient.contract.getResultActions(transactionIdOrHash, {
+    const result = await getMirrorClient().contract.getResultActions(transactionIdOrHash, {
       index,
     });
     return handleApiResult(result, "getResultActions");
@@ -215,7 +218,7 @@ export const getResultOpcodes = createTool({
     storage: z.boolean().optional().describe("Include storage state"),
   }),
   execute: async ({ transactionIdOrHash, stack, memory, storage }) => {
-    const result = await mirrorClient.contract.getResultOpcodes(transactionIdOrHash, {
+    const result = await getMirrorClient().contract.getResultOpcodes(transactionIdOrHash, {
       stack,
       memory,
       storage,
@@ -242,7 +245,7 @@ export const listContracts = createTool({
       order: params.order,
       smartContractId: params.smartContractId,
     });
-    const result = await mirrorClient.contract.listPaginated(apiParams);
+    const result = await getMirrorClient().contract.listPaginated(apiParams);
     return handleApiResult(result, "listContracts");
   },
 });

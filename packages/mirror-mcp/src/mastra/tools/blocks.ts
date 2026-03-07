@@ -1,6 +1,6 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../client";
+import { getMirrorClient } from "../../client";
 import { limitSchema } from "../../schemas";
 import { handleApiResult } from "../../errors";
 
@@ -14,7 +14,7 @@ export const getBlocks = createTool({
     timestamp: z.string().optional().describe("ISO timestamp filter"),
   }),
   execute: async ({ blockNumber, limit, order, timestamp }) => {
-    const result = await mirrorClient.block.getBlocks({
+    const result = await getMirrorClient().block.getBlocks({
       block_number: blockNumber,
       limit,
       order,
@@ -31,7 +31,7 @@ export const getBlock = createTool({
     hashOrNumber: z.string().describe("Block hash or block number as string"),
   }),
   execute: async ({ hashOrNumber }) => {
-    const result = await mirrorClient.block.getBlock(hashOrNumber);
+    const result = await getMirrorClient().block.getBlock(hashOrNumber);
     return handleApiResult(result, "getBlock");
   },
 });
@@ -46,7 +46,7 @@ export const listBlocks = createTool({
     timestamp: z.string().optional().describe("ISO timestamp filter"),
   }),
   execute: async ({ blockNumber, limit, order, timestamp }) => {
-    const result = await mirrorClient.block.listPaginated({
+    const result = await getMirrorClient().block.listPaginated({
       block_number: blockNumber,
       limit,
       order,

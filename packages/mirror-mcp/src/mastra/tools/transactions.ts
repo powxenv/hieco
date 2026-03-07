@@ -1,6 +1,6 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../client";
+import { getMirrorClient } from "../../client";
 import { asEntityId } from "@hieco/utils";
 import {
   entityIdSchema,
@@ -20,7 +20,7 @@ export const getTransaction = createTool({
     transactionId: z.string().describe("Hedera transaction ID"),
   }),
   execute: async ({ transactionId, nonce, scheduled }) => {
-    const result = await mirrorClient.transaction.getById(transactionId, { nonce, scheduled });
+    const result = await getMirrorClient().transaction.getById(transactionId, { nonce, scheduled });
     return handleApiResult(result, "getTransaction");
   },
 });
@@ -48,7 +48,7 @@ export const getTransactionsByAccount = createTool({
     transactionType,
     type,
   }) => {
-    const resultData = await mirrorClient.transaction.listByAccount(asEntityId(accountId), {
+    const resultData = await getMirrorClient().transaction.listByAccount(asEntityId(accountId), {
       result,
       scheduled,
       timestamp,
@@ -93,7 +93,7 @@ export const listTransactions = createTool({
       transfersAccount: params.transfersAccount,
       type: params.type,
     });
-    const result = await mirrorClient.transaction.listPaginated(apiParams);
+    const result = await getMirrorClient().transaction.listPaginated(apiParams);
     return handleApiResult(result, "listTransactions");
   },
 });

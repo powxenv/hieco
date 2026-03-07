@@ -7,9 +7,10 @@
 It provides:
 
 - a ready-to-run MCP server binary named `mirror-mcp`
-- 55 read-only tools across accounts, balances, blocks, contracts, network, schedules, tokens, topics, and transactions
+- read-only tools across accounts, balances, blocks, contracts, network, schedules, tokens, topics, and transactions
+- runtime tools for inspecting the active network and, when enabled, switching networks for the current stdio session
 - validated inputs using `zod`
-- environment-driven network selection for `mainnet`, `testnet`, `previewnet`, or a custom Mirror Node URL
+- environment-driven startup defaults for `mainnet`, `testnet`, `previewnet`, or a custom Mirror Node URL
 
 ## Installation
 
@@ -63,7 +64,8 @@ A typical MCP client configuration points at the same stdio command:
       "command": "bunx",
       "args": ["@hieco/mirror-mcp"],
       "env": {
-        "MIRROR_NETWORK": "mainnet"
+        "MIRROR_NETWORK": "mainnet",
+        "MIRROR_ALLOW_NETWORK_SWITCH": "true"
       }
     }
   }
@@ -78,12 +80,22 @@ A typical MCP client configuration points at the same stdio command:
 
 ### Environment-Driven Mirror Client
 
-The server creates one `MirrorNodeClient` from:
+The server starts with one `MirrorNodeClient` from:
 
 - `MIRROR_NETWORK`
 - `MIRROR_NODE_URL`
+- `MIRROR_ALLOW_NETWORK_SWITCH`
 
-If `MIRROR_NODE_URL` is set, it overrides the built-in network default.
+`MIRROR_NETWORK` and `MIRROR_NODE_URL` define the startup default. If network switching is enabled, later tool calls can move the active session to another built-in network or another Mirror Node URL.
+
+### Session State
+
+This package uses stdio, so one server process usually serves one MCP client. That makes an in-memory active network a good fit:
+
+- the environment variables choose the startup default
+- `get-current-network` reports the live session state
+- `switch-network` changes the active network for subsequent tool calls
+- restarting the process resets the server to its startup defaults
 
 ### Tool Shape
 
@@ -98,21 +110,46 @@ Each tool:
 
 ### Environment Variables
 
-| Variable          | Purpose                                       | Default         |
-| ----------------- | --------------------------------------------- | --------------- |
-| `MIRROR_NETWORK`  | Select `mainnet`, `testnet`, or `previewnet`. | `mainnet`       |
-| `MIRROR_NODE_URL` | Override the default Mirror Node base URL.    | Network default |
+| Variable                      | Purpose                                                             | Default         |
+| ----------------------------- | ------------------------------------------------------------------- | --------------- |
+| `MIRROR_NETWORK`              | Select `mainnet`, `testnet`, or `previewnet`.                       | `mainnet`       |
+| `MIRROR_NODE_URL`             | Override the default Mirror Node base URL.                          | Network default |
+| `MIRROR_ALLOW_NETWORK_SWITCH` | Expose the `switch-network` tool and allow session-level switching. | `false`         |
 
 ### Custom Network Routing
 
 ```bash
-MIRROR_NETWORK=testnet
-MIRROR_NODE_URL=https://testnet.mirrornode.hedera.com
+MIRROR_NETWORK=testnet bunx @hieco/mirror-mcp
+MIRROR_NODE_URL=https://testnet.mirrornode.hedera.com bunx @hieco/mirror-mcp
+MIRROR_ALLOW_NETWORK_SWITCH=true bunx @hieco/mirror-mcp
+```
+
+### Session-Level Network Switching
+
+When `MIRROR_ALLOW_NETWORK_SWITCH=true`, the server exposes `switch-network`.
+
+A typical flow is:
+
+1. Call `get-current-network`
+2. Call `switch-network` with `network: "testnet"`
+3. Run normal read tools like `get-account-info` or `list-transactions`
+4. Call `get-current-network` again to verify the active session network
+
+You can also provide `mirrorNodeUrl` when switching if you want to route the current session to a custom Mirror Node endpoint.
+
+```json
+{
+  "name": "switch-network",
+  "arguments": {
+    "network": "testnet"
+  }
+}
 ```
 
 ### Tool Behavior
 
 - all tools are read-only
+- runtime network state is process-local and resets when the stdio server restarts
 - list tools exhaust paginated Mirror Node endpoints and return the collected results
 - input validation happens before the Mirror API call
 - entity IDs, transaction IDs, timestamps, limits, serial numbers, and node IDs are validated centrally
@@ -121,11 +158,20 @@ MIRROR_NODE_URL=https://testnet.mirrornode.hedera.com
 
 ### Runtime Surface
 
-| Export            | Kind                 | Purpose                             | Usage form                    |
-| ----------------- | -------------------- | ----------------------------------- | ----------------------------- |
-| `mirror-mcp`      | binary               | Start the MCP server over stdio.    | `mirror-mcp`                  |
-| `MIRROR_NETWORK`  | environment variable | Choose the built-in Hedera network. | `MIRROR_NETWORK=testnet`      |
-| `MIRROR_NODE_URL` | environment variable | Override the Mirror Node base URL.  | `MIRROR_NODE_URL=https://...` |
+| Export                        | Kind                 | Purpose                                         | Usage form                         |
+| ----------------------------- | -------------------- | ----------------------------------------------- | ---------------------------------- |
+| `mirror-mcp`                  | binary               | Start the MCP server over stdio.                | `mirror-mcp`                       |
+| `MIRROR_NETWORK`              | environment variable | Choose the startup Hedera network.              | `MIRROR_NETWORK=testnet`           |
+| `MIRROR_NODE_URL`             | environment variable | Override the startup Mirror Node base URL.      | `MIRROR_NODE_URL=https://...`      |
+| `MIRROR_ALLOW_NETWORK_SWITCH` | environment variable | Enable the session-level `switch-network` tool. | `MIRROR_ALLOW_NETWORK_SWITCH=true` |
+
+### Runtime Tools
+
+| Tool ID               | Purpose                                                                                                                                   | Input fields               |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `get-current-network` | Get the current active network, effective Mirror Node URL, startup defaults, and switch capability.                                       | none                       |
+| `list-networks`       | List the built-in Hedera networks and mark the default and current entries.                                                               | none                       |
+| `switch-network`      | Switch the active network for subsequent tool calls in the current stdio session. Only available when `MIRROR_ALLOW_NETWORK_SWITCH=true`. | `network`, `mirrorNodeUrl` |
 
 ### Account Tools
 

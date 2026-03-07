@@ -8,6 +8,7 @@ import * as schedules from "./tools/schedules";
 import * as tokens from "./tools/tokens";
 import * as topics from "./tools/topics";
 import * as transactions from "./tools/transactions";
+import { getRuntimeTools } from "./tools/runtime";
 
 const mcpServer = new MCPServer({
   id: "hedera-mirror-mcp",
@@ -23,6 +24,7 @@ const mcpServer = new MCPServer({
     ...tokens,
     ...topics,
     ...transactions,
+    ...getRuntimeTools(),
   },
 });
 

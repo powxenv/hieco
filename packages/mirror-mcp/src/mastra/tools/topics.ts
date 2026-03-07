@@ -1,6 +1,6 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { mirrorClient } from "../../client";
+import { getMirrorClient } from "../../client";
 import { asEntityId } from "@hieco/utils";
 import { entityIdSchema, limitSchema, timestampSchema } from "../../schemas";
 import { handleApiResult } from "../../errors";
@@ -12,7 +12,7 @@ export const getTopicInfo = createTool({
     topicId: entityIdSchema.describe("Hedera topic ID in format 0.0.123"),
   }),
   execute: async ({ topicId }) => {
-    const result = await mirrorClient.topic.getInfo(asEntityId(topicId));
+    const result = await getMirrorClient().topic.getInfo(asEntityId(topicId));
     return handleApiResult(result, "getTopicInfo");
   },
 });
@@ -29,7 +29,7 @@ export const getTopicMessages = createTool({
     scheduled: z.boolean().optional().describe("Filter for scheduled transactions"),
   }),
   execute: async ({ topicId, encoding, sequenceNumber, timestamp, transactionId, scheduled }) => {
-    const result = await mirrorClient.topic.getMessages(asEntityId(topicId), {
+    const result = await getMirrorClient().topic.getMessages(asEntityId(topicId), {
       encoding,
       sequencenumber: sequenceNumber,
       timestamp,
@@ -48,7 +48,7 @@ export const getTopicMessage = createTool({
     sequenceNumber: z.number().describe("Message sequence number"),
   }),
   execute: async ({ topicId, sequenceNumber }) => {
-    const result = await mirrorClient.topic.getMessage(asEntityId(topicId), sequenceNumber);
+    const result = await getMirrorClient().topic.getMessage(asEntityId(topicId), sequenceNumber);
     return handleApiResult(result, "getTopicMessage");
   },
 });
@@ -60,7 +60,7 @@ export const getMessageByTimestamp = createTool({
     timestamp: z.string().describe("ISO timestamp of the message"),
   }),
   execute: async ({ timestamp }) => {
-    const result = await mirrorClient.topic.getMessageByTimestamp(timestamp);
+    const result = await getMirrorClient().topic.getMessageByTimestamp(timestamp);
     return handleApiResult(result, "getMessageByTimestamp");
   },
 });
@@ -73,7 +73,7 @@ export const listTopics = createTool({
     order: z.enum(["asc", "desc"]).optional().describe("Sort order"),
   }),
   execute: async ({ limit, order }) => {
-    const result = await mirrorClient.topic.listPaginated({ limit, order });
+    const result = await getMirrorClient().topic.listPaginated({ limit, order });
     return handleApiResult(result, "listTopics");
   },
 });

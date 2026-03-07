@@ -15,6 +15,13 @@ export const evmAddressSchema = z
   .string()
   .regex(evmAddressRegex, "EVM address must be 0x-prefixed 40-character hex");
 
+export const networkTypeSchema = z.enum(["mainnet", "testnet", "previewnet"]);
+
+export const mirrorNodeUrlSchema = z
+  .string()
+  .url("Mirror Node URL must be a valid absolute URL")
+  .optional();
+
 export const hex64Schema = z
   .string()
   .regex(hex64Regex, "Must be 64-character hex string prefixed with 0x")
