@@ -1,7 +1,7 @@
 import type { RelaySubscription, RelayMessage } from "../types/subscription";
 import type { ApiResult } from "@hieco/utils";
 import type { JsonRpcResponse } from "../types/json-rpc";
-import { mapJsonRpcErrorCode } from "../utils/error-mapper";
+import { isJsonRpcErrorCode, mapJsonRpcErrorCode } from "../utils/error-mapper";
 
 interface PendingSubscribe {
   resolve: (result: ApiResult<string>) => void;
@@ -38,6 +38,9 @@ export class SubscriptionManager {
     subscription: RelaySubscription,
     callback: (message: RelayMessage) => void,
     resolve: (result: ApiResult<string>) => void,
+    options?: {
+      readonly isRestoration?: boolean;
+    },
   ): void {
     const existing = this.trackedSubscriptions.get(localSubscriptionId);
     if (existing) {
@@ -53,6 +56,7 @@ export class SubscriptionManager {
       resolve,
       callback,
       localSubscriptionId,
+      ...(options?.isRestoration ? { isRestoration: true } : {}),
     });
   }
 
@@ -64,13 +68,17 @@ export class SubscriptionManager {
     this.pendingUnsubscribes.set(requestId, { resolve, localSubscriptionId: subscriptionId });
   }
 
-  getServerSubscriptionId(localSubscriptionId: string): string | null {
+  getServerSubscriptionIdByLocalId(localSubscriptionId: string): string | null {
     for (const [serverId, localId] of this.serverToLocalSubscriptions) {
       if (localId === localSubscriptionId) {
         return serverId;
       }
     }
     return null;
+  }
+
+  getLocalSubscriptionId(serverSubscriptionId: string): string | null {
+    return this.serverToLocalSubscriptions.get(serverSubscriptionId) ?? null;
   }
 
   setServerSubscription(localId: string, serverId: string): void {
@@ -116,7 +124,9 @@ export class SubscriptionManager {
   handleError(response: JsonRpcResponse & { id: number }): void {
     if (!response.error) return;
 
-    const errorTag = mapJsonRpcErrorCode(response.error.code as any);
+    const errorTag = isJsonRpcErrorCode(response.error.code)
+      ? mapJsonRpcErrorCode(response.error.code)
+      : "UnknownError";
     const { message, code } = response.error;
 
     const subscribePending = this.pendingSubscribes.get(response.id);

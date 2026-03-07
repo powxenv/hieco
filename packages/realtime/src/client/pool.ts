@@ -20,7 +20,7 @@ interface PooledConnection {
 interface PooledSubscription {
   localId: string;
   connectionIndex: number;
-  serverId: string | null;
+  clientSubscriptionId: string | null;
 }
 
 export class ConnectionPool {
@@ -120,7 +120,7 @@ export class ConnectionPool {
     const pooledSub: PooledSubscription = {
       localId,
       connectionIndex,
-      serverId: null,
+      clientSubscriptionId: null,
     };
 
     this.pooledSubscriptions.set(localId, pooledSub);
@@ -128,7 +128,7 @@ export class ConnectionPool {
     return connection.client.subscribe(subscription, callback).then((result) => {
       if (result.success) {
         connection.activeSubscriptions += 1;
-        pooledSub.serverId = result.data;
+        pooledSub.clientSubscriptionId = result.data;
         return { success: true, data: localId };
       }
       this.pooledSubscriptions.delete(localId);
@@ -159,8 +159,8 @@ export class ConnectionPool {
       };
     }
 
-    const serverId = pooled.serverId;
-    if (!serverId) {
+    const clientSubscriptionId = pooled.clientSubscriptionId;
+    if (!clientSubscriptionId) {
       return {
         success: false,
         error: {
@@ -170,7 +170,7 @@ export class ConnectionPool {
       };
     }
 
-    const result = await connection.client.unsubscribe(serverId);
+    const result = await connection.client.unsubscribe(clientSubscriptionId);
 
     if (result.success) {
       connection.activeSubscriptions = Math.max(0, connection.activeSubscriptions - 1);

@@ -15,8 +15,10 @@ export class RelayWebSocketClient extends BaseStreamClient<
 > {
   private ws: WebSocket | null = null;
   private requestId: number = 0;
-  private subscriptionManager: SubscriptionManager;
-  private requestManager: RequestManager;
+  private readonly subscriptionManager: SubscriptionManager;
+  private readonly requestManager: RequestManager;
+  private pendingConnect: Promise<ApiResult<null>> | null = null;
+  private manualDisconnect = false;
 
   constructor(config: StreamConfig) {
     super(config);
@@ -33,69 +35,126 @@ export class RelayWebSocketClient extends BaseStreamClient<
       return { success: true, data: null };
     }
 
+    if (this.pendingConnect) {
+      return this.pendingConnect;
+    }
+
     this.setState({ _tag: "Connecting" });
+    this.manualDisconnect = false;
 
-    try {
-      this.ws = new WebSocket(this.config.endpoint);
-      this.requestManager.setWebSocket(this.ws);
+    this.pendingConnect = new Promise<ApiResult<null>>((resolve) => {
+      let settled = false;
 
-      this.ws.onopen = () => {
-        this.setState({
-          _tag: "Connected",
-          connectionId: crypto.randomUUID(),
-        });
-
-        if (this.subscriptionManager.tracked.size > 0) {
-          this.restoreSubscriptions();
+      const settle = (result: ApiResult<null>) => {
+        if (settled) {
+          return;
         }
+
+        settled = true;
+        this.pendingConnect = null;
+        resolve(result);
       };
 
-      this.ws.onmessage = (event: MessageEvent) => {
-        this.requestManager.handleMessage(event.data);
-      };
+      try {
+        const ws = new WebSocket(this.config.endpoint);
+        this.ws = ws;
+        this.requestManager.setWebSocket(ws);
 
-      this.ws.onerror = () => {
-        this.setState({
-          _tag: "Error",
-          error: {
-            _tag: "NetworkError",
-            message: "WebSocket connection error",
-          },
-        });
-      };
+        ws.onopen = () => {
+          this.setState({
+            _tag: "Connected",
+            connectionId: crypto.randomUUID(),
+          });
 
-      this.ws.onclose = (event: CloseEvent) => {
-        const wasConnected = this.state._tag === "Connected";
-        this.setState({ _tag: "Disconnected" });
+          if (this.subscriptionManager.tracked.size > 0) {
+            this.restoreSubscriptions();
+          }
 
-        if (wasConnected) {
-          if (isCloseErrorRecoverable(event.code)) {
-            this.handleReconnection();
-          } else if (event.code === 4001 || event.code === 4003) {
-            this.setState({
-              _tag: "Error",
+          settle({ success: true, data: null });
+        };
+
+        ws.onmessage = (event: MessageEvent) => {
+          if (typeof event.data === "string") {
+            this.requestManager.handleMessage(event.data);
+          }
+        };
+
+        ws.onerror = () => {
+          this.setState({
+            _tag: "Error",
+            error: {
+              _tag: "NetworkError",
+              message: "WebSocket connection error",
+            },
+          });
+
+          if (this.state._tag !== "Connected") {
+            settle({
+              success: false,
               error: {
-                _tag: "RateLimitError",
-                message: event.reason || `Connection closed with code ${event.code}`,
-                code: event.code.toString(),
+                _tag: "NetworkError",
+                message: "WebSocket connection error",
               },
             });
-          } else {
-            this.handleReconnection();
           }
-        }
-      };
+        };
 
-      return { success: true, data: null };
-    } catch (error) {
-      return {
-        success: false,
-        error: {
-          _tag: "NetworkError",
-          message: error instanceof Error ? error.message : "Connection failed",
-        },
-      };
-    }
+        ws.onclose = (event: CloseEvent) => {
+          const wasConnecting = this.state._tag === "Connecting";
+          const wasConnected = this.state._tag === "Connected";
+
+          this.ws = null;
+          this.requestManager.setWebSocket(null);
+          this.setState({ _tag: "Disconnected" });
+
+          if (this.manualDisconnect) {
+            this.manualDisconnect = false;
+            settle({ success: true, data: null });
+            return;
+          }
+
+          if (wasConnecting) {
+            settle({
+              success: false,
+              error: {
+                _tag:
+                  event.code === 4001 || event.code === 4003 ? "RateLimitError" : "NetworkError",
+                message: event.reason || `Connection closed with code ${event.code}`,
+                ...(event.code ? { code: event.code.toString() } : {}),
+              },
+            });
+            return;
+          }
+
+          if (wasConnected) {
+            if (isCloseErrorRecoverable(event.code)) {
+              this.handleReconnection();
+            } else if (event.code === 4001 || event.code === 4003) {
+              this.setState({
+                _tag: "Error",
+                error: {
+                  _tag: "RateLimitError",
+                  message: event.reason || `Connection closed with code ${event.code}`,
+                  code: event.code.toString(),
+                },
+              });
+            } else {
+              this.handleReconnection();
+            }
+          }
+        };
+      } catch (error) {
+        settle({
+          success: false,
+          error: {
+            _tag: "NetworkError",
+            message: error instanceof Error ? error.message : "Connection failed",
+          },
+        });
+      }
+    });
+
+    return this.pendingConnect;
   }
 
   subscribe(
@@ -146,7 +205,8 @@ export class RelayWebSocketClient extends BaseStreamClient<
       });
     }
 
-    const serverSubscriptionId = this.subscriptionManager.getServerSubscriptionId(subscriptionId);
+    const serverSubscriptionId =
+      this.subscriptionManager.getServerSubscriptionIdByLocalId(subscriptionId);
     if (!serverSubscriptionId) {
       return Promise.resolve({
         success: false,
@@ -174,8 +234,10 @@ export class RelayWebSocketClient extends BaseStreamClient<
 
   async disconnect(): Promise<void> {
     if (this.ws) {
+      this.manualDisconnect = true;
       this.ws.close();
       this.ws = null;
+      this.requestManager.setWebSocket(null);
     }
 
     this.subscriptionManager.clear();
@@ -257,6 +319,7 @@ export class RelayWebSocketClient extends BaseStreamClient<
         subscription.subscription,
         () => {},
         () => {},
+        { isRestoration: true },
       );
 
       this.sendRequest(request);

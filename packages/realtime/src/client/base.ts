@@ -4,12 +4,12 @@ import type { StreamConfig, StreamState } from "../types/stream";
 export abstract class BaseStreamClient<TMessage, TSubscription, TUnsubscribeResult = null> {
   protected readonly config: StreamConfig;
   protected state: StreamState;
-  protected subscriptions: Map<string, Set<(message: TMessage) => void>>;
+  private readonly stateListeners: Set<(state: StreamState) => void>;
 
   constructor(config: StreamConfig) {
     this.config = config;
     this.state = { _tag: "Disconnected" };
-    this.subscriptions = new Map();
+    this.stateListeners = new Set();
   }
 
   abstract connect(): Promise<ApiResult<null>>;
@@ -27,7 +27,17 @@ export abstract class BaseStreamClient<TMessage, TSubscription, TUnsubscribeResu
     return this.state;
   }
 
+  onStateChange(listener: (state: StreamState) => void): () => void {
+    this.stateListeners.add(listener);
+    return () => {
+      this.stateListeners.delete(listener);
+    };
+  }
+
   protected setState(newState: StreamState): void {
     this.state = newState;
+    for (const listener of this.stateListeners) {
+      listener(newState);
+    }
   }
 }
