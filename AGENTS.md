@@ -45,6 +45,16 @@ When encountering errors or unfamiliar APIs:
 Use **bun** and **bunx** exclusively.
 Do **NOT** use npm, npx, pnpm, or yarn under any circumstances.
 
+## Code Quality Tools
+
+All packages **MUST** use these tools:
+
+- **Linter**: `oxlint` (from `oxlint` package)
+- **Formatter**: `oxfmt` (from `oxlint` package)
+- **Typecheck**: `tsgo` (from `@typescript/native-preview` package)
+
+**DO NOT use** `tsc` from the `typescript` package for type checking.
+
 ## Plan Mode
 
 When operating in Plan Mode:
