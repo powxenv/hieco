@@ -1,6 +1,7 @@
 import type { ComponentType, ReactNode } from "react";
 import { Component } from "react";
 import type { ApiError } from "@hieco/mirror";
+import { toApiError } from "@hieco/utils";
 
 export interface ApiErrorFallbackProps {
   error: ApiError;
@@ -28,15 +29,7 @@ export class ApiErrorBoundary extends Component<ApiErrorBoundaryProps, ApiErrorB
   }
 
   static getDerivedStateFromError(error: unknown): ApiErrorBoundaryState {
-    if (isApiError(error)) {
-      return { error };
-    }
-    return {
-      error: {
-        _tag: "UnknownError",
-        message: error instanceof Error ? error.message : "Unknown error occurred",
-      },
-    };
+    return { error: toApiError(error) };
   }
 
   reset(): void {
@@ -57,13 +50,6 @@ export class ApiErrorBoundary extends Component<ApiErrorBoundaryProps, ApiErrorB
     return this.props.children;
   }
 }
-
-function isApiError(error: unknown): error is ApiError {
-  return (
-    typeof error === "object" && error !== null && "_tag" in error && typeof error._tag === "string"
-  );
-}
-
 export function withApiErrorBoundary<P extends object>(
   Component: ComponentType<P>,
   fallback: (props: ApiErrorFallbackProps) => ReactNode,

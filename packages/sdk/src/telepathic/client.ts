@@ -547,6 +547,9 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
       execute,
     });
 
+  const isObject = (value: unknown): value is Record<string, unknown> =>
+    typeof value === "object" && value !== null;
+
   const toQueryResult = <T>(run: () => Promise<Result<T>>): QueryResult<T> => ({ now: run });
 
   const wrapQueryTree = <T extends object>(input: T): Queryify<T> => {
@@ -559,20 +562,14 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
           );
         continue;
       }
-      if (value && typeof value === "object") {
-        result[key] = wrapQueryTree(value as Record<string, unknown>);
+      if (isObject(value)) {
+        result[key] = wrapQueryTree(value);
         continue;
       }
       result[key] = value;
     }
     return result as Queryify<T>;
   };
-
-  const isObject = (value: unknown): value is Record<string, unknown> =>
-    typeof value === "object" && value !== null;
-
-  const hasNow = (value: unknown): value is { readonly now: () => Promise<unknown> } =>
-    isObject(value) && "now" in value && typeof value.now === "function";
 
   const wrapDoTree = <T extends object>(input: T): Doify<T> => {
     const result: Record<string, unknown> = {};
@@ -581,16 +578,15 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
       if (typeof value === "function") {
         result[key] = (...args: ReadonlyArray<unknown>) => {
           const output = (value as (...innerArgs: ReadonlyArray<unknown>) => unknown)(...args);
-          if (hasNow(output)) {
+          if (!isObject(output)) {
+            return output;
+          }
+
+          if ("now" in output && typeof output.now === "function") {
             return output.now();
           }
-          if (isObject(output)) {
-            if ("do" in output) {
-              return output;
-            }
-            return wrapDoTree(output);
-          }
-          return output;
+
+          return "do" in output ? output : wrapDoTree(output);
         };
         continue;
       }

@@ -117,16 +117,8 @@ function createTopicWatchErrorHandler(
   };
 }
 
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
-
-  if (Array.isArray(value)) {
-    return false;
-  }
-
-  return Object.prototype.toString.call(value) === "[object Object]";
+function isMessageObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function normalizeMessage(value: unknown): Result<SupportedTopicMessage> {
@@ -138,7 +130,7 @@ function normalizeMessage(value: unknown): Result<SupportedTopicMessage> {
     return ok(value);
   }
 
-  if (isPlainRecord(value)) {
+  if (isMessageObject(value)) {
     return ok(value);
   }
 

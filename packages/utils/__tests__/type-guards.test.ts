@@ -6,8 +6,31 @@ import {
   isNotFoundError,
   isRateLimitError,
   isValidationError,
+  toApiError,
 } from "../src/mirror/guards";
 import type { ApiResult, ApiError } from "../src/types/api";
+
+describe("toApiError", () => {
+  test("returns the same API error shape when the value is already an ApiError", () => {
+    const error = { _tag: "NetworkError", message: "offline", status: 503 } as const;
+
+    expect(toApiError(error)).toEqual(error);
+  });
+
+  test("converts standard errors into UnknownError ApiErrors", () => {
+    expect(toApiError(new Error("boom"))).toEqual({
+      _tag: "UnknownError",
+      message: "boom",
+    });
+  });
+
+  test("falls back to a generic UnknownError for non-error values", () => {
+    expect(toApiError("bad state")).toEqual({
+      _tag: "UnknownError",
+      message: "Unknown error occurred",
+    });
+  });
+});
 
 describe("isSuccess", () => {
   const successResult: ApiResult<string> = { success: true, data: "test data" };

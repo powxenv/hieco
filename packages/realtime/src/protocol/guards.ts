@@ -6,16 +6,12 @@ import type {
 } from "./rpc";
 import type { LogResult, NewHeadsResult, RelayMessage } from "../subscriptions/subscription";
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function isStringArray(value: unknown): value is readonly string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === "string");
-}
-
 function isLogResult(value: unknown): value is LogResult {
-  if (!isRecord(value)) return false;
+  if (!isObject(value) || !Array.isArray(value.topics)) return false;
 
   return (
     typeof value.address === "string" &&
@@ -23,14 +19,14 @@ function isLogResult(value: unknown): value is LogResult {
     typeof value.blockNumber === "string" &&
     typeof value.data === "string" &&
     typeof value.logIndex === "string" &&
-    isStringArray(value.topics) &&
+    value.topics.every((topic) => typeof topic === "string") &&
     typeof value.transactionHash === "string" &&
     typeof value.transactionIndex === "string"
   );
 }
 
 function isNewHeadsResult(value: unknown): value is NewHeadsResult {
-  if (!isRecord(value)) return false;
+  if (!isObject(value)) return false;
 
   return (
     typeof value.hash === "string" &&
@@ -58,41 +54,40 @@ export function isResponseWithId(
 }
 
 export function isJsonRpcResponse(value: unknown): value is JsonRpcResponse {
-  if (!isRecord(value)) return false;
-  const v = value;
-  return v.jsonrpc === "2.0";
+  return isObject(value) && value.jsonrpc === "2.0";
 }
 
 export function isSubscribeResponse(value: unknown): value is SubscribeResponse {
-  if (!isRecord(value)) return false;
-  const v = value;
-  return v.jsonrpc === "2.0" && typeof v.id === "number" && typeof v.result === "string";
+  return (
+    isObject(value) &&
+    value.jsonrpc === "2.0" &&
+    typeof value.id === "number" &&
+    typeof value.result === "string"
+  );
 }
 
 export function isUnsubscribeResponse(value: unknown): value is UnsubscribeResponse {
-  if (!isRecord(value)) return false;
-  const v = value;
-  return v.jsonrpc === "2.0" && typeof v.id === "number" && typeof v.result === "boolean";
+  return (
+    isObject(value) &&
+    value.jsonrpc === "2.0" &&
+    typeof value.id === "number" &&
+    typeof value.result === "boolean"
+  );
 }
 
 export function isChainIdResponse(value: unknown): value is ChainIdResponse {
-  if (!isRecord(value)) return false;
-  const v = value;
   return (
-    v.jsonrpc === "2.0" &&
-    typeof v.id === "number" &&
-    typeof v.result === "string" &&
-    (v.result === "0x127" ||
-      v.result === "0x128" ||
-      v.result === "0x129" ||
-      v.result.startsWith("0x"))
+    isObject(value) &&
+    value.jsonrpc === "2.0" &&
+    typeof value.id === "number" &&
+    typeof value.result === "string" &&
+    value.result.startsWith("0x")
   );
 }
 
 export function isRelayMessage(value: unknown): value is RelayMessage {
-  if (!isRecord(value)) return false;
-
   return (
+    isObject(value) &&
     typeof value.subscription === "string" &&
     (isLogResult(value.result) || isNewHeadsResult(value.result))
   );

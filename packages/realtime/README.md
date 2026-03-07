@@ -161,7 +161,6 @@ Use the protocol exports when you need to inspect or validate raw Relay messages
 - `isChainIdResponse`
 - `isRelayMessage`
 - `mapJsonRpcErrorCode`
-- `isCloseErrorRecoverable`
 
 ## API Reference
 
@@ -213,22 +212,21 @@ Use the protocol exports when you need to inspect or validate raw Relay messages
 
 ### Protocol Exports
 
-| Export                    | Kind     | Purpose                                              | Usage form                      |
-| ------------------------- | -------- | ---------------------------------------------------- | ------------------------------- |
-| `JsonRpcRequest`          | type     | Outgoing JSON-RPC request shape.                     | `type JsonRpcRequest`           |
-| `JsonRpcResponse`         | type     | Incoming JSON-RPC response shape.                    | `type JsonRpcResponse`          |
-| `SubscribeResponse`       | type     | Successful subscribe response.                       | `type SubscribeResponse`        |
-| `UnsubscribeResponse`     | type     | Successful unsubscribe response.                     | `type UnsubscribeResponse`      |
-| `ChainIdResponse`         | type     | Successful chain ID response.                        | `type ChainIdResponse`          |
-| `JsonRpcErrorCode`        | type     | Supported Relay JSON-RPC error codes.                | `type JsonRpcErrorCode`         |
-| `mapJsonRpcErrorCode`     | function | Convert a JSON-RPC error code into an API error tag. | `mapJsonRpcErrorCode(code)`     |
-| `isCloseErrorRecoverable` | function | Check whether a close code should trigger recovery.  | `isCloseErrorRecoverable(code)` |
-| `isJsonRpcResponse`       | function | Validate a raw JSON-RPC response.                    | `isJsonRpcResponse(value)`      |
-| `isResponseWithId`        | function | Narrow a response to one with a numeric ID.          | `isResponseWithId(response)`    |
-| `isSubscribeResponse`     | function | Validate a subscribe response.                       | `isSubscribeResponse(value)`    |
-| `isUnsubscribeResponse`   | function | Validate an unsubscribe response.                    | `isUnsubscribeResponse(value)`  |
-| `isChainIdResponse`       | function | Validate a chain ID response.                        | `isChainIdResponse(value)`      |
-| `isRelayMessage`          | function | Validate a relay subscription payload.               | `isRelayMessage(value)`         |
+| Export                  | Kind     | Purpose                                              | Usage form                     |
+| ----------------------- | -------- | ---------------------------------------------------- | ------------------------------ |
+| `JsonRpcRequest`        | type     | Outgoing JSON-RPC request shape.                     | `type JsonRpcRequest`          |
+| `JsonRpcResponse`       | type     | Incoming JSON-RPC response shape.                    | `type JsonRpcResponse`         |
+| `SubscribeResponse`     | type     | Successful subscribe response.                       | `type SubscribeResponse`       |
+| `UnsubscribeResponse`   | type     | Successful unsubscribe response.                     | `type UnsubscribeResponse`     |
+| `ChainIdResponse`       | type     | Successful chain ID response.                        | `type ChainIdResponse`         |
+| `JsonRpcErrorCode`      | type     | Supported Relay JSON-RPC error codes.                | `type JsonRpcErrorCode`        |
+| `mapJsonRpcErrorCode`   | function | Convert a JSON-RPC error code into an API error tag. | `mapJsonRpcErrorCode(code)`    |
+| `isJsonRpcResponse`     | function | Validate a raw JSON-RPC response.                    | `isJsonRpcResponse(value)`     |
+| `isResponseWithId`      | function | Narrow a response to one with a numeric ID.          | `isResponseWithId(response)`   |
+| `isSubscribeResponse`   | function | Validate a subscribe response.                       | `isSubscribeResponse(value)`   |
+| `isUnsubscribeResponse` | function | Validate an unsubscribe response.                    | `isUnsubscribeResponse(value)` |
+| `isChainIdResponse`     | function | Validate a chain ID response.                        | `isChainIdResponse(value)`     |
+| `isRelayMessage`        | function | Validate a relay subscription payload.               | `isRelayMessage(value)`        |
 
 ## Related Packages
 

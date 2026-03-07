@@ -40,7 +40,7 @@ export function formatEntityId(shard: number, realm: number, num: number): Entit
 export function parseEntityIdParts(id: EntityId): [shard: number, realm: number, num: number] {
   const match = ENTITY_ID_REGEX.exec(id);
 
-  if (!match || match.length < 4) {
+  if (!match) {
     throw new Error(`Invalid EntityId format: ${id}`);
   }
 
@@ -52,7 +52,7 @@ export function parseEntityIdParts(id: EntityId): [shard: number, realm: number,
     throw new Error(`Invalid EntityId format: ${id}`);
   }
 
-  return [parseInt(shard, 10), parseInt(realm, 10), parseInt(num, 10)];
+  return [Number.parseInt(shard, 10), Number.parseInt(realm, 10), Number.parseInt(num, 10)];
 }
 
 export function asEntityId(id: string): EntityId {

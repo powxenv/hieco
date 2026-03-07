@@ -1,6 +1,7 @@
 import type { VNode } from "preact";
 import { useErrorBoundary } from "preact/hooks";
 import type { ApiError } from "@hieco/mirror";
+import { toApiError } from "@hieco/utils";
 
 export interface ApiErrorFallbackProps {
   error: ApiError;
@@ -21,32 +22,14 @@ export function ApiErrorBoundary({ children, fallback }: ApiErrorBoundaryProps):
   const [error, resetError] = useErrorBoundary();
 
   if (error) {
-    const apiError = toApiError(error);
-
     const reset = () => {
       resetError();
     };
 
-    return <ApiErrorFallback error={apiError} reset={reset} render={fallback} />;
+    return <ApiErrorFallback error={toApiError(error)} reset={reset} render={fallback} />;
   }
 
   return children;
-}
-
-function toApiError(error: unknown): ApiError {
-  if (isApiError(error)) {
-    return error;
-  }
-  return {
-    _tag: "UnknownError",
-    message: error instanceof Error ? error.message : "Unknown error occurred",
-  };
-}
-
-function isApiError(error: unknown): error is ApiError {
-  return (
-    typeof error === "object" && error !== null && "_tag" in error && typeof error._tag === "string"
-  );
 }
 
 export function withApiErrorBoundary<P extends object>(

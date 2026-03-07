@@ -15,7 +15,7 @@ export type {
   RelayMessage,
   RelaySubscription,
 } from "./subscriptions/subscription";
-export { mapJsonRpcErrorCode, isCloseErrorRecoverable } from "./protocol/errors";
+export { mapJsonRpcErrorCode } from "./protocol/errors";
 export {
   isJsonRpcResponse,
   isRelayMessage,

@@ -184,14 +184,15 @@ if (isSuccess(result)) {
 
 ### Type Guards
 
-| Export              | Kind     | Purpose                                    | Usage form                 |
-| ------------------- | -------- | ------------------------------------------ | -------------------------- |
-| `isSuccess`         | function | Narrow `ApiResult<T>` to a success result. | `isSuccess(result)`        |
-| `isApiError`        | function | Narrow an unknown value to `ApiError`.     | `isApiError(value)`        |
-| `isNetworkError`    | function | Check for network errors.                  | `isNetworkError(error)`    |
-| `isNotFoundError`   | function | Check for not-found errors.                | `isNotFoundError(error)`   |
-| `isRateLimitError`  | function | Check for rate-limit errors.               | `isRateLimitError(error)`  |
-| `isValidationError` | function | Check for validation errors.               | `isValidationError(error)` |
+| Export              | Kind     | Purpose                                          | Usage form                 |
+| ------------------- | -------- | ------------------------------------------------ | -------------------------- |
+| `isSuccess`         | function | Narrow `ApiResult<T>` to a success result.       | `isSuccess(result)`        |
+| `isApiError`        | function | Narrow an unknown value to `ApiError`.           | `isApiError(value)`        |
+| `isNetworkError`    | function | Check for network errors.                        | `isNetworkError(error)`    |
+| `isNotFoundError`   | function | Check for not-found errors.                      | `isNotFoundError(error)`   |
+| `isRateLimitError`  | function | Check for rate-limit errors.                     | `isRateLimitError(error)`  |
+| `toApiError`        | function | Normalize an unknown thrown value to `ApiError`. | `toApiError(error)`        |
+| `isValidationError` | function | Check for validation errors.                     | `isValidationError(error)` |
 
 ## Related Packages
 

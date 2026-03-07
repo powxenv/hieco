@@ -29,7 +29,3 @@ export function mapJsonRpcErrorCode(code: JsonRpcErrorCode): ApiError["_tag"] {
       return "UnknownError";
   }
 }
-
-export function isCloseErrorRecoverable(code: number): boolean {
-  return code === 4002;
-}

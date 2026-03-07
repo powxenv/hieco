@@ -73,11 +73,7 @@ export function formatYesNo(value: boolean | undefined | null): string {
   return value ? "Yes" : "No";
 }
 
-function convertTinybarToHbar(tinybar: number | bigint): number {
-  return Number(tinybar) / TINYBARS_PER_HBAR;
-}
-
 export function formatHbar(tinybar: number | bigint): string {
-  const hbar = convertTinybarToHbar(tinybar);
+  const hbar = Number(tinybar) / TINYBARS_PER_HBAR;
   return `${chalk.green(hbar.toFixed(8))} ${chalk.cyan("ℏ")}`;
 }
