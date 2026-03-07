@@ -9,22 +9,203 @@ import type {
   TransactionReceiptData,
 } from "../../foundation/results-shapes.ts";
 import type { Result } from "../../foundation/results.ts";
-import { ok } from "../../foundation/results.ts";
+import { err, ok } from "../../foundation/results.ts";
 import { ensureTopicId, ensureTopicSequence } from "../transactions/api.ts";
-import { err } from "../../foundation/results.ts";
 import { createError } from "../../foundation/errors.ts";
 import type {
+  BatchSubmitMessagesParams,
   CreateTopicParams,
   DeleteTopicParams,
-  BatchSubmitMessagesParams,
-  SubmitMessageParams,
   SubmitJsonMessageParams,
+  SubmitMessageParams,
   TopicMessageData,
   UpdateTopicParams,
-  WatchTopicMessagesOptions,
   WatchTopicMessagesFromOptions,
+  WatchTopicMessagesOptions,
 } from "../../foundation/params.ts";
 import type { HcsNamespace, TopicWatchHandle } from "./namespace.ts";
+
+interface MirrorFailureShape {
+  readonly message: string;
+  readonly status?: string | number;
+  readonly code?: string | number;
+}
+
+interface TopicMessageShape {
+  readonly consensusTimestamp: string;
+  readonly contents: Uint8Array;
+  readonly runningHash: Uint8Array;
+  readonly sequenceNumber: number;
+  readonly topicId: string;
+}
+
+interface SubmitMessageOptions {
+  readonly maxChunks: number | undefined;
+  readonly chunkSize: number | undefined;
+  readonly memo: string | undefined;
+  readonly maxFee: SubmitMessageParams["maxFee"] | undefined;
+}
+
+type SupportedTopicMessage = string | Uint8Array | Record<string, unknown>;
+
+const topicMessageDecoder = new TextDecoder();
+
+function readTopicMessageText(contents: Uint8Array): string {
+  return topicMessageDecoder.decode(contents);
+}
+
+function readTopicMessageJson(contents: Uint8Array): unknown {
+  const text = readTopicMessageText(contents);
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
+function createTopicMessageData(fields: TopicMessageShape): TopicMessageData {
+  return {
+    consensusTimestamp: fields.consensusTimestamp,
+    contents: fields.contents,
+    runningHash: fields.runningHash,
+    sequenceNumber: fields.sequenceNumber,
+    topicId: fields.topicId,
+    json: () => readTopicMessageJson(fields.contents),
+    text: () => readTopicMessageText(fields.contents),
+  };
+}
+
+function createTopicWatchHandle(stop: () => void): TopicWatchHandle {
+  return Object.assign(
+    (): void => {
+      stop();
+    },
+    { stop },
+  );
+}
+
+function applyTopicWatchOptions(
+  query: TopicMessageQuery,
+  options: WatchTopicMessagesOptions,
+): TopicMessageQuery {
+  if (options.startTime !== undefined) {
+    query.setStartTime(options.startTime);
+  }
+
+  if (options.endTime !== undefined) {
+    query.setEndTime(options.endTime);
+  }
+
+  if (options.limit !== undefined) {
+    query.setLimit(options.limit);
+  }
+
+  return query;
+}
+
+function createTopicWatchErrorHandler(
+  onError: WatchTopicMessagesOptions["onError"],
+): ((message: import("@hiero-ledger/sdk").TopicMessage | null, error: Error) => void) | null {
+  if (!onError) {
+    return null;
+  }
+
+  return (_message, error) => {
+    onError(error);
+  };
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  if (Array.isArray(value)) {
+    return false;
+  }
+
+  return Object.prototype.toString.call(value) === "[object Object]";
+}
+
+function normalizeMessage(value: unknown): Result<SupportedTopicMessage> {
+  if (typeof value === "string") {
+    return ok(value);
+  }
+
+  if (value instanceof Uint8Array) {
+    return ok(value);
+  }
+
+  if (isPlainRecord(value)) {
+    return ok(value);
+  }
+
+  return err(
+    createError("UNEXPECTED_ERROR", "Unsupported message payload", {
+      hint: "Provide string, Uint8Array, or plain object",
+    }),
+  );
+}
+
+function decodeBase64(value: string): Uint8Array {
+  if (typeof atob === "function") {
+    const bytes = atob(value);
+    const result = new Uint8Array(bytes.length);
+
+    for (let index = 0; index < bytes.length; index += 1) {
+      result[index] = bytes.charCodeAt(index);
+    }
+
+    return result;
+  }
+
+  if (typeof Buffer !== "undefined") {
+    return Uint8Array.from(Buffer.from(value, "base64"));
+  }
+
+  return new Uint8Array();
+}
+
+function createMirrorTopicMessage(message: import("@hieco/mirror").TopicMessage): TopicMessageData {
+  const contents = message.message ? decodeBase64(message.message) : new Uint8Array();
+  const runningHash = message.running_hash ? decodeBase64(message.running_hash) : new Uint8Array();
+
+  return createTopicMessageData({
+    consensusTimestamp: message.consensus_timestamp,
+    contents,
+    runningHash,
+    sequenceNumber: message.sequence_number,
+    topicId: message.topic_id,
+  });
+}
+
+function createSubmitMessageParams(
+  topicId: EntityId,
+  message: SupportedTopicMessage,
+  options: SubmitMessageOptions,
+): SubmitMessageParams {
+  return {
+    topicId,
+    message,
+    ...(options.maxChunks !== undefined ? { maxChunks: options.maxChunks } : {}),
+    ...(options.chunkSize !== undefined ? { chunkSize: options.chunkSize } : {}),
+    ...(options.memo ? { memo: options.memo } : {}),
+    ...(options.maxFee !== undefined ? { maxFee: options.maxFee } : {}),
+  };
+}
+
+function createMirrorQueryFailure<T>(operation: string, error: MirrorFailureShape): Result<T> {
+  return err(
+    createError("MIRROR_QUERY_FAILED", `Mirror ${operation} failed: ${error.message}`, {
+      hint: "Verify mirror node connectivity",
+      details: {
+        status: error.status ?? "unknown",
+        code: error.code ?? "unknown",
+      },
+    }),
+  );
+}
 
 export function createHcsNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
@@ -33,9 +214,15 @@ export function createHcsNamespace(context: {
 }): HcsNamespace {
   const create = async (params: CreateTopicParams): Promise<Result<TopicReceipt>> => {
     const result = await context.submit({ kind: "hcs.create", params });
-    if (!result.ok) return result;
+    if (!result.ok) {
+      return result;
+    }
+
     const topicId = ensureTopicId(result);
-    if (!topicId.ok) return topicId;
+    if (!topicId.ok) {
+      return topicId;
+    }
+
     return ok({
       receipt: result.value,
       transactionId: result.value.transactionId,
@@ -50,7 +237,10 @@ export function createHcsNamespace(context: {
 
   const update = async (params: UpdateTopicParams): Promise<Result<TransactionReceiptData>> => {
     const result = await context.submit({ kind: "hcs.update", params });
-    if (!result.ok) return result;
+    if (!result.ok) {
+      return result;
+    }
+
     return ok(result.value);
   };
 
@@ -63,7 +253,10 @@ export function createHcsNamespace(context: {
     params: DeleteTopicParams,
   ): Promise<Result<TransactionReceiptData>> => {
     const result = await context.submit({ kind: "hcs.delete", params });
-    if (!result.ok) return result;
+    if (!result.ok) {
+      return result;
+    }
+
     return ok(result.value);
   };
 
@@ -74,9 +267,15 @@ export function createHcsNamespace(context: {
 
   const submit = async (params: SubmitMessageParams): Promise<Result<MessageReceipt>> => {
     const result = await context.submit({ kind: "hcs.submit", params });
-    if (!result.ok) return result;
+    if (!result.ok) {
+      return result;
+    }
+
     const sequence = ensureTopicSequence(result);
-    if (!sequence.ok) return sequence;
+    if (!sequence.ok) {
+      return sequence;
+    }
+
     return ok({
       receipt: result.value,
       transactionId: result.value.transactionId,
@@ -94,105 +293,25 @@ export function createHcsNamespace(context: {
     handler: (message: TopicMessageData) => void,
     options: WatchTopicMessagesOptions = {},
   ): TopicWatchHandle => {
-    const query = new TopicMessageQuery().setTopicId(topicId);
-    if (options.startTime !== undefined) query.setStartTime(options.startTime);
-    if (options.endTime !== undefined) query.setEndTime(options.endTime);
-    if (options.limit !== undefined) query.setLimit(options.limit);
-
-    const errorHandler = options.onError
-      ? (message: import("@hiero-ledger/sdk").TopicMessage | null, error: Error) => {
-          void message;
-          options.onError?.(error);
-        }
-      : null;
-
-    const handle = query.subscribe(context.nativeClient, errorHandler, (message) => {
-      if (!message) return;
-      const data: TopicMessageData = {
-        consensusTimestamp: message.consensusTimestamp.toString(),
-        contents: message.contents,
-        runningHash: message.runningHash,
-        sequenceNumber: message.sequenceNumber.toNumber(),
-        topicId,
-        json: () => {
-          const text = new TextDecoder().decode(message.contents);
-          try {
-            return JSON.parse(text);
-          } catch {
-            return text;
-          }
-        },
-        text: () => new TextDecoder().decode(message.contents),
-      };
-      handler(data);
-    });
-
-    const stop = () => handle.unsubscribe();
-    const callable: TopicWatchHandle = Object.assign(() => stop(), { stop });
-    Object.defineProperty(callable, "stop", {
-      value: stop,
-      enumerable: true,
-      configurable: false,
-      writable: false,
-    });
-    return callable;
-  };
-
-  const isRecord = (value: unknown): value is Record<string, unknown> => {
-    if (typeof value !== "object" || value === null) return false;
-    if (Array.isArray(value)) return false;
-    return Object.prototype.toString.call(value) === "[object Object]";
-  };
-
-  const normalizeMessage = (
-    value: unknown,
-  ): Result<string | Record<string, unknown> | Uint8Array> => {
-    if (typeof value === "string") return ok(value);
-    if (value instanceof Uint8Array) return ok(value);
-    if (isRecord(value)) return ok(value);
-    return err(
-      createError("UNEXPECTED_ERROR", "Unsupported message payload", {
-        hint: "Provide string, Uint8Array, or plain object",
-      }),
-    );
-  };
-
-  const decodeBase64 = (value: string): Uint8Array => {
-    if (typeof atob === "function") {
-      const bytes = atob(value);
-      const result = new Uint8Array(bytes.length);
-      for (let i = 0; i < bytes.length; i += 1) {
-        result[i] = bytes.charCodeAt(i);
+    const query = applyTopicWatchOptions(new TopicMessageQuery().setTopicId(topicId), options);
+    const errorHandler = createTopicWatchErrorHandler(options.onError);
+    const subscription = query.subscribe(context.nativeClient, errorHandler, (message) => {
+      if (!message) {
+        return;
       }
-      return result;
-    }
-    if (typeof Buffer !== "undefined") {
-      return Uint8Array.from(Buffer.from(value, "base64"));
-    }
-    return new Uint8Array();
-  };
 
-  const decodeMessage = (message: import("@hieco/mirror").TopicMessage): TopicMessageData => {
-    const contents = message.message ? decodeBase64(message.message) : new Uint8Array();
-    const runningHash = message.running_hash
-      ? decodeBase64(message.running_hash)
-      : new Uint8Array();
-    return {
-      consensusTimestamp: message.consensus_timestamp,
-      contents,
-      runningHash,
-      sequenceNumber: message.sequence_number,
-      topicId: message.topic_id,
-      json: () => {
-        const text = new TextDecoder().decode(contents);
-        try {
-          return JSON.parse(text);
-        } catch {
-          return text;
-        }
-      },
-      text: () => new TextDecoder().decode(contents),
-    };
+      handler(
+        createTopicMessageData({
+          consensusTimestamp: message.consensusTimestamp.toString(),
+          contents: message.contents,
+          runningHash: message.runningHash,
+          sequenceNumber: message.sequenceNumber.toNumber(),
+          topicId,
+        }),
+      );
+    });
+
+    return createTopicWatchHandle(() => subscription.unsubscribe());
   };
 
   const watchFrom = (
@@ -205,7 +324,7 @@ export function createHcsNamespace(context: {
     let cursorTimestamp = options.sinceTimestamp;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-    const scheduleNextPoll = () => {
+    const scheduleNextPoll = (): void => {
       if (!active || options.resume === false) {
         return;
       }
@@ -216,56 +335,57 @@ export function createHcsNamespace(context: {
     };
 
     const poll = async (): Promise<void> => {
-      if (!active) return;
-      const params: import("@hieco/mirror").TopicMessagesParams = {
-        ...(options.limit ? { limit: options.limit } : {}),
+      if (!active) {
+        return;
+      }
+
+      const result = await context.mirror.topic.getMessages(topicId, {
+        ...(options.limit !== undefined ? { limit: options.limit } : {}),
         ...(cursorSequence !== undefined ? { sequencenumber: cursorSequence } : {}),
         ...(cursorTimestamp !== undefined ? { timestamp: cursorTimestamp } : {}),
         order: "asc",
-      };
-      const result = await context.mirror.topic.getMessages(topicId, params);
+      });
+
       if (!result.success) {
         options.onError?.(new Error(result.error.message));
         scheduleNextPoll();
         return;
       }
+
       for (const message of result.data) {
-        handler(decodeMessage(message));
+        handler(createMirrorTopicMessage(message));
         cursorSequence = message.sequence_number + 1;
         cursorTimestamp = message.consensus_timestamp;
       }
+
       scheduleNextPoll();
     };
 
     void poll();
 
-    const stop = () => {
+    return createTopicWatchHandle(() => {
       active = false;
+
       if (timeoutId !== undefined) {
         clearTimeout(timeoutId);
       }
-    };
-    const callable: TopicWatchHandle = Object.assign(() => stop(), { stop });
-    Object.defineProperty(callable, "stop", {
-      value: stop,
-      enumerable: true,
-      configurable: false,
-      writable: false,
     });
-    return callable;
   };
 
   const submitJson = async (params: SubmitJsonMessageParams): Promise<Result<MessageReceipt>> => {
     const normalized = normalizeMessage(params.data);
-    if (!normalized.ok) return normalized;
-    return submit({
-      topicId: params.topicId,
-      message: normalized.value,
-      ...(params.maxChunks !== undefined ? { maxChunks: params.maxChunks } : {}),
-      ...(params.chunkSize !== undefined ? { chunkSize: params.chunkSize } : {}),
-      ...(params.memo ? { memo: params.memo } : {}),
-      ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
-    });
+    if (!normalized.ok) {
+      return normalized;
+    }
+
+    return submit(
+      createSubmitMessageParams(params.topicId, normalized.value, {
+        maxChunks: params.maxChunks,
+        chunkSize: params.chunkSize,
+        memo: params.memo,
+        maxFee: params.maxFee,
+      }),
+    );
   };
 
   const batchSubmit = async (
@@ -277,53 +397,57 @@ export function createHcsNamespace(context: {
 
     const submitNext = async (): Promise<Result<void>> => {
       const currentIndex = index;
-      if (currentIndex >= params.messages.length) return ok(undefined);
-      const current = params.messages[currentIndex];
+      if (currentIndex >= params.messages.length) {
+        return ok(undefined);
+      }
+
       index += 1;
-      if (!current) return submitNext();
-      const normalized = normalizeMessage(current);
-      if (!normalized.ok) return normalized;
-      const receipt = await submit({
-        topicId: params.topicId,
-        message: normalized.value,
-        ...(params.maxChunks !== undefined ? { maxChunks: params.maxChunks } : {}),
-        ...(params.chunkSize !== undefined ? { chunkSize: params.chunkSize } : {}),
-        ...(params.memo ? { memo: params.memo } : {}),
-        ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
-      });
-      if (!receipt.ok) return receipt;
+      const message = params.messages[currentIndex];
+      if (message === undefined) {
+        return submitNext();
+      }
+
+      const normalized = normalizeMessage(message);
+      if (!normalized.ok) {
+        return normalized;
+      }
+
+      const receipt = await submit(
+        createSubmitMessageParams(params.topicId, normalized.value, {
+          maxChunks: params.maxChunks,
+          chunkSize: params.chunkSize,
+          memo: params.memo,
+          maxFee: params.maxFee,
+        }),
+      );
+      if (!receipt.ok) {
+        return receipt;
+      }
+
       receipts[currentIndex] = receipt.value;
       return submitNext();
     };
 
-    const workers: Promise<Result<void>>[] = [];
-    for (let i = 0; i < concurrency; i += 1) {
-      workers.push(submitNext());
+    const workers = Array.from({ length: concurrency }, () => submitNext());
+    const results = await Promise.all(workers);
+    const failure = results.find((result) => !result.ok);
+
+    if (failure && !failure.ok) {
+      return failure;
     }
 
-    const results = await Promise.all(workers);
-    const failure = results.find((r) => !r.ok);
-    if (failure && !failure.ok) return failure;
-    const compact: MessageReceipt[] = [];
-    for (const receipt of receipts) {
-      if (receipt) compact.push(receipt);
-    }
-    return ok(compact);
+    const compactReceipts = receipts.filter(
+      (receipt): receipt is MessageReceipt => receipt !== undefined,
+    );
+    return ok(compactReceipts);
   };
 
   const info = async (topicId: EntityId): Promise<Result<TopicInfoData>> => {
     const result = await context.mirror.topic.getInfo(topicId);
     if (!result.success) {
-      return err(
-        createError("MIRROR_QUERY_FAILED", `Mirror topic.getInfo failed: ${result.error.message}`, {
-          hint: "Verify mirror node connectivity",
-          details: {
-            status: result.error.status ?? "unknown",
-            code: result.error.code ?? "unknown",
-          },
-        }),
-      );
+      return createMirrorQueryFailure("topic.getInfo", result.error);
     }
+
     return ok({ topicId, topic: result.data });
   };
 
@@ -333,20 +457,9 @@ export function createHcsNamespace(context: {
   ): Promise<Result<TopicMessagesData>> => {
     const result = await context.mirror.topic.getMessages(topicId, params);
     if (!result.success) {
-      return err(
-        createError(
-          "MIRROR_QUERY_FAILED",
-          `Mirror topic.getMessages failed: ${result.error.message}`,
-          {
-            hint: "Verify mirror node connectivity",
-            details: {
-              status: result.error.status ?? "unknown",
-              code: result.error.code ?? "unknown",
-            },
-          },
-        ),
-      );
+      return createMirrorQueryFailure("topic.getMessages", result.error);
     }
+
     return ok({ topicId, messages: result.data });
   };
 

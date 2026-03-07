@@ -1,12 +1,13 @@
-import type { ApiResult } from "@hieco/utils";
+import type { ApiError, ApiResult } from "@hieco/utils";
 import type { StreamConfig } from "../types/stream";
-import type { RelaySubscription, RelayMessage } from "../types/subscription";
 import type { JsonRpcRequest } from "../types/json-rpc";
+import type { RelayMessage, RelaySubscription } from "../types/subscription";
 import { BaseStreamClient } from "./base";
-import { SubscriptionManager } from "./subscription-manager";
 import { RequestManager } from "./request-manager";
-import { isCloseErrorRecoverable } from "../utils/error-mapper";
+import { SubscriptionManager } from "./subscription-manager";
 import { createSubscriptionId } from "../utils/subscription";
+
+type ConnectSettler = (result: ApiResult<null>) => void;
 
 export class RelayWebSocketClient extends BaseStreamClient<
   RelayMessage,
@@ -14,25 +15,23 @@ export class RelayWebSocketClient extends BaseStreamClient<
   boolean
 > {
   private ws: WebSocket | null = null;
-  private requestId: number = 0;
-  private readonly subscriptionManager: SubscriptionManager;
-  private readonly requestManager: RequestManager;
+  private requestId = 0;
+  private readonly subscriptionManager = new SubscriptionManager();
+  private readonly requestManager = new RequestManager(
+    this.ws,
+    this.subscriptionManager,
+    this.setState.bind(this),
+  );
   private pendingConnect: Promise<ApiResult<null>> | null = null;
   private manualDisconnect = false;
 
   constructor(config: StreamConfig) {
     super(config);
-    this.subscriptionManager = new SubscriptionManager();
-    this.requestManager = new RequestManager(
-      this.ws,
-      this.subscriptionManager,
-      this.setState.bind(this),
-    );
   }
 
   async connect(): Promise<ApiResult<null>> {
     if (this.state._tag === "Connected") {
-      return { success: true, data: null };
+      return this.createSuccessResult(null);
     }
 
     if (this.pendingConnect) {
@@ -41,118 +40,7 @@ export class RelayWebSocketClient extends BaseStreamClient<
 
     this.setState({ _tag: "Connecting" });
     this.manualDisconnect = false;
-
-    this.pendingConnect = new Promise<ApiResult<null>>((resolve) => {
-      let settled = false;
-
-      const settle = (result: ApiResult<null>) => {
-        if (settled) {
-          return;
-        }
-
-        settled = true;
-        this.pendingConnect = null;
-        resolve(result);
-      };
-
-      try {
-        const ws = new WebSocket(this.config.endpoint);
-        this.ws = ws;
-        this.requestManager.setWebSocket(ws);
-
-        ws.onopen = () => {
-          this.setState({
-            _tag: "Connected",
-            connectionId: crypto.randomUUID(),
-          });
-
-          if (this.subscriptionManager.tracked.size > 0) {
-            this.restoreSubscriptions();
-          }
-
-          settle({ success: true, data: null });
-        };
-
-        ws.onmessage = (event: MessageEvent) => {
-          if (typeof event.data === "string") {
-            this.requestManager.handleMessage(event.data);
-          }
-        };
-
-        ws.onerror = () => {
-          this.setState({
-            _tag: "Error",
-            error: {
-              _tag: "NetworkError",
-              message: "WebSocket connection error",
-            },
-          });
-
-          if (this.state._tag !== "Connected") {
-            settle({
-              success: false,
-              error: {
-                _tag: "NetworkError",
-                message: "WebSocket connection error",
-              },
-            });
-          }
-        };
-
-        ws.onclose = (event: CloseEvent) => {
-          const wasConnecting = this.state._tag === "Connecting";
-          const wasConnected = this.state._tag === "Connected";
-
-          this.ws = null;
-          this.requestManager.setWebSocket(null);
-          this.setState({ _tag: "Disconnected" });
-
-          if (this.manualDisconnect) {
-            this.manualDisconnect = false;
-            settle({ success: true, data: null });
-            return;
-          }
-
-          if (wasConnecting) {
-            settle({
-              success: false,
-              error: {
-                _tag:
-                  event.code === 4001 || event.code === 4003 ? "RateLimitError" : "NetworkError",
-                message: event.reason || `Connection closed with code ${event.code}`,
-                ...(event.code ? { code: event.code.toString() } : {}),
-              },
-            });
-            return;
-          }
-
-          if (wasConnected) {
-            if (isCloseErrorRecoverable(event.code)) {
-              this.handleReconnection();
-            } else if (event.code === 4001 || event.code === 4003) {
-              this.setState({
-                _tag: "Error",
-                error: {
-                  _tag: "RateLimitError",
-                  message: event.reason || `Connection closed with code ${event.code}`,
-                  code: event.code.toString(),
-                },
-              });
-            } else {
-              this.handleReconnection();
-            }
-          }
-        };
-      } catch (error) {
-        settle({
-          success: false,
-          error: {
-            _tag: "NetworkError",
-            message: error instanceof Error ? error.message : "Connection failed",
-          },
-        });
-      }
-    });
+    this.pendingConnect = this.openWebSocket();
 
     return this.pendingConnect;
   }
@@ -162,27 +50,24 @@ export class RelayWebSocketClient extends BaseStreamClient<
     callback: (message: RelayMessage) => void,
   ): Promise<ApiResult<string>> {
     if (this.state._tag !== "Connected") {
-      return Promise.resolve({
-        success: false,
-        error: {
-          _tag: "NetworkError",
-          message: "Not connected",
-        },
-      });
+      return Promise.resolve(this.createNetworkErrorResult("Not connected"));
     }
 
     return new Promise<ApiResult<string>>((resolve) => {
       const requestId = this.nextRequestId();
       const localSubscriptionId = createSubscriptionId(crypto.randomUUID());
+      const request = this.createRequest("eth_subscribe", requestId, [
+        subscription.type,
+        subscription.filter,
+      ]);
 
-      const request: JsonRpcRequest = {
-        jsonrpc: "2.0",
-        id: requestId,
-        method: "eth_subscribe",
-        params: [subscription.type, subscription.filter],
-      };
+      try {
+        this.sendRequest(request);
+      } catch {
+        resolve(this.createNetworkErrorResult("Failed to send subscribe request"));
+        return;
+      }
 
-      this.sendRequest(request);
       this.subscriptionManager.subscribe(
         requestId,
         localSubscriptionId,
@@ -196,39 +81,27 @@ export class RelayWebSocketClient extends BaseStreamClient<
   unsubscribe(subscriptionId: string): Promise<ApiResult<boolean>> {
     const callbacks = this.subscriptionManager.getCallbacks(subscriptionId);
     if (!callbacks) {
-      return Promise.resolve({
-        success: false,
-        error: {
-          _tag: "NotFoundError",
-          message: "Subscription not found",
-        },
-      });
+      return Promise.resolve(this.createNotFoundErrorResult("Subscription not found"));
     }
 
     const serverSubscriptionId =
       this.subscriptionManager.getServerSubscriptionIdByLocalId(subscriptionId);
     if (!serverSubscriptionId) {
-      return Promise.resolve({
-        success: false,
-        error: {
-          _tag: "NotFoundError",
-          message: "Server subscription ID not found",
-        },
-      });
+      return Promise.resolve(this.createNotFoundErrorResult("Server subscription ID not found"));
     }
 
     return new Promise<ApiResult<boolean>>((resolve) => {
       const requestId = this.nextRequestId();
+      const request = this.createRequest("eth_unsubscribe", requestId, [serverSubscriptionId]);
+
+      try {
+        this.sendRequest(request);
+      } catch {
+        resolve(this.createNetworkErrorResult("Failed to send unsubscribe request"));
+        return;
+      }
+
       this.subscriptionManager.unsubscribe(requestId, subscriptionId, resolve);
-
-      const request: JsonRpcRequest = {
-        jsonrpc: "2.0",
-        id: requestId,
-        method: "eth_unsubscribe",
-        params: [serverSubscriptionId],
-      };
-
-      this.sendRequest(request);
     });
   }
 
@@ -236,8 +109,7 @@ export class RelayWebSocketClient extends BaseStreamClient<
     if (this.ws) {
       this.manualDisconnect = true;
       this.ws.close();
-      this.ws = null;
-      this.requestManager.setWebSocket(null);
+      this.clearSocket();
     }
 
     this.subscriptionManager.clear();
@@ -246,54 +118,168 @@ export class RelayWebSocketClient extends BaseStreamClient<
 
   async getChainId(): Promise<ApiResult<string>> {
     if (this.state._tag !== "Connected") {
-      return {
-        success: false,
-        error: {
-          _tag: "NetworkError",
-          message: "Not connected",
-        },
-      };
+      return this.createNetworkErrorResult("Not connected");
     }
 
     return new Promise<ApiResult<string>>((resolve) => {
       const requestId = this.nextRequestId();
-
-      const request: JsonRpcRequest = {
-        jsonrpc: "2.0",
-        id: requestId,
-        method: "eth_chainId",
-        params: [],
-      };
+      const request = this.createRequest("eth_chainId", requestId, []);
 
       try {
         this.sendRequest(request);
-
-        const timeoutId = setTimeout(() => {
-          resolve({
-            success: false,
-            error: {
-              _tag: "NetworkError",
-              message: "Chain ID request timed out",
-            },
-          });
-        }, 5000);
-
-        this.subscriptionManager.setChainId(requestId, {
-          resolve: (result: ApiResult<string>) => {
-            clearTimeout(timeoutId);
-            resolve(result);
-          },
-        });
       } catch {
-        resolve({
-          success: false,
-          error: {
-            _tag: "NetworkError",
-            message: "Failed to send chain ID request",
-          },
-        });
+        resolve(this.createNetworkErrorResult("Failed to send chain ID request"));
+        return;
+      }
+
+      const timeoutId = setTimeout(() => {
+        resolve(this.createNetworkErrorResult("Chain ID request timed out"));
+      }, 5000);
+
+      this.subscriptionManager.setChainId(requestId, {
+        resolve: (result: ApiResult<string>) => {
+          clearTimeout(timeoutId);
+          resolve(result);
+        },
+      });
+    });
+  }
+
+  private openWebSocket(): Promise<ApiResult<null>> {
+    return new Promise<ApiResult<null>>((resolve) => {
+      const settle = this.createConnectSettler(resolve);
+
+      try {
+        const ws = new WebSocket(this.config.endpoint);
+        this.attachWebSocket(ws, settle);
+      } catch (error) {
+        settle(
+          this.createNetworkErrorResult(
+            error instanceof Error ? error.message : "Connection failed",
+          ),
+        );
       }
     });
+  }
+
+  private createConnectSettler(resolve: ConnectSettler): ConnectSettler {
+    let settled = false;
+
+    return (result) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      this.pendingConnect = null;
+      resolve(result);
+    };
+  }
+
+  private attachWebSocket(ws: WebSocket, settle: ConnectSettler): void {
+    this.ws = ws;
+    this.requestManager.setWebSocket(ws);
+
+    ws.onopen = () => {
+      this.handleSocketOpen(settle);
+    };
+
+    ws.onmessage = (event: MessageEvent) => {
+      if (typeof event.data === "string") {
+        this.requestManager.handleMessage(event.data);
+      }
+    };
+
+    ws.onerror = () => {
+      this.handleSocketError(settle);
+    };
+
+    ws.onclose = (event: CloseEvent) => {
+      this.handleSocketClose(event, settle);
+    };
+  }
+
+  private handleSocketOpen(settle: ConnectSettler): void {
+    this.setState({
+      _tag: "Connected",
+      connectionId: crypto.randomUUID(),
+    });
+
+    if (this.subscriptionManager.tracked.size > 0) {
+      this.restoreSubscriptions();
+    }
+
+    settle(this.createSuccessResult(null));
+  }
+
+  private handleSocketError(settle: ConnectSettler): void {
+    const wasConnected = this.state._tag === "Connected";
+    const error = this.createNetworkError("WebSocket connection error");
+
+    this.setState({ _tag: "Error", error });
+
+    if (!wasConnected) {
+      settle({ success: false, error });
+    }
+  }
+
+  private handleSocketClose(event: CloseEvent, settle: ConnectSettler): void {
+    const wasConnecting = this.state._tag === "Connecting";
+    const wasConnected = this.state._tag === "Connected";
+
+    this.clearSocket();
+    this.setState({ _tag: "Disconnected" });
+
+    if (this.consumeManualDisconnect()) {
+      settle(this.createSuccessResult(null));
+      return;
+    }
+
+    if (wasConnecting) {
+      settle(this.createCloseFailureResult(event));
+      return;
+    }
+
+    if (!wasConnected) {
+      return;
+    }
+
+    if (event.code === 4001 || event.code === 4003) {
+      this.setState({
+        _tag: "Error",
+        error: this.createRateLimitCloseError(event),
+      });
+      return;
+    }
+
+    this.handleReconnection();
+  }
+
+  private clearSocket(): void {
+    this.ws = null;
+    this.requestManager.setWebSocket(null);
+  }
+
+  private consumeManualDisconnect(): boolean {
+    if (!this.manualDisconnect) {
+      return false;
+    }
+
+    this.manualDisconnect = false;
+    return true;
+  }
+
+  private createRequest(
+    method: JsonRpcRequest["method"],
+    id: number,
+    params: JsonRpcRequest["params"],
+  ): JsonRpcRequest {
+    return {
+      jsonrpc: "2.0",
+      id,
+      method,
+      params,
+    };
   }
 
   private sendRequest(request: JsonRpcRequest): void {
@@ -301,22 +287,17 @@ export class RelayWebSocketClient extends BaseStreamClient<
   }
 
   private restoreSubscriptions(): void {
-    const tracked = this.subscriptionManager.tracked;
-
-    for (const [localId, subscription] of tracked) {
+    for (const [localId, trackedSubscription] of this.subscriptionManager.tracked) {
       const requestId = this.nextRequestId();
-
-      const request: JsonRpcRequest = {
-        jsonrpc: "2.0",
-        id: requestId,
-        method: "eth_subscribe",
-        params: [subscription.subscription.type, subscription.subscription.filter],
-      };
+      const request = this.createRequest("eth_subscribe", requestId, [
+        trackedSubscription.subscription.type,
+        trackedSubscription.subscription.filter,
+      ]);
 
       this.subscriptionManager.subscribe(
         requestId,
         localId,
-        subscription.subscription,
+        trackedSubscription.subscription,
         () => {},
         () => {},
         { isRestoration: true },
@@ -341,10 +322,7 @@ export class RelayWebSocketClient extends BaseStreamClient<
       if (attempt >= maxAttempts) {
         this.setState({
           _tag: "Error",
-          error: {
-            _tag: "NetworkError",
-            message: "Max reconnection attempts reached",
-          },
+          error: this.createNetworkError("Max reconnection attempts reached"),
         });
         return;
       }
@@ -358,10 +336,65 @@ export class RelayWebSocketClient extends BaseStreamClient<
       }
     };
 
-    reconnect();
+    void reconnect();
+  }
+
+  private createSuccessResult<T>(data: T): ApiResult<T> {
+    return { success: true, data };
+  }
+
+  private createNetworkError(message: string, code?: string): ApiError {
+    return {
+      _tag: "NetworkError",
+      message,
+      ...(code ? { code } : {}),
+    };
+  }
+
+  private createRateLimitCloseError(event: CloseEvent): ApiError {
+    return {
+      _tag: "RateLimitError",
+      message: event.reason || `Connection closed with code ${event.code}`,
+      code: event.code.toString(),
+    };
+  }
+
+  private createCloseFailureResult(event: CloseEvent): ApiResult<null> {
+    if (event.code === 4001 || event.code === 4003) {
+      return {
+        success: false,
+        error: this.createRateLimitCloseError(event),
+      };
+    }
+
+    return {
+      success: false,
+      error: this.createNetworkError(
+        event.reason || `Connection closed with code ${event.code}`,
+        event.code ? event.code.toString() : undefined,
+      ),
+    };
+  }
+
+  private createNetworkErrorResult<T>(message: string, code?: string): ApiResult<T> {
+    return {
+      success: false,
+      error: this.createNetworkError(message, code),
+    };
+  }
+
+  private createNotFoundErrorResult<T>(message: string): ApiResult<T> {
+    return {
+      success: false,
+      error: {
+        _tag: "NotFoundError",
+        message,
+      },
+    };
   }
 
   private nextRequestId(): number {
-    return ++this.requestId;
+    this.requestId += 1;
+    return this.requestId;
   }
 }

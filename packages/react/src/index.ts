@@ -1,5 +1,4 @@
 export * from "./provider";
-export * from "./query-provider";
 export * from "./hooks";
 export type {
   HiecoMutationOptions,

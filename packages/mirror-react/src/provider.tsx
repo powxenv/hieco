@@ -1,24 +1,10 @@
 import { createContext, useCallback, useMemo, useState, type ReactNode } from "react";
 import { MirrorNodeClient, type NetworkType } from "@hieco/mirror";
-import {
-  type AnyNetwork,
-  type NetworkConfig,
-  createNetworkConfig,
-  isDefaultNetwork,
-  getNetworkUrl,
-} from "@hieco/utils";
+import { type AnyNetwork, type NetworkConfig, isDefaultNetwork, getNetworkUrl } from "@hieco/utils";
 
 export type { AnyNetwork, NetworkConfig };
 
-export { createNetworkConfig };
-
 const EMPTY_NETWORKS: Record<string, string> = {};
-
-export interface NetworkState {
-  network: AnyNetwork;
-  mirrorNodeUrl: string | undefined;
-  switchNetwork: (network: AnyNetwork) => void;
-}
 
 export interface MirrorNodeContextValue {
   client: MirrorNodeClient;
@@ -40,28 +26,28 @@ export interface MirrorNodeProviderProps<
 export function MirrorNodeProvider<T extends string, U extends NetworkType = NetworkType>({
   children,
   config,
-}: MirrorNodeProviderProps<T, U>) {
+}: MirrorNodeProviderProps<T, U>): ReactNode {
   const defaultNetwork = config.defaultNetwork;
   const networks = config.networks ?? EMPTY_NETWORKS;
 
-  const [currentNetwork, setCurrentNetwork] = useState<AnyNetwork>(defaultNetwork);
-  const [currentMirrorNodeUrl, setCurrentMirrorNodeUrl] = useState<string | undefined>(
+  const [network, setNetwork] = useState<AnyNetwork>(defaultNetwork);
+  const [mirrorNodeUrl, setMirrorNodeUrl] = useState<string | undefined>(
     getNetworkUrl(defaultNetwork, networks),
   );
 
-  const client = useMemo(() => {
-    const url = currentMirrorNodeUrl ?? getNetworkUrl(currentNetwork, networks);
-    return new MirrorNodeClient({
-      network: isDefaultNetwork(currentNetwork) ? currentNetwork : "mainnet",
-      mirrorNodeUrl: url,
-    });
-  }, [currentNetwork, currentMirrorNodeUrl, networks]);
+  const client = useMemo(
+    () =>
+      new MirrorNodeClient({
+        network: isDefaultNetwork(network) ? network : "mainnet",
+        mirrorNodeUrl: mirrorNodeUrl ?? getNetworkUrl(network, networks),
+      }),
+    [mirrorNodeUrl, network, networks],
+  );
 
   const switchNetwork = useCallback(
-    (newNetwork: AnyNetwork) => {
-      const url = getNetworkUrl(newNetwork, networks);
-      setCurrentNetwork(newNetwork);
-      setCurrentMirrorNodeUrl(url);
+    (nextNetwork: AnyNetwork) => {
+      setNetwork(nextNetwork);
+      setMirrorNodeUrl(getNetworkUrl(nextNetwork, networks));
     },
     [networks],
   );
@@ -69,11 +55,11 @@ export function MirrorNodeProvider<T extends string, U extends NetworkType = Net
   const value = useMemo<MirrorNodeContextValue>(
     () => ({
       client,
-      network: currentNetwork,
-      mirrorNodeUrl: currentMirrorNodeUrl,
+      network,
+      mirrorNodeUrl,
       switchNetwork,
     }),
-    [client, currentNetwork, currentMirrorNodeUrl, switchNetwork],
+    [client, mirrorNodeUrl, network, switchNetwork],
   );
 
   return <MirrorNodeContext.Provider value={value}>{children}</MirrorNodeContext.Provider>;

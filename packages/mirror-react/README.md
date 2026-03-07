@@ -33,17 +33,17 @@ yarn add @hieco/mirror @hieco/mirror-react @tanstack/react-query
 
 ```tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MirrorNodeProvider, createNetworkConfig } from "@hieco/mirror-react";
+import { MirrorNodeProvider } from "@hieco/mirror-react";
 
 const queryClient = new QueryClient();
 
-const networkConfig = createNetworkConfig({
+const networkConfig = {
   defaultNetwork: "mainnet",
   networks: {
     testnet: "https://testnet.mirrornode.hedera.com",
     custom: "https://custom.mirror-node.com",
   },
-});
+};
 
 export function App() {
   return (

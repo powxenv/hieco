@@ -1,24 +1,10 @@
 import { createContext, createMemo, createSignal, type JSX, type Accessor } from "solid-js";
 import { MirrorNodeClient, type NetworkType } from "@hieco/mirror";
-import {
-  type AnyNetwork,
-  type NetworkConfig,
-  createNetworkConfig,
-  isDefaultNetwork,
-  getNetworkUrl,
-} from "@hieco/utils";
+import { type AnyNetwork, type NetworkConfig, isDefaultNetwork, getNetworkUrl } from "@hieco/utils";
 
 export type { AnyNetwork, NetworkConfig };
 
-export { createNetworkConfig };
-
 const EMPTY_NETWORKS: Record<string, string> = {};
-
-export interface NetworkState {
-  network: Accessor<AnyNetwork>;
-  mirrorNodeUrl: Accessor<string | undefined>;
-  switchNetwork: (network: AnyNetwork) => void;
-}
 
 export interface MirrorNodeContextValue {
   client: Accessor<MirrorNodeClient>;
@@ -40,34 +26,33 @@ export interface MirrorNodeProviderProps<
 export function MirrorNodeProvider<T extends string, U extends NetworkType = NetworkType>({
   children,
   config,
-}: MirrorNodeProviderProps<T, U>) {
+}: MirrorNodeProviderProps<T, U>): JSX.Element {
   const defaultNetwork = config.defaultNetwork;
   const networks = config.networks ?? EMPTY_NETWORKS;
 
-  const currentNetwork = createSignal<AnyNetwork>(defaultNetwork);
-  const currentMirrorNodeUrl = createSignal<string | undefined>(
+  const [network, setNetwork] = createSignal<AnyNetwork>(defaultNetwork);
+  const [mirrorNodeUrl, setMirrorNodeUrl] = createSignal<string | undefined>(
     getNetworkUrl(defaultNetwork, networks),
   );
 
   const client = createMemo(() => {
-    const network = currentNetwork[0]();
-    const url = currentMirrorNodeUrl[0]() ?? getNetworkUrl(network, networks);
+    const currentNetwork = network();
+
     return new MirrorNodeClient({
-      network: isDefaultNetwork(network) ? network : "mainnet",
-      mirrorNodeUrl: url,
+      network: isDefaultNetwork(currentNetwork) ? currentNetwork : "mainnet",
+      mirrorNodeUrl: mirrorNodeUrl() ?? getNetworkUrl(currentNetwork, networks),
     });
   });
 
-  const switchNetwork = (newNetwork: AnyNetwork) => {
-    const url = getNetworkUrl(newNetwork, networks);
-    currentNetwork[1](newNetwork);
-    currentMirrorNodeUrl[1](url);
+  const switchNetwork = (nextNetwork: AnyNetwork): void => {
+    setNetwork(nextNetwork);
+    setMirrorNodeUrl(getNetworkUrl(nextNetwork, networks));
   };
 
   const value: MirrorNodeContextValue = {
     client,
-    network: currentNetwork[0],
-    mirrorNodeUrl: currentMirrorNodeUrl[0],
+    network,
+    mirrorNodeUrl,
     switchNetwork,
   };
 

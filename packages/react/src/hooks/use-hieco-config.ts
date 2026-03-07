@@ -1,6 +1,6 @@
 import type { HiecoProviderConfig } from "../provider";
-import { useHiecoController } from "./use-hieco-controller";
+import { useHiecoContext } from "./use-hieco-context";
 
 export function useHiecoConfig(): HiecoProviderConfig {
-  return useHiecoController().config;
+  return useHiecoContext().config;
 }

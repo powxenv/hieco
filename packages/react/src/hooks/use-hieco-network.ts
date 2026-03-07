@@ -1,11 +1,11 @@
 import type { HiecoProviderConfig } from "../provider";
-import { useHiecoController } from "./use-hieco-controller";
+import { useHiecoContext } from "./use-hieco-context";
 
 export function useHiecoNetwork(): {
   readonly network: NonNullable<HiecoProviderConfig["network"]> | undefined;
   readonly mirrorUrl: string | undefined;
 } {
-  const { config } = useHiecoController();
+  const { config } = useHiecoContext();
 
   return {
     network: config.network,

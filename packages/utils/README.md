@@ -23,13 +23,7 @@ packages:
 ## Usage
 
 ```ts
-import {
-  NETWORK_CONFIGS,
-  ApiErrorFactory,
-  isValidEntityId,
-  mirrorNodeKeys,
-  createNetworkConfig,
-} from "@hieco/utils";
+import { NETWORK_CONFIGS, ApiErrorFactory, isValidEntityId, mirrorNodeKeys } from "@hieco/utils";
 ```
 
 ## License

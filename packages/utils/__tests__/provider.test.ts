@@ -2,7 +2,6 @@ import { describe, test, expect } from "bun:test";
 import {
   isDefaultNetwork,
   getNetworkUrl,
-  createNetworkConfig,
   DEFAULT_MIRROR_NODE_URLS,
   type NetworkType,
 } from "../src/mirror/provider";
@@ -104,54 +103,5 @@ describe("getNetworkUrl", () => {
     expect(getNetworkUrl("custom-1", customNetworks)).toBe("https://custom-1.com");
     expect(getNetworkUrl("custom-2", customNetworks)).toBe("https://custom-2.com");
     expect(getNetworkUrl("mainnet", customNetworks)).toBe("https://custom-mainnet.com");
-  });
-});
-
-describe("createNetworkConfig", () => {
-  test("returns passed config object", () => {
-    const config = {
-      defaultNetwork: "custom" as const,
-      networks: { custom: "https://custom.com" },
-    };
-    const result = createNetworkConfig(config);
-    expect(result).toEqual(config);
-  });
-
-  test("preserves generic types", () => {
-    type CustomNetworks = "network-a" | "network-b";
-    const config = {
-      defaultNetwork: "network-a" as CustomNetworks,
-      networks: {
-        "network-a": "https://a.com",
-        "network-b": "https://b.com",
-      } as Record<CustomNetworks, string>,
-    };
-    const result = createNetworkConfig<CustomNetworks>(config);
-    expect(result.defaultNetwork).toBe("network-a");
-  });
-
-  test("handles config with only defaultNetwork", () => {
-    const config = { defaultNetwork: "testnet" as const };
-    const result = createNetworkConfig(config);
-    expect(result.defaultNetwork).toBe("testnet");
-    expect(result.networks).toBeUndefined();
-  });
-
-  test("handles config with custom networks", () => {
-    const config = {
-      defaultNetwork: "custom" as const,
-      networks: {
-        custom: "https://custom.mirrornode.hedera.com",
-      } as const,
-    };
-    const result = createNetworkConfig(config);
-    expect(result.defaultNetwork).toBe("custom");
-    expect(result.networks?.custom).toBe("https://custom.mirrornode.hedera.com");
-  });
-
-  test("returns same reference", () => {
-    const config = { defaultNetwork: "mainnet" as const };
-    const result = createNetworkConfig(config);
-    expect(result).toBe(config);
   });
 });

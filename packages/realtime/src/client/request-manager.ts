@@ -40,9 +40,12 @@ export class RequestManager {
         return;
       }
 
-      if (parsed.method === "eth_subscription" && isRelayMessage(parsed.params)) {
+      if (this.isSubscriptionMessage(parsed)) {
         this.handleSubscriptionMessage(parsed.params);
-      } else if (isResponseWithId(parsed)) {
+        return;
+      }
+
+      if (isResponseWithId(parsed)) {
         this.handleRequestResponse(parsed);
       }
     } catch {
@@ -58,54 +61,21 @@ export class RequestManager {
 
   private handleRequestResponse(response: JsonRpcResponse & { id: number }): void {
     if (isSubscribeResponse(response)) {
-      const pending = this.subscriptionManager.handleSubscribeResponse(response);
-      if (pending) {
-        const localSubscriptionId = pending.localSubscriptionId;
+      this.handleSubscribeResponse(response);
+      return;
+    }
 
-        if (pending.isRestoration) {
-          const tracked = this.subscriptionManager.tracked.get(localSubscriptionId);
-          if (tracked) {
-            this.subscriptionManager.setCallbacks(localSubscriptionId, tracked.callbacks);
-          }
-        } else {
-          this.subscriptionManager.setCallbacks(localSubscriptionId, new Set([pending.callback]));
-        }
+    if (isUnsubscribeResponse(response)) {
+      this.handleUnsubscribeResponse(response);
+      return;
+    }
 
-        this.subscriptionManager.setServerSubscription(localSubscriptionId, response.result);
+    if (isChainIdResponse(response)) {
+      this.handleChainIdResponse(response);
+      return;
+    }
 
-        if (!pending.isRestoration) {
-          pending.resolve({ success: true, data: localSubscriptionId });
-        }
-      }
-    } else if (isUnsubscribeResponse(response)) {
-      const pending = this.subscriptionManager.handleUnsubscribeResponse(response);
-      if (pending) {
-        if (response.result) {
-          this.subscriptionManager.deleteCallbacks(pending.localSubscriptionId);
-          this.subscriptionManager.deleteTracked(pending.localSubscriptionId);
-          const serverSubscriptionId = this.subscriptionManager.getServerSubscriptionIdByLocalId(
-            pending.localSubscriptionId,
-          );
-          if (serverSubscriptionId) {
-            this.subscriptionManager.deleteServerSubscription(serverSubscriptionId);
-          }
-          pending.resolve({ success: true, data: true });
-        } else {
-          pending.resolve({
-            success: false,
-            error: {
-              _tag: "UnknownError",
-              message: "Unsubscribe failed",
-            },
-          });
-        }
-      }
-    } else if (isChainIdResponse(response)) {
-      const pending = this.subscriptionManager.handleChainIdResponse(response);
-      if (pending) {
-        pending.resolve({ success: true, data: response.result });
-      }
-    } else if (response.error) {
+    if (response.error) {
       this.subscriptionManager.handleError(response);
     }
   }
@@ -132,6 +102,77 @@ export class RequestManager {
         }
       }
     }
+  }
+
+  private isSubscriptionMessage(response: JsonRpcResponse): response is JsonRpcResponse & {
+    readonly method: "eth_subscription";
+    readonly params: RelayMessage;
+  } {
+    return response.method === "eth_subscription" && isRelayMessage(response.params);
+  }
+
+  private handleSubscribeResponse(
+    response: JsonRpcResponse & { id: number; result: string },
+  ): void {
+    const pending = this.subscriptionManager.handleSubscribeResponse(response);
+    if (!pending) {
+      return;
+    }
+
+    const callbacks = pending.isRestoration
+      ? this.subscriptionManager.tracked.get(pending.localSubscriptionId)?.callbacks
+      : new Set([pending.callback]);
+
+    if (callbacks) {
+      this.subscriptionManager.setCallbacks(pending.localSubscriptionId, callbacks);
+    }
+
+    this.subscriptionManager.setServerSubscription(pending.localSubscriptionId, response.result);
+
+    if (!pending.isRestoration) {
+      pending.resolve({ success: true, data: pending.localSubscriptionId });
+    }
+  }
+
+  private handleUnsubscribeResponse(
+    response: JsonRpcResponse & { id: number; result: boolean },
+  ): void {
+    const pending = this.subscriptionManager.handleUnsubscribeResponse(response);
+    if (!pending) {
+      return;
+    }
+
+    if (!response.result) {
+      pending.resolve({
+        success: false,
+        error: {
+          _tag: "UnknownError",
+          message: "Unsubscribe failed",
+        },
+      });
+      return;
+    }
+
+    this.subscriptionManager.deleteCallbacks(pending.localSubscriptionId);
+    this.subscriptionManager.deleteTracked(pending.localSubscriptionId);
+
+    const serverSubscriptionId = this.subscriptionManager.getServerSubscriptionIdByLocalId(
+      pending.localSubscriptionId,
+    );
+    if (serverSubscriptionId) {
+      this.subscriptionManager.deleteServerSubscription(serverSubscriptionId);
+    }
+
+    pending.resolve({ success: true, data: true });
+  }
+
+  private handleChainIdResponse(response: JsonRpcResponse & { id: number; result: string }): void {
+    const pending = this.subscriptionManager.handleChainIdResponse(response);
+    if (!pending) {
+      return;
+    }
+
+    pending.resolve({ success: true, data: response.result });
   }
 
   setWebSocket(ws: WebSocket | null): void {

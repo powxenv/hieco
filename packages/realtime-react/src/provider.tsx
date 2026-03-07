@@ -2,15 +2,13 @@ import { createContext, useCallback, useEffect, useMemo, useState, type ReactNod
 import type { NetworkType } from "@hieco/mirror";
 import { RelayWebSocketClient, type StreamState } from "@hieco/realtime";
 
-export type RealtimeClient = RelayWebSocketClient;
-
 export interface RealtimeConfig {
   readonly network: NetworkType;
   readonly relayEndpoint: string;
 }
 
 export interface RealtimeContextValue {
-  readonly client: RealtimeClient;
+  readonly client: RelayWebSocketClient;
   readonly state: StreamState;
   readonly connect: () => Promise<void>;
   readonly disconnect: () => Promise<void>;
@@ -24,17 +22,27 @@ export interface RealtimeProviderProps {
 }
 
 export function RealtimeProvider({ children, config }: RealtimeProviderProps): ReactNode {
-  const [client] = useState(
+  const { network, relayEndpoint } = config;
+  const client = useMemo(
     () =>
       new RelayWebSocketClient({
-        network: config.network,
-        endpoint: config.relayEndpoint,
+        network,
+        endpoint: relayEndpoint,
       }),
+    [network, relayEndpoint],
   );
-
   const [state, setState] = useState(client.getState());
 
-  useEffect(() => client.onStateChange(setState), [client]);
+  useEffect(() => {
+    setState(client.getState());
+    return client.onStateChange(setState);
+  }, [client]);
+
+  useEffect(() => {
+    return () => {
+      void client.disconnect();
+    };
+  }, [client]);
 
   const connect = useCallback(async () => {
     await client.connect();

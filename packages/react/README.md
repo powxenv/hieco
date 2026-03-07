@@ -51,12 +51,12 @@ Peer dependencies:
 
 Pick the workflow that matches what you are building:
 
-| You are building                                                   | Start here                                                              |
-| ------------------------------------------------------------------ | ----------------------------------------------------------------------- |
-| A React app that reads Hedera data and runs public SDK operations  | `HiecoProvider`                                                         |
-| A wallet-connected app where the current wallet signs user actions | `HiecoProvider` with a wallet `signer`                                  |
-| A Reown AppKit app for Hedera wallets                              | `createHiecoAppKit()` with `HiecoAppKitBridge` or `HiecoAppKitProvider` |
-| A full-stack app with server-side credentials and a React frontend | `@hieco/react` in the UI and `@hieco/sdk` in server code                |
+| You are building                                                   | Start here                                               |
+| ------------------------------------------------------------------ | -------------------------------------------------------- |
+| A React app that reads Hedera data and runs public SDK operations  | `HiecoProvider`                                          |
+| A wallet-connected app where the current wallet signs user actions | `HiecoProvider` with a wallet `signer`                   |
+| A Reown AppKit app for Hedera wallets                              | `createHiecoAppKit()` with `HiecoAppKitProvider`         |
+| A full-stack app with server-side credentials and a React frontend | `@hieco/react` in the UI and `@hieco/sdk` in server code |
 
 ## Quick Start
 
@@ -339,14 +339,13 @@ export function ensureAppKit() {
 }
 ```
 
-Bridge AppKit into Hieco:
+Wrap AppKit and Hieco together:
 
 ```tsx
 "use client";
 
 import { useEffect } from "react";
-import { HiecoProvider } from "@hieco/react";
-import { HiecoAppKitBridge } from "@hieco/react/bridge/appkit";
+import { HiecoAppKitProvider } from "@hieco/react/bridge/appkit";
 import { ensureAppKit } from "./appkit";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -354,15 +353,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     void ensureAppKit();
   }, []);
 
-  return (
-    <HiecoProvider config={{ network: "testnet" }}>
-      <HiecoAppKitBridge>{children}</HiecoAppKitBridge>
-    </HiecoProvider>
-  );
+  return <HiecoAppKitProvider config={{ network: "testnet" }}>{children}</HiecoAppKitProvider>;
 }
 ```
-
-You can also use `HiecoAppKitProvider` as a convenience wrapper.
 
 ## Hooks
 
@@ -429,7 +422,6 @@ Transaction-capable mutation hooks also expose:
 #### Providers
 
 - `HiecoProvider`
-- `HiecoQueryProvider`
 
 #### Provider Types
 
@@ -437,7 +429,6 @@ Transaction-capable mutation hooks also expose:
 - `HiecoProviderConfig`
 - `HiecoQueryLayerOptions`
 - `HiecoQueryClientConfig`
-- `HiecoController`
 - `HiecoContextValue`
 
 #### Query and Mutation Types
@@ -456,7 +447,6 @@ Transaction-capable mutation hooks also expose:
 
 - `useHiecoClient()`
 - `useHiecoContext()`
-- `useHiecoController()`
 - `useHiecoSession()`
 - `useHiecoSigner()`
 - `useHiecoAccount()`
@@ -713,9 +703,7 @@ Use this subpath when your app uses Reown AppKit with Hedera WalletConnect.
 
 #### Components
 
-- `HiecoAppKitBridge`
 - `HiecoAppKitProvider`
-- `HiecoAppKitQueryProvider`
 
 #### Hooks
 
@@ -724,7 +712,5 @@ Use this subpath when your app uses Reown AppKit with Hedera WalletConnect.
 #### Types
 
 - `CreateHiecoAppKitOptions`
-- `HiecoAppKitBridgeProps`
 - `HiecoAppKitProviderProps`
-- `HiecoAppKitQueryProviderProps`
 - `UseHiecoAppKitSignerOptions`

@@ -5,7 +5,6 @@ export * from "./use-hieco-account";
 export * from "./use-hieco-client";
 export * from "./use-hieco-config";
 export * from "./use-hieco-context";
-export * from "./use-hieco-controller";
 export * from "./use-hieco-network";
 export * from "./use-hieco-session";
 export * from "./use-hieco-signer";

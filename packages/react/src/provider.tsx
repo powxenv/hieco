@@ -5,9 +5,7 @@ import {
   useMemo,
   useRef,
   useState,
-  type Dispatch,
   type ReactNode,
-  type SetStateAction,
 } from "react";
 import { hieco, type ClientConfig, type HiecoClient, type Signer } from "@hieco/sdk";
 import {
@@ -35,29 +33,14 @@ export type HiecoProviderProps = {
   readonly signer?: Signer;
 } & HiecoQueryLayerOptions;
 
-export interface HiecoController {
-  readonly config: HiecoProviderConfig;
-  readonly signer?: Signer;
-  readonly setSigner: Dispatch<SetStateAction<Signer | undefined>>;
-  readonly clearSigner: () => void;
-  readonly setConfig: Dispatch<SetStateAction<HiecoProviderConfig>>;
-  readonly updateConfig: (patch: Partial<HiecoProviderConfig>) => void;
-  readonly setNetwork: (network: NonNullable<HiecoProviderConfig["network"]>) => void;
-  readonly setMirrorNetwork: (mirror: string | ReadonlyArray<string>) => void;
-  readonly setMaxAttempts: (value: number) => void;
-  readonly setMaxNodeAttempts: (value: number) => void;
-  readonly setRequestTimeout: (value: number) => void;
-  readonly setGrpcDeadline: (value: number) => void;
-  readonly setMinBackoff: (value: number) => void;
-  readonly setMaxBackoff: (value: number) => void;
-}
-
 export interface HiecoContextValue {
   readonly client: HiecoClient;
   readonly clientKey: string;
+  readonly config: HiecoProviderConfig;
   readonly session: HiecoSession;
-  readonly controller: HiecoController;
 }
+
+const EMPTY_PROVIDER_CONFIG: HiecoProviderConfig = {};
 
 const invalidProviderConfigError = new Error(
   "HiecoProvider only accepts public client config. Pass signer via the signer prop and keep operator credentials in server-only @hieco/sdk code.",
@@ -108,6 +91,17 @@ function validateProviderConfig(
   return config;
 }
 
+function shouldProvideQueryClient(
+  queryClient: QueryClient | undefined,
+  inheritedQueryClient: QueryClient | undefined,
+): boolean {
+  if (queryClient === undefined) {
+    return inheritedQueryClient === undefined;
+  }
+
+  return queryClient !== inheritedQueryClient;
+}
+
 function HiecoQueryLayer({
   children,
   queryClient,
@@ -126,18 +120,13 @@ function HiecoQueryLayer({
     throw new Error("HiecoProvider could not resolve a QueryClient.");
   }
 
-  const needsQueryClientProvider =
-    queryClient === undefined
-      ? inheritedQueryClient === undefined
-      : queryClient !== inheritedQueryClient;
-
   const content = dehydratedState ? (
     <HydrationBoundary state={dehydratedState}>{children}</HydrationBoundary>
   ) : (
     children
   );
 
-  if (!needsQueryClientProvider) {
+  if (!shouldProvideQueryClient(queryClient, inheritedQueryClient)) {
     return content;
   }
 
@@ -146,25 +135,24 @@ function HiecoQueryLayer({
 
 function HiecoRuntimeProvider({
   children,
-  config: initialConfig,
-  signer: initialSigner,
+  config: rawConfig,
+  signer,
 }: Omit<HiecoProviderProps, keyof HiecoQueryLayerOptions>): ReactNode {
-  const safeInitialConfig = validateProviderConfig(initialConfig);
-  const [config, setConfig] = useState<HiecoProviderConfig>(safeInitialConfig ?? {});
-  const [signer, setSigner] = useState<Signer | undefined>(initialSigner);
+  const nextConfig = validateProviderConfig(rawConfig) ?? EMPTY_PROVIDER_CONFIG;
+  const configRef = useRef(nextConfig);
 
-  useEffect(() => {
-    const nextConfig = validateProviderConfig(initialConfig) ?? {};
-    setConfig((current) => (areProviderConfigsEqual(current, nextConfig) ? current : nextConfig));
-  }, [initialConfig]);
+  if (!areProviderConfigsEqual(configRef.current, nextConfig)) {
+    configRef.current = nextConfig;
+  }
 
-  useEffect(() => {
-    setSigner((current) => (current === initialSigner ? current : initialSigner));
-  }, [initialSigner]);
-
+  const config = configRef.current;
   const baseClient = useMemo(() => hieco(config), [config]);
 
-  useEffect(() => () => baseClient.destroy(), [baseClient]);
+  useEffect(() => {
+    return () => {
+      baseClient.destroy();
+    };
+  }, [baseClient]);
 
   const session = useMemo(() => createHiecoSession(signer), [signer]);
   const client = useMemo(() => (signer ? baseClient.as(signer) : baseClient), [baseClient, signer]);
@@ -174,7 +162,9 @@ function HiecoRuntimeProvider({
       return;
     }
 
-    return () => client.destroy();
+    return () => {
+      client.destroy();
+    };
   }, [baseClient, client]);
 
   const baseClientKeyRef = useRef({ client: baseClient, key: 0 });
@@ -185,40 +175,14 @@ function HiecoRuntimeProvider({
     };
   }
 
-  const controller = useMemo<HiecoController>(
-    () => ({
-      config,
-      ...(signer ? { signer } : {}),
-      setSigner,
-      clearSigner: () => setSigner(undefined),
-      setConfig,
-      updateConfig: (patch) => setConfig((current) => ({ ...current, ...patch })),
-      setNetwork: (network) => setConfig((current) => ({ ...current, network })),
-      setMirrorNetwork: (mirror) =>
-        setConfig((current) => ({
-          ...current,
-          mirrorUrl: typeof mirror === "string" ? mirror : mirror[0],
-        })),
-      setMaxAttempts: (value) => setConfig((current) => ({ ...current, maxAttempts: value })),
-      setMaxNodeAttempts: (value) =>
-        setConfig((current) => ({ ...current, maxNodeAttempts: value })),
-      setRequestTimeout: (value) =>
-        setConfig((current) => ({ ...current, requestTimeoutMs: value })),
-      setGrpcDeadline: (value) => setConfig((current) => ({ ...current, grpcDeadlineMs: value })),
-      setMinBackoff: (value) => setConfig((current) => ({ ...current, minBackoffMs: value })),
-      setMaxBackoff: (value) => setConfig((current) => ({ ...current, maxBackoffMs: value })),
-    }),
-    [config, signer],
-  );
-
   const value = useMemo<HiecoContextValue>(
     () => ({
       client,
       clientKey: `${baseClientKeyRef.current.key}:${createHiecoSessionKey(session)}`,
+      config,
       session,
-      controller,
     }),
-    [client, controller, session],
+    [client, config, session],
   );
 
   return <HiecoContext.Provider value={value}>{children}</HiecoContext.Provider>;

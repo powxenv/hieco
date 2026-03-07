@@ -1,7 +1,7 @@
 import { useContext } from "solid-js";
 import { MirrorNodeContext } from "./provider";
 import type { MirrorNodeClient } from "@hieco/mirror";
-import type { MirrorNodeContextValue, NetworkState, AnyNetwork } from "./provider";
+import type { MirrorNodeContextValue, AnyNetwork } from "./provider";
 
 export function useMirrorNodeContext(): MirrorNodeContextValue {
   const context = useContext(MirrorNodeContext);
@@ -18,7 +18,10 @@ export function useMirrorNodeClient(): () => MirrorNodeClient {
   return client;
 }
 
-export function useNetwork(): NetworkState {
+export function useNetwork(): Pick<
+  MirrorNodeContextValue,
+  "network" | "mirrorNodeUrl" | "switchNetwork"
+> {
   const { network, mirrorNodeUrl, switchNetwork } = useMirrorNodeContext();
 
   return {
@@ -28,4 +31,4 @@ export function useNetwork(): NetworkState {
   };
 }
 
-export type { AnyNetwork, MirrorNodeContextValue, NetworkState };
+export type { AnyNetwork, MirrorNodeContextValue };
