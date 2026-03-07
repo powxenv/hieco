@@ -1,4 +1,4 @@
-import { createContext, useCallback, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { NetworkType } from "@hieco/mirror";
 import { RelayWebSocketClient, type StreamState } from "@hieco/realtime";
 
@@ -34,14 +34,14 @@ export function RealtimeProvider({ children, config }: RealtimeProviderProps): R
 
   const [state, setState] = useState(client.getState());
 
+  useEffect(() => client.onStateChange(setState), [client]);
+
   const connect = useCallback(async () => {
     await client.connect();
-    setState(client.getState());
   }, [client]);
 
   const disconnect = useCallback(async () => {
     await client.disconnect();
-    setState(client.getState());
   }, [client]);
 
   const value = useMemo<RealtimeContextValue>(
