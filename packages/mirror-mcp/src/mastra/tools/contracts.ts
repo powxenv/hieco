@@ -1,5 +1,6 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
+import type { ContractCallParams } from "@hieco/mirror";
 import { mirrorClient } from "../../mirror-client";
 import { asEntityId } from "@hieco/utils";
 import { entityIdSchema, limitSchema, timestampSchema, toApiParams } from "../../schemas";
@@ -35,18 +36,18 @@ export const callContract = createTool({
     value: z.number().optional().describe("Value to send in tinybars"),
   }),
   execute: async ({ contractId, from, gas, gasPrice, data, estimate, block, value }) => {
-    const callParams: Record<string, unknown> = { contractId };
-    if (from) callParams.from = from;
-    if (gas !== undefined) callParams.gas = gas;
-    if (gasPrice !== undefined) callParams.gasPrice = gasPrice;
-    if (data) callParams.data = data;
-    if (estimate !== undefined) callParams.estimate = estimate;
-    if (block) callParams.block = block;
-    if (value !== undefined) callParams.value = value;
+    const callParams: ContractCallParams = {
+      contractId,
+      ...(from ? { from } : {}),
+      ...(gas !== undefined ? { gas } : {}),
+      ...(gasPrice !== undefined ? { gasPrice } : {}),
+      ...(data ? { data } : {}),
+      ...(estimate !== undefined ? { estimate } : {}),
+      ...(block ? { block } : {}),
+      ...(value !== undefined ? { value } : {}),
+    };
 
-    const result = await mirrorClient.contract.call(
-      callParams as unknown as Parameters<typeof mirrorClient.contract.call>[0],
-    );
+    const result = await mirrorClient.contract.call(callParams);
     return handleApiResult(result, "callContract");
   },
 });
