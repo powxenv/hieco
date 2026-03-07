@@ -46,14 +46,16 @@ export type ActionHandle<TData> = QueryHandle<TData> & {
 
 export type OperationArgs<TOperation> = TOperation extends (
   ...args: infer TArgs
-) => QueryHandle<any>
+) => QueryHandle<unknown>
   ? TArgs
   : never;
 
 export type OperationData<TOperation> = TOperation extends (
-  ...args: any[]
+  ...args: infer TArgs
 ) => QueryHandle<infer TData>
-  ? TData
+  ? TArgs extends ReadonlyArray<unknown>
+    ? TData
+    : never
   : never;
 
 export type OperationArg0<TOperation> =

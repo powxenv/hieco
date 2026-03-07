@@ -65,6 +65,35 @@ const invalidProviderConfigError = new Error(
 
 export const HiecoContext = createContext<HiecoContextValue | null>(null);
 
+function areProviderConfigsEqual(
+  left: HiecoProviderConfig | undefined,
+  right: HiecoProviderConfig | undefined,
+): boolean {
+  if (left === right) {
+    return true;
+  }
+
+  if (!left || !right) {
+    return left === right;
+  }
+
+  const leftKeys = Object.keys(left);
+  const rightKeys = Object.keys(right);
+
+  if (leftKeys.length !== rightKeys.length) {
+    return false;
+  }
+
+  for (const key of leftKeys) {
+    const typedKey = key as keyof HiecoProviderConfig;
+    if (left[typedKey] !== right[typedKey]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 function validateProviderConfig(
   config: HiecoProviderConfig | undefined,
 ): HiecoProviderConfig | undefined {
@@ -125,11 +154,12 @@ function HiecoRuntimeProvider({
   const [signer, setSigner] = useState<Signer | undefined>(initialSigner);
 
   useEffect(() => {
-    setConfig(validateProviderConfig(initialConfig) ?? {});
+    const nextConfig = validateProviderConfig(initialConfig) ?? {};
+    setConfig((current) => (areProviderConfigsEqual(current, nextConfig) ? current : nextConfig));
   }, [initialConfig]);
 
   useEffect(() => {
-    setSigner(initialSigner);
+    setSigner((current) => (current === initialSigner ? current : initialSigner));
   }, [initialSigner]);
 
   const baseClient = useMemo(() => hieco(config), [config]);
