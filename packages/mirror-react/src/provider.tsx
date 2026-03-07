@@ -12,6 +12,8 @@ export type { AnyNetwork, NetworkConfig };
 
 export { createNetworkConfig };
 
+const EMPTY_NETWORKS: Record<string, string> = {};
+
 export interface NetworkState {
   network: AnyNetwork;
   mirrorNodeUrl: string | undefined;
@@ -39,7 +41,8 @@ export function MirrorNodeProvider<T extends string, U extends NetworkType = Net
   children,
   config,
 }: MirrorNodeProviderProps<T, U>) {
-  const { defaultNetwork, networks = {} } = config;
+  const defaultNetwork = config.defaultNetwork;
+  const networks = config.networks ?? EMPTY_NETWORKS;
 
   const [currentNetwork, setCurrentNetwork] = useState<AnyNetwork>(defaultNetwork);
   const [currentMirrorNodeUrl, setCurrentMirrorNodeUrl] = useState<string | undefined>(
