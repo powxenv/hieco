@@ -222,7 +222,6 @@ Use the protocol exports when you need to inspect or validate raw Relay messages
 | `JsonRpcErrorCode`      | type     | Supported Relay JSON-RPC error codes.                | `type JsonRpcErrorCode`        |
 | `mapJsonRpcErrorCode`   | function | Convert a JSON-RPC error code into an API error tag. | `mapJsonRpcErrorCode(code)`    |
 | `isJsonRpcResponse`     | function | Validate a raw JSON-RPC response.                    | `isJsonRpcResponse(value)`     |
-| `isResponseWithId`      | function | Narrow a response to one with a numeric ID.          | `isResponseWithId(response)`   |
 | `isSubscribeResponse`   | function | Validate a subscribe response.                       | `isSubscribeResponse(value)`   |
 | `isUnsubscribeResponse` | function | Validate an unsubscribe response.                    | `isUnsubscribeResponse(value)` |
 | `isChainIdResponse`     | function | Validate a chain ID response.                        | `isChainIdResponse(value)`     |

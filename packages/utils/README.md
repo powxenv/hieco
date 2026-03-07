@@ -122,16 +122,16 @@ await invalidateQueries(queryClient, {
 });
 ```
 
-### Type Guards
+### Result Helpers
 
 ```ts
-import { isApiError, isNotFoundError, isSuccess } from "@hieco/utils";
+import { isApiError, isSuccess } from "@hieco/utils";
 
 if (isSuccess(result)) {
   console.log(result.data);
-} else if (isNotFoundError(result.error)) {
+} else if (isApiError(result) && result.error._tag === "NotFoundError") {
   console.log("Missing resource");
-} else if (isApiError(result.error)) {
+} else {
   console.log(result.error.message);
 }
 ```
@@ -182,17 +182,13 @@ if (isSuccess(result)) {
 | `InvalidateFilters`    | type     | Invalidation filter input.                           | `type InvalidateFilters`                   |
 | `invalidateQueries`    | function | Invalidate related mirror queries on a query client. | `invalidateQueries(queryClient, filters)`  |
 
-### Type Guards
+### Result Helpers
 
-| Export              | Kind     | Purpose                                          | Usage form                 |
-| ------------------- | -------- | ------------------------------------------------ | -------------------------- |
-| `isSuccess`         | function | Narrow `ApiResult<T>` to a success result.       | `isSuccess(result)`        |
-| `isApiError`        | function | Narrow an unknown value to `ApiError`.           | `isApiError(value)`        |
-| `isNetworkError`    | function | Check for network errors.                        | `isNetworkError(error)`    |
-| `isNotFoundError`   | function | Check for not-found errors.                      | `isNotFoundError(error)`   |
-| `isRateLimitError`  | function | Check for rate-limit errors.                     | `isRateLimitError(error)`  |
-| `toApiError`        | function | Normalize an unknown thrown value to `ApiError`. | `toApiError(error)`        |
-| `isValidationError` | function | Check for validation errors.                     | `isValidationError(error)` |
+| Export       | Kind     | Purpose                                          | Usage form           |
+| ------------ | -------- | ------------------------------------------------ | -------------------- |
+| `isSuccess`  | function | Narrow `ApiResult<T>` to a success result.       | `isSuccess(result)`  |
+| `isApiError` | function | Narrow `ApiResult<T>` to a failure result.       | `isApiError(result)` |
+| `toApiError` | function | Normalize an unknown thrown value to `ApiError`. | `toApiError(error)`  |
 
 ## Related Packages
 

@@ -47,12 +47,6 @@ function isNewHeadsResult(value: unknown): value is NewHeadsResult {
   );
 }
 
-export function isResponseWithId(
-  response: JsonRpcResponse,
-): response is JsonRpcResponse & { id: number } {
-  return typeof response.id === "number";
-}
-
 export function isJsonRpcResponse(value: unknown): value is JsonRpcResponse {
   return isObject(value) && value.jsonrpc === "2.0";
 }

@@ -3,7 +3,6 @@ import type { RelayMessage } from "../subscriptions/subscription";
 import {
   isJsonRpcResponse,
   isRelayMessage,
-  isResponseWithId,
   isSubscribeResponse,
   isUnsubscribeResponse,
   isChainIdResponse,
@@ -45,7 +44,7 @@ export class RequestManager {
         return;
       }
 
-      if (isResponseWithId(parsed)) {
+      if (typeof parsed.id === "number") {
         this.handleRequestResponse(parsed);
       }
     } catch {
@@ -59,7 +58,7 @@ export class RequestManager {
     }
   }
 
-  private handleRequestResponse(response: JsonRpcResponse & { id: number }): void {
+  private handleRequestResponse(response: JsonRpcResponse): void {
     if (isSubscribeResponse(response)) {
       this.handleSubscribeResponse(response);
       return;
@@ -75,8 +74,8 @@ export class RequestManager {
       return;
     }
 
-    if (response.error) {
-      this.subscriptionManager.handleError(response);
+    if (response.error && typeof response.id === "number") {
+      this.subscriptionManager.handleError({ ...response, id: response.id });
     }
   }
 

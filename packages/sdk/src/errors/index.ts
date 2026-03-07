@@ -9,7 +9,6 @@ export {
   createError,
   HieroError,
   toHieroError,
-  isHieroError,
   unwrap,
   classifyError,
   formatError,

@@ -367,7 +367,6 @@ Loaders and actions are a natural place for server-owned credentials. Client com
 | `createError`         | function | Create an SDK error shape.                      | `createError(input)`       |
 | `HieroError`          | class    | Runtime error class used by the SDK.            | `new HieroError(...)`      |
 | `toHieroError`        | function | Convert a shape into `HieroError`.              | `toHieroError(error)`      |
-| `isHieroError`        | function | Type guard for SDK errors.                      | `isHieroError(value)`      |
 | `unwrap`              | function | Throw on failure and return `value` on success. | `unwrap(result)`           |
 | `classifyError`       | function | Normalize unknown errors into a classification. | `classifyError(error)`     |
 | `formatError`         | function | Create a readable error string.                 | `formatError(error)`       |

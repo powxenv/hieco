@@ -19,7 +19,6 @@ export { mapJsonRpcErrorCode } from "./protocol/errors";
 export {
   isJsonRpcResponse,
   isRelayMessage,
-  isResponseWithId,
   isSubscribeResponse,
   isUnsubscribeResponse,
   isChainIdResponse,

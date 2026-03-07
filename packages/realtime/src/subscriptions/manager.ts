@@ -1,6 +1,6 @@
 import type { ApiResult } from "@hieco/utils";
 import type { JsonRpcResponse } from "../protocol/rpc";
-import { isJsonRpcErrorCode, mapJsonRpcErrorCode } from "../protocol/errors";
+import { mapJsonRpcErrorCode } from "../protocol/errors";
 import type { RelayMessage, RelaySubscription } from "./subscription";
 
 interface PendingSubscribe {
@@ -124,9 +124,7 @@ export class SubscriptionManager {
   handleError(response: JsonRpcResponse & { id: number }): void {
     if (!response.error) return;
 
-    const errorTag = isJsonRpcErrorCode(response.error.code)
-      ? mapJsonRpcErrorCode(response.error.code)
-      : "UnknownError";
+    const errorTag = mapJsonRpcErrorCode(response.error.code);
     const { message, code } = response.error;
 
     const subscribePending = this.pendingSubscribes.get(response.id);

@@ -56,10 +56,6 @@ export function toHieroError(error: HieroErrorShape): HieroError {
   return new HieroError(error);
 }
 
-export function isHieroError(value: unknown): value is HieroError {
-  return value instanceof HieroError;
-}
-
 export function unwrap<T>(result: Result<T>): T {
   if (result.ok) return result.value;
   throw toHieroError(result.error);
@@ -105,7 +101,7 @@ function inferKind(code: ErrorCode | undefined): ErrorKind {
 }
 
 export function classifyError(error: unknown): ErrorClassification {
-  if (isHieroError(error)) {
+  if (error instanceof HieroError) {
     const status =
       typeof error.details?.status === "string"
         ? error.details.status
