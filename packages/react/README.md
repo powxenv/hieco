@@ -1,10 +1,15 @@
 # @hieco/react
 
-`@hieco/react` brings `@hieco/sdk` into React with:
+## Overview
 
-- TanStack Query-powered hooks for reads and writes
-- wallet-aware client scoping through `signer`
-- optional AppKit integration for Hedera wallets
+`@hieco/react` brings `@hieco/sdk` into React with a single provider and a full hook surface built on TanStack Query.
+
+Use it when you want:
+
+- typed Hedera query hooks and mutation hooks
+- one provider for browser apps, signer-aware apps, and hydrated apps
+- React-first access to the same namespaces exposed by `@hieco/sdk`
+- optional first-party integration for Reown AppKit through `@hieco/react/appkit`
 
 ## Installation
 
@@ -24,7 +29,7 @@ yarn add @hieco/react @hieco/sdk @tanstack/react-query
 bun add @hieco/react @hieco/sdk @tanstack/react-query
 ```
 
-If you use Reown AppKit with Hedera WalletConnect:
+Optional AppKit bridge dependencies:
 
 ```bash
 npm install @reown/appkit @hashgraph/hedera-wallet-connect
@@ -42,31 +47,21 @@ yarn add @reown/appkit @hashgraph/hedera-wallet-connect
 bun add @reown/appkit @hashgraph/hedera-wallet-connect
 ```
 
-Peer dependencies:
+Peer dependencies expected from the host app:
 
 - `react >= 18`
 - `react-dom >= 18`
 
-## Choose Your Workflow
+## When To Use This Package
 
-Pick the workflow that matches what you are building:
+Use `@hieco/react` when you are building:
 
-| You are building                                                   | Start here                                               |
-| ------------------------------------------------------------------ | -------------------------------------------------------- |
-| A React app that reads Hedera data and runs public SDK operations  | `HiecoProvider`                                          |
-| A wallet-connected app where the current wallet signs user actions | `HiecoProvider` with a wallet `signer`                   |
-| A Reown AppKit app for Hedera wallets                              | `createHiecoAppKit()` with `HiecoAppKitProvider`         |
-| A full-stack app with server-side credentials and a React frontend | `@hieco/react` in the UI and `@hieco/sdk` in server code |
+- a React app that reads or writes Hedera data
+- a wallet-connected UI where the current `Signer` should drive mutations
+- a hydrated app that already owns a `QueryClient`
+- a Reown AppKit integration that should feed the active wallet into Hieco automatically
 
-## Package Layout
-
-`@hieco/react` is organized by domain:
-
-- `provider.tsx` is the single root provider
-- `appkit/` contains the first-party AppKit integration
-- `hooks/accounts`, `hooks/contracts`, `hooks/files`, `hooks/network`, `hooks/reads`, `hooks/schedules`, `hooks/tokens`, `hooks/topics`, and `hooks/transactions` contain the generated SDK hooks
-- `hooks/` root files contain the hand-written React runtime hooks
-- `shared/` contains the TanStack Query glue used by the public hooks
+For server-only logic, scripts, or framework loaders, use [`@hieco/sdk`](../sdk/README.md) directly.
 
 ## Quick Start
 
@@ -89,11 +84,18 @@ export function Providers({ children }: { children: React.ReactNode }) {
 }
 ```
 
-## Provider
+## Core Concepts
 
-`HiecoProvider` is the root provider for React apps.
+### One Provider
 
-Props:
+`HiecoProvider` is the root provider for the package. It combines:
+
+- the Hieco runtime client
+- TanStack Query integration
+- optional hydration support
+- optional signer scoping
+
+The provider accepts:
 
 - `config`
 - `signer`
@@ -101,26 +103,80 @@ Props:
 - `queryClientConfig`
 - `dehydratedState`
 
-`config` is client-safe runtime config such as:
+### Query Client Ownership
 
-- `network`
-- `mirrorUrl`
-- retry and timeout settings
+`HiecoProvider` works in both of these setups:
 
-Typical app setup:
+- create and own a `QueryClient` internally
+- reuse an inherited or explicit `QueryClient`
+
+That keeps the public API consistent whether your app is fully client-rendered or already has TanStack Query wiring.
+
+### Hook Conventions
+
+The hook surface mirrors the SDK namespaces:
+
+- query hooks usually look like `useAccountInfo(accountId, options?)`
+- mutation hooks usually look like `useAccountSend(options?)`
+- read-only Mirror hooks are grouped under `useRead...`
+
+Transaction-capable hooks return mutation objects that preserve SDK behaviors such as `buildTx()` and `queue()`.
+
+### Signer-Aware Runtime
+
+Pass a wallet `Signer` to scope the client to the active wallet session:
+
+```tsx
+<HiecoProvider config={{ network: "testnet" }} signer={signer}>
+  <App />
+</HiecoProvider>
+```
+
+The signer is late-bound runtime state. The provider can render once with `undefined` and re-render with a signer after the user connects a wallet.
+
+## Advanced
+
+### Use An Existing QueryClient
 
 ```tsx
 "use client";
 
+import { QueryClient } from "@tanstack/react-query";
 import { HiecoProvider } from "@hieco/react";
+
+const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
+    <HiecoProvider config={{ network: "testnet" }} queryClient={queryClient}>
+      {children}
+    </HiecoProvider>
+  );
+}
+```
+
+### Hydration And SSR
+
+```tsx
+"use client";
+
+import { HiecoProvider, type EntityId } from "@hieco/react";
+import type { DehydratedState, QueryClient } from "@tanstack/react-query";
+
+export function Providers({
+  children,
+  queryClient,
+  dehydratedState,
+}: {
+  children: React.ReactNode;
+  queryClient: QueryClient;
+  dehydratedState: DehydratedState;
+}) {
+  return (
     <HiecoProvider
-      config={{
-        network: "testnet",
-        mirrorUrl: "https://testnet.mirrornode.hedera.com",
-      }}
+      config={{ network: "testnet" }}
+      queryClient={queryClient}
+      dehydratedState={dehydratedState}
     >
       {children}
     </HiecoProvider>
@@ -128,39 +184,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 }
 ```
 
-## Wallet-Aware Apps
+Use `@hieco/sdk` in server code to prefetch data, then hydrate the React tree through `dehydratedState`.
 
-When your app has a connected wallet, pass the current `Signer` into `HiecoProvider`.
-
-```tsx
-"use client";
-
-import { HiecoProvider, type Signer } from "@hieco/react";
-
-export function Providers({
-  children,
-  signer,
-}: {
-  children: React.ReactNode;
-  signer: Signer | undefined;
-}) {
-  return (
-    <HiecoProvider config={{ network: "testnet" }} signer={signer}>
-      {children}
-    </HiecoProvider>
-  );
-}
-```
-
-This works well when:
-
-- a wallet provider above Hieco owns connect and disconnect state
-- the wallet hook exposes `Signer | undefined`
-- your Hieco client should follow the current wallet session
-
-The `signer` prop is late-bound session state. The provider can render with `undefined` first and receive a signer later after the user connects.
-
-### Wallet Mutation Example
+### Signer-Driven Apps
 
 ```tsx
 "use client";
@@ -180,7 +206,7 @@ function SendButton() {
         })
       }
     >
-      Send
+      Send HBAR
     </button>
   );
 }
@@ -201,526 +227,138 @@ export function Providers({
 }
 ```
 
-## Query Client Integration
-
-`HiecoProvider` works with or without an existing `QueryClientProvider`.
-
-### Let Hieco Create The Query Client
+### Topic Watchers
 
 ```tsx
 "use client";
 
-import { HiecoProvider } from "@hieco/react";
+import { useTopicWatch } from "@hieco/react";
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  return <HiecoProvider config={{ network: "testnet" }}>{children}</HiecoProvider>;
+export function TopicFeed() {
+  useTopicWatch("0.0.3003", (message) => {
+    console.log(message.contentsText);
+  });
+
+  return null;
 }
 ```
 
-### Reuse Your Existing Query Client
+### `@hieco/react/appkit`
+
+Bootstrap AppKit once, then use the AppKit-aware provider:
 
 ```tsx
 "use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HiecoProvider } from "@hieco/react";
+import { createHiecoAppKit, HiecoAppKitProvider } from "@hieco/react/appkit";
 
-const queryClient = new QueryClient();
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <HiecoProvider config={{ network: "testnet" }}>{children}</HiecoProvider>
-    </QueryClientProvider>
-  );
-}
-```
-
-### Hydrate Prefetched State
-
-```tsx
-"use client";
-
-import type { DehydratedState } from "@tanstack/react-query";
-import { HiecoProvider } from "@hieco/react";
-
-export function Providers({
-  children,
-  dehydratedState,
-}: {
-  children: React.ReactNode;
-  dehydratedState: DehydratedState;
-}) {
-  return (
-    <HiecoProvider config={{ network: "testnet" }} dehydratedState={dehydratedState}>
-      {children}
-    </HiecoProvider>
-  );
-}
-```
-
-## Framework Recipes
-
-### Next.js
-
-Use `@hieco/react` in client-side provider and component code.
-
-```tsx
-// app/providers.tsx
-"use client";
-
-import { HiecoProvider } from "@hieco/react";
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return <HiecoProvider config={{ network: "testnet" }}>{children}</HiecoProvider>;
-}
-```
-
-Use `@hieco/sdk` in server-only modules, Route Handlers, or Server Actions when you want server-side authority.
-
-### TanStack Start
-
-Use `@hieco/react` in route components and UI providers.
-
-```tsx
-import { HiecoProvider } from "@hieco/react";
-
-export function AppProviders({ children }: { children: React.ReactNode }) {
-  return <HiecoProvider config={{ network: "testnet" }}>{children}</HiecoProvider>;
-}
-```
-
-Use `@hieco/sdk` inside `createServerFn()` when you want server-side execution.
-
-### React Router Framework Mode
-
-Use `@hieco/react` in route components and app providers.
-
-```tsx
-import { HiecoProvider } from "@hieco/react";
-
-export function AppProviders({ children }: { children: React.ReactNode }) {
-  return <HiecoProvider config={{ network: "testnet" }}>{children}</HiecoProvider>;
-}
-```
-
-Use `@hieco/sdk` in route `loader` and `action` for server-side work.
-
-## AppKit
-
-If you use Reown AppKit, keep `HiecoProvider` as the app provider and add the AppKit bridge inside it.
-
-Initialize AppKit once:
-
-```tsx
-"use client";
-
-import {
-  HederaAdapter,
-  HederaChainDefinition,
-  hederaNamespace,
-} from "@hashgraph/hedera-wallet-connect";
-import { createHiecoAppKit } from "@hieco/react/appkit";
-
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!;
-const metadata = {
-  name: "My Hieco App",
-  description: "Hieco + AppKit",
-  url: "https://example.com",
-  icons: ["https://example.com/icon.png"],
-};
-const networks = [HederaChainDefinition.Native.Testnet];
-
-const appKitPromise = createHiecoAppKit({
-  projectId,
-  metadata,
-  networks,
-  adapters: [
-    new HederaAdapter({
-      projectId,
-      networks,
-      namespace: hederaNamespace,
-    }),
-  ],
+await createHiecoAppKit({
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
+  metadata: {
+    name: "My App",
+    description: "Hieco + AppKit",
+    url: "https://example.com",
+    icons: ["https://example.com/icon.png"],
+  },
+  adapters: [],
+  networks: [],
 });
 
-export function ensureAppKit() {
-  return appKitPromise;
-}
-```
-
-Wrap AppKit and Hieco together:
-
-```tsx
-"use client";
-
-import { useEffect } from "react";
-import { HiecoAppKitProvider } from "@hieco/react/appkit";
-import { ensureAppKit } from "./appkit";
-
 export function Providers({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    void ensureAppKit();
-  }, []);
-
   return <HiecoAppKitProvider config={{ network: "testnet" }}>{children}</HiecoAppKitProvider>;
 }
 ```
 
-## Hooks
-
-Hooks follow the SDK structure.
-
-Examples:
-
-- `client.account.info(id).now()` becomes `useAccountInfo(id)`
-- `client.account.send(input).now()` becomes `useAccountSend()`
-- `client.reads.transactions.list(input).now()` becomes `useReadTransactionsList(input)`
-
-### Query Example
-
-```tsx
-import { useAccountInfo } from "@hieco/react";
-
-function Balance({ accountId }: { accountId: `${number}.${number}.${number}` }) {
-  const account = useAccountInfo(accountId, {
-    staleTime: 30_000,
-  });
-
-  if (account.isPending) return <div>Loading...</div>;
-  if (account.isError) return <div>{account.error.message}</div>;
-
-  return <div>{account.data?.balance?.hbars ?? 0} HBAR</div>;
-}
-```
-
-### Mutation Example
-
-```tsx
-import { useAccountSend } from "@hieco/react";
-
-function SendButton() {
-  const send = useAccountSend();
-
-  return (
-    <button
-      disabled={send.isPending}
-      onClick={() =>
-        send.mutate({
-          to: "0.0.2002",
-          hbar: 1,
-        })
-      }
-    >
-      Send
-    </button>
-  );
-}
-```
-
-Transaction-capable mutation hooks also expose:
-
-- `buildTx()`
-- `queue()`
+If you already own the AppKit session elsewhere, `useHiecoAppKitSigner()` gives you the resolved Hedera signer directly.
 
 ## API Reference
 
-`@hieco/react` exports a single React-first surface built around `HiecoProvider`, typed hooks, and `@hieco/sdk` re-exports.
+### Root Provider Exports
 
-### `@hieco/react`
+| Export                   | Kind      | Purpose                                                                 | Usage form                                                                         |
+| ------------------------ | --------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `HiecoProvider`          | component | Root provider for runtime, query client, hydration, and signer scoping. | `<HiecoProvider config? signer? queryClient? queryClientConfig? dehydratedState?>` |
+| `HiecoProviderProps`     | type      | Props accepted by `HiecoProvider`.                                      | `type HiecoProviderProps`                                                          |
+| `HiecoProviderConfig`    | type      | Public client config accepted by the provider.                          | `type HiecoProviderConfig`                                                         |
+| `HiecoQueryLayerOptions` | type      | Query client and hydration options shared by the provider.              | `type HiecoQueryLayerOptions`                                                      |
+| `HiecoQueryClientConfig` | type      | `QueryClient` constructor config passed to the provider.                | `type HiecoQueryClientConfig`                                                      |
+| `HiecoContext`           | context   | Low-level React context for the runtime.                                | `useContext(HiecoContext)`                                                         |
+| `HiecoContextValue`      | type      | Context shape exposed by `HiecoContext`.                                | `type HiecoContextValue`                                                           |
 
-#### Providers
+### Runtime Hooks And Utilities
 
-- `HiecoProvider`
+| Export                   | Kind     | Purpose                                                          | Usage form                                               |
+| ------------------------ | -------- | ---------------------------------------------------------------- | -------------------------------------------------------- |
+| `useHiecoClient`         | hook     | Access the active `HiecoClient`.                                 | `useHiecoClient()`                                       |
+| `useHiecoConfig`         | hook     | Access the resolved provider config.                             | `useHiecoConfig()`                                       |
+| `useHiecoContext`        | hook     | Access the low-level provider context.                           | `useHiecoContext()`                                      |
+| `useHiecoNetwork`        | hook     | Read the active network and mirror URL context.                  | `useHiecoNetwork()`                                      |
+| `useHiecoSession`        | hook     | Read the current runtime session data.                           | `useHiecoSession()`                                      |
+| `useHiecoSigner`         | hook     | Read the current signer, if any.                                 | `useHiecoSigner()`                                       |
+| `useHiecoAccount`        | hook     | Read the signer-derived account identity, if available.          | `useHiecoAccount()`                                      |
+| `useTopicWatch`          | hook     | Start a live topic watcher tied to the component lifecycle.      | `useTopicWatch(topicId, handler, options?)`              |
+| `useTopicWatchFrom`      | hook     | Start a topic watcher from a specific timestamp or range.        | `useTopicWatchFrom(topicId, handler, options?)`          |
+| `useContractAbi`         | hook     | Resolve or derive a contract ABI helper from the current client. | `useContractAbi(...)`                                    |
+| `useFileJson`            | hook     | Read file contents and parse them as JSON.                       | `useFileJson(fileId, options?)`                          |
+| `useFileContentsJson`    | hook     | Read file contents JSON through the `file.contentsJson` API.     | `useFileContentsJson(fileId, options?)`                  |
+| `createHiecoQueryKey`    | function | Build a stable query key from scope and args.                    | `createHiecoQueryKey(scope, operation, args?)`           |
+| `createHiecoMutationKey` | function | Build a stable mutation key from scope and args.                 | `createHiecoMutationKey(scope, operation, args?)`        |
+| `HiecoQueryOptions`      | type     | Shared TanStack Query options for query hooks.                   | `type HiecoQueryOptions<TQueryFnData, TData>`            |
+| `HiecoQueryResult`       | type     | Shared query result alias.                                       | `type HiecoQueryResult<TData>`                           |
+| `HiecoMutationOptions`   | type     | Shared mutation options for mutation hooks.                      | `type HiecoMutationOptions<TData, TVariables, TContext>` |
+| `HiecoMutationResult`    | type     | Shared mutation result alias.                                    | `type HiecoMutationResult<TData, TVariables, TContext>`  |
 
-#### Provider Types
+### Hook Families
 
-- `HiecoProviderProps`
-- `HiecoProviderConfig`
-- `HiecoQueryLayerOptions`
-- `HiecoQueryClientConfig`
-- `HiecoContextValue`
+All query hooks follow the SDK query pattern and all mutation hooks follow the SDK mutation pattern. Read hooks call `client.reads.*`, while runtime hooks call the fluent runtime namespaces such as `client.account.*` or `client.token.*`.
 
-#### Query and Mutation Types
+| Domain       | Kind  | Purpose                                                                         | Exports                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ------------ | ----- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Accounts     | hooks | Account reads, transfers, lifecycle, and allowance flows.                       | `useAccountAllowanceSnapshot`, `useAccountBalance`, `useAccountInfo`, `useAccountInfoFlow`, `useAccountRecords`, `useAccountSend`, `useAccountTransfer`, `useAccountCreate`, `useAccountUpdate`, `useAccountDelete`, `useAccountAllow`, `useAccountAllowances`, `useAccountAdjustAllowances`, `useAccountRevokeNftAllowances`, `useAccountAllowancesDeleteNft`, `useAccountEnsureAllowances`                                                                                                                                                            |
+| Batch        | hooks | Batch transaction helpers.                                                      | `useBatchAtomic`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Contracts    | hooks | Contract calls, typed execution, deploy, logs, estimates, and mutation flows.   | `useContractCall`, `useContractCallTyped`, `useContractPreflight`, `useContractInfo`, `useContractLogs`, `useContractBytecode`, `useContractSimulate`, `useContractEstimate`, `useContractEstimateGas`, `useContractDeploy`, `useContractDeployArtifact`, `useContractRun`, `useContractExecute`, `useContractRunTyped`, `useContractExecuteTyped`, `useContractDelete`, `useContractUpdate`                                                                                                                                                            |
+| EVM          | hooks | Raw EVM transaction submission.                                                 | `useEvmSendRaw`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Files        | hooks | File reads, text and JSON helpers, and file mutation flows.                     | `useFileInfo`, `useFileContents`, `useFileText`, `useFileContentsText`, `useFileCreate`, `useFileAppend`, `useFileUpdate`, `useFileDelete`, `useFileUpload`, `useFileUpdateLarge`                                                                                                                                                                                                                                                                                                                                                                       |
+| Legacy       | hooks | Legacy live-hash helpers.                                                       | `useLegacyLiveHashGet`, `useLegacyLiveHashAdd`, `useLegacyLiveHashDelete`                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Network      | hooks | Node administration and network metadata operations.                            | `useNodeCreate`, `useNodeUpdate`, `useNodeDelete`, `useNetworkVersion`, `useNetworkAddressBook`, `useNetworkPing`, `useNetworkPingAll`, `useNetworkUpdate`                                                                                                                                                                                                                                                                                                                                                                                              |
+| Schedules    | hooks | Schedule lifecycle, waiting, and signature collection.                          | `useScheduleInfo`, `useScheduleWait`, `useScheduleWaitForExecution`, `useScheduleCreate`, `useScheduleSign`, `useScheduleDelete`, `useScheduleCreateIdempotent`, `useScheduleCollect`, `useScheduleCollectSignatures`                                                                                                                                                                                                                                                                                                                                   |
+| System       | hooks | System freeze and entity delete or undelete flows.                              | `useSystemFreeze`, `useSystemDeleteEntity`, `useSystemUndeleteEntity`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Tokens       | hooks | Token reads, lifecycle, transfers, KYC, fees, airdrops, and NFT updates.        | `useTokenInfo`, `useTokenNft`, `useTokenAllowances`, `useTokenCreate`, `useTokenMint`, `useTokenBurn`, `useTokenSend`, `useTokenTransfer`, `useTokenSendNft`, `useTokenTransferNft`, `useTokenAssociate`, `useTokenDissociate`, `useTokenFreeze`, `useTokenUnfreeze`, `useTokenGrantKyc`, `useTokenRevokeKyc`, `useTokenPause`, `useTokenUnpause`, `useTokenWipe`, `useTokenDelete`, `useTokenUpdate`, `useTokenFees`, `useTokenAirdrop`, `useTokenClaimAirdrop`, `useTokenCancelAirdrop`, `useTokenReject`, `useTokenUpdateNfts`, `useTokenRejectFlow` |
+| Topics       | hooks | Topic reads, lifecycle, message submission, JSON helpers, and batch submission. | `useTopicInfo`, `useTopicMessages`, `useTopicCreate`, `useTopicUpdate`, `useTopicDelete`, `useTopicSend`, `useTopicSubmit`, `useTopicSendJson`, `useTopicSubmitJson`, `useTopicSendMany`, `useTopicBatchSubmit`                                                                                                                                                                                                                                                                                                                                         |
+| Transactions | hooks | Transaction record, receipt, and descriptor submission helpers.                 | `useTransactionRecord`, `useTransactionReceipt`, `useTransactionSubmit`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Utilities    | hooks | Utility transaction helpers.                                                    | `useUtilRandom`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
-- `HiecoQueryOptions<TQueryFnData, TData = TQueryFnData>`
-- `HiecoQueryResult<TData>`
-- `HiecoMutationOptions<TData, TVariables = void, TContext = unknown>`
-- `HiecoMutationResult<TData, TVariables = void, TContext = unknown>`
+### Read Hook Families
 
-#### Query and Mutation Utilities
-
-- `createHiecoQueryKey()`
-- `createHiecoMutationKey()`
-
-#### Runtime Hooks
-
-- `useHiecoClient()`
-- `useHiecoContext()`
-- `useHiecoSession()`
-- `useHiecoSigner()`
-- `useHiecoAccount()`
-- `useHiecoConfig()`
-- `useHiecoNetwork()`
-
-#### Helper Hooks
-
-- `useContractAbi()`
-- `useFileJson()`
-- `useFileContentsJson()`
-- `useTopicWatch()`
-- `useTopicWatchFrom()`
-
-#### Transaction Hooks
-
-- `useTransactionRecord()`
-- `useTransactionReceipt()`
-- `useTransactionSubmit()`
-
-#### Account Hooks
-
-- `useAccountAllowanceSnapshot()`
-- `useAccountBalance()`
-- `useAccountInfo()`
-- `useAccountInfoFlow()`
-- `useAccountRecords()`
-- `useAccountSend()`
-- `useAccountTransfer()`
-- `useAccountCreate()`
-- `useAccountUpdate()`
-- `useAccountDelete()`
-- `useAccountAllow()`
-- `useAccountAllowances()`
-- `useAccountAdjustAllowances()`
-- `useAccountRevokeNftAllowances()`
-- `useAccountAllowancesDeleteNft()`
-- `useAccountEnsureAllowances()`
-
-#### Token Hooks
-
-- `useTokenInfo()`
-- `useTokenNft()`
-- `useTokenAllowances()`
-- `useTokenCreate()`
-- `useTokenMint()`
-- `useTokenBurn()`
-- `useTokenSend()`
-- `useTokenTransfer()`
-- `useTokenSendNft()`
-- `useTokenTransferNft()`
-- `useTokenAssociate()`
-- `useTokenDissociate()`
-- `useTokenFreeze()`
-- `useTokenUnfreeze()`
-- `useTokenGrantKyc()`
-- `useTokenRevokeKyc()`
-- `useTokenPause()`
-- `useTokenUnpause()`
-- `useTokenWipe()`
-- `useTokenDelete()`
-- `useTokenUpdate()`
-- `useTokenFees()`
-- `useTokenAirdrop()`
-- `useTokenClaimAirdrop()`
-- `useTokenCancelAirdrop()`
-- `useTokenReject()`
-- `useTokenUpdateNfts()`
-- `useTokenRejectFlow()`
-
-#### Topic Hooks
-
-- `useTopicInfo()`
-- `useTopicMessages()`
-- `useTopicCreate()`
-- `useTopicUpdate()`
-- `useTopicDelete()`
-- `useTopicSend()`
-- `useTopicSubmit()`
-- `useTopicSendJson()`
-- `useTopicSubmitJson()`
-- `useTopicSendMany()`
-- `useTopicBatchSubmit()`
-
-#### Contract Hooks
-
-- `useContractCall()`
-- `useContractCallTyped()`
-- `useContractPreflight()`
-- `useContractInfo()`
-- `useContractLogs()`
-- `useContractBytecode()`
-- `useContractSimulate()`
-- `useContractEstimate()`
-- `useContractEstimateGas()`
-- `useContractDeploy()`
-- `useContractDeployArtifact()`
-- `useContractRun()`
-- `useContractExecute()`
-- `useContractRunTyped()`
-- `useContractExecuteTyped()`
-- `useContractDelete()`
-- `useContractUpdate()`
-
-#### File Hooks
-
-- `useFileInfo()`
-- `useFileContents()`
-- `useFileText()`
-- `useFileContentsText()`
-- `useFileCreate()`
-- `useFileAppend()`
-- `useFileUpdate()`
-- `useFileDelete()`
-- `useFileUpload()`
-- `useFileUpdateLarge()`
-
-#### Schedule Hooks
-
-- `useScheduleInfo()`
-- `useScheduleWait()`
-- `useScheduleWaitForExecution()`
-- `useScheduleCreate()`
-- `useScheduleSign()`
-- `useScheduleDelete()`
-- `useScheduleCreateIdempotent()`
-- `useScheduleCollect()`
-- `useScheduleCollectSignatures()`
-
-#### Node, System, Utility, Batch, Network, Legacy, and EVM Hooks
-
-- `useNodeCreate()`
-- `useNodeUpdate()`
-- `useNodeDelete()`
-- `useSystemFreeze()`
-- `useSystemDeleteEntity()`
-- `useSystemUndeleteEntity()`
-- `useUtilRandom()`
-- `useBatchAtomic()`
-- `useNetworkVersion()`
-- `useNetworkAddressBook()`
-- `useNetworkPing()`
-- `useNetworkPingAll()`
-- `useNetworkUpdate()`
-- `useEvmSendRaw()`
-- `useLegacyLiveHashGet()`
-- `useLegacyLiveHashAdd()`
-- `useLegacyLiveHashDelete()`
-
-#### Mirror Read Hooks
-
-Accounts:
-
-- `useReadAccountsList()`
-- `useReadAccountsListPageByUrl()`
-- `useReadAccountInfo()`
-- `useReadAccountBalances()`
-- `useReadAccountTokens()`
-- `useReadAccountNfts()`
-- `useReadAccountRewards()`
-- `useReadAccountCryptoAllowances()`
-- `useReadAccountTokenAllowances()`
-- `useReadAccountNftAllowances()`
-- `useReadAccountOutstandingAirdrops()`
-- `useReadAccountPendingAirdrops()`
-- `useReadAccountHistory()`
-- `useReadAccountTransfers()`
-
-Tokens:
-
-- `useReadTokensList()`
-- `useReadTokensListPageByUrl()`
-- `useReadTokenInfo()`
-- `useReadTokenBalances()`
-- `useReadTokenBalancesSnapshot()`
-- `useReadTokenNfts()`
-- `useReadTokenNft()`
-- `useReadTokenNftTransactions()`
-- `useReadTokenRelationships()`
-- `useReadTokenTransfers()`
-
-Contracts:
-
-- `useReadContractsList()`
-- `useReadContractsListPageByUrl()`
-- `useReadContractInfo()`
-- `useReadContractCall()`
-- `useReadContractResults()`
-- `useReadContractResult()`
-- `useReadContractState()`
-- `useReadContractLogs()`
-- `useReadContractsResultsAll()`
-- `useReadContractResultByTransactionIdOrHash()`
-- `useReadContractResultActions()`
-- `useReadContractResultOpcodes()`
-- `useReadContractsLogsAll()`
-
-Transactions:
-
-- `useReadTransaction()`
-- `useReadTransactionsByAccount()`
-- `useReadTransactionsList()`
-- `useReadTransactionsListPageByUrl()`
-- `useReadTransactionsSearch()`
-
-Topics:
-
-- `useReadTopicsList()`
-- `useReadTopicsListPageByUrl()`
-- `useReadTopicInfo()`
-- `useReadTopicMessages()`
-- `useReadTopicMessage()`
-- `useReadTopicMessageByTimestamp()`
-
-Schedules:
-
-- `useReadSchedulesList()`
-- `useReadSchedulesListPageByUrl()`
-- `useReadScheduleInfo()`
-
-Network:
-
-- `useReadNetworkExchangeRate()`
-- `useReadNetworkFees()`
-- `useReadNetworkNodes()`
-- `useReadNetworkNodesPageByUrl()`
-- `useReadNetworkStake()`
-- `useReadNetworkSupply()`
-
-Balances:
-
-- `useReadBalancesSnapshot()`
-- `useReadBalancesList()`
-- `useReadBalancesListPageByUrl()`
-
-Blocks:
-
-- `useReadBlocksSnapshot()`
-- `useReadBlocksList()`
-- `useReadBlocksListPageByUrl()`
-- `useReadBlock()`
-
-#### SDK Re-Exports
-
-The root package also re-exports the full `@hieco/sdk` surface, so SDK types and helpers such as `Signer`, `HiecoClient`, `Result`, `EntityId`, `NetworkType`, `isValidEntityId()`, and `formatEntityId()` are available from `@hieco/react`.
+| Domain               | Kind  | Purpose                                                                   | Exports                                                                                                                                                                                                                                                                                                                                                                                                  |
+| -------------------- | ----- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `reads.accounts`     | hooks | Read-only account queries and derived history.                            | `useReadAccountsList`, `useReadAccountsListPageByUrl`, `useReadAccountInfo`, `useReadAccountBalances`, `useReadAccountTokens`, `useReadAccountNfts`, `useReadAccountRewards`, `useReadAccountCryptoAllowances`, `useReadAccountTokenAllowances`, `useReadAccountNftAllowances`, `useReadAccountOutstandingAirdrops`, `useReadAccountPendingAirdrops`, `useReadAccountHistory`, `useReadAccountTransfers` |
+| `reads.balances`     | hooks | Balance snapshots and balance pages.                                      | `useReadBalancesSnapshot`, `useReadBalancesList`, `useReadBalancesListPageByUrl`                                                                                                                                                                                                                                                                                                                         |
+| `reads.blocks`       | hooks | Block snapshots, block pages, and single-block lookup.                    | `useReadBlocksSnapshot`, `useReadBlocksList`, `useReadBlocksListPageByUrl`, `useReadBlock`                                                                                                                                                                                                                                                                                                               |
+| `reads.contracts`    | hooks | Contract metadata, calls, results, state, logs, and traces.               | `useReadContractsList`, `useReadContractsListPageByUrl`, `useReadContractInfo`, `useReadContractCall`, `useReadContractResults`, `useReadContractResult`, `useReadContractState`, `useReadContractLogs`, `useReadContractsResultsAll`, `useReadContractResultByTransactionIdOrHash`, `useReadContractResultActions`, `useReadContractResultOpcodes`, `useReadContractsLogsAll`                           |
+| `reads.network`      | hooks | Exchange rate, fees, nodes, stake, and supply queries.                    | `useReadNetworkExchangeRate`, `useReadNetworkFees`, `useReadNetworkNodes`, `useReadNetworkNodesPageByUrl`, `useReadNetworkStake`, `useReadNetworkSupply`                                                                                                                                                                                                                                                 |
+| `reads.schedules`    | hooks | Schedule list and detail queries.                                         | `useReadSchedulesList`, `useReadSchedulesListPageByUrl`, `useReadScheduleInfo`                                                                                                                                                                                                                                                                                                                           |
+| `reads.tokens`       | hooks | Token list, balances, NFTs, relationships, and transfer activity queries. | `useReadTokensList`, `useReadTokensListPageByUrl`, `useReadTokenInfo`, `useReadTokenBalances`, `useReadTokenBalancesSnapshot`, `useReadTokenNfts`, `useReadTokenNft`, `useReadTokenNftTransactions`, `useReadTokenRelationships`, `useReadTokenTransfers`                                                                                                                                                |
+| `reads.topics`       | hooks | Topic list, message list, and message lookup queries.                     | `useReadTopicsList`, `useReadTopicsListPageByUrl`, `useReadTopicInfo`, `useReadTopicMessages`, `useReadTopicMessage`, `useReadTopicMessageByTimestamp`                                                                                                                                                                                                                                                   |
+| `reads.transactions` | hooks | Transaction lookup, account activity, lists, and search.                  | `useReadTransaction`, `useReadTransactionsByAccount`, `useReadTransactionsList`, `useReadTransactionsListPageByUrl`, `useReadTransactionsSearch`                                                                                                                                                                                                                                                         |
 
 ### `@hieco/react/appkit`
 
-Use this subpath when your app uses Reown AppKit with Hedera WalletConnect.
+| Export                        | Kind      | Purpose                                                       | Usage form                                                    |
+| ----------------------------- | --------- | ------------------------------------------------------------- | ------------------------------------------------------------- |
+| `createHiecoAppKit`           | function  | Initialize Reown AppKit with Hedera provider wiring.          | `await createHiecoAppKit(options)`                            |
+| `CreateHiecoAppKitOptions`    | type      | Options accepted by `createHiecoAppKit`.                      | `type CreateHiecoAppKitOptions`                               |
+| `HiecoAppKitProvider`         | component | `HiecoProvider` variant that resolves the signer from AppKit. | `<HiecoAppKitProvider config? queryClient? dehydratedState?>` |
+| `HiecoAppKitProviderProps`    | type      | Props accepted by `HiecoAppKitProvider`.                      | `type HiecoAppKitProviderProps`                               |
+| `useHiecoAppKitSigner`        | hook      | Resolve the current Hedera AppKit signer.                     | `useHiecoAppKitSigner(options?)`                              |
+| `UseHiecoAppKitSignerOptions` | type      | Namespace options for the AppKit signer hook.                 | `type UseHiecoAppKitSignerOptions`                            |
 
-#### Functions
+### SDK Re-Exports
 
-- `createHiecoAppKit()`
+`@hieco/react` re-exports the public surface of [`@hieco/sdk`](../sdk/README.md). Import shared types such as `EntityId`, `Signer`, `Result`, `HiecoClient`, and all SDK param or result types directly from `@hieco/react` when that is your main app dependency.
 
-#### Components
+## Related Packages
 
-- `HiecoAppKitProvider`
-
-#### Hooks
-
-- `useHiecoAppKitSigner()`
-
-#### Types
-
-- `CreateHiecoAppKitOptions`
-- `HiecoAppKitProviderProps`
-- `UseHiecoAppKitSignerOptions`
+- [`@hieco/sdk`](../sdk/README.md) for the core runtime and fluent client
+- [`@hieco/react/appkit`](./README.md#hiecoreactappkit) for the AppKit bridge exported by this package
+- [`@hieco/mirror-react`](../mirror-react/README.md) for direct Mirror Node hooks without transaction runtime

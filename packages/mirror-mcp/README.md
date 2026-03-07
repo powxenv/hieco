@@ -1,599 +1,228 @@
 # @hieco/mirror-mcp
 
-MCP server for Hedera Mirror Node REST API. Provides **55 tools** across 9 API modules for interacting with Hedera blockchain data.
+## Overview
+
+`@hieco/mirror-mcp` is a stdio MCP server for Hedera Mirror Node data.
+
+It provides:
+
+- a ready-to-run MCP server binary named `mirror-mcp`
+- 55 read-only tools across accounts, balances, blocks, contracts, network, schedules, tokens, topics, and transactions
+- validated inputs using `zod`
+- environment-driven network selection for `mainnet`, `testnet`, `previewnet`, or a custom Mirror Node URL
 
 ## Installation
 
 ```bash
-bun add @hieco/mirror-mcp
+npm install --global @hieco/mirror-mcp
 ```
 
-## Quick Start
+```bash
+pnpm add --global @hieco/mirror-mcp
+```
 
-Run directly:
+```bash
+yarn global add @hieco/mirror-mcp
+```
+
+```bash
+bun add --global @hieco/mirror-mcp
+```
+
+You can also run the server without installing it:
 
 ```bash
 bunx @hieco/mirror-mcp
 ```
 
-## Environment Variables
+## When To Use This Package
 
-| Variable          | Description                                           | Default         |
-| ----------------- | ----------------------------------------------------- | --------------- |
-| `MIRROR_NETWORK`  | Hedera network: `mainnet`, `testnet`, or `previewnet` | `mainnet`       |
-| `MIRROR_NODE_URL` | Custom Mirror Node URL (optional)                     | Network default |
+Use `@hieco/mirror-mcp` when you want to:
 
----
+- expose Hedera Mirror Node data to an AI agent or MCP-compatible client
+- avoid writing custom wrappers around the Mirror Node REST API
+- give a model read-only blockchain access with validated parameters
+- share one consistent tool surface across local agents, editors, and desktops
 
-## AI Agent Configuration
+If you need a terminal interface instead of MCP, use [`@hieco/mirror-cli`](../mirror-cli/README.md).
 
-<details>
-<summary>Claude Code</summary>
+## Quick Start
 
-**Global**: `~/.claude.json` (macOS/Linux) or `%USERPROFILE%\.claude.json` (Windows)
-
-**Project**: `.mcp.json` in project root
-
-```json
-{
-  "mcpServers": {
-    "mirror-mcp": {
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"],
-      "env": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>OpenCode</summary>
-
-**Global**: `~/.config/opencode/opencode.json` (or `.jsonc`)
-
-**Project**: `opencode.json` in project root (or `opencode.jsonc`)
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "mcp": {
-    "mirror-mcp": {
-      "type": "local",
-      "command": ["bunx", "@hieco/mirror-mcp"],
-      "enabled": true,
-      "environment": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Codex CLI</summary>
-
-**Global**: `~/.codex/config.toml` (macOS/Linux) or `%USERPROFILE%\.codex\config.toml` (Windows)
-
-```toml
-[mcp_servers.mirror-mcp]
-command = "bunx"
-args = ["@hieco/mirror-mcp"]
-env = { MIRROR_NETWORK = "mainnet" }
-```
-
-</details>
-
-<details>
-<summary>Gemini CLI</summary>
-
-**Global**: `~/.gemini/settings.json`
-
-```json
-{
-  "mcpServers": {
-    "mirror-mcp": {
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"],
-      "env": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>VS Code with GitHub Copilot</summary>
-
-**Project**: `.vscode/mcp.json` in workspace
-
-**Global**: User `settings.json` (search for "MCP" in settings)
-
-```json
-{
-  "servers": {
-    "mirror-mcp": {
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"],
-      "env": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Amp</summary>
-
-**Global**:
-
-- macOS/Linux: `~/.config/amp/settings.json`
-- Windows: `%APPDATA%\amp\settings.json`
-
-**Project**: `.amp/settings.json` in project root
-
-```json
-{
-  "mcpServers": {
-    "mirror-mcp": {
-      "type": "stdio",
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"],
-      "env": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Cline</summary>
-
-**Global**: `~/.cline/data/settings/cline_mcp_settings.json` (macOS/Linux) or `%USERPROFILE%\.cline\data\settings\cline_mcp_settings.json` (Windows)
-
-Access via: MCP Servers icon → Configure
-
-```json
-{
-  "mcpServers": {
-    "mirror-mcp": {
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"],
-      "env": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Kilo Code</summary>
-
-**Global (CLI)**: `~/.kilocode/cli/global/settings/mcp_settings.json`
-
-**Project**: `.kilocode/mcp.json` in project root
-
-```json
-{
-  "mcpServers": {
-    "mirror-mcp": {
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"],
-      "env": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Zed</summary>
-
-**Global**: `~/.zed/settings.json` (macOS/Linux) or `%USERPROFILE%\.zed\settings.json` (Windows)
-
-Or add via: Agent Panel → Settings → Add Custom Server
-
-```json
-{
-  "context_servers": {
-    "mirror-mcp": {
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"],
-      "env": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Roo Code</summary>
-
-**Global**: User `settings.json` with `rooCode.mcpServers` namespace
-
-```json
-{
-  "rooCode.mcpServers": {
-    "mirror-mcp": {
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"],
-      "env": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Crush</summary>
-
-**Configuration Priority**: `.crush.json` → `crush.json` → `$HOME/.config/crush/crush.json`
-
-**Project**: `.crush.json` or `crush.json` in project root
-
-**Global**: `$HOME/.config/crush/crush.json` (macOS/Linux) or `%USERPROFILE%\.config\crush\crush.json` (Windows)
-
-```json
-{
-  "mcp": {
-    "mirror-mcp": {
-      "type": "stdio",
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"]
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Cursor</summary>
-
-**Global**: `~/.cursor/mcp.json` (macOS/Linux) or `%USERPROFILE%\.cursor\mcp.json` (Windows)
-
-**Project**: `.cursor/mcp.json` in project root
-
-```json
-{
-  "mcpServers": {
-    "mirror-mcp": {
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"],
-      "env": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Trae</summary>
-
-**Global**: `~/.cursor/mcp.json`
-
-**Project**: `.trae/mcp.json` in project root
-
-```json
-{
-  "mcpServers": {
-    "mirror-mcp": {
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"],
-      "env": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Droid (Factory)</summary>
-
-**Global**: `~/.factory/mcp.json`
-
-**Project**: `.factory/mcp.json` in project root
-
-```json
-{
-  "mcpServers": {
-    "mirror-mcp": {
-      "type": "stdio",
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"],
-      "env": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Letta</summary>
-
-Letta MCP servers are configured through the host platform's MCP configuration:
-
-- **Droid/Factory**: `~/.factory/mcp.json` or `.factory/mcp.json`
-- **Claude Desktop**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "letta-cloud": {
-      "command": "node",
-      "args": ["/path/to/letta-cloud-mcp/dist/index.js"],
-      "env": {
-        "LETTA_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary>Goose</summary>
-
-**Global**: `~/.config/goose/config.yaml` (YAML format)
-
-```yaml
-extensions:
-  - type: mcp
-    name: mirror-mcp
-    enabled: true
-    cmd: bunx
-    args:
-      - "@hieco/mirror-mcp"
-    envs:
-      MIRROR_NETWORK: mainnet
-```
-
-</details>
-
-<details>
-<summary>Qwen Code</summary>
-
-**Global**: `~/.qwen/settings.json`
-
-**Project**: `.qwen/settings.json` in project root
-
-```json
-{
-  "mcpServers": {
-    "mirror-mcp": {
-      "command": "bunx",
-      "args": ["@hieco/mirror-mcp"],
-      "env": {
-        "MIRROR_NETWORK": "mainnet"
-      }
-    }
-  }
-}
-```
-
-</details>
-
----
-
-## Tools Reference
-
-<details>
-<summary>Account Tools (11)</summary>
-
-| Tool                       | Description                                           |
-| -------------------------- | ----------------------------------------------------- |
-| `get-account-info`         | Get account details including balance, memo, and keys |
-| `get-account-balances`     | Get all token balances for an account                 |
-| `get-account-tokens`       | Get all tokens associated with an account             |
-| `get-account-nfts`         | Get all NFTs held by an account                       |
-| `get-staking-rewards`      | Get staking rewards for an account                    |
-| `get-crypto-allowances`    | Get HBAR allowances granted by an account             |
-| `get-token-allowances`     | Get token allowances granted by an account            |
-| `get-nft-allowances`       | Get NFT allowances granted by an account              |
-| `get-outstanding-airdrops` | Get outstanding airdrops for an account               |
-| `get-pending-airdrops`     | Get pending airdrops for an account                   |
-| `list-accounts`            | List all Hedera accounts                              |
-
-</details>
-
-<details>
-<summary>Token Tools (6)</summary>
-
-| Tool                   | Description                                          |
-| ---------------------- | ---------------------------------------------------- |
-| `get-token-info`       | Get token information including name, symbol, supply |
-| `get-token-balances`   | Get all account balances for a token                 |
-| `get-token-nfts`       | Get all NFTs for a token                             |
-| `get-nft-by-serial`    | Get a specific NFT by serial number                  |
-| `get-nft-transactions` | Get transactions for an NFT                          |
-| `list-tokens`          | List all Hedera tokens                               |
-
-</details>
-
-<details>
-<summary>Contract Tools (11)</summary>
-
-| Tool                        | Description                                       |
-| --------------------------- | ------------------------------------------------- |
-| `get-contract-info`         | Get smart contract information including bytecode |
-| `call-contract`             | Execute a read-only smart contract call           |
-| `get-contract-results`      | Get contract execution results                    |
-| `get-contract-result`       | Get a specific contract result                    |
-| `get-contract-state`        | Get contract storage state                        |
-| `get-contract-logs`         | Get contract event logs                           |
-| `get-all-contract-results`  | Get all contract results across contracts         |
-| `get-result-by-transaction` | Get result by transaction ID/hash                 |
-| `get-result-actions`        | Get contract result actions (internal calls)      |
-| `get-result-opcodes`        | Get contract result opcodes (execution trace)     |
-| `list-contracts`            | List all smart contracts                          |
-
-</details>
-
-<details>
-<summary>Transaction Tools (3)</summary>
-
-| Tool                          | Description                          |
-| ----------------------------- | ------------------------------------ |
-| `get-transaction`             | Get detailed transaction information |
-| `get-transactions-by-account` | Get all transactions for an account  |
-| `list-transactions`           | List all Hedera transactions         |
-
-</details>
-
-<details>
-<summary>Topic Tools (5)</summary>
-
-| Tool                       | Description                     |
-| -------------------------- | ------------------------------- |
-| `get-topic-info`           | Get consensus topic information |
-| `get-topic-messages`       | Get messages from a topic       |
-| `get-topic-message`        | Get a specific topic message    |
-| `get-message-by-timestamp` | Get a message by timestamp      |
-| `list-topics`              | List all consensus topics       |
-
-</details>
-
-<details>
-<summary>Schedule Tools (2)</summary>
-
-| Tool                | Description                           |
-| ------------------- | ------------------------------------- |
-| `get-schedule-info` | Get scheduled transaction information |
-| `list-schedules`    | List all scheduled transactions       |
-
-</details>
-
-<details>
-<summary>Balance Tools (2)</summary>
-
-| Tool            | Description                       |
-| --------------- | --------------------------------- |
-| `get-balances`  | Get account balances with filters |
-| `list-balances` | List all account balances         |
-
-</details>
-
-<details>
-<summary>Block Tools (3)</summary>
-
-| Tool          | Description                         |
-| ------------- | ----------------------------------- |
-| `get-blocks`  | Get block information               |
-| `get-block`   | Get a specific block by hash/number |
-| `list-blocks` | List all Hedera blocks              |
-
-</details>
-
-<details>
-<summary>Network Tools (6)</summary>
-
-| Tool                 | Description                     |
-| -------------------- | ------------------------------- |
-| `get-exchange-rate`  | Get HBAR to USD exchange rate   |
-| `get-network-fees`   | Get network fee schedules       |
-| `get-network-nodes`  | Get network node information    |
-| `get-network-stake`  | Get network staking information |
-| `get-network-supply` | Get HBAR token supply           |
-| `list-network-nodes` | List all network nodes          |
-
-</details>
-
----
-
-## Usage Examples
-
-### Query Account Balance
-
-```
-Use get-account-info with account ID "0.0.123" to get account details and balance
-```
-
-### Get Token Information
-
-```
-Use get-token-info with token ID "0.0.456" to get token details
-```
-
-### List Transactions
-
-```
-Use list-transactions with account filter "0.0.123" and limit of 10 results
-```
-
-### Get Exchange Rate
-
-```
-Use get-exchange-rate to get current HBAR to USD exchange rate
-```
-
----
-
-## Common Parameters
-
-| Parameter                              | Type                | Description                               |
-| -------------------------------------- | ------------------- | ----------------------------------------- |
-| `accountId` / `tokenId` / `contractId` | string              | Entity ID in format `0.0.123`             |
-| `timestamp`                            | string              | ISO 8601 timestamp for time-based queries |
-| `limit`                                | number              | Maximum results to return                 |
-| `order`                                | `"asc"` \| `"desc"` | Sort order                                |
-| `transactionId`                        | string              | Hedera transaction ID                     |
-
----
-
-## Development
+Run the server locally:
 
 ```bash
-bun run build         # Build the package
-bun run typecheck     # Run TypeScript checks
-bun run lint          # Run linting
-bun run fmt           # Format code
-bun run inspect       # Test with MCP Inspector
+bunx @hieco/mirror-mcp
 ```
 
-## Testing with MCP Inspector
+A typical MCP client configuration points at the same stdio command:
+
+```json
+{
+  "mcpServers": {
+    "hedera-mirror": {
+      "command": "bunx",
+      "args": ["@hieco/mirror-mcp"],
+      "env": {
+        "MIRROR_NETWORK": "mainnet"
+      }
+    }
+  }
+}
+```
+
+## Core Concepts
+
+### Stdio Server
+
+`@hieco/mirror-mcp` starts an MCP server over standard input and output. Any MCP host that can launch a local process can use it.
+
+### Environment-Driven Mirror Client
+
+The server creates one `MirrorNodeClient` from:
+
+- `MIRROR_NETWORK`
+- `MIRROR_NODE_URL`
+
+If `MIRROR_NODE_URL` is set, it overrides the built-in network default.
+
+### Tool Shape
+
+Each tool:
+
+- validates its input with `zod`
+- calls the matching `@hieco/mirror` API
+- returns the successful API payload
+- throws an MCP-friendly error when the underlying Mirror API fails
+
+## Advanced
+
+### Environment Variables
+
+| Variable          | Purpose                                       | Default         |
+| ----------------- | --------------------------------------------- | --------------- |
+| `MIRROR_NETWORK`  | Select `mainnet`, `testnet`, or `previewnet`. | `mainnet`       |
+| `MIRROR_NODE_URL` | Override the default Mirror Node base URL.    | Network default |
+
+### Custom Network Routing
 
 ```bash
-bun run inspect
+MIRROR_NETWORK=testnet
+MIRROR_NODE_URL=https://testnet.mirrornode.hedera.com
 ```
 
-This opens the MCP Inspector UI to test all tools interactively.
+### Tool Behavior
 
-## License
+- all tools are read-only
+- list tools exhaust paginated Mirror Node endpoints and return the collected results
+- input validation happens before the Mirror API call
+- entity IDs, transaction IDs, timestamps, limits, serial numbers, and node IDs are validated centrally
 
-MIT
+## API Reference
+
+### Runtime Surface
+
+| Export            | Kind                 | Purpose                             | Usage form                    |
+| ----------------- | -------------------- | ----------------------------------- | ----------------------------- |
+| `mirror-mcp`      | binary               | Start the MCP server over stdio.    | `mirror-mcp`                  |
+| `MIRROR_NETWORK`  | environment variable | Choose the built-in Hedera network. | `MIRROR_NETWORK=testnet`      |
+| `MIRROR_NODE_URL` | environment variable | Override the Mirror Node base URL.  | `MIRROR_NODE_URL=https://...` |
+
+### Account Tools
+
+| Tool ID                    | Purpose                                     | Input fields                                                                                                                                                              |
+| -------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `get-account-info`         | Get detailed information about an account.  | `accountId`, `timestamp`, `transactions`                                                                                                                                  |
+| `get-account-balances`     | Get all token balances for an account.      | `accountId`                                                                                                                                                               |
+| `get-account-tokens`       | Get all tokens associated with an account.  | `accountId`, `tokenId`                                                                                                                                                    |
+| `get-account-nfts`         | Get NFTs held by an account.                | `accountId`, `spenderId`, `tokenId`, `serialNumber`                                                                                                                       |
+| `get-staking-rewards`      | Get staking rewards for an account.         | `accountId`, `timestamp`                                                                                                                                                  |
+| `get-crypto-allowances`    | Get HBAR allowances granted by an account.  | `accountId`, `spenderId`                                                                                                                                                  |
+| `get-token-allowances`     | Get token allowances granted by an account. | `accountId`, `spenderId`, `tokenId`                                                                                                                                       |
+| `get-nft-allowances`       | Get NFT allowances granted by an account.   | `accountId`, `accountIdFilter`, `tokenId`, `owner`                                                                                                                        |
+| `get-outstanding-airdrops` | Get outstanding airdrops for an account.    | `accountId`, `receiverId`, `serialNumber`, `tokenId`                                                                                                                      |
+| `get-pending-airdrops`     | Get pending airdrops for an account.        | `accountId`, `senderId`, `serialNumber`, `tokenId`                                                                                                                        |
+| `list-accounts`            | List accounts with filters.                 | `account`, `alias`, `balance`, `balanceGte`, `balanceLte`, `evmAddress`, `key`, `limit`, `memo`, `order`, `publicKey`, `smartContract`, `stakedAccountId`, `stakedNodeId` |
+
+### Balance Tools
+
+| Tool ID         | Purpose                                       | Input fields                                                            |
+| --------------- | --------------------------------------------- | ----------------------------------------------------------------------- |
+| `get-balances`  | Get aggregated account balances with filters. | `account`, `accountBalance`, `limit`, `order`, `publicKey`, `timestamp` |
+| `list-balances` | List all balances.                            | `account`, `accountBalance`, `limit`, `order`, `publicKey`, `timestamp` |
+
+### Block Tools
+
+| Tool ID       | Purpose                             | Input fields                                 |
+| ------------- | ----------------------------------- | -------------------------------------------- |
+| `get-blocks`  | Get block information with filters. | `blockNumber`, `limit`, `order`, `timestamp` |
+| `get-block`   | Get one block by hash or number.    | `hashOrNumber`                               |
+| `list-blocks` | List all blocks.                    | `blockNumber`, `limit`, `order`, `timestamp` |
+
+### Contract Tools
+
+| Tool ID                     | Purpose                                                | Input fields                                                                                  |
+| --------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| `get-contract-info`         | Get detailed information about a contract.             | `contractIdOrAddress`, `timestamp`                                                            |
+| `call-contract`             | Execute a read-only local contract call.               | `contractId`, `from`, `gas`, `gasPrice`, `data`, `estimate`, `block`, `value`                 |
+| `get-contract-results`      | Get execution results for one contract.                | `contractId`, `blockHash`, `blockNumber`, `from`, `internal`, `timestamp`, `transactionIndex` |
+| `get-contract-result`       | Get one contract result by timestamp.                  | `contractId`, `timestamp`                                                                     |
+| `get-contract-state`        | Get contract storage state.                            | `contractId`, `slot`, `timestamp`                                                             |
+| `get-contract-logs`         | Get event logs for a contract.                         | `contractId`, `index`, `timestamp`, `topic0`, `topic1`, `topic2`, `topic3`, `transactionHash` |
+| `get-all-contract-results`  | Get contract results across all contracts.             | `from`, `blockHash`, `blockNumber`, `internal`, `timestamp`, `transactionIndex`               |
+| `get-result-by-transaction` | Get contract result details by transaction ID or hash. | `transactionIdOrHash`, `nonce`                                                                |
+| `get-result-actions`        | Get contract result actions by transaction ID or hash. | `transactionIdOrHash`, `index`                                                                |
+| `get-result-opcodes`        | Get opcode traces by transaction ID or hash.           | `transactionIdOrHash`, `stack`, `memory`, `storage`                                           |
+| `list-contracts`            | List contracts with filters.                           | `address`, `contractId`, `limit`, `order`, `smartContractId`                                  |
+
+### Network Tools
+
+| Tool ID              | Purpose                              | Input fields                         |
+| -------------------- | ------------------------------------ | ------------------------------------ |
+| `get-exchange-rate`  | Get the HBAR to USD exchange rate.   | `timestamp`                          |
+| `get-network-fees`   | Get network fee schedules.           | `limit`, `order`, `timestamp`        |
+| `get-network-nodes`  | Get information about network nodes. | `fileId`, `limit`, `nodeId`, `order` |
+| `get-network-stake`  | Get network staking information.     | none                                 |
+| `get-network-supply` | Get HBAR supply information.         | none                                 |
+| `list-network-nodes` | List network nodes.                  | `fileId`, `limit`, `nodeId`, `order` |
+
+### Schedule Tools
+
+| Tool ID             | Purpose                                                 | Input fields                                                                                                                                                                            |
+| ------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `get-schedule-info` | Get detailed information about a scheduled transaction. | `scheduleId`                                                                                                                                                                            |
+| `list-schedules`    | List scheduled transactions.                            | `accountId`, `adminKey`, `creatorAccountId`, `deleted`, `executedTimestamp`, `expirationTimestamp`, `limit`, `memo`, `order`, `payerAccountId`, `scheduleId`, `waitForExpiryExpiration` |
+
+### Token Tools
+
+| Tool ID                | Purpose                                    | Input fields                                                              |
+| ---------------------- | ------------------------------------------ | ------------------------------------------------------------------------- |
+| `get-token-info`       | Get detailed information about a token.    | `tokenId`, `timestamp`                                                    |
+| `get-token-balances`   | Get all account balances for a token.      | `tokenId`, `accountId`, `accountBalance`, `accountPublicKey`, `timestamp` |
+| `get-token-nfts`       | Get NFTs for a token.                      | `tokenId`, `accountId`, `serialNumber`                                    |
+| `get-nft-by-serial`    | Get one NFT by token ID and serial number. | `tokenId`, `serialNumber`                                                 |
+| `get-nft-transactions` | Get transactions for an NFT.               | `tokenId`, `serialNumber`, `timestamp`                                    |
+| `list-tokens`          | List tokens with filters.                  | `accountId`, `tokenId`, `limit`, `name`, `order`, `publicKey`, `type`     |
+
+### Topic Tools
+
+| Tool ID                    | Purpose                                   | Input fields                                                                       |
+| -------------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------- |
+| `get-topic-info`           | Get detailed information about a topic.   | `topicId`                                                                          |
+| `get-topic-messages`       | Get all messages from a topic.            | `topicId`, `encoding`, `sequenceNumber`, `timestamp`, `transactionId`, `scheduled` |
+| `get-topic-message`        | Get one topic message by sequence number. | `topicId`, `sequenceNumber`                                                        |
+| `get-message-by-timestamp` | Get a topic message by timestamp.         | `timestamp`                                                                        |
+| `list-topics`              | List consensus topics.                    | `limit`, `order`                                                                   |
+
+### Transaction Tools
+
+| Tool ID                       | Purpose                           | Input fields                                                                                                                                                    |
+| ----------------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `get-transaction`             | Get one transaction by ID.        | `nonce`, `scheduled`, `transactionId`                                                                                                                           |
+| `get-transactions-by-account` | Get transactions for one account. | `accountId`, `result`, `scheduled`, `timestamp`, `transactionHash`, `transactionId`, `transactionType`, `type`                                                  |
+| `list-transactions`           | List transactions with filters.   | `account`, `accountId`, `limit`, `order`, `result`, `scheduled`, `timestamp`, `transactionHash`, `transactionId`, `transactionType`, `transfersAccount`, `type` |
+
+## Related Packages
+
+- [`@hieco/mirror`](../mirror/README.md) for the underlying Mirror Node client
+- [`@hieco/mirror-cli`](../mirror-cli/README.md) for terminal-first access to the same data surface
+- [`@hieco/utils`](../utils/README.md) for shared validation and network helpers

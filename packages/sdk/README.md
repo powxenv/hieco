@@ -1,13 +1,17 @@
 # @hieco/sdk
 
-`@hieco/sdk` is the core Hieco SDK.
+## Overview
 
-It gives you one client factory, `hieco(...)`, for:
+`@hieco/sdk` is the core Hieco client for Hedera.
 
-- server-side transaction flows
-- browser wallet flows
-- scripts, jobs, and CLIs
-- framework loaders, actions, and server functions
+It gives you one factory, `hieco(...)`, and one fluent client surface for:
+
+- server-side transaction execution
+- browser apps that receive a wallet `Signer`
+- scripts, workers, and CLIs
+- framework loaders, actions, server functions, and route handlers
+
+The client is domain-first. You work through namespaces such as `account`, `token`, `topic`, `contract`, `file`, `schedule`, `reads`, and `tx`.
 
 ## Installation
 
@@ -27,37 +31,42 @@ yarn add @hieco/sdk
 bun add @hieco/sdk
 ```
 
-## Choose A Starting Point
+## When To Use This Package
 
-Start with one of these patterns:
+Use `@hieco/sdk` when you want to:
 
-| Goal                                      | Start with                           |
-| ----------------------------------------- | ------------------------------------ |
-| Server runtime with env-based credentials | `hieco.fromEnv()`                    |
-| Browser wallet flow                       | `hieco({ network }).as(signer)`      |
-| Explicit runtime config                   | `hieco({ network, mirrorUrl, ... })` |
-| Testnet-only setup                        | `hieco.forTestnet()`                 |
+- submit Hedera transactions from server code
+- scope a client to a connected wallet signer in the browser
+- build scripts or jobs with the same API your app uses
+- access low-level fluent helpers such as `.tx()`, `.now()`, and `.queue()`
+- read Mirror Node data through the same client that executes transactions
 
-## Package Layout
-
-`@hieco/sdk` is organized by domain:
-
-- `client/` contains runtime config and the core client
-- `accounts/`, `contracts/`, `files/`, `network/`, `reads/`, `schedules/`, `tokens/`, `topics/`, and `transactions/` contain the public Hedera operations
-- `telepathic/` contains the fluent builder client
-- `errors/`, `results/`, and `shared/` contain the small cross-domain primitives shared by those domains
+If you are building a React UI, use [`@hieco/react`](../react/README.md) on the client and keep `@hieco/sdk` in server-only or shared runtime code.
 
 ## Quick Start
 
-### Server
+### Server Runtime
 
 ```ts
 import { hieco } from "@hieco/sdk";
 
 const client = hieco.fromEnv();
+
+const account = await client.account.info("0.0.1001").now();
+
+if (account.ok) {
+  console.log(account.value.accountId);
+}
 ```
 
-### Browser Wallet
+Environment variables used by `hieco.fromEnv()`:
+
+- `HIERO_NETWORK`
+- `HIERO_OPERATOR_ID` or `HIERO_ACCOUNT_ID`
+- `HIERO_PRIVATE_KEY`
+- `HIERO_MIRROR_URL`
+
+### Browser Signer Runtime
 
 ```ts
 import { hieco, type Signer } from "@hieco/sdk";
@@ -67,95 +76,160 @@ export function createWalletClient(signer: Signer) {
 }
 ```
 
-## The Client Factory
-
-`hieco(...)` creates a client from explicit config.
-
 ```ts
-import { hieco } from "@hieco/sdk";
-
-const client = hieco({
-  network: "testnet",
-  mirrorUrl: "https://testnet.mirrornode.hedera.com",
-});
+const client = createWalletClient(signer);
+const receipt = await client.account.send({ to: "0.0.2002", hbar: 1 }).now();
 ```
 
-Factory helpers:
+## Core Concepts
+
+### The Factory
+
+`hieco(...)` returns the fluent Hieco client. Helper constructors are available for common cases:
 
 - `hieco(config?)`
-- `hieco.fromEnv()`
+- `hieco.fromEnv(options?)`
 - `hieco.forTestnet()`
 - `hieco.forMainnet()`
 - `hieco.forPreviewnet()`
 - `hieco.withSigner(signer, config?)`
+- `hieco.validateConfig(config?)`
 
-## Server Runtime
+### Fluent Handles
 
-`hieco.fromEnv()` is the server runtime helper.
+Transaction-capable operations return a fluent handle. The common endings are:
 
-It reads:
-
-- `HIERO_NETWORK`
-- `HIERO_OPERATOR_ID` or `HIERO_ACCOUNT_ID`
-- `HIERO_PRIVATE_KEY`
-- `HIERO_MIRROR_URL`
-
-Example:
+- `.now()` to execute immediately
+- `.tx()` to build a transaction descriptor without submitting it
+- `.queue()` to collect descriptors for batch or schedule flows
 
 ```ts
-import { hieco } from "@hieco/sdk";
+const handle = client.token.transfer({
+  tokenId: "0.0.2001",
+  from: "0.0.1001",
+  to: "0.0.1002",
+  amount: 10,
+});
 
-const client = hieco.fromEnv();
-
-const result = await client.account
-  .send({
-    to: "0.0.2002",
-    hbar: 1,
-  })
-  .now();
+const receipt = await handle.now();
+const descriptor = handle.tx();
 ```
 
-This is a good fit for:
+### Domain Namespaces
 
-- API routes
-- server actions
-- route loaders
-- route actions
-- workers
-- scripts
-- CLIs
+The fluent client is organized around business domains:
 
-## Browser Wallet Runtime
+- `account`
+- `token`
+- `topic`
+- `contract`
+- `file`
+- `schedule`
+- `node`
+- `system`
+- `util`
+- `batch`
+- `net`
+- `evm`
+- `legacy`
+- `reads`
+- `tx`
 
-For browser apps, start with public config and then scope the client to a wallet signer.
+### Result Model
+
+Queries and mutations resolve to `Result<T>` values:
 
 ```ts
-import { hieco, type Signer } from "@hieco/sdk";
+import { unwrap } from "@hieco/sdk";
 
-export async function transferFromWallet(signer: Signer, to: string) {
-  return hieco({ network: "testnet" }).as(signer).account.send({ to, hbar: 1 }).now();
+const receipt = unwrap(await client.account.send({ to: "0.0.2002", hbar: 1 }).now());
+```
+
+Use `unwrap()` when failure should throw, or inspect `result.ok` manually when you want to branch.
+
+### Client Scoping
+
+The fluent client can be rebound without rebuilding your application architecture:
+
+- `.as(signer)` for wallet-scoped authority
+- `.with({ signer, operator, key })` for explicit overrides
+- `.setOperator(operator, key)` for server-side operator rebinding
+- `.setNetwork(...)` and mirror/network tuning through `net`
+
+## Advanced
+
+### Build Transactions Without Executing Them
+
+```ts
+const descriptor = client.contract
+  .execute({
+    id: "0.0.5005",
+    fn: "setValue",
+    params: [123],
+  })
+  .tx();
+
+const receipt = await client.tx.submit(descriptor).now();
+```
+
+### Queue Operations For Scheduling Or Later Submission
+
+```ts
+const queue = client.batch.atomic({
+  items: [
+    client.token
+      .transfer({
+        tokenId: "0.0.2001",
+        from: "0.0.1001",
+        to: "0.0.1002",
+        amount: 1,
+      })
+      .queue(),
+    client.account
+      .send({
+        to: "0.0.1002",
+        hbar: 1,
+      })
+      .queue(),
+  ],
+});
+
+const receipt = await queue.now();
+```
+
+### Topic Watchers
+
+```ts
+const stop = client.topic.watch(
+  "0.0.3003",
+  (message) => {
+    console.log(message.contentsText);
+  },
+  { limit: 25 },
+);
+
+setTimeout(() => {
+  stop();
+}, 10_000);
+```
+
+`watchFrom()` uses the same callback model and starts from a specific timestamp or range.
+
+### Read-Only Mirror Queries
+
+```ts
+const page = await client.reads.accounts.list({ limit: 25 }).now();
+
+if (page.ok) {
+  console.log(page.value.items.length);
 }
 ```
 
-This is a good fit for:
+Use `listPageByUrl(url)` when you already have a pagination cursor from a previous page.
 
-- browser wallets
-- dapp UIs
-- wallet-authorized user actions
-- React, Preact, or Solid apps that own a signer
+### Framework Recipes
 
-## Framework Recipes
-
-### Next.js
-
-Use the SDK in:
-
-- server-only modules
-- Route Handlers
-- Server Actions
-- Server Components
-
-Example:
+#### Next.js
 
 ```ts
 import "server-only";
@@ -164,280 +238,156 @@ import { hieco } from "@hieco/sdk";
 export const serverHieco = hieco.fromEnv();
 ```
 
-### TanStack Start
+Use the SDK in Route Handlers, Server Actions, and other server-only modules. In client components, pass a wallet `Signer` instead of operator credentials.
 
-Use the SDK in:
-
-- `createServerFn()`
-- `createServerOnlyFn()`
-- other server-only modules
-
-Example:
+#### TanStack Start
 
 ```ts
 import { createServerFn } from "@tanstack/react-start";
 import { hieco } from "@hieco/sdk";
 
-export const sendHbar = createServerFn({ method: "POST" }).handler(async () => {
-  return hieco.fromEnv().account.send({ to: "0.0.2002", hbar: 1 }).now();
+export const getVersion = createServerFn().handler(async () => {
+  return hieco.fromEnv().net.version().now();
 });
 ```
 
-### React Router Framework Mode
+Use `hieco.fromEnv()` inside server functions and use signer-scoped clients in browser code.
 
-Use the SDK in:
+#### React Router Framework Mode
 
-- `loader`
-- `action`
-- server entry modules
-
-Example:
-
-```tsx
-import type { Route } from "./+types/account";
+```ts
 import { hieco } from "@hieco/sdk";
 
-export async function loader({ params }: Route.LoaderArgs) {
-  return hieco.fromEnv().account.info(params.accountId).now();
+export async function loader() {
+  return hieco.fromEnv().reads.network.supply().now();
 }
 ```
 
-## Core Usage Pattern
+Loaders and actions are a natural place for server-owned credentials. Client components should stay signer-based.
 
-Most operations return a handle that ends with `.now()`.
+## API Reference
 
-```ts
-const result = await client.account.send({ to: "0.0.2002", hbar: 1 }).now();
-```
+### Factory Exports
 
-The same operation is often available through `client.do.*` as a direct execution shortcut:
+| Export                 | Kind     | Purpose                                                   | Usage form                          |
+| ---------------------- | -------- | --------------------------------------------------------- | ----------------------------------- |
+| `hieco`                | function | Create the fluent client.                                 | `hieco(config?)`                    |
+| `hieco.fromEnv`        | function | Create a server-scoped client from environment variables. | `hieco.fromEnv(options?)`           |
+| `hieco.forTestnet`     | function | Create a testnet client.                                  | `hieco.forTestnet()`                |
+| `hieco.forMainnet`     | function | Create a mainnet client.                                  | `hieco.forMainnet()`                |
+| `hieco.forPreviewnet`  | function | Create a previewnet client.                               | `hieco.forPreviewnet()`             |
+| `hieco.withSigner`     | function | Create a signer-scoped client in one call.                | `hieco.withSigner(signer, config?)` |
+| `hieco.validateConfig` | function | Validate client config without creating a client.         | `hieco.validateConfig(config?)`     |
+| `HiecoClient`          | type     | The fluent client returned by `hieco(...)`.               | `type HiecoClient`                  |
+| `Signer`               | type     | Hedera signer type re-exported from `@hiero-ledger/sdk`.  | `type Signer`                       |
 
-```ts
-const result = await client.do.account.send({ to: "0.0.2002", hbar: 1 });
-```
+### Client Surface
 
-Many transaction-capable operations also support:
+| Namespace or method  | Kind      | Purpose                                                                           | Members                                                                                                                                                                                                                                                                                                                 |
+| -------------------- | --------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tx`                 | namespace | Submit or inspect transaction descriptors.                                        | `submit`, `record`, `receipt`                                                                                                                                                                                                                                                                                           |
+| `account`            | namespace | HBAR transfers, account lifecycle, allowances, and account queries.               | `send`, `transfer`, `create`, `update`, `delete`, `allow`, `allowances`, `adjustAllowances`, `revokeNftAllowances`, `allowancesDeleteNft`, `allowanceSnapshot`, `ensureAllowances`, `balance`, `info`, `infoFlow`, `records`                                                                                            |
+| `token`              | namespace | Token creation, transfers, KYC, freeze, pause, airdrops, and token reads.         | `create`, `mint`, `burn`, `send`, `transfer`, `sendNft`, `transferNft`, `associate`, `dissociate`, `freeze`, `unfreeze`, `grantKyc`, `revokeKyc`, `pause`, `unpause`, `wipe`, `delete`, `update`, `fees`, `airdrop`, `claimAirdrop`, `cancelAirdrop`, `reject`, `rejectFlow`, `updateNfts`, `info`, `nft`, `allowances` |
+| `topic`              | namespace | Topic lifecycle, message submission, JSON helpers, watchers, and message reads.   | `create`, `update`, `delete`, `send`, `submit`, `sendJson`, `submitJson`, `sendMany`, `batchSubmit`, `watch`, `watchFrom`, `info`, `messages`                                                                                                                                                                           |
+| `contract`           | namespace | Contract deployment, execution, ABI-aware calls, mirror simulation, and metadata. | `deploy`, `deployArtifact`, `run`, `execute`, `runTyped`, `executeTyped`, `call`, `callTyped`, `preflight`, `withAbi`, `delete`, `update`, `info`, `logs`, `bytecode`, `simulate`, `estimate`, `estimateGas`                                                                                                            |
+| `file`               | namespace | File create, append, update, upload, delete, and content helpers.                 | `create`, `append`, `update`, `delete`, `upload`, `updateLarge`, `info`, `contents`, `text`, `contentsText`, `json`, `contentsJson`                                                                                                                                                                                     |
+| `schedule`           | namespace | Schedule creation, signing, collection, waiting, and idempotent create flows.     | `create`, `sign`, `delete`, `info`, `wait`, `createIdempotent`, `collect`, `collectSignatures`, `waitForExecution`                                                                                                                                                                                                      |
+| `node`               | namespace | Node administration transactions.                                                 | `create`, `update`, `delete`                                                                                                                                                                                                                                                                                            |
+| `system`             | namespace | System freeze and entity delete or undelete operations.                           | `freeze`, `deleteEntity`, `undeleteEntity`                                                                                                                                                                                                                                                                              |
+| `util`               | namespace | Utility transaction helpers.                                                      | `random`                                                                                                                                                                                                                                                                                                                |
+| `batch`              | namespace | Batch transaction helpers.                                                        | `atomic`                                                                                                                                                                                                                                                                                                                |
+| `net`                | namespace | Network metadata, ping helpers, and network switching.                            | `version`, `addressBook`, `ping`, `pingAll`, `update`, `setNetwork`, `setMirrorNetwork`                                                                                                                                                                                                                                 |
+| `evm`                | namespace | Raw Ethereum transaction submission.                                              | `sendRaw`                                                                                                                                                                                                                                                                                                               |
+| `legacy`             | namespace | Legacy live hash helpers.                                                         | `liveHash.add`, `liveHash.delete`, `liveHash.get`                                                                                                                                                                                                                                                                       |
+| `reads`              | namespace | Read-only Mirror Node queries.                                                    | `accounts`, `tokens`, `contracts`, `transactions`, `topics`, `schedules`, `network`, `balances`, `blocks`                                                                                                                                                                                                               |
+| `do`                 | namespace | Immediate-execution shortcuts for the fluent namespaces.                          | mirrors the client surface without `.do`                                                                                                                                                                                                                                                                                |
+| `as`                 | method    | Scope the client to a signer.                                                     | `client.as(signer)`                                                                                                                                                                                                                                                                                                     |
+| `with`               | method    | Override signer or operator credentials.                                          | `client.with({ signer, operator, key })`                                                                                                                                                                                                                                                                                |
+| `setOperator`        | method    | Rebind operator credentials.                                                      | `client.setOperator(operator, key)`                                                                                                                                                                                                                                                                                     |
+| `setMaxAttempts`     | method    | Update retry attempts for the gRPC client.                                        | `client.setMaxAttempts(maxAttempts)`                                                                                                                                                                                                                                                                                    |
+| `setMaxNodeAttempts` | method    | Update node retry attempts.                                                       | `client.setMaxNodeAttempts(maxNodeAttempts)`                                                                                                                                                                                                                                                                            |
+| `setRequestTimeout`  | method    | Update request timeout.                                                           | `client.setRequestTimeout(ms)`                                                                                                                                                                                                                                                                                          |
+| `setGrpcDeadline`    | method    | Update gRPC deadline.                                                             | `client.setGrpcDeadline(ms)`                                                                                                                                                                                                                                                                                            |
+| `setMinBackoff`      | method    | Update minimum backoff.                                                           | `client.setMinBackoff(ms)`                                                                                                                                                                                                                                                                                              |
+| `setMaxBackoff`      | method    | Update maximum backoff.                                                           | `client.setMaxBackoff(ms)`                                                                                                                                                                                                                                                                                              |
+| `destroy`            | method    | Tear down the underlying client resources.                                        | `client.destroy()`                                                                                                                                                                                                                                                                                                      |
 
-- `.tx()` to build a transaction descriptor
-- `.queue()` to create a scheduled transaction flow
+### Read Namespaces
 
-## Common Workflows
+| Namespace            | Kind      | Purpose                                                               | Members                                                                                                                                                                                                 |
+| -------------------- | --------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `reads.accounts`     | namespace | Mirror account reads and derived transfer history.                    | `list`, `listPageByUrl`, `info`, `balances`, `tokens`, `nfts`, `rewards`, `allowances.crypto`, `allowances.token`, `allowances.nft`, `airdrops.outstanding`, `airdrops.pending`, `history`, `transfers` |
+| `reads.tokens`       | namespace | Token lists, balances, NFTs, relationships, and transfer activity.    | `list`, `listPageByUrl`, `info`, `balances`, `balancesSnapshot`, `nfts`, `nft`, `nftTransactions`, `relationships`, `transfers`                                                                         |
+| `reads.contracts`    | namespace | Contract metadata, calls, results, state, logs, and execution traces. | `list`, `listPageByUrl`, `info`, `call`, `results`, `result`, `state`, `logs`, `resultsAll`, `resultByTransactionIdOrHash`, `resultActions`, `resultOpcodes`, `logsAll`                                 |
+| `reads.transactions` | namespace | Transaction lookup, account activity, and search.                     | `transaction`, `byAccount`, `list`, `listPageByUrl`, `search`                                                                                                                                           |
+| `reads.topics`       | namespace | Topic and message reads.                                              | `list`, `listPageByUrl`, `info`, `messages`, `message`, `messageByTimestamp`                                                                                                                            |
+| `reads.schedules`    | namespace | Schedule list and detail queries.                                     | `list`, `listPageByUrl`, `info`                                                                                                                                                                         |
+| `reads.network`      | namespace | Exchange rate, fees, nodes, stake, and supply reads.                  | `exchangeRate`, `fees`, `nodes`, `nodesPageByUrl`, `stake`, `supply`                                                                                                                                    |
+| `reads.balances`     | namespace | Balance snapshots and paginated balance lists.                        | `snapshot`, `list`, `listPageByUrl`                                                                                                                                                                     |
+| `reads.blocks`       | namespace | Block snapshots, lists, page-by-url, and single-block lookup.         | `snapshot`, `list`, `listPageByUrl`, `block`                                                                                                                                                            |
 
-Create account:
+### Exported Param Types
 
-```ts
-const result = await client.account.create({ publicKey: "302a3005..." }).now();
-```
+| Group        | Kind  | Purpose                                                                     | Exports                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------ | ----- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Client       | types | Runtime configuration and shared amount primitives.                         | `ClientConfig`, `Amount`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Accounts     | types | Account transfers, lifecycle, and allowance params.                         | `TransferParams`, `CreateAccountParams`, `UpdateAccountParams`, `DeleteAccountParams`, `HbarAllowanceParams`, `TokenAllowanceParams`, `NftAllowanceParams`, `TokenAllowancesQueryParams`, `ApproveAllowanceParams`, `DeleteHbarAllowanceParams`, `DeleteTokenAllowanceParams`, `DeleteNftAllowanceParams`, `DeleteAllowanceParams`, `DeleteNftAllowancesParams`, `AdjustHbarAllowanceParams`, `AdjustTokenAllowanceParams`, `AdjustNftAllowanceParams`, `AdjustAllowanceParams`                                                                                                                                                                                                                                                                      |
+| Contracts    | types | ABI helpers, deploy, execute, call, and update params.                      | `ConstructorParamsConfig`, `FunctionParamsConfig`, `DeployContractParams`, `DeployArtifactParams`, `AccountInfoFlowOptions`, `ExecuteContractParams`, `ExecuteContractParamsTyped`, `CallContractParams`, `DeleteContractParams`, `UpdateContractParams`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Files        | types | File lifecycle and large-file helpers.                                      | `CreateFileParams`, `AppendFileParams`, `UpdateFileParams`, `UploadFileParams`, `UpdateLargeFileParams`, `DeleteFileParams`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Network      | types | Node and system administration params.                                      | `NodeServiceEndpointParams`, `NodeCreateParams`, `NodeUpdateParams`, `NodeDeleteParams`, `FreezeIntent`, `FreezeNetworkParams`, `SystemDeleteParams`, `SystemUndeleteParams`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Schedules    | types | Schedule creation, signing, waiting, and collection params.                 | `ScheduleCreateParams`, `ScheduleSignParams`, `ScheduleDeleteParams`, `ScheduleWaitOptions`, `ScheduleIdempotentCreateParams`, `ScheduleCollectSignaturesParams`, `ScheduleWaitExecutionOptions`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Tokens       | types | Token creation, transfers, fees, airdrops, and NFT update params.           | `TokenTypeParam`, `TokenSupplyTypeParam`, `CustomFixedFeeParams`, `CustomFractionalFeeParams`, `CustomRoyaltyFeeParams`, `CustomFeeParams`, `CreateTokenParams`, `MintTokenParams`, `BurnTokenParams`, `TransferTokenParams`, `TransferNftParams`, `AssociateTokenParams`, `DissociateTokenParams`, `FreezeTokenParams`, `UnfreezeTokenParams`, `GrantKycParams`, `RevokeKycParams`, `PauseTokenParams`, `UnpauseTokenParams`, `WipeTokenParams`, `DeleteTokenParams`, `UpdateTokenParams`, `UpdateTokenFeeScheduleParams`, `TokenAirdropTokenTransferParams`, `TokenAirdropNftTransferParams`, `TokenAirdropParams`, `PendingAirdropReference`, `TokenClaimAirdropParams`, `TokenCancelAirdropParams`, `TokenRejectParams`, `TokenUpdateNftsParams` |
+| Topics       | types | Topic create, update, submit, JSON submit, and watcher params.              | `CreateTopicParams`, `UpdateTopicParams`, `DeleteTopicParams`, `SubmitMessageParams`, `WatchTopicMessagesOptions`, `WatchTopicMessagesFromOptions`, `SubmitJsonMessageParams`, `BatchSubmitMessagesParams`, `TopicMessageData`, `TopicWatchHandle`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Transactions | types | Legacy live hash, raw EVM, random, batch, and transaction descriptor types. | `LiveHashAddParams`, `LiveHashDeleteParams`, `LiveHashQueryParams`, `EthereumSendRawParams`, `PrngParams`, `BatchAtomicParams`, `TransactionDescriptor`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
-Transfer token:
+### Exported Result Types
 
-```ts
-const result = await client.token
-  .transfer({ tokenId: "0.0.5005", from: "0.0.1001", to: "0.0.2002", amount: 10 })
-  .now();
-```
+| Group        | Kind  | Purpose                                                   | Exports                                                                                                                                                                                                                                            |
+| ------------ | ----- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Result model | types | Generic success and failure wrappers.                     | `Result`, `Ok`, `Err`, `ok`, `err`                                                                                                                                                                                                                 |
+| Accounts     | types | Account receipts and read results.                        | `TransferResult`, `CreateAccountResult`, `UpdateAccountResult`, `DeleteAccountResult`, `AccountInfoData`, `AccountRecordsData`                                                                                                                     |
+| Contracts    | types | Contract receipts, mirror call results, and metadata.     | `ContractReceipt`, `ContractDeployArtifactResult`, `ContractExecuteReceipt`, `ContractCallResult`, `ContractInfoData`, `ContractLogsData`, `ContractBytecodeData`, `MirrorContractCallData`, `MirrorContractEstimateData`, `ContractPreflightData` |
+| Files        | types | File receipts, chunked uploads, and file reads.           | `FileReceipt`, `FileChunkedReceipt`, `FileInfoData`, `FileContentsData`                                                                                                                                                                            |
+| Network      | types | Version, address book, and ping results.                  | `NetworkVersionData`, `AddressBookData`, `PingNodeResult`, `PingAllData`                                                                                                                                                                           |
+| Legacy       | types | Legacy live hash data.                                    | `LiveHashData`                                                                                                                                                                                                                                     |
+| Transactions | types | Receipt, record, and receipt-query result shapes.         | `TransactionReceiptData`, `TransactionRecordData`, `TransactionReceiptQueryData`                                                                                                                                                                   |
+| Schedules    | types | Schedule receipts and schedule reads.                     | `ScheduleReceipt`, `ScheduleInfoData`                                                                                                                                                                                                              |
+| Tokens       | types | Token receipts, mint receipts, and token read results.    | `TokenReceipt`, `MintReceipt`, `TokenInfoData`, `TokenNftInfoData`                                                                                                                                                                                 |
+| Topics       | types | Topic receipts, message receipts, and topic read results. | `TopicReceipt`, `MessageReceipt`, `TopicInfoData`, `TopicMessagesData`                                                                                                                                                                             |
 
-Deploy contract:
+### Error Exports
 
-```ts
-const result = await client.contract.deployArtifact({ bytecode, gas: 2_000_000 }).now();
-```
+| Export                | Kind     | Purpose                                         | Usage form                 |
+| --------------------- | -------- | ----------------------------------------------- | -------------------------- |
+| `HieroErrorShape`     | type     | Base serializable error shape.                  | `type HieroErrorShape`     |
+| `ErrorCode`           | type     | Stable error code union.                        | `type ErrorCode`           |
+| `ErrorDetails`        | type     | Structured error metadata.                      | `type ErrorDetails`        |
+| `ErrorKind`           | type     | High-level error classification.                | `type ErrorKind`           |
+| `ErrorClassification` | type     | Enriched error classification result.           | `type ErrorClassification` |
+| `createError`         | function | Create an SDK error shape.                      | `createError(input)`       |
+| `HieroError`          | class    | Runtime error class used by the SDK.            | `new HieroError(...)`      |
+| `toHieroError`        | function | Convert a shape into `HieroError`.              | `toHieroError(error)`      |
+| `isHieroError`        | function | Type guard for SDK errors.                      | `isHieroError(value)`      |
+| `unwrap`              | function | Throw on failure and return `value` on success. | `unwrap(result)`           |
+| `classifyError`       | function | Normalize unknown errors into a classification. | `classifyError(error)`     |
+| `formatError`         | function | Create a readable error string.                 | `formatError(error)`       |
 
-Query balance:
+### Utility Exports
 
-```ts
-const result = await client.account.balance("0.0.1234").now();
-```
-
-## Client Methods
-
-Instance methods:
-
-- `client.as(signer)`
-- `client.with({ signer?, operator?, key? })`
-- `client.setOperator(operator, key)`
-- `client.setMaxAttempts(n)`
-- `client.setMaxNodeAttempts(n)`
-- `client.setRequestTimeout(ms)`
-- `client.setGrpcDeadline(ms)`
-- `client.setMinBackoff(ms)`
-- `client.setMaxBackoff(ms)`
-- `client.destroy()`
-
-## SDK Utilities
-
-The SDK root also exports a small set of utility types and helpers that are useful in app code:
-
-- `EntityId`
-- `NetworkType`
-- `NETWORK_CONFIGS`
-- `isValidEntityId()`
-- `parseEntityId()`
-- `assertEntityId()`
-- `formatEntityId()`
-- `parseEntityIdParts()`
-- `isDefaultNetwork()`
-
-Example:
-
-```ts
-import { formatEntityId, isValidEntityId, type EntityId } from "@hieco/sdk";
-
-const treasury: EntityId = formatEntityId(0, 0, 1001);
-
-export function requireEntityId(value: string): EntityId {
-  if (!isValidEntityId(value)) {
-    throw new Error("Expected a Hedera entity id");
-  }
-
-  return value;
-}
-```
-
-## Main API Surface
-
-### Accounts
-
-- `client.account.send(params?).now()`
-- `client.account.transfer(params?).now()`
-- `client.account.create(params?).now()`
-- `client.account.update(params?).now()`
-- `client.account.delete(params?).now()`
-- `client.account.allow(params?).now()`
-- `client.account.allowances(params?).now()`
-- `client.account.adjustAllowances(params?).now()`
-- `client.account.revokeNftAllowances(params?).now()`
-- `client.account.allowancesDeleteNft(params?).now()`
-- `client.account.allowanceSnapshot(accountId).now()`
-- `client.account.ensureAllowances(params).now()`
-- `client.account.balance(accountId?).now()`
-- `client.account.info(accountId).now()`
-- `client.account.infoFlow(accountId, options?).now()`
-- `client.account.records(accountId?).now()`
-
-### Tokens
-
-- `client.token.create(params?).now()`
-- `client.token.mint(params?).now()`
-- `client.token.burn(params?).now()`
-- `client.token.send(params?).now()`
-- `client.token.transfer(params?).now()`
-- `client.token.sendNft(params?).now()`
-- `client.token.transferNft(params?).now()`
-- `client.token.associate(params?).now()`
-- `client.token.dissociate(params?).now()`
-- `client.token.freeze(params?).now()`
-- `client.token.unfreeze(params?).now()`
-- `client.token.grantKyc(params?).now()`
-- `client.token.revokeKyc(params?).now()`
-- `client.token.pause(params?).now()`
-- `client.token.unpause(params?).now()`
-- `client.token.wipe(params?).now()`
-- `client.token.delete(params?).now()`
-- `client.token.update(params?).now()`
-- `client.token.fees(params?).now()`
-- `client.token.airdrop(params?).now()`
-- `client.token.claimAirdrop(params?).now()`
-- `client.token.cancelAirdrop(params?).now()`
-- `client.token.reject(params?).now()`
-- `client.token.rejectFlow(params?).now()`
-- `client.token.updateNfts(params?).now()`
-- `client.token.info(tokenId).now()`
-- `client.token.nft(nft).now()`
-- `client.token.allowances(accountId, params?).now()`
-
-### Contracts
-
-- `client.contract.deploy(params?).now()`
-- `client.contract.deployArtifact(params?).now()`
-- `client.contract.run(params?).now()`
-- `client.contract.execute(params?).now()`
-- `client.contract.runTyped(params?).now()`
-- `client.contract.executeTyped(params?).now()`
-- `client.contract.call(params).now()`
-- `client.contract.callTyped(params).now()`
-- `client.contract.preflight(params).now()`
-- `client.contract.withAbi(abi)`
-- `client.contract.delete(params?).now()`
-- `client.contract.update(params?).now()`
-- `client.contract.info(contractId).now()`
-- `client.contract.logs(contractId, params?).now()`
-- `client.contract.bytecode(contractId).now()`
-- `client.contract.simulate(params).now()`
-- `client.contract.estimate(params).now()`
-- `client.contract.estimateGas(params).now()`
-
-### Topics
-
-- `client.topic.create(params?).now()`
-- `client.topic.update(params?).now()`
-- `client.topic.delete(params?).now()`
-- `client.topic.send(params?).now()`
-- `client.topic.submit(params?).now()`
-- `client.topic.sendJson(params?).now()`
-- `client.topic.submitJson(params?).now()`
-- `client.topic.sendMany(params?).now()`
-- `client.topic.batchSubmit(params?).now()`
-- `client.topic.watch(topicId, handler, options?)`
-- `client.topic.watchFrom(topicId, handler, options?)`
-- `client.topic.info(topicId).now()`
-- `client.topic.messages(topicId, params?).now()`
-
-### Files
-
-- `client.file.create(params?).now()`
-- `client.file.append(params?).now()`
-- `client.file.update(params?).now()`
-- `client.file.delete(params?).now()`
-- `client.file.upload(params?).now()`
-- `client.file.updateLarge(params?).now()`
-- `client.file.info(fileId).now()`
-- `client.file.contents(fileId).now()`
-- `client.file.text(fileId).now()`
-- `client.file.contentsText(fileId).now()`
-- `client.file.json(fileId).now()`
-- `client.file.contentsJson(fileId).now()`
-
-### Schedules
-
-- `client.schedule.create(params?).now()`
-- `client.schedule.sign(scheduleId, params?).now()`
-- `client.schedule.delete(scheduleId, params?).now()`
-- `client.schedule.info(scheduleId).now()`
-- `client.schedule.wait(scheduleId, options?).now()`
-- `client.schedule.createIdempotent(params?).now()`
-- `client.schedule.collect(params?).now()`
-- `client.schedule.collectSignatures(params?).now()`
-- `client.schedule.waitForExecution(scheduleId, options?).now()`
-
-### Node, system, utility, batch
-
-- `client.node.create(params?).now()`
-- `client.node.update(params?).now()`
-- `client.node.delete(params?).now()`
-- `client.system.freeze(params?).now()`
-- `client.system.deleteEntity(params?).now()`
-- `client.system.undeleteEntity(params?).now()`
-- `client.util.random(params?).now()`
-- `client.batch.atomic(params?).now()`
-
-### Network, tx, reads, evm, legacy
-
-- `client.tx.submit(descriptor).now()`
-- `client.tx.record(transactionId).now()`
-- `client.tx.receipt(transactionId, options?).now()`
-- `client.do.tx.submit(descriptor)`
-- `client.do.tx.record(transactionId)`
-- `client.do.tx.receipt(transactionId, options?)`
-- `client.net.version().now()`
-- `client.net.addressBook(options?).now()`
-- `client.net.ping(nodeAccountId).now()`
-- `client.net.pingAll().now()`
-- `client.net.update().now()`
-- `client.reads.*`
-- `client.evm.sendRaw(params)`
-- `client.legacy.liveHash.*`
+| Export               | Kind     | Purpose                                                 | Usage form                          |
+| -------------------- | -------- | ------------------------------------------------------- | ----------------------------------- | ---------------------- |
+| `EntityId`           | type     | Hedera entity identifier template literal type.         | `type EntityId`                     |
+| `NetworkType`        | type     | Supported default network names.                        | `type NetworkType`                  |
+| `NETWORK_CONFIGS`    | const    | Default network and mirror endpoint definitions.        | `NETWORK_CONFIGS.testnet`           |
+| `assertEntityId`     | function | Assert that a string is a valid entity ID.              | `assertEntityId(value)`             |
+| `formatEntityId`     | function | Build an entity ID from parts.                          | `formatEntityId(shard, realm, num)` |
+| `isDefaultNetwork`   | function | Check whether a network string is one of the built-ins. | `isDefaultNetwork(value)`           |
+| `isValidEntityId`    | function | Validate an entity ID string.                           | `isValidEntityId(value)`            |
+| `parseEntityId`      | function | Parse a string into `EntityId                           | null`.                              | `parseEntityId(value)` |
+| `parseEntityIdParts` | function | Split an entity ID into tuple parts.                    | `parseEntityIdParts(id)`            |
 
 ## Related Packages
 
-- `@hieco/react` for React UI and hooks
+- [`@hieco/react`](../react/README.md) for React bindings built on this SDK
+- [`@hieco/mirror`](../mirror/README.md) for direct Mirror Node REST reads
+- [`@hieco/realtime`](../realtime/README.md) for Relay WebSocket subscriptions

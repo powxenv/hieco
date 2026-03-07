@@ -1,256 +1,226 @@
 # @hieco/mirror-solid
 
-Type-safe SolidJS hooks for Hedera Mirror Node API with TanStack Query.
+## Overview
 
-## Features
+`@hieco/mirror-solid` adds Solid bindings on top of `@hieco/mirror` using TanStack Query for Solid.
 
-- **Full API Coverage** - Resources for accounts, tokens, transactions, contracts, topics, schedules, blocks, network
-- **Auto-pagination** - List hooks automatically fetch all pages
-- **Infinite Queries** - Support for infinite scroll and load-more patterns
-- **Network Switching** - Runtime network switching with automatic query refetch
-- **Type-Safe** - Full TypeScript support
-- **Reactive** - Fine-grained reactivity with SolidJS signals
+It provides:
+
+- one `MirrorNodeProvider` for network and client ownership
+- `create*` query helpers for every exported mirror domain
+- infinite-query helpers for cursor-based endpoints
+- polling and error-boundary helpers for long-running UI flows
 
 ## Installation
 
 ```bash
-# bun
-bun add @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
-
-# npm
 npm install @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
+```
 
-# pnpm
+```bash
 pnpm add @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
+```
 
-# yarn
+```bash
 yarn add @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
 ```
 
+```bash
+bun add @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
+```
+
+Peer dependencies expected from the host app:
+
+- `solid-js >= 1.8`
+
+## When To Use This Package
+
+Use `@hieco/mirror-solid` when you want to:
+
+- query Mirror Node data from Solid components
+- keep query inputs reactive with accessor-based APIs
+- switch networks at runtime without rebuilding the app shell
+- use TanStack Query caches, retries, and infinite queries with Hedera reads
+
+If you need transaction execution or wallet-scoped writes, use [`@hieco/sdk`](../sdk/README.md) directly or pair a React app with [`@hieco/react`](../react/README.md).
+
 ## Quick Start
 
-### Step 1: Wrap your app with providers
-
 ```tsx
+import type { JSX } from "solid-js";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
-import { MirrorNodeProvider } from "@hieco/mirror-solid";
+import { MirrorNodeProvider, createAccountInfo } from "@hieco/mirror-solid";
 
 const queryClient = new QueryClient();
 
-const networkConfig = {
-  defaultNetwork: "mainnet",
-  networks: {
-    testnet: "https://testnet.mirrornode.hedera.com",
-    custom: "https://custom.mirror-node.com",
-  },
-};
+function AccountCard(): JSX.Element {
+  const account = createAccountInfo(() => ({ accountId: "0.0.1001" }));
 
-export function App() {
+  return <pre>{JSON.stringify(account.data ?? null, null, 2)}</pre>;
+}
+
+export function Providers(props: { children: JSX.Element }): JSX.Element {
   return (
     <QueryClientProvider client={queryClient}>
-      <MirrorNodeProvider config={networkConfig}>
-        <YourApp />
+      <MirrorNodeProvider config={{ defaultNetwork: "testnet" }}>
+        {props.children}
+        <AccountCard />
       </MirrorNodeProvider>
     </QueryClientProvider>
   );
 }
 ```
 
-### Step 2: Use hooks in your components
+## Core Concepts
+
+### Provider-Owned Mirror Client
+
+`MirrorNodeProvider` creates a `MirrorNodeClient` from:
+
+- `defaultNetwork`
+- optional `networks`
+
+The context also exposes:
+
+- `network()`
+- `mirrorNodeUrl()`
+- `switchNetwork(...)`
+
+### Accessor-Driven Queries
+
+Every `create*` helper takes an accessor so query inputs can stay reactive:
 
 ```tsx
-import { createAccountInfo } from "@hieco/mirror-solid";
+createAccountInfo(() => ({ accountId: "0.0.1001" }));
+createTokenInfo(() => ({ tokenId: "0.0.2001" }));
+createTransactions(() => ({ params: { limit: 25 } }));
+```
 
-function AccountBalance(props: { accountId: string }) {
-  const query = createAccountInfo(() => ({
-    accountId: props.accountId,
-  }));
+Infinite helpers end in `Infinite` and return TanStack infinite-query results for Solid.
+
+### Result Model
+
+The query `data` value is still `ApiResult<T>`, so success and failure stay explicit:
+
+```tsx
+if (account.data?.success) {
+  console.log(account.data.data);
+}
+```
+
+## Advanced
+
+### Network Switching
+
+```tsx
+import type { JSX } from "solid-js";
+import { useNetwork } from "@hieco/mirror-solid";
+
+export function NetworkSwitcher(): JSX.Element {
+  const { network, switchNetwork } = useNetwork();
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Show when={query.data}>
-        {(data) => (
-          <Show when={data().success} fallback={<div>Failed to load</div>}>
-            {(result) => <div>Balance: {result().data.balance.balance} tinybars</div>}
-          </Show>
-        )}
-      </Show>
-    </Suspense>
+    <div>
+      <span>{network()}</span>
+      <button onClick={() => switchNetwork("mainnet")}>Mainnet</button>
+      <button onClick={() => switchNetwork("testnet")}>Testnet</button>
+    </div>
+  );
+}
+```
+
+### Infinite Queries
+
+```tsx
+import type { JSX } from "solid-js";
+import { createTokensInfinite } from "@hieco/mirror-solid";
+
+export function TokenFeed(): JSX.Element {
+  const tokens = createTokensInfinite(() => ({ params: { limit: 25 } }));
+
+  return (
+    <button
+      disabled={!tokens.hasNextPage || tokens.isFetchingNextPage}
+      onClick={() => void tokens.fetchNextPage()}
+    >
+      Load more
+    </button>
+  );
+}
+```
+
+### Polling Transactions
+
+```tsx
+import type { JSX } from "solid-js";
+import { createPollTransaction } from "@hieco/mirror-solid";
+
+export function TransactionStatus(props: { transactionId: string }): JSX.Element {
+  const transaction = createPollTransaction(() => ({
+    transactionId: props.transactionId,
+    intervalMs: 1_000,
+  }));
+
+  return <pre>{JSON.stringify(transaction.data ?? null, null, 2)}</pre>;
+}
+```
+
+### Error Boundaries
+
+```tsx
+import type { JSX } from "solid-js";
+import { ApiErrorBoundary } from "@hieco/mirror-solid";
+
+export function Screen(props: { children: JSX.Element }): JSX.Element {
+  return (
+    <ApiErrorBoundary
+      fallback={({ error, reset }) => <button onClick={reset}>{error.message}</button>}
+    >
+      {props.children}
+    </ApiErrorBoundary>
   );
 }
 ```
 
 ## API Reference
 
-### Provider Hooks
+### Provider And Context
 
-```typescript
-// Get current network (reactive)
-const network = useNetwork();
+| Export                    | Kind      | Purpose                                                                | Usage form                           |
+| ------------------------- | --------- | ---------------------------------------------------------------------- | ------------------------------------ |
+| `MirrorNodeProvider`      | component | Root provider for the mirror client and active network.                | `<MirrorNodeProvider config={...}>`  |
+| `MirrorNodeProviderProps` | type      | Props accepted by `MirrorNodeProvider`.                                | `type MirrorNodeProviderProps<T, U>` |
+| `MirrorNodeContextValue`  | type      | Context value exposed by the provider.                                 | `type MirrorNodeContextValue`        |
+| `useMirrorNodeContext`    | function  | Access the full mirror context.                                        | `useMirrorNodeContext()`             |
+| `useMirrorNodeClient`     | function  | Access the underlying `MirrorNodeClient` accessor.                     | `useMirrorNodeClient()`              |
+| `useNetwork`              | function  | Access the active network accessor, URL accessor, and `switchNetwork`. | `useNetwork()`                       |
+| `AnyNetwork`              | type      | Built-in network or custom string.                                     | `type AnyNetwork`                    |
+| `NetworkConfig`           | type      | Provider network config type re-exported from `@hieco/utils`.          | `type NetworkConfig<T, U>`           |
 
-// Switch network
-const { switchNetwork } = useNetwork();
+### Query Families
 
-// Get client instance
-const client = useMirrorNodeClient();
-```
+Each `create*` export also has matching `Create*Options` and `Create*Result` types.
 
-### Account Resources
+| Domain       | Kind                     | Purpose                                                                                                                   | Exports                                                                                                                                                                                                                                                                                                                                                         |
+| ------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Accounts     | functions                | Account lookup, balances, token relationships, rewards, allowances, lists, airdrops, and composite account overview data. | `createAccountInfo`, `createAccountBalances`, `createAccountTokens`, `createAccountNfts`, `createAccountStakingRewards`, `createAccountCryptoAllowances`, `createAccountTokenAllowances`, `createAccountNftAllowances`, `createAccounts`, `createAccountsInfinite`, `createAccountOutstandingAirdrops`, `createAccountPendingAirdrops`, `createAccountOverview` |
+| Balances     | functions                | Balance snapshots and filtered balance reads.                                                                             | `createBalances`                                                                                                                                                                                                                                                                                                                                                |
+| Blocks       | functions                | Block list and single-block lookups.                                                                                      | `createBlocks`, `createBlock`                                                                                                                                                                                                                                                                                                                                   |
+| Contracts    | functions                | Contract info, local calls, results, state, logs, traces, and contract lists.                                             | `createContractInfo`, `createContractCall`, `createContractResults`, `createContractResult`, `createContractState`, `createContractLogs`, `createContracts`, `createContractsInfinite`, `createContractAllResults`, `createContractResultByTransactionIdOrHash`, `createContractResultActions`, `createContractResultOpcodes`, `createContractAllLogs`          |
+| Network      | functions                | Exchange rate, fees, nodes, stake, and supply reads.                                                                      | `createNetworkExchangeRate`, `createNetworkFees`, `createNetworkNodes`, `createNetworkStake`, `createNetworkSupply`                                                                                                                                                                                                                                             |
+| Polling      | functions and components | Transaction polling and API error boundaries for query-driven views.                                                      | `createPollTransaction`, `ApiErrorBoundary`, `ApiErrorBoundaryProps`, `ApiErrorFallbackProps`                                                                                                                                                                                                                                                                   |
+| Schedules    | functions                | Schedule lookup and paginated schedule reads.                                                                             | `createScheduleInfo`, `createSchedules`, `createSchedulesInfinite`                                                                                                                                                                                                                                                                                              |
+| Tokens       | functions                | Token info, balances, NFTs, NFT transactions, and token lists.                                                            | `createTokenInfo`, `createTokenBalances`, `createTokenBalancesSnapshot`, `createTokenNfts`, `createTokenNft`, `createTokenNftTransactions`, `createTokens`, `createTokensInfinite`                                                                                                                                                                              |
+| Topics       | functions                | Topic info, messages, message lookup, and topic lists.                                                                    | `createTopicInfo`, `createTopicMessages`, `createTopicMessage`, `createTopics`, `createTopicsInfinite`, `createTopicMessageByTimestamp`                                                                                                                                                                                                                         |
+| Transactions | functions                | Transaction lookup and transaction list flows.                                                                            | `createTransaction`, `createTransactionsByAccount`, `createTransactions`, `createTransactionsInfinite`                                                                                                                                                                                                                                                          |
 
-```typescript
-createAccountInfo(() => ({ accountId: string }))
-createAccountBalances(() => ({ accountId: string }))
-createAccountTokens(() => ({ accountId: string; params?: AccountNftsParams }))
-createAccountNfts(() => ({ accountId: string; params?: AccountNftsParams }))
-createAccountStakingRewards(() => ({ accountId: string; params?: PaginationParams }))
-createAccountCryptoAllowances(() => ({ accountId: string }))
-createAccountTokenAllowances(() => ({ accountId: string; params?: TokenAllowancesParams }))
-createAccountNftAllowances(() => ({ accountId: string }))
-createAccountOutstandingAirdrops(() => ({ accountId: string }))
-createAccountPendingAirdrops(() => ({ accountId: string }))
-createAccounts(() => ({ params?: AccountListParams }))
-createAccountsInfinite(() => ({ params?: AccountListParams }))
-```
+### Utility Re-Exports
 
-### Token Resources
-
-```typescript
-createTokenInfo(() => ({ tokenId: string }))
-createTokenBalances(() => ({ tokenId: string; params?: TokenBalancesParams }))
-createTokenNfts(() => ({ tokenId: string }))
-createTokenNft(() => ({ tokenId: string; serialNumber: number }))
-createTokenNftTransactions(() => ({ tokenId: string; serialNumber: number }))
-createTokens(() => ({ params?: TokenListParams }))
-createTokensInfinite(() => ({ params?: TokenListParams }))
-```
-
-### Transaction Resources
-
-```typescript
-createTransaction(() => ({ transactionId: string }))
-createTransactions(() => ({ params?: TransactionListParams }))
-createTransactionsByAccount(() => ({ accountId: string; params?: TransactionsByAccountParams }))
-createTransactionsInfinite(() => ({ params?: TransactionListParams }))
-createPollTransaction(() => ({ transactionId: string }))
-```
-
-### Contract Resources
-
-```typescript
-createContractInfo(() => ({ contractId: string }))
-createContractCall(() => (params: ContractCallParams))
-createContractResults(() => ({ contractId: string }))
-createContractResult(() => ({ contractId: string; resultId: string }))
-createContractAllResults(() => ({ params?: ContractResultsParams }))
-createContractResultByTransactionIdOrHash(() => ({ txIdOrHash: string }))
-createContractResultActions(() => ({ resultId: string }))
-createContractResultOpcodes(() => ({ resultId: string }))
-createContractState(() => ({ contractId: string; params?: ContractStateParams }))
-createContractLogs(() => ({ contractId: string }))
-createContractAllLogs(() => ({ params?: ContractLogsParams }))
-createContracts(() => ({ params?: ContractListParams }))
-createContractsInfinite(() => ({ params?: ContractListParams }))
-```
-
-### Topic Resources
-
-```typescript
-createTopicInfo(() => ({ topicId: string }))
-createTopicMessages(() => ({ topicId: string; params?: TopicMessagesParams }))
-createTopicMessage(() => ({ topicId: string; sequenceNumber: number }))
-createTopicMessageByTimestamp(() => ({ timestamp: string }))
-createTopics(() => ({ params?: PaginationParams }))
-createTopicsInfinite(() => ({ params?: PaginationParams }))
-```
-
-### Schedule Resources
-
-```typescript
-createScheduleInfo(() => ({ scheduleId: string }))
-createSchedules(() => ({ params?: ScheduleListParams }))
-createSchedulesInfinite(() => ({ params?: ScheduleListParams }))
-```
-
-### Block Resources
-
-```typescript
-createBlock(() => ({ blockNumberOrHash: string | number }))
-createBlocks(() => ({ params?: BlocksListParams }))
-```
-
-### Balance Resources
-
-```typescript
-createBalances(() => ({ params?: BalancesListParams }))
-```
-
-### Network Resources
-
-```typescript
-createNetworkExchangeRate(() => ({ params?: { timestamp?: Timestamp } }))
-createNetworkFees(() => ({ params?: PaginationParams & { timestamp?: Timestamp } }))
-createNetworkNodes(() => ({ params?: NetworkNodesParams }))
-createNetworkStake()
-createNetworkSupply()
-```
-
-## Examples
-
-### Reactive Options
-
-```tsx
-import { createAccountInfo } from "@hieco/mirror-solid";
-
-function AccountComponent() {
-  const [accountId, setAccountId] = createSignal("0.0.123");
-
-  const query = createAccountInfo(() => ({
-    accountId: accountId(),
-  }));
-
-  return (
-    <div>
-      <Show when={query.data?.success}>{(data) => <div>{data().data.balance.balance}</div>}</Show>
-      <button onClick={() => setAccountId("0.0.456")}>Change Account</button>
-    </div>
-  );
-}
-```
-
-### Infinite Scroll
-
-```tsx
-import { createTokensInfinite } from "@hieco/mirror-solid";
-import { Show, For } from "solid-js";
-
-function TokenList() {
-  const query = createTokensInfinite(() => ({}));
-
-  return (
-    <div>
-      <For each={query.data?.pages ?? []}>
-        {(page) => (
-          <Show when={page.success}>
-            {(result) => <For each={result().data.data}>{(token) => <div>{token.name}</div>}</For>}
-          </Show>
-        )}
-      </For>
-      <Show when={query.hasNextPage}>
-        <button onClick={() => query.fetchNextPage()} disabled={query.isFetchingNextPage()}>
-          {query.isFetchingNextPage() ? "Loading..." : "Load More"}
-        </button>
-      </Show>
-    </div>
-  );
-}
-```
+`@hieco/mirror-solid` re-exports the public utilities from [`@hieco/utils`](../utils/README.md), including `ApiResult`, `ApiError`, `EntityId`, `NetworkConfig`, `NETWORK_CONFIGS`, `mirrorNodeKeys`, and the mirror type guards.
 
 ## Related Packages
 
-- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - Core REST API client
-- [`@hieco/utils`](https://github.com/powxenv/hieco/tree/main/packages/utils) - Shared utilities (internal)
-- [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - WebSocket streaming client
-
-## License
-
-MIT
+- [`@hieco/mirror`](../mirror/README.md) for the underlying Mirror Node client
+- [`@hieco/mirror-react`](../mirror-react/README.md) for the same API shape in React
+- [`@hieco/mirror-preact`](../mirror-preact/README.md) for the same API shape in Preact
+- [`@hieco/react`](../react/README.md) for transaction-capable React bindings

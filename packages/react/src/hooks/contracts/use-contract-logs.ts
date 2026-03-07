@@ -6,7 +6,7 @@ import type {
   HiecoQueryOptions,
   OperationArg0,
   OperationArg1,
-  OperationData
+  OperationData,
 } from "../../shared/types";
 
 type Operation = HiecoClient["contract"]["logs"];
@@ -19,7 +19,7 @@ export type UseContractLogsOptions<TData = QueryFnData> = HiecoQueryOptions<Quer
 export function useContractLogs<TData = QueryFnData>(
   contractId: Arg0,
   params?: Arg1,
-  options?: UseContractLogsOptions<TData>
+  options?: UseContractLogsOptions<TData>,
 ): UseQueryResult<TData, HieroError> {
   const client = useHiecoClient();
 

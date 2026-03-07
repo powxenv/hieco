@@ -1,11 +1,7 @@
 import type { HiecoClient } from "@hieco/sdk";
 import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
-import type {
-  HiecoMutationOptions,
-  HiecoMutationResult,
-  OperationData
-} from "../../shared/types";
+import type { HiecoMutationOptions, HiecoMutationResult, OperationData } from "../../shared/types";
 
 type Operation = HiecoClient["net"]["update"];
 type MutationData = OperationData<Operation>;

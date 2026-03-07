@@ -6,7 +6,7 @@ import type {
   HiecoQueryOptions,
   OperationArg0,
   OperationArg1,
-  OperationData
+  OperationData,
 } from "../../shared/types";
 
 type Operation = HiecoClient["topic"]["messages"];
@@ -19,7 +19,7 @@ export type UseTopicMessagesOptions<TData = QueryFnData> = HiecoQueryOptions<Que
 export function useTopicMessages<TData = QueryFnData>(
   topicId: Arg0,
   params?: Arg1,
-  options?: UseTopicMessagesOptions<TData>
+  options?: UseTopicMessagesOptions<TData>,
 ): UseQueryResult<TData, HieroError> {
   const client = useHiecoClient();
 

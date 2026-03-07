@@ -6,7 +6,7 @@ import type {
   HiecoQueryOptions,
   OperationArg0,
   OperationArg1,
-  OperationData
+  OperationData,
 } from "../../shared/types";
 
 type Operation = HiecoClient["tx"]["receipt"];
@@ -14,12 +14,15 @@ type QueryFnData = OperationData<Operation>;
 type Arg0 = OperationArg0<Operation>;
 type Arg1 = OperationArg1<Operation>;
 
-export type UseTransactionReceiptOptions<TData = QueryFnData> = HiecoQueryOptions<QueryFnData, TData>;
+export type UseTransactionReceiptOptions<TData = QueryFnData> = HiecoQueryOptions<
+  QueryFnData,
+  TData
+>;
 
 export function useTransactionReceipt<TData = QueryFnData>(
   transactionId: Arg0,
   receiptOptions?: Arg1,
-  options?: UseTransactionReceiptOptions<TData>
+  options?: UseTransactionReceiptOptions<TData>,
 ): UseQueryResult<TData, HieroError> {
   const client = useHiecoClient();
 

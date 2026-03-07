@@ -7,7 +7,7 @@ import type {
   OperationArg0,
   OperationArg1,
   OperationArg2,
-  OperationData
+  OperationData,
 } from "../../../shared/types";
 
 type Operation = HiecoClient["reads"]["tokens"]["nftTransactions"];
@@ -16,13 +16,16 @@ type Arg0 = OperationArg0<Operation>;
 type Arg1 = OperationArg1<Operation>;
 type Arg2 = OperationArg2<Operation>;
 
-export type UseReadTokenNftTransactionsOptions<TData = QueryFnData> = HiecoQueryOptions<QueryFnData, TData>;
+export type UseReadTokenNftTransactionsOptions<TData = QueryFnData> = HiecoQueryOptions<
+  QueryFnData,
+  TData
+>;
 
 export function useReadTokenNftTransactions<TData = QueryFnData>(
   tokenId: Arg0,
   serial: Arg1,
   params?: Arg2,
-  options?: UseReadTokenNftTransactionsOptions<TData>
+  options?: UseReadTokenNftTransactionsOptions<TData>,
 ): UseQueryResult<TData, HieroError> {
   const client = useHiecoClient();
 

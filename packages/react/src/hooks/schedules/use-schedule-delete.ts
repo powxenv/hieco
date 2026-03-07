@@ -6,7 +6,7 @@ import type {
   HiecoMutationResult,
   OperationData,
   OperationArg0,
-  OperationArg1
+  OperationArg1,
 } from "../../shared/types";
 
 type Operation = HiecoClient["schedule"]["delete"];

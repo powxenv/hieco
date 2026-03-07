@@ -1,35 +1,48 @@
 # @hieco/realtime
 
-Real-time WebSocket client for Hedera Mirror Node HIP-694 JSON-RPC Relay.
+## Overview
 
-## Features
+`@hieco/realtime` is the WebSocket client for Hedera Mirror Node Relay JSON-RPC streams.
 
-- **WebSocket Connection** - Real-time subscription to Hedera events
-- **Auto-Reconnection** - Automatic reconnection with exponential backoff
-- **Subscription Management** - Track and restore subscriptions across reconnections
-- **Connection Pool** - Distribute subscriptions across multiple connections
-- **Load Balancing** - Round-robin, least-loaded, or random strategies
-- **Type-Safe** - Full TypeScript support
+It provides:
+
+- direct Relay subscriptions through `RelayWebSocketClient`
+- pooled connections through `ConnectionPool`
+- typed JSON-RPC protocol helpers
+- typed subscription payloads and stream state tracking
 
 ## Installation
 
 ```bash
-# bun
-bun add @hieco/realtime
-
-# npm
 npm install @hieco/realtime
+```
 
-# pnpm
+```bash
 pnpm add @hieco/realtime
+```
 
-# yarn
+```bash
 yarn add @hieco/realtime
 ```
 
+```bash
+bun add @hieco/realtime
+```
+
+## When To Use This Package
+
+Use `@hieco/realtime` when you want to:
+
+- subscribe to contract logs or new block headers
+- manage Relay subscriptions outside a UI framework
+- run long-lived event listeners in workers or services
+- control reconnection, connection pooling, and protocol handling directly
+
+If you are working in React, use [`@hieco/realtime-react`](../realtime-react/README.md) unless you specifically need manual lifecycle control.
+
 ## Quick Start
 
-```typescript
+```ts
 import { RelayWebSocketClient } from "@hieco/realtime";
 
 const client = new RelayWebSocketClient({
@@ -39,198 +52,91 @@ const client = new RelayWebSocketClient({
 
 await client.connect();
 
-const { data: subscriptionId } = await client.subscribe(
-  { type: "logs", filter: { address: "0x..." } },
-  (message) => console.log("Log:", message.result.transactionHash),
-);
-
-await client.unsubscribe(subscriptionId);
-await client.disconnect();
-```
-
-## API Reference
-
-### StreamConfig
-
-```typescript
-interface StreamConfig {
-  readonly network: NetworkType;
-  readonly endpoint: string;
-  readonly reconnection?: {
-    readonly maxAttempts: number;
-    readonly initialDelay: number;
-    readonly maxDelay: number;
-    readonly backoffMultiplier: number;
-  };
-}
-```
-
-### RelayWebSocketClient
-
-#### Constructor
-
-```typescript
-new RelayWebSocketClient(config: StreamConfig)
-```
-
-#### Methods
-
-```typescript
-// Connect to WebSocket
-connect(): Promise<ApiResult<null>>
-
-// Disconnect from WebSocket
-disconnect(): Promise<void>
-
-// Subscribe to events
-subscribe(
-  subscription: RelaySubscription,
-  callback: (message: RelayMessage) => void
-): Promise<ApiResult<string>>
-
-// Unsubscribe from events
-unsubscribe(subscriptionId: string): Promise<ApiResult<boolean>>
-
-// Get current connection state
-getState(): StreamState
-
-// Get chain ID
-getChainId(): Promise<ApiResult<string>>
-```
-
-### ConnectionPool
-
-#### Constructor
-
-```typescript
-new ConnectionPool(config: ConnectionPoolConfig)
-```
-
-#### Configuration
-
-```typescript
-interface ConnectionPoolConfig {
-  readonly network: NetworkType;
-  readonly endpoint: string;
-  readonly poolSize: number;
-  readonly strategy: LoadBalancingStrategy;
-  readonly reconnection?: {
-    readonly maxAttempts: number;
-    readonly initialDelay: number;
-    readonly maxDelay: number;
-    readonly backoffMultiplier: number;
-  };
-}
-```
-
-#### Methods
-
-```typescript
-// Connect all connections in pool
-connect(): Promise<ApiResult<null>>
-
-// Disconnect all connections
-disconnect(): Promise<void>
-
-// Subscribe (auto-routed to best connection)
-subscribe(
-  subscription: RelaySubscription,
-  callback: (message: RelayMessage) => void
-): Promise<ApiResult<string>>
-
-// Unsubscribe
-unsubscribe(subscriptionId: string): Promise<ApiResult<boolean>>
-
-// Get pool state
-getPoolState(): readonly {
-  connectionIndex: number;
-  state: StreamState;
-  activeSubscriptions: number;
-}[]
-
-// Get total active subscriptions
-getTotalActiveSubscriptions(): number
-```
-
-### Load Balancing Strategies
-
-- `round-robin` - Distribute subscriptions sequentially across connections
-- `least-loaded` - Route to connection with fewest active subscriptions
-- `random` - Distribute subscriptions randomly
-
-## Subscription Types
-
-### Logs Subscription
-
-Subscribe to contract event logs:
-
-```typescript
-await client.subscribe(
+const result = await client.subscribe(
   {
     type: "logs",
     filter: {
-      address: "0x0000000000000000000000000000000001234",
-      topics: ["0x..."] as const,
+      address: "0x0000000000000000000000000000000000001389",
     },
   },
-  (message) => console.log(message.result),
+  (message) => {
+    console.log(message.result);
+  },
 );
+
+if (result.success) {
+  await client.unsubscribe(result.data);
+}
+
+await client.disconnect();
 ```
 
-### New Heads Subscription
+## Core Concepts
 
-Subscribe to new block headers:
+### Stream Config
 
-```typescript
-await client.subscribe({ type: "newHeads", filter: {} }, (message) =>
-  console.log("New block:", message.result.number),
-);
-```
+Every realtime client uses `StreamConfig`:
 
-## Stream State
+- `network`
+- `endpoint`
+- optional `reconnection`
 
-```typescript
-type StreamState =
-  | { readonly _tag: "Disconnected" }
-  | { readonly _tag: "Connecting" }
-  | { readonly _tag: "Connected"; readonly connectionId: string }
-  | { readonly _tag: "Error"; readonly error: ApiError };
-```
+### Stream State
 
-## Endpoints
+Connection state is represented explicitly:
 
-| Network    | WebSocket Endpoint                                |
-| ---------- | ------------------------------------------------- |
-| Mainnet    | `wss://mainnet.mirrornode.hedera.com/relay/ws`    |
-| Testnet    | `wss://testnet.mirrornode.hedera.com/relay/ws`    |
-| Previewnet | `wss://previewnet.mirrornode.hedera.com/relay/ws` |
+- `Disconnected`
+- `Connecting`
+- `Connected`
+- `Error`
 
-## Examples
+Use `getState()` or `onStateChange()` to drive your own runtime state machine.
 
-### Auto-Reconnection
+### Subscription Model
 
-```typescript
+`RelayWebSocketClient.subscribe(...)` takes:
+
+- a `RelaySubscription`
+- a callback that receives `RelayMessage`
+
+The returned `ApiResult<string>` contains the local subscription ID used by `unsubscribe(...)`.
+
+### Connection Pooling
+
+`ConnectionPool` keeps multiple `RelayWebSocketClient` instances and routes new subscriptions with one of three strategies:
+
+- `round-robin`
+- `least-loaded`
+- `random`
+
+## Advanced
+
+### Reconnection Configuration
+
+```ts
 const client = new RelayWebSocketClient({
   network: "testnet",
   endpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
   reconnection: {
     maxAttempts: 5,
-    initialDelay: 1000,
-    maxDelay: 30000,
+    initialDelay: 1_000,
+    maxDelay: 30_000,
     backoffMultiplier: 2,
   },
 });
-
-await client.connect();
-await client.subscribe({ type: "logs", filter: {} }, callback);
-
-// Connection drops and reconnects...
-// All subscriptions are automatically restored
 ```
 
-### Connection Pool
+### New Heads Subscription
 
-```typescript
+```ts
+await client.subscribe({ type: "newHeads", filter: {} }, (message) => {
+  console.log(message.result.number);
+});
+```
+
+### Connection Pools
+
+```ts
 import { ConnectionPool } from "@hieco/realtime";
 
 const pool = new ConnectionPool({
@@ -241,27 +147,90 @@ const pool = new ConnectionPool({
 });
 
 await pool.connect();
-
-const { data: subscriptionId } = await pool.subscribe(
-  { type: "logs", filter: { address: "0x..." } },
-  (msg) => console.log("Log:", msg.result.transactionHash),
-);
-
-console.log("Pool state:", pool.getPoolState());
-console.log("Total subscriptions:", pool.getTotalActiveSubscriptions());
+console.log(pool.getPoolState());
+await pool.disconnect();
 ```
 
-## Framework Packages
+### Low-Level Protocol Helpers
 
-For React, use the framework-specific package:
+Use the protocol exports when you need to inspect or validate raw Relay messages:
 
-- [`@hieco/realtime-react`](https://www.npmjs.com/package/@hieco/realtime-react) - React hooks with automatic subscription management
+- `isJsonRpcResponse`
+- `isSubscribeResponse`
+- `isUnsubscribeResponse`
+- `isChainIdResponse`
+- `isRelayMessage`
+- `mapJsonRpcErrorCode`
+- `isCloseErrorRecoverable`
+
+## API Reference
+
+### Connection Exports
+
+| Export                  | Kind  | Purpose                                              | Usage form                                                            |
+| ----------------------- | ----- | ---------------------------------------------------- | --------------------------------------------------------------------- | -------------- | --------- |
+| `BaseStreamClient`      | class | Abstract base for stream implementations.            | `class BaseStreamClient<TMessage, TSubscription, TUnsubscribeResult>` |
+| `RelayWebSocketClient`  | class | Direct Relay WebSocket client.                       | `new RelayWebSocketClient(config)`                                    |
+| `ConnectionPool`        | class | Multi-connection subscription pool.                  | `new ConnectionPool(config)`                                          |
+| `StreamConfig`          | type  | Config for a single realtime connection.             | `type StreamConfig`                                                   |
+| `StreamState`           | type  | Disconnected, connecting, connected, or error state. | `type StreamState`                                                    |
+| `LoadBalancingStrategy` | type  | Pool routing strategy.                               | `"round-robin"                                                        | "least-loaded" | "random"` |
+| `ConnectionPoolConfig`  | type  | Config for `ConnectionPool`.                         | `type ConnectionPoolConfig`                                           |
+
+### `RelayWebSocketClient`
+
+| Member          | Kind   | Purpose                                               | Usage form                                 |
+| --------------- | ------ | ----------------------------------------------------- | ------------------------------------------ |
+| `connect`       | method | Open the WebSocket connection.                        | `client.connect()`                         |
+| `disconnect`    | method | Close the connection and clear tracked subscriptions. | `client.disconnect()`                      |
+| `subscribe`     | method | Subscribe to a relay stream.                          | `client.subscribe(subscription, callback)` |
+| `unsubscribe`   | method | Unsubscribe by local subscription ID.                 | `client.unsubscribe(subscriptionId)`       |
+| `getChainId`    | method | Query the relay chain ID.                             | `client.getChainId()`                      |
+| `getState`      | method | Read the current stream state.                        | `client.getState()`                        |
+| `onStateChange` | method | Listen for state changes.                             | `client.onStateChange(listener)`           |
+
+### `ConnectionPool`
+
+| Member                        | Kind   | Purpose                                           | Usage form                               |
+| ----------------------------- | ------ | ------------------------------------------------- | ---------------------------------------- |
+| `connect`                     | method | Open every client in the pool.                    | `pool.connect()`                         |
+| `disconnect`                  | method | Close every client in the pool.                   | `pool.disconnect()`                      |
+| `subscribe`                   | method | Subscribe through the selected pooled connection. | `pool.subscribe(subscription, callback)` |
+| `unsubscribe`                 | method | Unsubscribe by pooled subscription ID.            | `pool.unsubscribe(subscriptionId)`       |
+| `getPoolState`                | method | Inspect each connection state and load.           | `pool.getPoolState()`                    |
+| `getTotalActiveSubscriptions` | method | Count pooled subscriptions.                       | `pool.getTotalActiveSubscriptions()`     |
+
+### Subscription Exports
+
+| Export                 | Kind     | Purpose                                        | Usage form                 |
+| ---------------------- | -------- | ---------------------------------------------- | -------------------------- | -------------------------- |
+| `RelaySubscription`    | type     | Subscription request payload.                  | `{ type: "logs"            | "newHeads", filter: ... }` |
+| `RelayMessage`         | type     | Message received from a subscription callback. | `type RelayMessage`        |
+| `LogResult`            | type     | Contract log payload.                          | `type LogResult`           |
+| `NewHeadsResult`       | type     | New block header payload.                      | `type NewHeadsResult`      |
+| `SubscriptionId`       | type     | Branded subscription identifier.               | `type SubscriptionId`      |
+| `createSubscriptionId` | function | Brand a raw string as `SubscriptionId`.        | `createSubscriptionId(id)` |
+
+### Protocol Exports
+
+| Export                    | Kind     | Purpose                                              | Usage form                      |
+| ------------------------- | -------- | ---------------------------------------------------- | ------------------------------- |
+| `JsonRpcRequest`          | type     | Outgoing JSON-RPC request shape.                     | `type JsonRpcRequest`           |
+| `JsonRpcResponse`         | type     | Incoming JSON-RPC response shape.                    | `type JsonRpcResponse`          |
+| `SubscribeResponse`       | type     | Successful subscribe response.                       | `type SubscribeResponse`        |
+| `UnsubscribeResponse`     | type     | Successful unsubscribe response.                     | `type UnsubscribeResponse`      |
+| `ChainIdResponse`         | type     | Successful chain ID response.                        | `type ChainIdResponse`          |
+| `JsonRpcErrorCode`        | type     | Supported Relay JSON-RPC error codes.                | `type JsonRpcErrorCode`         |
+| `mapJsonRpcErrorCode`     | function | Convert a JSON-RPC error code into an API error tag. | `mapJsonRpcErrorCode(code)`     |
+| `isCloseErrorRecoverable` | function | Check whether a close code should trigger recovery.  | `isCloseErrorRecoverable(code)` |
+| `isJsonRpcResponse`       | function | Validate a raw JSON-RPC response.                    | `isJsonRpcResponse(value)`      |
+| `isResponseWithId`        | function | Narrow a response to one with a numeric ID.          | `isResponseWithId(response)`    |
+| `isSubscribeResponse`     | function | Validate a subscribe response.                       | `isSubscribeResponse(value)`    |
+| `isUnsubscribeResponse`   | function | Validate an unsubscribe response.                    | `isUnsubscribeResponse(value)`  |
+| `isChainIdResponse`       | function | Validate a chain ID response.                        | `isChainIdResponse(value)`      |
+| `isRelayMessage`          | function | Validate a relay subscription payload.               | `isRelayMessage(value)`         |
 
 ## Related Packages
 
-- [`@hieco/utils`](https://github.com/powxenv/hieco/tree/main/packages/utils) - Shared utilities and types (internal)
-- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - REST API client
-
-## License
-
-MIT
+- [`@hieco/realtime-react`](../realtime-react/README.md) for React bindings over this client
+- [`@hieco/mirror`](../mirror/README.md) for REST reads from the Hedera Mirror Node API

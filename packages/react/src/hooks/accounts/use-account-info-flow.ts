@@ -6,7 +6,7 @@ import type {
   HiecoQueryOptions,
   OperationArg0,
   OperationArg1,
-  OperationData
+  OperationData,
 } from "../../shared/types";
 
 type Operation = HiecoClient["account"]["infoFlow"];
@@ -19,7 +19,7 @@ export type UseAccountInfoFlowOptions<TData = QueryFnData> = HiecoQueryOptions<Q
 export function useAccountInfoFlow<TData = QueryFnData>(
   accountId: Arg0,
   flowOptions?: Arg1,
-  options?: UseAccountInfoFlowOptions<TData>
+  options?: UseAccountInfoFlowOptions<TData>,
 ): UseQueryResult<TData, HieroError> {
   const client = useHiecoClient();
 

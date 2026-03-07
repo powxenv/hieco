@@ -6,7 +6,7 @@ import type {
   HiecoQueryOptions,
   OperationArg0,
   OperationArg1,
-  OperationData
+  OperationData,
 } from "../../shared/types";
 
 type Operation = HiecoClient["schedule"]["wait"];
@@ -19,7 +19,7 @@ export type UseScheduleWaitOptions<TData = QueryFnData> = HiecoQueryOptions<Quer
 export function useScheduleWait<TData = QueryFnData>(
   scheduleId: Arg0,
   waitOptions?: Arg1,
-  options?: UseScheduleWaitOptions<TData>
+  options?: UseScheduleWaitOptions<TData>,
 ): UseQueryResult<TData, HieroError> {
   const client = useHiecoClient();
 

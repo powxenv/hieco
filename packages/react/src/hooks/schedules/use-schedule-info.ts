@@ -2,11 +2,7 @@ import type { HieroError, HiecoClient } from "@hieco/sdk";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoQuery } from "../../shared/use-hieco-query";
-import type {
-  HiecoQueryOptions,
-  OperationArg0,
-  OperationData
-} from "../../shared/types";
+import type { HiecoQueryOptions, OperationArg0, OperationData } from "../../shared/types";
 
 type Operation = HiecoClient["schedule"]["info"];
 type QueryFnData = OperationData<Operation>;
@@ -16,7 +12,7 @@ export type UseScheduleInfoOptions<TData = QueryFnData> = HiecoQueryOptions<Quer
 
 export function useScheduleInfo<TData = QueryFnData>(
   scheduleId: Arg0,
-  options?: UseScheduleInfoOptions<TData>
+  options?: UseScheduleInfoOptions<TData>,
 ): UseQueryResult<TData, HieroError> {
   const client = useHiecoClient();
 

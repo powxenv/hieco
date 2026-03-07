@@ -2,11 +2,7 @@ import type { HieroError, HiecoClient } from "@hieco/sdk";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoQuery } from "../../shared/use-hieco-query";
-import type {
-  HiecoQueryOptions,
-  OperationArg0,
-  OperationData
-} from "../../shared/types";
+import type { HiecoQueryOptions, OperationArg0, OperationData } from "../../shared/types";
 
 type Operation = HiecoClient["file"]["info"];
 type QueryFnData = OperationData<Operation>;
@@ -16,7 +12,7 @@ export type UseFileInfoOptions<TData = QueryFnData> = HiecoQueryOptions<QueryFnD
 
 export function useFileInfo<TData = QueryFnData>(
   fileId: Arg0,
-  options?: UseFileInfoOptions<TData>
+  options?: UseFileInfoOptions<TData>,
 ): UseQueryResult<TData, HieroError> {
   const client = useHiecoClient();
 

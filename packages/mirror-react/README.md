@@ -1,240 +1,135 @@
 # @hieco/mirror-react
 
-Type-safe React hooks for Hedera Mirror Node API with TanStack Query.
+## Overview
 
-## Features
+`@hieco/mirror-react` adds React hooks on top of `@hieco/mirror` using TanStack Query.
 
-- **Full API Coverage** - Hooks for accounts, tokens, transactions, contracts, topics, schedules, blocks, network
-- **Auto-pagination** - List hooks automatically fetch all pages
-- **Infinite Queries** - Support for infinite scroll and load-more patterns
-- **Network Switching** - Runtime network switching with automatic query refetch
-- **Type-Safe** - Full TypeScript support
-- **Optimistic Updates** - Prefetch and invalidate queries from anywhere
+It provides:
+
+- one `MirrorNodeProvider` for network and client ownership
+- query hooks for every exported mirror domain
+- infinite-query helpers for cursor-based endpoints
+- polling and error-boundary helpers for long-running UI flows
 
 ## Installation
 
 ```bash
-# bun
-bun add @hieco/mirror @hieco/mirror-react @tanstack/react-query
-
-# npm
 npm install @hieco/mirror @hieco/mirror-react @tanstack/react-query
+```
 
-# pnpm
+```bash
 pnpm add @hieco/mirror @hieco/mirror-react @tanstack/react-query
+```
 
-# yarn
+```bash
 yarn add @hieco/mirror @hieco/mirror-react @tanstack/react-query
 ```
 
+```bash
+bun add @hieco/mirror @hieco/mirror-react @tanstack/react-query
+```
+
+Peer dependencies expected from the host app:
+
+- `react >= 18`
+- `react-dom >= 18`
+
+## When To Use This Package
+
+Use `@hieco/mirror-react` when you want to:
+
+- query Mirror Node data from React components
+- switch networks at runtime without rebuilding the app shell
+- use TanStack Query caches, retries, and invalidation with Hedera reads
+- build dashboards, explorers, or activity feeds without transaction execution
+
+If you need transactions or wallet-scoped writes, pair React with [`@hieco/react`](../react/README.md).
+
 ## Quick Start
 
-### Step 1: Wrap your app with providers
-
 ```tsx
+"use client";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MirrorNodeProvider } from "@hieco/mirror-react";
+import { MirrorNodeProvider, useAccountInfo } from "@hieco/mirror-react";
 
 const queryClient = new QueryClient();
 
-const networkConfig = {
-  defaultNetwork: "mainnet",
-  networks: {
-    testnet: "https://testnet.mirrornode.hedera.com",
-    custom: "https://custom.mirror-node.com",
-  },
-};
+function AccountCard() {
+  const account = useAccountInfo({ accountId: "0.0.1001" });
 
-export function App() {
+  if (account.isPending) return <div>Loading...</div>;
+  if (account.isError) return <div>{account.error.message}</div>;
+
+  return <pre>{JSON.stringify(account.data, null, 2)}</pre>;
+}
+
+export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <MirrorNodeProvider config={networkConfig}>
-        <YourApp />
+      <MirrorNodeProvider config={{ defaultNetwork: "testnet" }}>
+        {children}
+        <AccountCard />
       </MirrorNodeProvider>
     </QueryClientProvider>
   );
 }
 ```
 
-### Step 2: Use hooks in your components
+## Core Concepts
+
+### Provider-Owned Mirror Client
+
+`MirrorNodeProvider` creates a `MirrorNodeClient` from:
+
+- `defaultNetwork`
+- optional `networks`
+
+The context also exposes:
+
+- `network`
+- `mirrorNodeUrl`
+- `switchNetwork(...)`
+
+### Hook Pattern
+
+Most hooks take a single options object:
 
 ```tsx
-import { useAccountInfo } from "@hieco/mirror-react";
+useAccountInfo({ accountId: "0.0.1001" });
+useTokenInfo({ tokenId: "0.0.2001" });
+useTransactions({ params: { limit: 25 } });
+```
 
-function AccountBalance({ accountId }: { accountId: string }) {
-  const { data, isLoading, error } = useAccountInfo({ accountId });
+Infinite hooks end in `Infinite` and return TanStack infinite-query results.
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-  if (!data?.success) return <div>Failed to load</div>;
+### Result Model
 
-  return <div>Balance: {data.data.balance.balance} tinybars</div>;
+Hook `data` values are still `ApiResult<T>`, so you can keep success and failure handling explicit:
+
+```tsx
+if (query.data?.success) {
+  console.log(query.data.data);
 }
 ```
 
-## API Reference
+## Advanced
 
-### Provider Hooks
-
-#### useNetwork
-
-```typescript
-const { network, switchNetwork } = useNetwork();
-```
-
-- `network: string` - Current network name
-- `switchNetwork(network: string): void` - Switch to a different network
-
-#### useMirrorNodeClient
-
-```typescript
-const client = useMirrorNodeClient();
-```
-
-- Returns the underlying `MirrorNodeClient` instance
-
-### Account Hooks
-
-```typescript
-useAccountInfo({ accountId }: { accountId: string })
-useAccountBalances({ accountId }: { accountId: string })
-useAccountTokens({ accountId, params }: { accountId: string; params?: AccountNftsParams })
-useAccountNfts({ accountId, params }: { accountId: string; params?: AccountNftsParams })
-useAccountStakingRewards({ accountId, params }: { accountId: string; params?: PaginationParams })
-useAccountCryptoAllowances({ accountId }: { accountId: string })
-useAccountTokenAllowances({ accountId, params }: { accountId: string; params?: TokenAllowancesParams })
-useAccountNftAllowances({ accountId }: { accountId: string })
-useAccountOutstandingAirdrops({ accountId }: { accountId: string })
-useAccountPendingAirdrops({ accountId }: { accountId: string })
-useAccounts({ params }: { params?: AccountListParams })
-useAccountsInfinite({ params }: { params?: AccountListParams })
-```
-
-### Token Hooks
-
-```typescript
-useTokenInfo({ tokenId }: { tokenId: string })
-useTokenBalances({ tokenId, params }: { tokenId: string; params?: TokenBalancesParams })
-useTokenNfts({ tokenId }: { tokenId: string })
-useTokenNft({ tokenId, serialNumber }: { tokenId: string; serialNumber: number })
-useTokenNftTransactions({ tokenId, serialNumber }: { tokenId: string; serialNumber: number })
-useTokens({ params }: { params?: TokenListParams })
-useTokensInfinite({ params }: { params?: TokenListParams })
-```
-
-### Transaction Hooks
-
-```typescript
-useTransaction({ transactionId }: { transactionId: string })
-useTransactions({ params }: { params?: TransactionListParams })
-useTransactionsByAccount({ accountId, params }: { accountId: string; params?: TransactionsByAccountParams })
-useTransactionsInfinite({ params }: { params?: TransactionListParams })
-usePollTransaction({ transactionId, options }: { transactionId: string; options?: { refetchInterval?: number } })
-```
-
-### Contract Hooks
-
-```typescript
-useContractInfo({ contractId }: { contractId: string })
-useContractCall(params: ContractCallParams)
-useContractResults({ contractId }: { contractId: string })
-useContractResult({ contractId, resultId }: { contractId: string; resultId: string })
-useContractAllResults({ params }: { params?: ContractResultsParams })
-useContractResultByTransactionIdOrHash({ txIdOrHash }: { txIdOrHash: string })
-useContractResultActions({ resultId }: { resultId: string })
-useContractResultOpcodes({ resultId }: { resultId: string })
-useContractState({ contractId, params }: { contractId: string; params?: ContractStateParams })
-useContractLogs({ contractId }: { contractId: string })
-useContractAllLogs({ params }: { params?: ContractLogsParams })
-useContracts({ params }: { params?: ContractListParams })
-useContractsInfinite({ params }: { params?: ContractListParams })
-```
-
-### Topic Hooks
-
-```typescript
-useTopicInfo({ topicId }: { topicId: string })
-useTopicMessages({ topicId, params }: { topicId: string; params?: TopicMessagesParams })
-useTopicMessage({ topicId, sequenceNumber }: { topicId: string; sequenceNumber: number })
-useTopicMessageByTimestamp({ timestamp }: { timestamp: string })
-useTopics({ params }: { params?: PaginationParams })
-useTopicsInfinite({ params }: { params?: PaginationParams })
-```
-
-### Schedule Hooks
-
-```typescript
-useScheduleInfo({ scheduleId }: { scheduleId: string })
-useSchedules({ params }: { params?: ScheduleListParams })
-useSchedulesInfinite({ params }: { params?: ScheduleListParams })
-```
-
-### Block Hooks
-
-```typescript
-useBlock({ blockNumberOrHash }: { blockNumberOrHash: string | number })
-useBlocks({ params }: { params?: BlocksListParams })
-```
-
-### Balance Hooks
-
-```typescript
-useBalances({ params }: { params?: BalancesListParams })
-```
-
-### Network Hooks
-
-```typescript
-useNetworkExchangeRate({ params }: { params?: { timestamp?: Timestamp } })
-useNetworkFees({ params }: { params?: PaginationParams & { timestamp?: Timestamp } })
-useNetworkNodes({ params }: { params?: NetworkNodesParams })
-useNetworkStake()
-useNetworkSupply()
-```
-
-### Utility Hooks
-
-```typescript
-usePrefetchQuery();
-useInvalidateQueries();
-```
-
-## Query Options
-
-All hooks accept standard TanStack Query options:
+### Network Switching
 
 ```tsx
-const { data } = useAccountInfo({
-  accountId: "0.0.123",
-  enabled: true,
-  staleTime: 60000,
-  refetchOnWindowFocus: false,
-});
-```
+"use client";
 
-## Pagination
+import { useNetwork } from "@hieco/mirror-react";
 
-### List Queries (Auto-Fetch All)
-
-```tsx
-import { useTokens } from "@hieco/mirror-react";
-
-function TokenList() {
-  const { data, isLoading } = useTokens({
-    params: { limit: 25, order: "desc" },
-  });
-
-  if (isLoading) return <div>Loading...</div>;
-  if (!data?.success) return <div>Failed to load</div>;
+export function NetworkSwitcher() {
+  const { network, switchNetwork } = useNetwork();
 
   return (
     <div>
-      <p>Total: {data.data.length} tokens</p>
-      <ul>
-        {data.data.map((token) => (
-          <li key={token.token_id}>{token.name}</li>
-        ))}
-      </ul>
+      <span>{network}</span>
+      <button onClick={() => switchNetwork("mainnet")}>Mainnet</button>
+      <button onClick={() => switchNetwork("testnet")}>Testnet</button>
     </div>
   );
 }
@@ -243,76 +138,93 @@ function TokenList() {
 ### Infinite Queries
 
 ```tsx
+"use client";
+
 import { useTokensInfinite } from "@hieco/mirror-react";
 
-function TokenList() {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useTokensInfinite();
+export function TokenFeed() {
+  const tokens = useTokensInfinite({ params: { limit: 25 } });
 
   return (
-    <div>
-      {data?.pages.map(
-        (page) =>
-          page.success &&
-          page.data.data.map((token) => <div key={token.token_id}>{token.name}</div>),
-      )}
-      {hasNextPage && (
-        <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-          {isFetchingNextPage ? "Loading..." : "Load More"}
-        </button>
-      )}
-    </div>
+    <button
+      disabled={!tokens.hasNextPage || tokens.isFetchingNextPage}
+      onClick={() => void tokens.fetchNextPage()}
+    >
+      Load more
+    </button>
   );
 }
 ```
 
-## Examples
-
-### Network Switching
+### Polling Transactions
 
 ```tsx
-import { useNetwork } from "@hieco/mirror-react";
+"use client";
 
-function NetworkSelector() {
-  const { network, switchNetwork } = useNetwork();
+import { usePollTransaction } from "@hieco/mirror-react";
 
+export function TransactionStatus({ transactionId }: { transactionId: string }) {
+  const tx = usePollTransaction({ transactionId, intervalMs: 1_000 });
+
+  return <pre>{JSON.stringify(tx.data, null, 2)}</pre>;
+}
+```
+
+### Error Boundaries
+
+```tsx
+"use client";
+
+import { ApiErrorBoundary } from "@hieco/mirror-react";
+
+export function Screen({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      <span>Current: {network}</span>
-      <button onClick={() => switchNetwork("mainnet")}>Mainnet</button>
-      <button onClick={() => switchNetwork("testnet")}>Testnet</button>
-    </div>
+    <ApiErrorBoundary
+      fallback={({ error, reset }) => <button onClick={reset}>{error.message}</button>}
+    >
+      {children}
+    </ApiErrorBoundary>
   );
 }
 ```
 
-### Prefetch and Invalidate
+## API Reference
 
-```tsx
-import { prefetchQuery, invalidateQueries, mirrorNodeKeys } from "@hieco/mirror-react";
+### Provider And Context
 
-function MyComponent() {
-  const client = useMirrorNodeClient();
+| Export                    | Kind      | Purpose                                                       | Usage form                           |
+| ------------------------- | --------- | ------------------------------------------------------------- | ------------------------------------ |
+| `MirrorNodeProvider`      | component | Root provider for the mirror client and active network.       | `<MirrorNodeProvider config={...}>`  |
+| `MirrorNodeProviderProps` | type      | Props accepted by `MirrorNodeProvider`.                       | `type MirrorNodeProviderProps<T, U>` |
+| `MirrorNodeContextValue`  | type      | Context value exposed by the provider.                        | `type MirrorNodeContextValue`        |
+| `useMirrorNodeContext`    | hook      | Access the full mirror context.                               | `useMirrorNodeContext()`             |
+| `useMirrorNodeClient`     | hook      | Access the underlying `MirrorNodeClient`.                     | `useMirrorNodeClient()`              |
+| `useNetwork`              | hook      | Access the active network, URL, and `switchNetwork`.          | `useNetwork()`                       |
+| `AnyNetwork`              | type      | Built-in network or custom string.                            | `type AnyNetwork`                    |
+| `NetworkConfig`           | type      | Provider network config type re-exported from `@hieco/utils`. | `type NetworkConfig<T, U>`           |
 
-  const prefetchAccount = async () => {
-    await prefetchQuery(queryClient, client, mirrorNodeKeys.account.info("mainnet", "0.0.123"));
-  };
+### Hook Families
 
-  const refreshAccount = async () => {
-    await invalidateQueries(queryClient, {
-      exactKey: mirrorNodeKeys.account.info("mainnet", "0.0.123"),
-    });
-  };
+| Domain       | Kind  | Purpose                                                                                  | Exports                                                                                                                                                                                                                                                                                                                  |
+| ------------ | ----- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Accounts     | hooks | Account lookup, balances, token relationships, rewards, allowances, lists, and airdrops. | `useAccountInfo`, `useAccountBalances`, `useAccountTokens`, `useAccountNfts`, `useAccountStakingRewards`, `useAccountCryptoAllowances`, `useAccountTokenAllowances`, `useAccountNftAllowances`, `useAccounts`, `useAccountsInfinite`, `useAccountOutstandingAirdrops`, `useAccountPendingAirdrops`, `useAccountOverview` |
+| Balances     | hooks | Balance snapshots and filtered balance reads.                                            | `useBalances`                                                                                                                                                                                                                                                                                                            |
+| Blocks       | hooks | Block list and single-block lookups.                                                     | `useBlocks`, `useBlock`                                                                                                                                                                                                                                                                                                  |
+| Contracts    | hooks | Contract info, calls, results, state, logs, traces, and contract lists.                  | `useContractInfo`, `useContractCall`, `useContractResults`, `useContractResult`, `useContractState`, `useContractLogs`, `useContracts`, `useContractsInfinite`, `useContractAllResults`, `useContractResultByTransactionIdOrHash`, `useContractResultActions`, `useContractResultOpcodes`, `useContractAllLogs`          |
+| Network      | hooks | Exchange rate, fees, nodes, stake, and supply reads.                                     | `useNetworkExchangeRate`, `useNetworkFees`, `useNetworkNodes`, `useNetworkStake`, `useNetworkSupply`                                                                                                                                                                                                                     |
+| Polling      | hooks | Transaction polling and query-boundary helpers.                                          | `usePollTransaction`, `ApiErrorFallback`, `ApiErrorBoundary`, `withApiErrorBoundary`                                                                                                                                                                                                                                     |
+| Schedules    | hooks | Schedule lookup and paginated schedule reads.                                            | `useScheduleInfo`, `useSchedules`, `useSchedulesInfinite`                                                                                                                                                                                                                                                                |
+| Tokens       | hooks | Token info, balances, NFTs, NFT transactions, and token lists.                           | `useTokenInfo`, `useTokenBalances`, `useTokenBalancesSnapshot`, `useTokenNfts`, `useTokenNft`, `useTokenNftTransactions`, `useTokens`, `useTokensInfinite`                                                                                                                                                               |
+| Topics       | hooks | Topic info, messages, message lookup, and topic lists.                                   | `useTopicInfo`, `useTopicMessages`, `useTopicMessage`, `useTopics`, `useTopicsInfinite`, `useTopicMessageByTimestamp`                                                                                                                                                                                                    |
+| Transactions | hooks | Transaction lookup and transaction list flows.                                           | `useTransaction`, `useTransactionsByAccount`, `useTransactions`, `useTransactionsInfinite`                                                                                                                                                                                                                               |
 
-  return <button onClick={refreshAccount}>Refresh</button>;
-}
-```
+### Utility Re-Exports
+
+`@hieco/mirror-react` re-exports the public utilities from [`@hieco/utils`](../utils/README.md), including `ApiResult`, `ApiError`, `EntityId`, `NetworkConfig`, `NETWORK_CONFIGS`, `mirrorNodeKeys`, and the mirror type guards.
 
 ## Related Packages
 
-- [`@hieco/mirror`](https://www.npmjs.com/package/@hieco/mirror) - Core REST API client
-- [`@hieco/utils`](https://github.com/powxenv/hieco/tree/main/packages/utils) - Shared utilities (internal)
-- [`@hieco/realtime`](https://www.npmjs.com/package/@hieco/realtime) - WebSocket streaming client
-
-## License
-
-MIT
+- [`@hieco/mirror`](../mirror/README.md) for the underlying Mirror Node client
+- [`@hieco/mirror-preact`](../mirror-preact/README.md) for the same API shape in Preact
+- [`@hieco/mirror-solid`](../mirror-solid/README.md) for the same API shape in Solid
+- [`@hieco/react`](../react/README.md) for transaction-capable React bindings

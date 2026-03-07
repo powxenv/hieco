@@ -5,7 +5,7 @@ import type {
   HiecoMutationOptions,
   HiecoMutationResult,
   OperationData,
-  SingleOperationInput
+  SingleOperationInput,
 } from "../../shared/types";
 
 type Operation = HiecoClient["contract"]["executeTyped"];
