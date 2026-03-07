@@ -1,16 +1,46 @@
 # @hieco/sdk
 
-`@hieco/sdk` provides one unified API: `hieco(...)`.
+`@hieco/sdk` is the core Hieco SDK.
 
-`hieco` is a DX-first layer built on top of the Hiero/Hedera SDK stack (`@hiero-ledger/sdk`) and includes `@hieco/mirror` for read operations—so you get both ledger and mirror node power in one unified API.
+It gives you one client factory, `hieco(...)`, for:
 
-## Install
+- server-side transaction flows
+- browser wallet flows
+- scripts, jobs, and CLIs
+- framework loaders, actions, and server functions
+
+## Installation
+
+```bash
+npm install @hieco/sdk
+```
+
+```bash
+pnpm add @hieco/sdk
+```
+
+```bash
+yarn add @hieco/sdk
+```
 
 ```bash
 bun add @hieco/sdk
 ```
 
-## Quick start
+## Choose A Starting Point
+
+Start with one of these patterns:
+
+| Goal                                      | Start with                           |
+| ----------------------------------------- | ------------------------------------ |
+| Server runtime with env-based credentials | `hieco.fromEnv()`                    |
+| Browser wallet flow                       | `hieco({ network }).as(signer)`      |
+| Explicit runtime config                   | `hieco({ network, mirrorUrl, ... })` |
+| Testnet-only setup                        | `hieco.forTestnet()`                 |
+
+## Quick Start
+
+### Server
 
 ```ts
 import { hieco } from "@hieco/sdk";
@@ -18,38 +48,171 @@ import { hieco } from "@hieco/sdk";
 const client = hieco.fromEnv();
 ```
 
-Or explicit config:
+### Browser Wallet
+
+```ts
+import { hieco, type Signer } from "@hieco/sdk";
+
+export function createWalletClient(signer: Signer) {
+  return hieco({ network: "testnet" }).as(signer);
+}
+```
+
+## The Client Factory
+
+`hieco(...)` creates a client from explicit config.
 
 ```ts
 import { hieco } from "@hieco/sdk";
 
 const client = hieco({
   network: "testnet",
-  operator: "0.0.1234",
-  key: "302e020100300506032b657004220420...",
+  mirrorUrl: "https://testnet.mirrornode.hedera.com",
 });
 ```
 
-## Core pattern
+Factory helpers:
 
-- Transactions use fluent builders and end with `.now()`
-- Queries return a query handle and end with `.now()`
-- Descriptor extraction uses `.tx()`
-- Scheduling uses `.queue()`
+- `hieco(config?)`
+- `hieco.fromEnv()`
+- `hieco.forTestnet()`
+- `hieco.forMainnet()`
+- `hieco.forPreviewnet()`
+- `hieco.withSigner(signer, config?)`
 
-Optional shortcut:
+## Server Runtime
 
-- `client.do.*` runs the same operation directly without calling `.now()`
+`hieco.fromEnv()` is the server runtime helper.
+
+It reads:
+
+- `HIERO_NETWORK`
+- `HIERO_OPERATOR_ID` or `HIERO_ACCOUNT_ID`
+- `HIERO_PRIVATE_KEY`
+- `HIERO_MIRROR_URL`
+
+Example:
 
 ```ts
-const result = await client.account.send().to("0.0.2002").hbar(1).memo("invoice-42").now();
+import { hieco } from "@hieco/sdk";
+
+const client = hieco.fromEnv();
+
+const result = await client.account
+  .send({
+    to: "0.0.2002",
+    hbar: 1,
+  })
+  .now();
 ```
+
+This is a good fit for:
+
+- API routes
+- server actions
+- route loaders
+- route actions
+- workers
+- scripts
+- CLIs
+
+## Browser Wallet Runtime
+
+For browser apps, start with public config and then scope the client to a wallet signer.
+
+```ts
+import { hieco, type Signer } from "@hieco/sdk";
+
+export async function transferFromWallet(signer: Signer, to: string) {
+  return hieco({ network: "testnet" }).as(signer).account.send({ to, hbar: 1 }).now();
+}
+```
+
+This is a good fit for:
+
+- browser wallets
+- dapp UIs
+- wallet-authorized user actions
+- React, Preact, or Solid apps that own a signer
+
+## Framework Recipes
+
+### Next.js
+
+Use the SDK in:
+
+- server-only modules
+- Route Handlers
+- Server Actions
+- Server Components
+
+Example:
+
+```ts
+import "server-only";
+import { hieco } from "@hieco/sdk";
+
+export const serverHieco = hieco.fromEnv();
+```
+
+### TanStack Start
+
+Use the SDK in:
+
+- `createServerFn()`
+- `createServerOnlyFn()`
+- other server-only modules
+
+Example:
+
+```ts
+import { createServerFn } from "@tanstack/react-start";
+import { hieco } from "@hieco/sdk";
+
+export const sendHbar = createServerFn({ method: "POST" }).handler(async () => {
+  return hieco.fromEnv().account.send({ to: "0.0.2002", hbar: 1 }).now();
+});
+```
+
+### React Router Framework Mode
+
+Use the SDK in:
+
+- `loader`
+- `action`
+- server entry modules
+
+Example:
+
+```tsx
+import type { Route } from "./+types/account";
+import { hieco } from "@hieco/sdk";
+
+export async function loader({ params }: Route.LoaderArgs) {
+  return hieco.fromEnv().account.info(params.accountId).now();
+}
+```
+
+## Core Usage Pattern
+
+Most operations return a handle that ends with `.now()`.
+
+```ts
+const result = await client.account.send({ to: "0.0.2002", hbar: 1 }).now();
+```
+
+The same operation is often available through `client.do.*` as a direct execution shortcut:
 
 ```ts
 const result = await client.do.account.send({ to: "0.0.2002", hbar: 1 });
 ```
 
-## 4 workflows in 3 lines
+Many transaction-capable operations also support:
+
+- `.tx()` to build a transaction descriptor
+- `.queue()` to create a scheduled transaction flow
+
+## Common Workflows
 
 Create account:
 
@@ -60,7 +223,9 @@ const result = await client.account.create({ publicKey: "302a3005..." }).now();
 Transfer token:
 
 ```ts
-const result = await client.token.transfer({ tokenId: "0.0.5005", from: "0.0.1001", to: "0.0.2002", amount: 10 }).now();
+const result = await client.token
+  .transfer({ tokenId: "0.0.5005", from: "0.0.1001", to: "0.0.2002", amount: 10 })
+  .now();
 ```
 
 Deploy contract:
@@ -75,35 +240,52 @@ Query balance:
 const result = await client.account.balance("0.0.1234").now();
 ```
 
-## Runtime setup
+## Client Methods
 
-### Node/server
+Instance methods:
 
-- `hieco.fromEnv()` reads environment variables
-- Best for operator key + backend service flows
+- `client.as(signer)`
+- `client.with({ signer?, operator?, key? })`
+- `client.setOperator(operator, key)`
+- `client.setMaxAttempts(n)`
+- `client.setMaxNodeAttempts(n)`
+- `client.setRequestTimeout(ms)`
+- `client.setGrpcDeadline(ms)`
+- `client.setMinBackoff(ms)`
+- `client.setMaxBackoff(ms)`
+- `client.destroy()`
 
-Environment variables:
+## SDK Utilities
 
-- `HIERO_NETWORK`
-- `HIERO_OPERATOR_ID` (or `HIERO_ACCOUNT_ID`)
-- `HIERO_PRIVATE_KEY`
-- `HIERO_MIRROR_URL`
+The SDK root also exports a small set of utility types and helpers that are useful in app code:
 
-### Browser
+- `EntityId`
+- `NetworkType`
+- `NETWORK_CONFIGS`
+- `isValidEntityId()`
+- `parseEntityId()`
+- `assertEntityId()`
+- `formatEntityId()`
+- `parseEntityIdParts()`
+- `isDefaultNetwork()`
 
-- Do not embed private keys
-- Scope signer context with `client.as(signer)`
+Example:
 
 ```ts
-import { hieco } from "@hieco/sdk";
-import type { Signer } from "@hieco/sdk";
+import { formatEntityId, isValidEntityId, type EntityId } from "@hieco/sdk";
 
-export async function transferFromWallet(signer: Signer, to: string) {
-  return hieco({ network: "testnet" }).as(signer).account.send().to(to).hbar(1).now();
+const treasury: EntityId = formatEntityId(0, 0, 1001);
+
+export function requireEntityId(value: string): EntityId {
+  if (!isValidEntityId(value)) {
+    throw new Error("Expected a Hedera entity id");
+  }
+
+  return value;
 }
 ```
 
-## Main API surface
+## Main API Surface
 
 ### Accounts
 
@@ -230,19 +412,6 @@ export async function transferFromWallet(signer: Signer, to: string) {
 - `client.util.random(params?).now()`
 - `client.batch.atomic(params?).now()`
 
-### Client methods
-
-- `client.as(signer)` — scope to a wallet signer
-- `client.with({ signer?, operator?, key? })` — reconfigure client
-- `client.setOperator(operator, key)` — set operator after creation
-- `client.setMaxAttempts(n)` — max retry attempts
-- `client.setMaxNodeAttempts(n)` — max node retries
-- `client.setRequestTimeout(ms)` — request timeout
-- `client.setGrpcDeadline(ms)` — gRPC deadline
-- `client.setMinBackoff(ms)` — min backoff between retries
-- `client.setMaxBackoff(ms)` — max backoff between retries
-- `client.destroy()` — clean up client resources
-
 ### Network, tx, reads, evm, legacy
 
 - `client.tx.submit(descriptor).now()`
@@ -256,88 +425,10 @@ export async function transferFromWallet(signer: Signer, to: string) {
 - `client.net.ping(nodeAccountId).now()`
 - `client.net.pingAll().now()`
 - `client.net.update().now()`
-- `client.net.setNetwork(network)`
-- `client.net.setMirrorNetwork(mirror)`
-- `client.reads.*.*(...).now()`
-- `client.evm.sendRaw(params?).now()`
-- `client.do.evm.sendRaw(params?)`
+- `client.reads.*`
+- `client.evm.sendRaw(params)`
+- `client.legacy.liveHash.*`
 
-## Mirror node
+## Related Packages
 
-The SDK automatically includes mirror node support from `@hieco/mirror`. All read operations use the mirror node under the hood.
-
-### Mapping to `@hieco/mirror`
-
-| `@hieco/mirror` | `hieco` SDK |
-|----------------|--------------|
-| `client.account.*` | `client.reads.accounts.*` |
-| `client.token.*` | `client.reads.tokens.*` |
-| `client.transaction.*` | `client.reads.transactions.*` |
-| `client.contract.*` | `client.reads.contracts.*` |
-| `client.topic.*` | `client.reads.topics.*` |
-| `client.schedule.*` | `client.reads.schedules.*` |
-| `client.network.*` | `client.reads.network.*` |
-| `client.balance.*` | `client.reads.balances.*` |
-| `client.block.*` | `client.reads.blocks.*` |
-
-```ts
-const client = hieco({ network: "testnet" });
-
-// These all use mirror node:
-await client.account.balance("0.0.123").now();
-await client.account.info("0.0.123").now();
-await client.reads.accounts.info("0.0.123").now();
-await client.reads.tokens.balances("0.0.456").now();
-await client.reads.contracts.results("0.0.789").now();
-```
-
-You don't need to configure mirror separately — it's handled automatically based on the network.
-- `client.legacy.liveHash.add(params?).now()`
-- `client.legacy.liveHash.delete(params?).now()`
-- `client.legacy.liveHash.get(params).now()`
-- `client.do.legacy.liveHash.add(params?)`
-- `client.do.legacy.liveHash.delete(params?)`
-- `client.do.legacy.liveHash.get(params)`
-
-## Descriptors and scheduling
-
-```ts
-const descriptor = client.account.send().from("0.0.1001").to("0.0.2002").hbar(1).tx();
-if (!descriptor.ok) throw new Error(descriptor.error.message);
-
-const submitted = await client.tx.submit(descriptor.value).now();
-```
-
-```ts
-const queued = await client.account.send().to("0.0.2002").hbar(1).queue({ memo: "2-party" });
-```
-
-## Error handling
-
-All operations return `Result<T>`.
-
-```ts
-import { hieco, unwrap } from "@hieco/sdk";
-
-const result = await hieco.fromEnv().account.send().to("0.0.2002").hbar(1).now();
-if (!result.ok) {
-  console.error(result.error.code, result.error.message, result.error.hint);
-}
-
-const receipt = unwrap(result);
-console.log(receipt.transactionId);
-```
-
-Helpers:
-
-- `classifyError(error)`
-- `formatError(error)`
-- `unwrap(result)`
-
-## Best practices
-
-- Reuse one client instance per process; call `client.destroy()` at shutdown
-- Keep private keys in secure env/wallet providers
-- Use `.tx()` when intent and submission are split across layers
-- Use schedules for multi-party approval flows
-- Use `client.reads` for mirror-heavy read paths
+- `@hieco/react` for React UI and hooks

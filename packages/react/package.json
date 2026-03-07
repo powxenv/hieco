@@ -1,0 +1,93 @@
+{
+  "name": "@hieco/react",
+  "version": "0.0.1",
+  "description": "React hooks for @hieco/sdk with TanStack Query",
+  "keywords": [
+    "hedera",
+    "hiero",
+    "hooks",
+    "react",
+    "sdk",
+    "tanstack-query"
+  ],
+  "homepage": "https://github.com/powxenv/hieco/tree/main/packages/react",
+  "bugs": {
+    "url": "https://github.com/powxenv/hieco/issues"
+  },
+  "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hieco",
+    "directory": "packages/react"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./bridge/appkit": {
+      "types": "./dist/bridge/appkit/index.d.ts",
+      "import": "./dist/bridge/appkit/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "bun run generate && bun build ./src/index.ts ./src/bridge/appkit/index.ts --outdir ./dist --target browser --format esm --sourcemap --external react --external react-dom --external @hieco/sdk --external @tanstack/react-query --external @reown/appkit/react --external @hashgraph/hedera-wallet-connect && bunx tsc -p tsconfig.build.json",
+    "dev": "bun run generate && bun build ./src/index.ts ./src/bridge/appkit/index.ts --outdir ./dist --target browser --format esm --watch --external react --external react-dom --external @hieco/sdk --external @tanstack/react-query --external @reown/appkit/react --external @hashgraph/hedera-wallet-connect",
+    "generate": "bun ./scripts/generate-hooks.ts",
+    "typecheck": "tsgo --noEmit",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --fix --type-aware",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check"
+  },
+  "dependencies": {
+    "@hieco/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@hashgraph/hedera-wallet-connect": "2.0.6",
+    "@reown/appkit": "1.8.19",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@typescript/native-preview": "catalog:",
+    "@walletconnect/universal-provider": "2.23.7",
+    "bun-types": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "react": "catalog:react",
+    "react-dom": "catalog:react"
+  },
+  "peerDependencies": {
+    "@hashgraph/hedera-wallet-connect": "^2.0.6",
+    "@hieco/sdk": "workspace:*",
+    "@reown/appkit": "^1.8.19",
+    "@tanstack/react-query": "^5.0.0",
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "@hashgraph/hedera-wallet-connect": {
+      "optional": true
+    },
+    "@reown/appkit": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

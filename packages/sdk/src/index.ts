@@ -6,3 +6,13 @@ export * from "./foundation/results-shapes.ts";
 export * from "./foundation/errors-types.ts";
 export * from "./foundation/errors.api.ts";
 export type { Signer } from "@hiero-ledger/sdk";
+export type { EntityId, NetworkType } from "@hieco/utils";
+export {
+  NETWORK_CONFIGS,
+  assertEntityId,
+  formatEntityId,
+  isDefaultNetwork,
+  isValidEntityId,
+  parseEntityId,
+  parseEntityIdParts,
+} from "@hieco/utils";
