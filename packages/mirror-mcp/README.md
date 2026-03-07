@@ -9,7 +9,7 @@ It provides:
 - a ready-to-run MCP server binary named `mirror-mcp`
 - read-only tools across accounts, balances, blocks, contracts, network, schedules, tokens, topics, and transactions
 - runtime tools for inspecting the active network and, when enabled, switching networks for the current stdio session
-- validated inputs using `zod`
+- validated inputs using `Zod 4`
 - environment-driven startup defaults for `mainnet`, `testnet`, `previewnet`, or a custom Mirror Node URL
 
 ## Installation
@@ -101,7 +101,7 @@ This package uses stdio, so one server process usually serves one MCP client. Th
 
 Each tool:
 
-- validates its input with `zod`
+- validates its input with `Zod 4`
 - calls the matching `@hieco/mirror` API
 - returns the successful API payload
 - throws an MCP-friendly error when the underlying Mirror API fails
