@@ -1,7 +1,8 @@
-import type { JsonRpcResponse } from "../types/json-rpc";
+import type { JsonRpcRequest, JsonRpcResponse } from "../types/json-rpc";
 import type { RelayMessage } from "../types/subscription";
 import {
   isJsonRpcResponse,
+  isRelayMessage,
   isResponseWithId,
   isSubscribeResponse,
   isUnsubscribeResponse,
@@ -17,7 +18,7 @@ export class RequestManager {
     private setState: (state: StreamState) => void,
   ) {}
 
-  sendRequest(request: any): void {
+  sendRequest(request: JsonRpcRequest): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
       throw new Error("WebSocket not connected");
     }
@@ -39,7 +40,7 @@ export class RequestManager {
         return;
       }
 
-      if (parsed.method === "eth_subscription" && parsed.params) {
+      if (parsed.method === "eth_subscription" && isRelayMessage(parsed.params)) {
         this.handleSubscriptionMessage(parsed.params);
       } else if (isResponseWithId(parsed)) {
         this.handleRequestResponse(parsed);
@@ -82,7 +83,7 @@ export class RequestManager {
         if (response.result) {
           this.subscriptionManager.deleteCallbacks(pending.localSubscriptionId);
           this.subscriptionManager.deleteTracked(pending.localSubscriptionId);
-          const serverSubscriptionId = this.subscriptionManager.getServerSubscriptionId(
+          const serverSubscriptionId = this.subscriptionManager.getServerSubscriptionIdByLocalId(
             pending.localSubscriptionId,
           );
           if (serverSubscriptionId) {
@@ -110,13 +111,25 @@ export class RequestManager {
   }
 
   private handleSubscriptionMessage(message: RelayMessage): void {
-    const localSubscriptionId = this.subscriptionManager.getServerSubscriptionId(
+    const localSubscriptionId = this.subscriptionManager.getLocalSubscriptionId(
       message.subscription,
     );
     if (localSubscriptionId) {
       const callbacks = this.subscriptionManager.getCallbacks(localSubscriptionId);
       if (callbacks) {
-        callbacks.forEach((callback) => callback(message));
+        for (const callback of callbacks) {
+          try {
+            callback(message);
+          } catch (error) {
+            this.setState({
+              _tag: "Error",
+              error: {
+                _tag: "UnknownError",
+                message: error instanceof Error ? error.message : "Subscription callback failed",
+              },
+            });
+          }
+        }
       }
     }
   }
