@@ -229,14 +229,13 @@ const messages = await client.topic.getMessages("0.0.3003", {
 | `ApiResult`           | type  | Shared success or failure wrapper.            | `type ApiResult<T>`             |
 | `ApiError`            | type  | Shared API error shape.                       | `type ApiError`                 |
 | `ApiErrorFactory`     | const | Helpers for constructing API errors.          | `ApiErrorFactory.notFound(...)` |
-| `EntityId`            | type  | Hedera entity identifier string alias.        | `type EntityId`                 |
 | `Key`                 | type  | Hedera key metadata.                          | `type Key`                      |
 | `MirrorNetworkConfig` | type  | Built-in mirror network configuration.        | `type MirrorNetworkConfig`      |
 | `MirrorNodeConfig`    | type  | Mirror client construction config.            | `type MirrorNodeConfig`         |
 | `NetworkType`         | type  | Built-in network names.                       | `type NetworkType`              |
 | `PaginationParams`    | type  | Shared list pagination params.                | `type PaginationParams`         |
 | `QueryOperator`       | type  | Range and comparison helper type for filters. | `type QueryOperator<T>`         |
-| `Timestamp`           | type  | Timestamp filter type.                        | `type Timestamp`                |
+| `TimestampFilter`     | type  | Timestamp range filter type.                  | `type TimestampFilter`          |
 | `NETWORK_CONFIGS`     | const | Default network URLs.                         | `NETWORK_CONFIGS.testnet`       |
 
 ## Related Packages

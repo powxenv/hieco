@@ -5,7 +5,7 @@ import type {
   UseQueryResult,
   UseInfiniteQueryResult,
 } from "@tanstack/preact-query";
-import type { ApiResult, ApiError, EntityId, PaginationParams, QueryOperator } from "@hieco/mirror";
+import type { ApiResult, ApiError, PaginationParams, QueryOperator } from "@hieco/mirror";
 import type { Nft, TokenBalancesResponse, TokenDistribution, TokenInfo } from "@hieco/mirror";
 import type { Transaction } from "@hieco/mirror";
 import type { PaginatedResponse } from "@hieco/mirror";
@@ -21,7 +21,7 @@ export interface UseTokenInfoOptions extends Omit<
   UseQueryOptions<TokenQueryFnData<TokenInfo>, TokenQueryError>,
   "queryKey" | "queryFn"
 > {
-  tokenId: EntityId;
+  tokenId: string;
 }
 
 export type UseTokenInfoResult = UseQueryResult<TokenQueryFnData<TokenInfo>, TokenQueryError>;
@@ -30,11 +30,11 @@ export interface UseTokenBalancesOptions extends Omit<
   UseQueryOptions<TokenQueryFnData<TokenDistribution[]>, TokenQueryError>,
   "queryKey" | "queryFn"
 > {
-  tokenId: EntityId;
+  tokenId: string;
   params?: {
     limit?: number;
     order?: "asc" | "desc";
-    account?: EntityId;
+    account?: string;
     "account.balance"?: QueryOperator<number>;
   };
 }
@@ -48,11 +48,11 @@ export interface UseTokenBalancesSnapshotOptions extends Omit<
   UseQueryOptions<TokenQueryFnData<TokenBalancesResponse>, TokenQueryError>,
   "queryKey" | "queryFn"
 > {
-  tokenId: EntityId;
+  tokenId: string;
   params?: {
     limit?: number;
     order?: "asc" | "desc";
-    account?: EntityId;
+    account?: string;
     "account.balance"?: QueryOperator<number>;
   };
 }
@@ -66,7 +66,7 @@ export interface UseTokenNftsOptions extends Omit<
   UseQueryOptions<TokenQueryFnData<PaginatedResponse<Nft>>, TokenQueryError>,
   "queryKey" | "queryFn"
 > {
-  tokenId: EntityId;
+  tokenId: string;
   params?: { limit?: number; order?: "asc" | "desc"; serial_number?: number };
 }
 
@@ -79,7 +79,7 @@ export interface UseTokenNftOptions extends Omit<
   UseQueryOptions<TokenQueryFnData<Nft>, TokenQueryError>,
   "queryKey" | "queryFn"
 > {
-  tokenId: EntityId;
+  tokenId: string;
   serialNumber: number;
 }
 
@@ -89,7 +89,7 @@ export interface UseTokenNftTransactionsOptions extends Omit<
   UseQueryOptions<TokenQueryFnData<Transaction[]>, TokenQueryError>,
   "queryKey" | "queryFn"
 > {
-  tokenId: EntityId;
+  tokenId: string;
   serialNumber: number;
   params?: PaginationParams;
 }
@@ -106,7 +106,7 @@ export interface UseTokensOptions extends Omit<
   params?: {
     limit?: number;
     order?: "asc" | "desc";
-    "token.id"?: EntityId | QueryOperator<EntityId>;
+    "token.id"?: string | QueryOperator<string>;
     type?: "FUNGIBLE_COMMON" | "NON_FUNGIBLE_UNIQUE";
   };
 }

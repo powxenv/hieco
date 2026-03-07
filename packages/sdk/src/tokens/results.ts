@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { TokenInfo } from "@hieco/mirror";
 import type { TokenNftInfo } from "@hiero-ledger/sdk";
 import type { TransactionReceiptData } from "../results/transaction.ts";
@@ -6,7 +5,7 @@ import type { TransactionReceiptData } from "../results/transaction.ts";
 export interface TokenReceipt {
   readonly receipt: TransactionReceiptData;
   readonly transactionId: string;
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
 }
 
 export interface MintReceipt {
@@ -17,7 +16,7 @@ export interface MintReceipt {
 }
 
 export interface TokenInfoData {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly token: TokenInfo;
 }
 

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hieco/mirror";
+import type { ApiResult, ApiError, QueryOperator } from "@hieco/mirror";
 import type {
   ContractCallParams,
   ContractCallResult,
@@ -27,7 +27,7 @@ export type {
 } from "@hieco/mirror";
 
 export interface CreateContractInfoOptions {
-  readonly contractIdOrAddress: EntityId | string;
+  readonly contractIdOrAddress: string;
   readonly enabled?: boolean;
 }
 
@@ -41,11 +41,11 @@ export interface CreateContractCallOptions {
 export type CreateContractCallResult = UseQueryResult<ApiResult<ContractCallResult>, ApiError>;
 
 export interface CreateContractResultsOptions {
-  readonly contractId: EntityId;
+  readonly contractId: string;
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly timestamp?: Timestamp;
+    readonly timestamp?: string;
   };
   readonly enabled?: boolean;
 }
@@ -56,15 +56,15 @@ export type CreateContractResultsResult = UseQueryResult<
 >;
 
 export interface CreateContractResultOptions {
-  readonly contractId: EntityId;
-  readonly timestamp: Timestamp;
+  readonly contractId: string;
+  readonly timestamp: string;
   readonly enabled?: boolean;
 }
 
 export type CreateContractResultResult = UseQueryResult<ApiResult<ContractResultDetails>, ApiError>;
 
 export interface CreateContractStateOptions {
-  readonly contractId: EntityId;
+  readonly contractId: string;
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
@@ -76,11 +76,11 @@ export interface CreateContractStateOptions {
 export type CreateContractStateResult = UseQueryResult<ApiResult<ContractState>, ApiError>;
 
 export interface CreateContractLogsOptions {
-  readonly contractId: EntityId;
+  readonly contractId: string;
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly timestamp?: Timestamp;
+    readonly timestamp?: string;
     readonly index?: number;
   };
   readonly enabled?: boolean;
@@ -93,7 +93,7 @@ export interface CreateContractsOptions {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
     readonly address?: string;
-    readonly smart_contract_id?: EntityId | QueryOperator<EntityId>;
+    readonly smart_contract_id?: string | QueryOperator<string>;
   };
   readonly enabled?: boolean;
 }
@@ -283,7 +283,7 @@ export interface CreateContractAllResultsOptions {
     readonly block_hash?: string;
     readonly block_number?: number;
     readonly internal?: boolean;
-    readonly timestamp?: Timestamp;
+    readonly timestamp?: string;
     readonly transaction_index?: number;
   };
   readonly enabled?: boolean;
@@ -326,7 +326,7 @@ export interface CreateContractAllLogsOptions {
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly timestamp?: Timestamp;
+    readonly timestamp?: string;
     readonly index?: number;
   };
   readonly enabled?: boolean;

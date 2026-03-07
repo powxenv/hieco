@@ -19,15 +19,12 @@ import type {
   UpdateLargeFileParams,
 } from "../shared/params.ts";
 import type { FilesNamespace } from "./namespace.ts";
-import type { EntityId } from "@hieco/utils";
 import { createError } from "../errors/error.ts";
 
 export function createFilesNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
-  readonly queryFileInfo: (
-    fileId: EntityId,
-  ) => Promise<Result<import("@hiero-ledger/sdk").FileInfo>>;
-  readonly queryFileContents: (fileId: EntityId) => Promise<Result<Uint8Array>>;
+  readonly queryFileInfo: (fileId: string) => Promise<Result<import("@hiero-ledger/sdk").FileInfo>>;
+  readonly queryFileContents: (fileId: string) => Promise<Result<Uint8Array>>;
 }): FilesNamespace {
   const defaultChunkSize = 2048;
 
@@ -56,7 +53,7 @@ export function createFilesNamespace(context: {
   };
 
   const appendChunks = async (
-    fileId: EntityId,
+    fileId: string,
     firstChunk: Uint8Array,
     remainingChunks: ReadonlyArray<Uint8Array>,
     input: {
@@ -141,21 +138,21 @@ export function createFilesNamespace(context: {
     params,
   });
 
-  const info = async (fileId: EntityId): Promise<Result<FileInfoData>> => {
+  const info = async (fileId: string): Promise<Result<FileInfoData>> => {
     const result = await context.queryFileInfo(fileId);
     if (!result.ok) return err(result.error);
     return ok({ fileId, info: result.value });
   };
 
-  const contents = async (fileId: EntityId): Promise<Result<FileContentsData>> => {
+  const contents = async (fileId: string): Promise<Result<FileContentsData>> => {
     const result = await context.queryFileContents(fileId);
     if (!result.ok) return err(result.error);
     return ok({ fileId, contents: result.value });
   };
 
   const contentsText = async (
-    fileId: EntityId,
-  ): Promise<Result<{ readonly fileId: EntityId; readonly text: string }>> => {
+    fileId: string,
+  ): Promise<Result<{ readonly fileId: string; readonly text: string }>> => {
     const result = await contents(fileId);
     if (!result.ok) return result;
     const text = new TextDecoder().decode(result.value.contents);
@@ -163,8 +160,8 @@ export function createFilesNamespace(context: {
   };
 
   const contentsJson = async <T = unknown>(
-    fileId: EntityId,
-  ): Promise<Result<{ readonly fileId: EntityId; readonly json: T }>> => {
+    fileId: string,
+  ): Promise<Result<{ readonly fileId: string; readonly json: T }>> => {
     const text = await contentsText(fileId);
     if (!text.ok) return text;
     try {

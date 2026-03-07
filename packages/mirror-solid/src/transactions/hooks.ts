@@ -3,9 +3,8 @@ import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-que
 import type {
   ApiResult,
   ApiError,
-  EntityId,
   QueryOperator,
-  Timestamp,
+  TimestampFilter,
   TransactionDetails,
   Transaction,
 } from "@hieco/mirror";
@@ -25,11 +24,11 @@ export interface CreateTransactionOptions {
 export type CreateTransactionResult = UseQueryResult<ApiResult<TransactionDetails>, ApiError>;
 
 export interface CreateTransactionsByAccountOptions {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly timestamp?: Timestamp | { readonly from?: Timestamp; readonly to?: Timestamp };
+    readonly timestamp?: TimestampFilter;
     readonly transaction_id?: string;
     readonly result?: string;
   };
@@ -42,8 +41,8 @@ export interface CreateTransactionsOptions {
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly account?: EntityId;
-    readonly "account.id"?: EntityId | QueryOperator<EntityId>;
+    readonly account?: string;
+    readonly "account.id"?: string | QueryOperator<string>;
     readonly transaction_id?: string;
     readonly result?: string;
   };

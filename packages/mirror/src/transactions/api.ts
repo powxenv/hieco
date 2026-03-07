@@ -1,20 +1,20 @@
-import type { ApiResult, EntityId, PaginationParams, QueryOperator, Timestamp } from "@hieco/utils";
+import type { ApiResult, PaginationParams, QueryOperator, TimestampFilter } from "@hieco/utils";
 import type { Transaction, TransactionDetails } from "./types";
 import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface TransactionListParams extends PaginationParams {
-  account?: EntityId;
-  "account.id"?: EntityId | QueryOperator<EntityId> | QueryOperator<EntityId>[];
+  account?: string;
+  "account.id"?: string | QueryOperator<string> | QueryOperator<string>[];
   result?: string;
   scheduled?: boolean;
-  timestamp?: Timestamp | { from?: Timestamp; to?: Timestamp };
+  timestamp?: TimestampFilter;
   transaction_id?: string;
   transactionhash?: string;
   transactiontype?: string;
-  "transfers.account"?: EntityId | QueryOperator<EntityId> | QueryOperator<EntityId>[];
-  "token.transfers.account"?: EntityId | QueryOperator<EntityId> | QueryOperator<EntityId>[];
-  "token.transfers.token"?: EntityId | QueryOperator<EntityId> | QueryOperator<EntityId>[];
+  "transfers.account"?: string | QueryOperator<string> | QueryOperator<string>[];
+  "token.transfers.account"?: string | QueryOperator<string> | QueryOperator<string>[];
+  "token.transfers.token"?: string | QueryOperator<string> | QueryOperator<string>[];
   "token.transfers.amount"?: QueryOperator<number>;
   type?: "credit" | "debit";
 }
@@ -22,7 +22,7 @@ export interface TransactionListParams extends PaginationParams {
 export interface TransactionsByAccountParams extends PaginationParams {
   result?: string;
   scheduled?: boolean;
-  timestamp?: Timestamp | { from?: Timestamp; to?: Timestamp };
+  timestamp?: TimestampFilter;
   transaction_id?: string;
   transactionhash?: string;
   transactiontype?: string;
@@ -49,7 +49,7 @@ export class TransactionApi extends BaseApi {
   }
 
   async listByAccount(
-    accountId: EntityId,
+    accountId: string,
     params?: TransactionsByAccountParams,
   ): Promise<ApiResult<Transaction[]>> {
     const builder = new QueryBuilder();

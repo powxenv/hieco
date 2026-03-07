@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { Amount } from "../shared/amount.ts";
 import type { ReturnTypeHint } from "./abi.ts";
 
@@ -18,9 +17,9 @@ export interface DeployContractBase {
   readonly adminKey?: string | true;
   readonly initialBalance?: Amount;
   readonly autoRenewPeriodSeconds?: number;
-  readonly autoRenewAccountId?: EntityId;
+  readonly autoRenewAccountId?: string;
   readonly maxAutomaticTokenAssociations?: number;
-  readonly stakedAccountId?: EntityId;
+  readonly stakedAccountId?: string;
   readonly stakedNodeId?: number;
   readonly declineStakingReward?: boolean;
   readonly memo?: string;
@@ -34,7 +33,7 @@ export type DeployContractParams =
     })
   | (DeployContractBase & {
       readonly bytecode?: never;
-      readonly bytecodeFileId: EntityId;
+      readonly bytecodeFileId: string;
     });
 
 export interface DeployArtifactParams extends DeployContractBase {
@@ -50,7 +49,7 @@ export interface AccountInfoFlowOptions {
 }
 
 export interface ExecuteContractParams {
-  readonly id: EntityId;
+  readonly id: string;
   readonly fn: string;
   readonly args?: ReadonlyArray<unknown>;
   readonly gas?: number;
@@ -60,7 +59,7 @@ export interface ExecuteContractParams {
 }
 
 export interface ExecuteContractParamsTyped {
-  readonly id: EntityId;
+  readonly id: string;
   readonly fn: string;
   readonly params: FunctionParamsConfig;
   readonly gas?: number;
@@ -70,31 +69,31 @@ export interface ExecuteContractParamsTyped {
 }
 
 export interface CallContractParams {
-  readonly id: EntityId;
+  readonly id: string;
   readonly fn: string;
   readonly args?: ReadonlyArray<unknown>;
   readonly gas?: number;
-  readonly senderAccountId?: EntityId;
+  readonly senderAccountId?: string;
   readonly returns?: ReturnTypeHint;
 }
 
 export interface DeleteContractParams {
-  readonly contractId: EntityId;
-  readonly transferAccountId?: EntityId;
-  readonly transferContractId?: EntityId;
+  readonly contractId: string;
+  readonly transferAccountId?: string;
+  readonly transferContractId?: string;
   readonly permanentRemoval?: boolean;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface UpdateContractParams {
-  readonly contractId: EntityId;
+  readonly contractId: string;
   readonly adminKey?: string | true;
   readonly expirationTime?: Date;
   readonly autoRenewPeriodSeconds?: number;
-  readonly autoRenewAccountId?: EntityId;
+  readonly autoRenewAccountId?: string;
   readonly maxAutomaticTokenAssociations?: number;
-  readonly stakedAccountId?: EntityId;
+  readonly stakedAccountId?: string;
   readonly stakedNodeId?: number;
   readonly declineStakingReward?: boolean;
   readonly memo?: string;

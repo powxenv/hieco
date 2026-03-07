@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type {
   AccountInfo,
   Balance,
@@ -24,7 +23,20 @@ import type {
   PaginationParams,
   Schedule,
   StakingReward,
-  Timestamp,
+  AccountListParams,
+  AccountNftsParams,
+  BalancesListParams,
+  BlocksListParams,
+  ContractListParams,
+  ContractLogsParams,
+  ContractResultsParams,
+  ContractStateParams,
+  ScheduleListParams,
+  TokenBalancesParams,
+  TokenListParams,
+  TokenNftsParams,
+  TopicMessagesParams,
+  TransactionsByAccountParams,
   TokenAllowance,
   TokenAirdropsResponse,
   TokenDistribution,
@@ -43,6 +55,23 @@ import type {
 } from "@hieco/mirror";
 import type { Result } from "../results/result.ts";
 
+export type {
+  AccountListParams,
+  AccountNftsParams,
+  BalancesListParams,
+  BlocksListParams,
+  ContractListParams,
+  ContractLogsParams,
+  ContractResultsParams,
+  ContractStateParams,
+  ScheduleListParams,
+  TokenBalancesParams,
+  TokenListParams,
+  TokenNftsParams,
+  TopicMessagesParams,
+  TransactionsByAccountParams,
+} from "@hieco/mirror";
+
 export interface ReadPage<T> {
   readonly items: ReadonlyArray<T>;
   readonly next?: string;
@@ -52,55 +81,27 @@ export type AccountHistoryParams = Omit<TransactionListParams, "account" | "acco
 
 export type AccountTransfersParams = AccountHistoryParams;
 
-export type AccountListParams = import("@hieco/mirror").AccountListParams;
-
-export type AccountNftsParams = import("@hieco/mirror").AccountNftsParams;
-
 export type AccountTokenAllowancesParams = PaginationParams & {
-  readonly "spender.id"?: EntityId;
-  readonly "token.id"?: EntityId;
+  readonly "spender.id"?: string;
+  readonly "token.id"?: string;
 };
 
 export type AccountNftAllowancesParams = PaginationParams & {
-  readonly "account.id"?: EntityId;
+  readonly "account.id"?: string;
   readonly owner?: boolean;
-  readonly "token.id"?: EntityId;
+  readonly "token.id"?: string;
 };
 
-export type TokenBalancesParams = import("@hieco/mirror").TokenBalancesParams;
-
-export type TokenRelationshipsParams = PaginationParams & { readonly "token.id"?: EntityId };
+export type TokenRelationshipsParams = PaginationParams & { readonly "token.id"?: string };
 
 export type TokenTransfersParams = TransactionListParams;
 
-export type TokenListParams = import("@hieco/mirror").TokenListParams;
-
-export type TokenNftsParams = import("@hieco/mirror").TokenNftsParams;
-
-export type ContractListParams = import("@hieco/mirror").ContractListParams;
-
-export type ContractResultsParams = import("@hieco/mirror").ContractResultsParams;
-
-export type ContractStateParams = import("@hieco/mirror").ContractStateParams;
-
-export type ContractLogsParams = import("@hieco/mirror").ContractLogsParams;
-
 export type TransactionSearchParams = TransactionListParams;
-
-export type TransactionsByAccountParams = import("@hieco/mirror").TransactionsByAccountParams;
-
-export type TopicMessagesParams = import("@hieco/mirror").TopicMessagesParams;
-
-export type ScheduleListParams = import("@hieco/mirror").ScheduleListParams;
 
 export type NetworkNodesParams = PaginationParams & {
   readonly "file.id"?: number;
   readonly "node.id"?: number;
 };
-
-export type BalancesListParams = import("@hieco/mirror").BalancesListParams;
-
-export type BlocksListParams = import("@hieco/mirror").BlocksListParams;
 
 export interface AccountTransferActivity {
   readonly transactionId: string;
@@ -113,7 +114,7 @@ export interface AccountTransferActivity {
 }
 
 export interface TokenTransferActivity {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly transactionId: string;
   readonly consensusTimestamp: string;
   readonly name: TransactionType;
@@ -127,64 +128,64 @@ export interface ReadsNamespace {
     readonly list: (params?: AccountListParams) => Promise<Result<ReadPage<AccountInfo>>>;
     readonly listPageByUrl: (url: string) => Promise<Result<ReadPage<AccountInfo>>>;
     readonly info: (
-      accountId: EntityId,
-      params?: { readonly timestamp?: Timestamp; readonly transactions?: boolean },
+      accountId: string,
+      params?: { readonly timestamp?: string; readonly transactions?: boolean },
     ) => Promise<Result<AccountInfo>>;
-    readonly balances: (accountId: EntityId) => Promise<Result<Balance>>;
+    readonly balances: (accountId: string) => Promise<Result<Balance>>;
     readonly tokens: (
-      accountId: EntityId,
+      accountId: string,
       params?: TokenRelationshipsParams,
     ) => Promise<Result<ReadPage<TokenRelationship>>>;
     readonly nfts: (
-      accountId: EntityId,
+      accountId: string,
       params?: AccountNftsParams,
     ) => Promise<Result<ReadPage<TokenRelationship>>>;
     readonly rewards: (
-      accountId: EntityId,
-      params?: PaginationParams & { readonly timestamp?: Timestamp },
+      accountId: string,
+      params?: PaginationParams & { readonly timestamp?: string },
     ) => Promise<Result<ReadPage<StakingReward>>>;
     readonly allowances: {
       readonly crypto: (
-        accountId: EntityId,
-        params?: PaginationParams & { readonly "spender.id"?: EntityId },
+        accountId: string,
+        params?: PaginationParams & { readonly "spender.id"?: string },
       ) => Promise<Result<ReadPage<CryptoAllowance>>>;
       readonly token: (
-        accountId: EntityId,
+        accountId: string,
         params?: AccountTokenAllowancesParams,
       ) => Promise<Result<ReadPage<TokenAllowance>>>;
       readonly nft: (
-        accountId: EntityId,
+        accountId: string,
         params?: AccountNftAllowancesParams,
       ) => Promise<Result<ReadPage<NftAllowance>>>;
     };
     readonly airdrops: {
       readonly outstanding: (
-        accountId: EntityId,
+        accountId: string,
         params?: {
           readonly limit?: number;
           readonly order?: "asc" | "desc";
-          readonly "receiver.id"?: EntityId;
+          readonly "receiver.id"?: string;
           readonly serial_number?: number;
-          readonly "token.id"?: EntityId;
+          readonly "token.id"?: string;
         },
       ) => Promise<Result<TokenAirdropsResponse>>;
       readonly pending: (
-        accountId: EntityId,
+        accountId: string,
         params?: {
           readonly limit?: number;
           readonly order?: "asc" | "desc";
-          readonly "sender.id"?: EntityId;
+          readonly "sender.id"?: string;
           readonly serial_number?: number;
-          readonly "token.id"?: EntityId;
+          readonly "token.id"?: string;
         },
       ) => Promise<Result<TokenAirdropsResponse>>;
     };
     readonly history: (
-      accountId: EntityId,
+      accountId: string,
       params?: AccountHistoryParams,
     ) => Promise<Result<ReadPage<Transaction>>>;
     readonly transfers: (
-      accountId: EntityId,
+      accountId: string,
       params?: AccountTransfersParams,
     ) => Promise<Result<ReadPage<AccountTransferActivity>>>;
   };
@@ -192,30 +193,30 @@ export interface ReadsNamespace {
     readonly list: (params?: TokenListParams) => Promise<Result<ReadPage<TokenInfo>>>;
     readonly listPageByUrl: (url: string) => Promise<Result<ReadPage<TokenInfo>>>;
     readonly info: (
-      tokenId: EntityId,
-      params?: { readonly timestamp?: Timestamp },
+      tokenId: string,
+      params?: { readonly timestamp?: string },
     ) => Promise<Result<TokenInfo>>;
     readonly balances: (
-      tokenId: EntityId,
+      tokenId: string,
       params?: TokenBalancesParams,
     ) => Promise<Result<ReadPage<TokenDistribution>>>;
     readonly balancesSnapshot: (
-      tokenId: EntityId,
+      tokenId: string,
       params?: TokenBalancesParams,
     ) => Promise<Result<import("@hieco/mirror").TokenBalancesResponse>>;
-    readonly nfts: (tokenId: EntityId, params?: TokenNftsParams) => Promise<Result<ReadPage<Nft>>>;
-    readonly nft: (tokenId: EntityId, serial: number) => Promise<Result<Nft>>;
+    readonly nfts: (tokenId: string, params?: TokenNftsParams) => Promise<Result<ReadPage<Nft>>>;
+    readonly nft: (tokenId: string, serial: number) => Promise<Result<Nft>>;
     readonly nftTransactions: (
-      tokenId: EntityId,
+      tokenId: string,
       serial: number,
-      params?: PaginationParams & { readonly timestamp?: Timestamp },
+      params?: PaginationParams & { readonly timestamp?: string },
     ) => Promise<Result<ReadPage<Transaction>>>;
     readonly relationships: (
-      accountId: EntityId,
+      accountId: string,
       params?: TokenRelationshipsParams,
     ) => Promise<Result<ReadPage<TokenRelationship>>>;
     readonly transfers: (
-      tokenId: EntityId,
+      tokenId: string,
       params?: TokenTransfersParams,
     ) => Promise<Result<ReadPage<TokenTransferActivity>>>;
   };
@@ -223,26 +224,23 @@ export interface ReadsNamespace {
     readonly list: (params?: ContractListParams) => Promise<Result<ReadPage<ContractInfo>>>;
     readonly listPageByUrl: (url: string) => Promise<Result<ReadPage<ContractInfo>>>;
     readonly info: (
-      contractIdOrAddress: EntityId | string,
-      params?: { readonly timestamp?: Timestamp },
+      contractIdOrAddress: string,
+      params?: { readonly timestamp?: string },
     ) => Promise<Result<ContractInfo>>;
     readonly call: (
       params: import("@hieco/mirror").ContractCallParams,
     ) => Promise<Result<ContractCallResult>>;
     readonly results: (
-      contractId: EntityId,
+      contractId: string,
       params?: ContractResultsParams,
     ) => Promise<Result<ReadPage<ContractResult>>>;
-    readonly result: (
-      contractId: EntityId,
-      timestamp: Timestamp,
-    ) => Promise<Result<ContractResult>>;
+    readonly result: (contractId: string, timestamp: string) => Promise<Result<ContractResult>>;
     readonly state: (
-      contractId: EntityId,
+      contractId: string,
       params?: ContractStateParams,
     ) => Promise<Result<ReadPage<ContractState>>>;
     readonly logs: (
-      contractId: EntityId,
+      contractId: string,
       params?: ContractLogsParams,
     ) => Promise<Result<ReadPage<ContractLog>>>;
     readonly resultsAll: (params?: {
@@ -252,7 +250,7 @@ export interface ReadsNamespace {
       readonly block_hash?: string;
       readonly block_number?: number;
       readonly internal?: boolean;
-      readonly timestamp?: Timestamp;
+      readonly timestamp?: string;
       readonly transaction_index?: number;
     }) => Promise<Result<ContractResultsResponse>>;
     readonly resultByTransactionIdOrHash: (
@@ -270,7 +268,7 @@ export interface ReadsNamespace {
     readonly logsAll: (
       params?: PaginationParams & {
         readonly index?: number;
-        readonly timestamp?: Timestamp;
+        readonly timestamp?: string;
         readonly topic0?: string;
         readonly topic1?: string;
         readonly topic2?: string;
@@ -285,7 +283,7 @@ export interface ReadsNamespace {
       params?: { readonly nonce?: number; readonly scheduled?: boolean },
     ) => Promise<Result<TransactionDetails>>;
     readonly byAccount: (
-      accountId: EntityId,
+      accountId: string,
       params?: TransactionsByAccountParams,
     ) => Promise<Result<ReadPage<Transaction>>>;
     readonly list: (params?: TransactionSearchParams) => Promise<Result<ReadPage<Transaction>>>;
@@ -295,25 +293,25 @@ export interface ReadsNamespace {
   readonly topics: {
     readonly list: (params?: PaginationParams) => Promise<Result<ReadPage<Topic>>>;
     readonly listPageByUrl: (url: string) => Promise<Result<ReadPage<Topic>>>;
-    readonly info: (topicId: EntityId) => Promise<Result<Topic>>;
+    readonly info: (topicId: string) => Promise<Result<Topic>>;
     readonly messages: (
-      topicId: EntityId,
+      topicId: string,
       params?: TopicMessagesParams,
     ) => Promise<Result<ReadPage<TopicMessage>>>;
-    readonly message: (topicId: EntityId, sequenceNumber: number) => Promise<Result<TopicMessage>>;
+    readonly message: (topicId: string, sequenceNumber: number) => Promise<Result<TopicMessage>>;
     readonly messageByTimestamp: (timestamp: string) => Promise<Result<TopicMessage>>;
   };
   readonly schedules: {
     readonly list: (params?: ScheduleListParams) => Promise<Result<ReadPage<Schedule>>>;
     readonly listPageByUrl: (url: string) => Promise<Result<ReadPage<Schedule>>>;
-    readonly info: (scheduleId: EntityId) => Promise<Result<Schedule>>;
+    readonly info: (scheduleId: string) => Promise<Result<Schedule>>;
   };
   readonly network: {
     readonly exchangeRate: (params?: {
-      readonly timestamp?: Timestamp;
+      readonly timestamp?: string;
     }) => Promise<Result<ExchangeRate>>;
     readonly fees: (
-      params?: PaginationParams & { readonly timestamp?: Timestamp },
+      params?: PaginationParams & { readonly timestamp?: string },
     ) => Promise<Result<NetworkFee>>;
     readonly nodes: (params?: NetworkNodesParams) => Promise<Result<ReadPage<NetworkNode>>>;
     readonly nodesPageByUrl: (url: string) => Promise<Result<ReadPage<NetworkNode>>>;

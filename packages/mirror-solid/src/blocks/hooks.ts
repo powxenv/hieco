@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, Timestamp } from "@hieco/mirror";
+import type { ApiResult, ApiError } from "@hieco/mirror";
 import type { BlocksResponse, Block } from "@hieco/mirror";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
@@ -13,7 +13,7 @@ export interface CreateBlocksOptions {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
     readonly block_number?: number;
-    readonly timestamp?: Timestamp;
+    readonly timestamp?: string;
   };
   readonly enabled?: boolean;
 }

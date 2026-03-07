@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/preact-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/preact-query";
-import type { ApiResult, ApiError, Timestamp } from "@hieco/mirror";
+import type { ApiResult, ApiError } from "@hieco/mirror";
 import type { BlocksResponse, Block } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/utils";
@@ -18,7 +18,7 @@ export interface UseBlocksOptions extends Omit<
     limit?: number;
     order?: "asc" | "desc";
     block_number?: number;
-    timestamp?: Timestamp;
+    timestamp?: string;
   };
 }
 

@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { Amount } from "../shared/amount.ts";
 import type { CustomFixedFeeParams } from "../tokens/types.ts";
 
@@ -6,7 +5,7 @@ export interface CreateTopicParams {
   readonly adminKey?: string | true;
   readonly submitKey?: string | true;
   readonly feeScheduleKey?: string | true;
-  readonly autoRenewAccountId?: EntityId;
+  readonly autoRenewAccountId?: string;
   readonly autoRenewPeriodSeconds?: number;
   readonly customFees?: ReadonlyArray<CustomFixedFeeParams>;
   readonly feeExemptKeys?: ReadonlyArray<string>;
@@ -15,11 +14,11 @@ export interface CreateTopicParams {
 }
 
 export interface UpdateTopicParams {
-  readonly topicId: EntityId;
+  readonly topicId: string;
   readonly adminKey?: string | true;
   readonly submitKey?: string | true;
   readonly feeScheduleKey?: string | true;
-  readonly autoRenewAccountId?: EntityId;
+  readonly autoRenewAccountId?: string;
   readonly autoRenewPeriodSeconds?: number;
   readonly expirationTime?: Date;
   readonly customFees?: ReadonlyArray<CustomFixedFeeParams>;
@@ -35,13 +34,13 @@ export interface UpdateTopicParams {
 }
 
 export interface DeleteTopicParams {
-  readonly topicId: EntityId;
+  readonly topicId: string;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface SubmitMessageParams {
-  readonly topicId: EntityId;
+  readonly topicId: string;
   readonly message: string | Record<string, unknown> | Uint8Array;
   readonly maxChunks?: number;
   readonly chunkSize?: number;
@@ -65,7 +64,7 @@ export interface WatchTopicMessagesFromOptions {
 }
 
 export interface SubmitJsonMessageParams {
-  readonly topicId: EntityId;
+  readonly topicId: string;
   readonly data: unknown;
   readonly maxChunks?: number;
   readonly chunkSize?: number;
@@ -74,7 +73,7 @@ export interface SubmitJsonMessageParams {
 }
 
 export interface BatchSubmitMessagesParams {
-  readonly topicId: EntityId;
+  readonly topicId: string;
   readonly messages: ReadonlyArray<Uint8Array | string | Record<string, unknown>>;
   readonly concurrency?: number;
   readonly maxChunks?: number;
@@ -92,5 +91,3 @@ export interface TopicMessageData {
   readonly json: () => unknown;
   readonly text: () => string;
 }
-
-export type TopicWatchHandle = (() => void) & { readonly stop: () => void };

@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type {
   FileContentsData,
@@ -36,12 +35,12 @@ export interface FilesNamespace {
   updateLarge: (
     params: import("../shared/params.ts").UpdateLargeFileParams,
   ) => Promise<Result<FileChunkedReceipt>>;
-  info: (fileId: EntityId) => Promise<Result<FileInfoData>>;
-  contents: (fileId: EntityId) => Promise<Result<FileContentsData>>;
+  info: (fileId: string) => Promise<Result<FileInfoData>>;
+  contents: (fileId: string) => Promise<Result<FileContentsData>>;
   contentsText: (
-    fileId: EntityId,
-  ) => Promise<Result<{ readonly fileId: EntityId; readonly text: string }>>;
+    fileId: string,
+  ) => Promise<Result<{ readonly fileId: string; readonly text: string }>>;
   contentsJson: <T = unknown>(
-    fileId: EntityId,
-  ) => Promise<Result<{ readonly fileId: EntityId; readonly json: T }>>;
+    fileId: string,
+  ) => Promise<Result<{ readonly fileId: string; readonly json: T }>>;
 }

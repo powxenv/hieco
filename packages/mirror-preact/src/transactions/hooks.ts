@@ -5,7 +5,7 @@ import type {
   UseQueryResult,
   UseInfiniteQueryResult,
 } from "@tanstack/preact-query";
-import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hieco/mirror";
+import type { ApiResult, ApiError, QueryOperator, TimestampFilter } from "@hieco/mirror";
 import type { Transaction, TransactionDetails } from "@hieco/mirror";
 import type { PaginatedResponse } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
@@ -32,11 +32,11 @@ export interface UseTransactionsByAccountOptions extends Omit<
   UseQueryOptions<TransactionQueryFnData<Transaction[]>, TransactionQueryError>,
   "queryKey" | "queryFn"
 > {
-  accountId: EntityId;
+  accountId: string;
   params?: {
     limit?: number;
     order?: "asc" | "desc";
-    timestamp?: Timestamp | { from?: Timestamp; to?: Timestamp };
+    timestamp?: TimestampFilter;
     transaction_id?: string;
     result?: string;
   };
@@ -54,8 +54,8 @@ export interface UseTransactionsOptions extends Omit<
   params?: {
     limit?: number;
     order?: "asc" | "desc";
-    account?: EntityId;
-    "account.id"?: EntityId | QueryOperator<EntityId>;
+    account?: string;
+    "account.id"?: string | QueryOperator<string>;
     transaction_id?: string;
     result?: string;
   };

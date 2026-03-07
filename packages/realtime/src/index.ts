@@ -8,7 +8,6 @@ export type {
   SubscribeResponse,
   UnsubscribeResponse,
 } from "./protocol/rpc";
-export { createSubscriptionId, type SubscriptionId } from "./subscriptions/ids";
 export type {
   LogResult,
   NewHeadsResult,

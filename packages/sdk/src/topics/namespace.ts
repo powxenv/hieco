@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type {
   MessageReceipt,
@@ -8,7 +7,6 @@ import type {
   TransactionReceiptData,
 } from "../results/shapes.ts";
 import type { Result } from "../results/result.ts";
-import type { TopicWatchHandle } from "./types.ts";
 
 export interface TopicsNamespace {
   create: ((
@@ -32,24 +30,24 @@ export interface TopicsNamespace {
     tx: (params: import("../shared/params.ts").SubmitMessageParams) => TransactionDescriptor;
   };
   watch: (
-    topicId: EntityId,
+    topicId: string,
     handler: (message: import("../shared/params.ts").TopicMessageData) => void,
     options?: import("../shared/params.ts").WatchTopicMessagesOptions,
-  ) => TopicWatchHandle;
+  ) => () => void;
   watchFrom: (
-    topicId: EntityId,
+    topicId: string,
     handler: (message: import("../shared/params.ts").TopicMessageData) => void,
     options?: import("../shared/params.ts").WatchTopicMessagesFromOptions,
-  ) => TopicWatchHandle;
+  ) => () => void;
   submitJson: (
     params: import("../shared/params.ts").SubmitJsonMessageParams,
   ) => Promise<Result<import("../results/shapes.ts").MessageReceipt>>;
   batchSubmit: (
     params: import("../shared/params.ts").BatchSubmitMessagesParams,
   ) => Promise<Result<ReadonlyArray<import("../results/shapes.ts").MessageReceipt>>>;
-  info: (topicId: EntityId) => Promise<Result<TopicInfoData>>;
+  info: (topicId: string) => Promise<Result<TopicInfoData>>;
   messages: (
-    topicId: EntityId,
+    topicId: string,
     params?: import("@hieco/mirror").TopicMessagesParams,
   ) => Promise<Result<TopicMessagesData>>;
 }

@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type {
   ScheduleInfoData,
@@ -57,7 +56,7 @@ export function createSchedulesNamespace(context: {
   });
 
   const sign = async (
-    scheduleId: EntityId,
+    scheduleId: string,
     params: Omit<ScheduleSignParams, "scheduleId"> & {
       readonly signer?: import("@hiero-ledger/sdk").Signer;
     } = {},
@@ -81,7 +80,7 @@ export function createSchedulesNamespace(context: {
   });
 
   const deleteSchedule = async (
-    scheduleId: EntityId,
+    scheduleId: string,
     params: Omit<ScheduleDeleteParams, "scheduleId"> & {
       readonly signer?: import("@hiero-ledger/sdk").Signer;
     } = {},
@@ -104,7 +103,7 @@ export function createSchedulesNamespace(context: {
     params,
   });
 
-  const info = async (scheduleId: EntityId): Promise<Result<ScheduleInfoData>> => {
+  const info = async (scheduleId: string): Promise<Result<ScheduleInfoData>> => {
     const result = await context.mirror.schedule.getInfo(scheduleId);
     if (!result.success) {
       return err(
@@ -125,7 +124,7 @@ export function createSchedulesNamespace(context: {
   };
 
   const wait = async (
-    scheduleId: EntityId,
+    scheduleId: string,
     options: ScheduleWaitOptions = {},
   ): Promise<Result<ScheduleInfoData>> => {
     const timeoutMs = options.timeoutMs ?? 120_000;
@@ -222,7 +221,7 @@ export function createSchedulesNamespace(context: {
   };
 
   const waitForExecution = async (
-    scheduleId: EntityId,
+    scheduleId: string,
     options: ScheduleWaitExecutionOptions = {},
   ): Promise<Result<ScheduleInfoData>> => {
     return wait(scheduleId, {

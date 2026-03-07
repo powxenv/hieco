@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type {
   ContractCallResult,
@@ -39,11 +38,11 @@ export function createContractsNamespace(context: {
     params: import("../shared/params.ts").UploadFileParams,
   ) => Promise<Result<import("../results/shapes.ts").FileChunkedReceipt>>;
   readonly call: (params: {
-    readonly id: EntityId;
+    readonly id: string;
     readonly fn: string;
     readonly args?: ReadonlyArray<unknown>;
     readonly gas: number;
-    readonly senderAccountId?: EntityId;
+    readonly senderAccountId?: string;
   }) => Promise<
     Result<{
       readonly gasUsed: number;
@@ -66,14 +65,14 @@ export function createContractsNamespace(context: {
     }>
   >;
   readonly callWithParams: (params: {
-    readonly id: EntityId;
+    readonly id: string;
     readonly fn: string;
     readonly params: FunctionParamsConfig;
     readonly gas: number;
-    readonly senderAccountId?: EntityId;
+    readonly senderAccountId?: string;
   }) => ReturnType<typeof callContractWithParams>;
   readonly mirror: import("@hieco/mirror").MirrorNodeClient;
-  readonly queryBytecode: (contractId: EntityId) => Promise<Result<ContractBytecodeData>>;
+  readonly queryBytecode: (contractId: string) => Promise<Result<ContractBytecodeData>>;
   readonly mirrorClient: import("@hiero-ledger/sdk").Client;
 }): ContractsNamespace {
   const deploy = async (params: DeployContractParams): Promise<Result<ContractReceipt>> => {
@@ -211,11 +210,11 @@ export function createContractsNamespace(context: {
   };
 
   const callTyped = async (params: {
-    readonly id: EntityId;
+    readonly id: string;
     readonly fn: string;
     readonly params: FunctionParamsConfig;
     readonly gas?: number;
-    readonly senderAccountId?: EntityId;
+    readonly senderAccountId?: string;
     readonly returns?: import("./abi.ts").ReturnTypeHint;
   }): Promise<Result<ContractCallResult<unknown>>> => {
     const callParams = {
@@ -273,7 +272,7 @@ export function createContractsNamespace(context: {
     params,
   });
 
-  const info = async (contractId: EntityId): Promise<Result<ContractInfoData>> => {
+  const info = async (contractId: string): Promise<Result<ContractInfoData>> => {
     const result = await context.mirror.contract.getInfo(contractId);
     if (!result.success) {
       return err(
@@ -294,7 +293,7 @@ export function createContractsNamespace(context: {
   };
 
   const logs = async (
-    contractId: EntityId,
+    contractId: string,
     params?: import("@hieco/mirror").ContractLogsParams,
   ): Promise<Result<ContractLogsData>> => {
     const result = await context.mirror.contract.getLogs(contractId, params);
@@ -316,12 +315,12 @@ export function createContractsNamespace(context: {
     return ok({ contractId, logs: result.data });
   };
 
-  const bytecode = async (contractId: EntityId): Promise<Result<ContractBytecodeData>> => {
+  const bytecode = async (contractId: string): Promise<Result<ContractBytecodeData>> => {
     return context.queryBytecode(contractId);
   };
 
   const simulate = async (input: {
-    readonly contractId: EntityId;
+    readonly contractId: string;
     readonly fn: string;
     readonly args?: ReadonlyArray<unknown>;
     readonly senderEvmAddress?: string;
@@ -344,7 +343,7 @@ export function createContractsNamespace(context: {
   };
 
   const estimateGas = async (input: {
-    readonly contractId: EntityId;
+    readonly contractId: string;
     readonly fn: string;
     readonly args?: ReadonlyArray<unknown>;
     readonly senderEvmAddress?: string;
@@ -367,7 +366,7 @@ export function createContractsNamespace(context: {
   };
 
   const preflight = async (input: {
-    readonly id: EntityId;
+    readonly id: string;
     readonly fn: string;
     readonly args?: ReadonlyArray<unknown>;
     readonly senderEvmAddress?: string;
@@ -409,11 +408,11 @@ export function createContractsNamespace(context: {
 
   const withAbi = (abi: AbiSpec) => ({
     call: async (params: {
-      readonly id: EntityId;
+      readonly id: string;
       readonly fn: string;
       readonly args: ReadonlyArray<unknown>;
       readonly gas?: number;
-      readonly senderAccountId?: EntityId;
+      readonly senderAccountId?: string;
     }) => {
       const fn = resolveAbiFunction(abi, params.fn);
       if (!fn.ok) return fn;
@@ -443,7 +442,7 @@ export function createContractsNamespace(context: {
       });
     },
     preflight: async (params: {
-      readonly id: EntityId;
+      readonly id: string;
       readonly fn: string;
       readonly args: ReadonlyArray<unknown>;
       readonly senderEvmAddress?: string;

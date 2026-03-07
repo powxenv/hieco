@@ -1,36 +1,30 @@
 import { createContext, useCallback, useMemo, useState, type ReactNode } from "react";
-import { MirrorNodeClient, type NetworkType } from "@hieco/mirror";
-import { type AnyNetwork, type NetworkConfig, isDefaultNetwork, getNetworkUrl } from "@hieco/utils";
+import { MirrorNodeClient } from "@hieco/mirror";
+import { type NetworkConfig, isDefaultNetwork, getNetworkUrl } from "@hieco/utils";
 
-export type { AnyNetwork, NetworkConfig };
+export type { NetworkConfig };
 
 const EMPTY_NETWORKS: Record<string, string> = {};
 
 export interface MirrorNodeContextValue {
   client: MirrorNodeClient;
-  network: AnyNetwork;
+  network: string;
   mirrorNodeUrl: string | undefined;
-  switchNetwork: (network: AnyNetwork) => void;
+  switchNetwork: (network: string) => void;
 }
 
 const MirrorNodeContext = createContext<MirrorNodeContextValue | null>(null);
 
-export interface MirrorNodeProviderProps<
-  T extends string = string,
-  U extends NetworkType = NetworkType,
-> {
+export interface MirrorNodeProviderProps {
   children: ReactNode;
-  config: NetworkConfig<T, U>;
+  config: NetworkConfig;
 }
 
-export function MirrorNodeProvider<T extends string, U extends NetworkType = NetworkType>({
-  children,
-  config,
-}: MirrorNodeProviderProps<T, U>): ReactNode {
+export function MirrorNodeProvider({ children, config }: MirrorNodeProviderProps): ReactNode {
   const defaultNetwork = config.defaultNetwork;
   const networks = config.networks ?? EMPTY_NETWORKS;
 
-  const [network, setNetwork] = useState<AnyNetwork>(defaultNetwork);
+  const [network, setNetwork] = useState<string>(defaultNetwork);
   const [mirrorNodeUrl, setMirrorNodeUrl] = useState<string | undefined>(
     getNetworkUrl(defaultNetwork, networks),
   );
@@ -45,7 +39,7 @@ export function MirrorNodeProvider<T extends string, U extends NetworkType = Net
   );
 
   const switchNetwork = useCallback(
-    (nextNetwork: AnyNetwork) => {
+    (nextNetwork: string) => {
       setNetwork(nextNetwork);
       setMirrorNodeUrl(getNetworkUrl(nextNetwork, networks));
     },

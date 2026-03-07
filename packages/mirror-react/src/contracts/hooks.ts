@@ -5,7 +5,7 @@ import type {
   UseQueryResult,
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
-import type { ApiResult, ApiError, EntityId, QueryOperator, Timestamp } from "@hieco/mirror";
+import type { ApiResult, ApiError, QueryOperator } from "@hieco/mirror";
 import type {
   ContractCallParams,
   ContractCallResult,
@@ -36,7 +36,7 @@ export interface UseContractInfoOptions extends Omit<
   UseQueryOptions<ContractQueryFnData<ContractInfo>, ContractQueryError>,
   "queryKey" | "queryFn"
 > {
-  contractIdOrAddress: EntityId | string;
+  contractIdOrAddress: string;
 }
 
 export type UseContractInfoResult = UseQueryResult<
@@ -60,8 +60,8 @@ export interface UseContractResultsOptions extends Omit<
   UseQueryOptions<ContractQueryFnData<ContractResult[]>, ContractQueryError>,
   "queryKey" | "queryFn"
 > {
-  contractId: EntityId;
-  params?: { limit?: number; order?: "asc" | "desc"; timestamp?: Timestamp };
+  contractId: string;
+  params?: { limit?: number; order?: "asc" | "desc"; timestamp?: string };
 }
 
 export type UseContractResultsResult = UseQueryResult<
@@ -73,8 +73,8 @@ export interface UseContractResultOptions extends Omit<
   UseQueryOptions<ContractQueryFnData<ContractResult>, ContractQueryError>,
   "queryKey" | "queryFn"
 > {
-  contractId: EntityId;
-  timestamp: Timestamp;
+  contractId: string;
+  timestamp: string;
 }
 
 export type UseContractResultResult = UseQueryResult<
@@ -86,7 +86,7 @@ export interface UseContractStateOptions extends Omit<
   UseQueryOptions<ContractQueryFnData<ContractState[]>, ContractQueryError>,
   "queryKey" | "queryFn"
 > {
-  contractId: EntityId;
+  contractId: string;
   params?: { limit?: number; order?: "asc" | "desc"; slot?: string };
 }
 
@@ -99,8 +99,8 @@ export interface UseContractLogsOptions extends Omit<
   UseQueryOptions<ContractQueryFnData<ContractLog[]>, ContractQueryError>,
   "queryKey" | "queryFn"
 > {
-  contractId: EntityId;
-  params?: { limit?: number; order?: "asc" | "desc"; timestamp?: Timestamp; index?: number };
+  contractId: string;
+  params?: { limit?: number; order?: "asc" | "desc"; timestamp?: string; index?: number };
 }
 
 export type UseContractLogsResult = UseQueryResult<
@@ -116,7 +116,7 @@ export interface UseContractsOptions extends Omit<
     limit?: number;
     order?: "asc" | "desc";
     address?: string;
-    smart_contract_id?: EntityId | QueryOperator<EntityId>;
+    smart_contract_id?: string | QueryOperator<string>;
   };
 }
 
@@ -265,7 +265,7 @@ export interface UseContractAllResultsOptions extends Omit<
     block_hash?: string;
     block_number?: number;
     internal?: boolean;
-    timestamp?: Timestamp;
+    timestamp?: string;
     transaction_index?: number;
   };
 }
@@ -319,7 +319,7 @@ export interface UseContractAllLogsOptions extends Omit<
   params?: {
     limit?: number;
     order?: "asc" | "desc";
-    timestamp?: Timestamp;
+    timestamp?: string;
     index?: number;
   };
 }

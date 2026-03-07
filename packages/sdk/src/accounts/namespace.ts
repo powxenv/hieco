@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type { Result } from "../results/result.ts";
 import type {
@@ -47,7 +46,7 @@ export interface AccountsNamespace {
   ) => Promise<Result<TransactionReceiptData>>) & {
     tx: (params: import("../shared/params.ts").DeleteNftAllowancesParams) => TransactionDescriptor;
   };
-  allowancesList: (accountId: EntityId) => Promise<
+  allowancesList: (accountId: string) => Promise<
     Result<{
       readonly hbar: ReadonlyArray<import("@hieco/mirror").CryptoAllowance>;
       readonly tokens: ReadonlyArray<import("@hieco/mirror").TokenAllowance>;
@@ -72,7 +71,7 @@ export interface AccountsNamespace {
         }
     >
   >;
-  balance: (accountId?: EntityId) => Promise<
+  balance: (accountId?: string) => Promise<
     Result<{
       readonly hbar: string;
       readonly tokens: ReadonlyArray<{
@@ -82,6 +81,6 @@ export interface AccountsNamespace {
       }>;
     }>
   >;
-  info: (accountId: EntityId) => Promise<Result<AccountInfoData>>;
-  records: (accountId?: EntityId) => Promise<Result<AccountRecordsData>>;
+  info: (accountId: string) => Promise<Result<AccountInfoData>>;
+  records: (accountId?: string) => Promise<Result<AccountRecordsData>>;
 }

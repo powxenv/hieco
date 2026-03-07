@@ -1,11 +1,10 @@
-import type { EntityId } from "@hieco/utils";
 import type { Topic, TopicMessage } from "@hieco/mirror";
 import type { TransactionReceiptData } from "../results/transaction.ts";
 
 export interface TopicReceipt {
   readonly receipt: TransactionReceiptData;
   readonly transactionId: string;
-  readonly topicId: EntityId;
+  readonly topicId: string;
 }
 
 export interface MessageReceipt {
@@ -15,11 +14,11 @@ export interface MessageReceipt {
 }
 
 export interface TopicInfoData {
-  readonly topicId: EntityId;
+  readonly topicId: string;
   readonly topic: Topic;
 }
 
 export interface TopicMessagesData {
-  readonly topicId: EntityId;
+  readonly topicId: string;
   readonly messages: ReadonlyArray<TopicMessage>;
 }

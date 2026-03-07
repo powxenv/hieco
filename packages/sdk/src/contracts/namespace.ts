@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type {
   ContractCallResult,
@@ -33,18 +32,18 @@ export interface ContractsNamespace {
     params: import("../shared/params.ts").CallContractParams,
   ) => Promise<Result<ContractCallResult<unknown>>>;
   callTyped: (params: {
-    readonly id: EntityId;
+    readonly id: string;
     readonly fn: string;
     readonly params: import("../shared/params.ts").FunctionParamsConfig;
     readonly gas?: number;
-    readonly senderAccountId?: EntityId;
+    readonly senderAccountId?: string;
     readonly returns?: import("./abi.ts").ReturnTypeHint;
   }) => Promise<Result<ContractCallResult<unknown>>>;
   executeTyped: (
     params: import("../shared/params.ts").ExecuteContractParamsTyped,
   ) => Promise<Result<ContractExecuteReceipt>>;
   preflight: (params: {
-    readonly id: EntityId;
+    readonly id: string;
     readonly fn: string;
     readonly args?: ReadonlyArray<unknown>;
     readonly senderEvmAddress?: string;
@@ -56,11 +55,11 @@ export interface ContractsNamespace {
   }) => Promise<Result<ContractPreflightData>>;
   withAbi: (abi: import("./abi.ts").AbiSpec) => {
     readonly call: (params: {
-      readonly id: EntityId;
+      readonly id: string;
       readonly fn: string;
       readonly args: ReadonlyArray<unknown>;
       readonly gas?: number;
-      readonly senderAccountId?: EntityId;
+      readonly senderAccountId?: string;
     }) => Promise<Result<ContractCallResult<unknown>>>;
     readonly execute: (
       params: Omit<import("../shared/params.ts").ExecuteContractParamsTyped, "params"> & {
@@ -68,7 +67,7 @@ export interface ContractsNamespace {
       },
     ) => Promise<Result<ContractExecuteReceipt>>;
     readonly preflight: (params: {
-      readonly id: EntityId;
+      readonly id: string;
       readonly fn: string;
       readonly args: ReadonlyArray<unknown>;
       readonly senderEvmAddress?: string;
@@ -89,14 +88,14 @@ export interface ContractsNamespace {
   ) => Promise<Result<TransactionReceiptData>>) & {
     tx: (params: import("../shared/params.ts").UpdateContractParams) => TransactionDescriptor;
   };
-  info: (contractId: EntityId) => Promise<Result<ContractInfoData>>;
+  info: (contractId: string) => Promise<Result<ContractInfoData>>;
   logs: (
-    contractId: EntityId,
+    contractId: string,
     params?: import("@hieco/mirror").ContractLogsParams,
   ) => Promise<Result<ContractLogsData>>;
-  bytecode: (contractId: EntityId) => Promise<Result<ContractBytecodeData>>;
+  bytecode: (contractId: string) => Promise<Result<ContractBytecodeData>>;
   simulate: (input: {
-    readonly contractId: EntityId;
+    readonly contractId: string;
     readonly fn: string;
     readonly args?: ReadonlyArray<unknown>;
     readonly senderEvmAddress?: string;
@@ -106,7 +105,7 @@ export interface ContractsNamespace {
     readonly blockNumber?: string | number | bigint;
   }) => Promise<Result<MirrorContractCallData>>;
   estimateGas: (input: {
-    readonly contractId: EntityId;
+    readonly contractId: string;
     readonly fn: string;
     readonly args?: ReadonlyArray<unknown>;
     readonly senderEvmAddress?: string;

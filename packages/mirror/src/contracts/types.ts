@@ -1,21 +1,21 @@
-import type { EntityId, Key, Timestamp } from "@hieco/utils";
+import type { Key } from "@hieco/utils";
 
 export interface ContractInfo {
   readonly admin_key: Key | null;
-  readonly auto_renew_account: EntityId | null;
+  readonly auto_renew_account: string | null;
   readonly auto_renew_period: number | null;
-  readonly contract_id: EntityId;
-  readonly created_timestamp: Timestamp;
+  readonly contract_id: string;
+  readonly created_timestamp: string;
   readonly deleted: boolean;
   readonly evm_address: string;
-  readonly expiration_timestamp: Timestamp | null;
-  readonly file_id: EntityId | null;
+  readonly expiration_timestamp: string | null;
+  readonly file_id: string | null;
   readonly max_automatic_token_associations: number | null;
   readonly memo: string;
-  readonly obtainer_id: EntityId | null;
+  readonly obtainer_id: string | null;
   readonly permanent_removal: boolean | null;
-  readonly proxy_account_id: EntityId | null;
-  readonly timestamp: Timestamp | null;
+  readonly proxy_account_id: string | null;
+  readonly timestamp: string | null;
 }
 
 export interface ContractResult {
@@ -28,8 +28,8 @@ export interface ContractResult {
   readonly bloom: string | null;
   readonly call_result: string | null;
   readonly chain_id: string | null;
-  readonly contract_id: EntityId;
-  readonly created_contract_ids: readonly EntityId[];
+  readonly contract_id: string;
+  readonly created_contract_ids: readonly string[];
   readonly error_message: string | null;
   readonly from: string | null;
   readonly function_parameters: string;
@@ -39,7 +39,7 @@ export interface ContractResult {
   readonly nonce: number | null;
   readonly parent_hash: string | null;
   readonly result: string | null;
-  readonly timestamp: Timestamp;
+  readonly timestamp: string;
   readonly to: string;
   readonly value: string | null;
 }
@@ -48,26 +48,26 @@ export interface ContractLog {
   readonly address: string;
   readonly block_hash: string;
   readonly block_number: number;
-  readonly contract_id: EntityId;
+  readonly contract_id: string;
   readonly data: string;
   readonly index: number;
-  readonly root_contract_id: EntityId;
-  readonly timestamp: Timestamp;
+  readonly root_contract_id: string;
+  readonly timestamp: string;
   readonly topics: readonly string[];
   readonly transaction_hash: string;
   readonly transaction_index: number | null;
 }
 
 export interface ContractState {
-  readonly contract_id: EntityId;
+  readonly contract_id: string;
   readonly address: string;
   readonly slot: string;
   readonly value: string;
-  readonly timestamp: Timestamp;
+  readonly timestamp: string;
 }
 
 export interface ContractCallParams {
-  readonly contractId: EntityId | string;
+  readonly contractId: string;
   readonly from?: string;
   readonly gas?: number;
   readonly gasPrice?: number;
@@ -91,8 +91,8 @@ export interface ContractResultDetails {
   readonly bloom: string | null;
   readonly call_result: string | null;
   readonly chain_id: string | null;
-  readonly contract_id: EntityId;
-  readonly created_contract_ids: readonly EntityId[];
+  readonly contract_id: string;
+  readonly created_contract_ids: readonly string[];
   readonly error_message: string | null;
   readonly from: string | null;
   readonly function_parameters: string;
@@ -103,7 +103,7 @@ export interface ContractResultDetails {
   readonly nonce: number | null;
   readonly parent_hash: string | null;
   readonly result: string | null;
-  readonly timestamp: Timestamp;
+  readonly timestamp: string;
   readonly to: string;
   readonly transaction_id: string;
   readonly value: string | null;

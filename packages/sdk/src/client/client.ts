@@ -1,6 +1,5 @@
 import { Client, Hbar } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
-import type { EntityId } from "@hieco/utils";
 import { MirrorNodeClient } from "@hieco/mirror";
 import type { ClientConfig, TransactionDescriptor } from "../shared/params.ts";
 import type { ClientRuntimeConfig } from "./runtime.ts";
@@ -82,30 +81,30 @@ export class HieroClient {
       this.submit(descriptor);
 
     const call = (params: {
-      readonly id: EntityId;
+      readonly id: string;
       readonly fn: string;
       readonly args?: ReadonlyArray<unknown>;
       readonly gas: number;
-      readonly senderAccountId?: EntityId;
+      readonly senderAccountId?: string;
     }) => {
       return this.withQueryContext((queryContext) => callContract(queryContext, params));
     };
 
     const callWithParams = (params: {
-      readonly id: EntityId;
+      readonly id: string;
       readonly fn: string;
       readonly params: import("../shared/params.ts").FunctionParamsConfig;
       readonly gas: number;
-      readonly senderAccountId?: EntityId;
+      readonly senderAccountId?: string;
     }) => {
       return this.withQueryContext((queryContext) => callContractWithParams(queryContext, params));
     };
 
-    const queryInfo = (fileId: EntityId) => {
+    const queryInfo = (fileId: string) => {
       return this.withQueryContext((queryContext) => queryFileInfo(queryContext, fileId));
     };
 
-    const queryContents = (fileId: EntityId) => {
+    const queryContents = (fileId: string) => {
       return this.withQueryContext((queryContext) => queryFileContents(queryContext, fileId));
     };
 
@@ -227,13 +226,13 @@ export class HieroClient {
     return this.config.network;
   }
 
-  get operator(): EntityId | undefined {
+  get operator(): string | undefined {
     return this.config.operator;
   }
 
   with(partial: {
     readonly signer?: HieroSigner;
-    readonly operator?: EntityId;
+    readonly operator?: string;
     readonly key?: string;
   }) {
     const operator = partial.operator ?? this.config.operator;
@@ -299,7 +298,7 @@ export class HieroClient {
     return Promise.resolve({ ok: true, value: { updated: true } });
   }
 
-  setOperator(operator: EntityId, key: string): HieroClient {
+  setOperator(operator: string, key: string): HieroClient {
     return new HieroClient({
       ...this.config,
       operator,
@@ -366,7 +365,7 @@ export class HieroClient {
   private resolveSubmitContext(): Result<{
     readonly client: Client;
     readonly signing: import("../transactions/api.ts").SigningContext;
-    readonly operator?: EntityId;
+    readonly operator?: string;
   }> {
     const signing = requireSigningContext({
       operatorKey: this.config.key,
@@ -386,7 +385,7 @@ export class HieroClient {
   private resolveQueryContext(): Result<{
     readonly client: Client;
     readonly signing: import("../transactions/api.ts").SigningContext;
-    readonly operator?: EntityId;
+    readonly operator?: string;
   }> {
     const signing = resolveSigningForQuery({
       operatorKey: this.config.key,
@@ -407,7 +406,7 @@ export class HieroClient {
     run: (queryContext: {
       readonly client: Client;
       readonly signing: import("../transactions/api.ts").SigningContext;
-      readonly operator?: EntityId;
+      readonly operator?: string;
     }) => Promise<Result<T>>,
   ): Promise<Result<T>> {
     const queryContext = this.resolveQueryContext();

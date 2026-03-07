@@ -63,7 +63,7 @@ console.log(isValidEntityId(tokenId), NETWORK_CONFIGS.testnet.mirrorNode, key, e
 
 ### Entity Helpers
 
-`EntityId` keeps a shared semantic name for Hedera entity IDs, and `isValidEntityId` is the one shared runtime check kept for real string input boundaries.
+Hedera entity IDs are plain strings, and `isValidEntityId` is the shared runtime check kept for real string input boundaries.
 
 ### Network Helpers
 
@@ -74,7 +74,6 @@ Mirror provider packages share the same network config helpers:
 - `isDefaultNetwork`
 - `getNetworkUrl`
 - `NetworkConfig`
-- `AnyNetwork`
 
 ### Query Keys And Invalidation
 
@@ -130,13 +129,12 @@ if (result.success) {
 | `ApiResult`           | type  | Shared success or failure wrapper.               | `type ApiResult<T>`                 |
 | `ApiError`            | type  | Shared API error shape.                          | `type ApiError`                     |
 | `ApiErrorFactory`     | const | Helpers for constructing API errors.             | `ApiErrorFactory.notFound(message)` |
-| `EntityId`            | type  | Hedera entity ID string alias.                   | `type EntityId`                     |
-| `Timestamp`           | type  | Shared timestamp string type.                    | `type Timestamp`                    |
 | `Key`                 | type  | Hedera key metadata.                             | `type Key`                          |
 | `NetworkType`         | type  | Built-in network names.                          | `type NetworkType`                  |
 | `MirrorNetworkConfig` | type  | Default mirror network config shape.             | `type MirrorNetworkConfig`          |
 | `MirrorNodeConfig`    | type  | Mirror client config shape.                      | `type MirrorNodeConfig`             |
 | `PaginationParams`    | type  | Shared list pagination params.                   | `type PaginationParams`             |
+| `TimestampFilter`     | type  | Shared timestamp range filter shape.             | `type TimestampFilter`              |
 | `QueryOperator`       | type  | Comparison operator helper used in list filters. | `type QueryOperator<T>`             |
 
 ### Entity And Network Helpers
@@ -146,8 +144,7 @@ if (result.success) {
 | `isValidEntityId`          | function | Validate an entity ID string.               | `isValidEntityId(value)`           |
 | `NETWORK_CONFIGS`          | const    | Built-in network endpoints.                 | `NETWORK_CONFIGS.testnet`          |
 | `DEFAULT_MIRROR_NODE_URLS` | const    | Default mirror URLs by network.             | `DEFAULT_MIRROR_NODE_URLS.testnet` |
-| `AnyNetwork`               | type     | Built-in network or custom string.          | `type AnyNetwork`                  |
-| `NetworkConfig`            | type     | Provider config shape for mirror adapters.  | `type NetworkConfig<T, U>`         |
+| `NetworkConfig`            | type     | Provider config shape for mirror adapters.  | `type NetworkConfig`               |
 | `isDefaultNetwork`         | function | Check whether a network is built-in.        | `isDefaultNetwork(value)`          |
 | `getNetworkUrl`            | function | Resolve the mirror URL for a given network. | `getNetworkUrl(network, networks)` |
 

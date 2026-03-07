@@ -1,303 +1,5 @@
 import type { QueryClient } from "@tanstack/query-core";
-import type { EntityId } from "../types/entity";
-
-type ApiProperty =
-  | "account"
-  | "token"
-  | "contract"
-  | "transaction"
-  | "topic"
-  | "schedule"
-  | "network"
-  | "balance"
-  | "block";
-
-type MethodMapping = {
-  readonly apiProperty: ApiProperty;
-  readonly methodName: string;
-  readonly entityName: string;
-  readonly resourceKeyPattern: readonly string[];
-};
-
-const METHOD_MAPPINGS: readonly MethodMapping[] = [
-  {
-    apiProperty: "account",
-    methodName: "getInfo",
-    entityName: "account",
-    resourceKeyPattern: ["info"],
-  },
-  {
-    apiProperty: "account",
-    methodName: "getBalances",
-    entityName: "account",
-    resourceKeyPattern: ["balances"],
-  },
-  {
-    apiProperty: "account",
-    methodName: "getTokens",
-    entityName: "account",
-    resourceKeyPattern: ["tokens"],
-  },
-  {
-    apiProperty: "account",
-    methodName: "getNfts",
-    entityName: "account",
-    resourceKeyPattern: ["nfts"],
-  },
-  {
-    apiProperty: "account",
-    methodName: "getStakingRewards",
-    entityName: "account",
-    resourceKeyPattern: ["rewards"],
-  },
-  {
-    apiProperty: "account",
-    methodName: "getCryptoAllowances",
-    entityName: "account",
-    resourceKeyPattern: ["allowances", "crypto"],
-  },
-  {
-    apiProperty: "account",
-    methodName: "getTokenAllowances",
-    entityName: "account",
-    resourceKeyPattern: ["allowances", "token"],
-  },
-  {
-    apiProperty: "account",
-    methodName: "getNftAllowances",
-    entityName: "account",
-    resourceKeyPattern: ["allowances", "nft"],
-  },
-  {
-    apiProperty: "account",
-    methodName: "getOutstandingAirdrops",
-    entityName: "account",
-    resourceKeyPattern: ["airdrops", "outstanding"],
-  },
-  {
-    apiProperty: "account",
-    methodName: "getPendingAirdrops",
-    entityName: "account",
-    resourceKeyPattern: ["airdrops", "pending"],
-  },
-  {
-    apiProperty: "account",
-    methodName: "listPaginated",
-    entityName: "account",
-    resourceKeyPattern: ["list"],
-  },
-  {
-    apiProperty: "token",
-    methodName: "getInfo",
-    entityName: "token",
-    resourceKeyPattern: ["info"],
-  },
-  {
-    apiProperty: "token",
-    methodName: "getBalances",
-    entityName: "token",
-    resourceKeyPattern: ["balances"],
-  },
-  {
-    apiProperty: "token",
-    methodName: "getNfts",
-    entityName: "token",
-    resourceKeyPattern: ["nfts"],
-  },
-  { apiProperty: "token", methodName: "getNft", entityName: "token", resourceKeyPattern: ["nft"] },
-  {
-    apiProperty: "token",
-    methodName: "getNftTransactions",
-    entityName: "token",
-    resourceKeyPattern: ["nft", "transactions"],
-  },
-  {
-    apiProperty: "token",
-    methodName: "listPaginated",
-    entityName: "token",
-    resourceKeyPattern: ["list"],
-  },
-  {
-    apiProperty: "contract",
-    methodName: "getInfo",
-    entityName: "contract",
-    resourceKeyPattern: ["info"],
-  },
-  {
-    apiProperty: "contract",
-    methodName: "getResults",
-    entityName: "contract",
-    resourceKeyPattern: ["results"],
-  },
-  {
-    apiProperty: "contract",
-    methodName: "getResult",
-    entityName: "contract",
-    resourceKeyPattern: ["result"],
-  },
-  {
-    apiProperty: "contract",
-    methodName: "getState",
-    entityName: "contract",
-    resourceKeyPattern: ["state"],
-  },
-  {
-    apiProperty: "contract",
-    methodName: "getLogs",
-    entityName: "contract",
-    resourceKeyPattern: ["logs"],
-  },
-  {
-    apiProperty: "contract",
-    methodName: "getAllResults",
-    entityName: "contract",
-    resourceKeyPattern: ["results", "all"],
-  },
-  {
-    apiProperty: "contract",
-    methodName: "getResultByTransactionIdOrHash",
-    entityName: "contract",
-    resourceKeyPattern: ["results", "byTx"],
-  },
-  {
-    apiProperty: "contract",
-    methodName: "getResultActions",
-    entityName: "contract",
-    resourceKeyPattern: ["results", "actions"],
-  },
-  {
-    apiProperty: "contract",
-    methodName: "getResultOpcodes",
-    entityName: "contract",
-    resourceKeyPattern: ["results", "opcodes"],
-  },
-  {
-    apiProperty: "contract",
-    methodName: "getAllContractLogs",
-    entityName: "contract",
-    resourceKeyPattern: ["results", "logs", "all"],
-  },
-  {
-    apiProperty: "contract",
-    methodName: "call",
-    entityName: "contract",
-    resourceKeyPattern: ["call"],
-  },
-  {
-    apiProperty: "contract",
-    methodName: "listPaginated",
-    entityName: "contract",
-    resourceKeyPattern: ["list"],
-  },
-  {
-    apiProperty: "transaction",
-    methodName: "getById",
-    entityName: "transaction",
-    resourceKeyPattern: ["info"],
-  },
-  {
-    apiProperty: "transaction",
-    methodName: "listByAccount",
-    entityName: "transaction",
-    resourceKeyPattern: ["account"],
-  },
-  {
-    apiProperty: "transaction",
-    methodName: "listPaginated",
-    entityName: "transaction",
-    resourceKeyPattern: ["list"],
-  },
-  {
-    apiProperty: "topic",
-    methodName: "getInfo",
-    entityName: "topic",
-    resourceKeyPattern: ["info"],
-  },
-  {
-    apiProperty: "topic",
-    methodName: "getMessages",
-    entityName: "topic",
-    resourceKeyPattern: ["messages"],
-  },
-  {
-    apiProperty: "topic",
-    methodName: "getMessage",
-    entityName: "topic",
-    resourceKeyPattern: ["message"],
-  },
-  {
-    apiProperty: "topic",
-    methodName: "getMessageByTimestamp",
-    entityName: "topic",
-    resourceKeyPattern: ["message", "byTimestamp"],
-  },
-  {
-    apiProperty: "topic",
-    methodName: "listPaginated",
-    entityName: "topic",
-    resourceKeyPattern: ["list"],
-  },
-  {
-    apiProperty: "schedule",
-    methodName: "getInfo",
-    entityName: "schedule",
-    resourceKeyPattern: ["info"],
-  },
-  {
-    apiProperty: "schedule",
-    methodName: "listPaginated",
-    entityName: "schedule",
-    resourceKeyPattern: ["list"],
-  },
-  {
-    apiProperty: "network",
-    methodName: "getExchangeRate",
-    entityName: "network",
-    resourceKeyPattern: ["exchange-rate"],
-  },
-  {
-    apiProperty: "network",
-    methodName: "getFees",
-    entityName: "network",
-    resourceKeyPattern: ["fees"],
-  },
-  {
-    apiProperty: "network",
-    methodName: "getNodes",
-    entityName: "network",
-    resourceKeyPattern: ["nodes"],
-  },
-  {
-    apiProperty: "network",
-    methodName: "getStake",
-    entityName: "network",
-    resourceKeyPattern: ["stake"],
-  },
-  {
-    apiProperty: "network",
-    methodName: "getSupply",
-    entityName: "network",
-    resourceKeyPattern: ["supply"],
-  },
-  {
-    apiProperty: "balance",
-    methodName: "getBalances",
-    entityName: "balance",
-    resourceKeyPattern: ["list"],
-  },
-  {
-    apiProperty: "block",
-    methodName: "getBlocks",
-    entityName: "block",
-    resourceKeyPattern: ["list"],
-  },
-  {
-    apiProperty: "block",
-    methodName: "getBlock",
-    entityName: "block",
-    resourceKeyPattern: ["info"],
-  },
-] as const;
+import { type MirrorNodeMethodDefinition, mirrorNodeMethodMappings } from "./registry";
 
 export function isValidMirrorNodeKey(
   key: unknown,
@@ -313,39 +15,27 @@ export function isValidMirrorNodeKey(
 
 export function findMethodMapping(
   queryKey: readonly unknown[],
-): { mapping: MethodMapping; args: unknown[] } | null {
+): { mapping: MirrorNodeMethodDefinition; args: unknown[] } | null {
   if (!isValidMirrorNodeKey(queryKey)) {
     return null;
   }
 
-  const [, , entity, ...queryKeyParts] = queryKey;
+  const [, , ...queryKeyParts] = queryKey;
 
-  for (const mapping of METHOD_MAPPINGS) {
-    const isEntityMatch = entity === mapping.entityName || entity === `${mapping.entityName}s`;
-
-    if (!isEntityMatch) continue;
-
-    const isListWithPluralEntity =
-      entity === `${mapping.entityName}s` && queryKeyParts[0] === "list";
-
-    if (isListWithPluralEntity) {
-      return { mapping, args: queryKeyParts.slice(1) };
-    }
-
-    const isPatternMatch = mapping.resourceKeyPattern.every(
-      (part, index) => part === queryKeyParts[index],
-    );
-
-    if (!isPatternMatch) continue;
-
-    const args = queryKeyParts.slice(mapping.resourceKeyPattern.length);
+  for (const mapping of mirrorNodeMethodMappings) {
+    const matches = mapping.keyPath.every((part, index) => part === queryKeyParts[index]);
+    if (!matches) continue;
+    const args = queryKeyParts.slice(mapping.keyPath.length);
     return { mapping, args };
   }
 
   return null;
 }
 
-type MirrorNodeClientLike = Record<ApiProperty, Record<string, unknown>>;
+type MirrorNodeClientLike = Record<
+  MirrorNodeMethodDefinition["apiProperty"],
+  Record<string, unknown>
+>;
 
 export async function prefetchQuery(
   queryClient: QueryClient,
@@ -395,7 +85,7 @@ export type InvalidateFilters =
   | { readonly exactKey: readonly unknown[] }
   | {
       readonly entityType: EntityType;
-      readonly resourceId?: EntityId | string;
+      readonly resourceId?: string;
     };
 
 export function invalidateQueries(

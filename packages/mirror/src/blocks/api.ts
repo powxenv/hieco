@@ -1,11 +1,11 @@
-import type { ApiResult, PaginationParams, Timestamp } from "@hieco/utils";
+import type { ApiResult, PaginationParams } from "@hieco/utils";
 import type { Block, BlocksResponse } from "../network/types";
 import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface BlocksListParams extends PaginationParams {
   block_number?: number;
-  timestamp?: Timestamp;
+  timestamp?: string;
 }
 
 export class BlockApi extends BaseApi {

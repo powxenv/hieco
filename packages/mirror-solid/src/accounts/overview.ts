@@ -1,12 +1,11 @@
 import { createMemo, type Accessor } from "solid-js";
 import { useQuery } from "@tanstack/solid-query";
-import type { EntityId } from "@hieco/mirror";
 import type { AccountInfo, Balance, TokenRelationship } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/utils";
 
 export interface CreateAccountOverviewOptions {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly includeBalances?: boolean;
   readonly includeTokens?: boolean;
 }

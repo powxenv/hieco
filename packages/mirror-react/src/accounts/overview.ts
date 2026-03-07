@@ -1,11 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import type { EntityId } from "@hieco/mirror";
 import type { AccountInfo, Balance, TokenRelationship } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/utils";
 
 export interface UseAccountOverviewOptions {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly includeBalances?: boolean;
   readonly includeTokens?: boolean;
 }

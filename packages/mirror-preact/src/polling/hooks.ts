@@ -2,7 +2,6 @@ import { useRef } from "preact/hooks";
 import { useQuery } from "@tanstack/preact-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/preact-query";
 import type { ApiResult, ApiError, TransactionDetails } from "@hieco/mirror";
-import type { EntityId } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/utils";
 
@@ -10,7 +9,7 @@ export interface UsePollTransactionOptions extends Omit<
   UseQueryOptions<ApiResult<TransactionDetails>, ApiError>,
   "queryKey" | "queryFn"
 > {
-  readonly transactionId: EntityId;
+  readonly transactionId: string;
   readonly maxAttempts?: number;
   readonly intervalMs?: number;
   readonly stopOnConfirmed?: boolean;

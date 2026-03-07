@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import { TopicMessageQuery } from "@hiero-ledger/sdk";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type {
@@ -23,7 +22,6 @@ import type {
   WatchTopicMessagesFromOptions,
   WatchTopicMessagesOptions,
 } from "../shared/params.ts";
-import type { TopicWatchHandle } from "./types.ts";
 import type { TopicsNamespace } from "./namespace.ts";
 
 interface MirrorFailureShape {
@@ -239,10 +237,10 @@ export function createTopicsNamespace(context: {
   });
 
   const watch = (
-    topicId: EntityId,
+    topicId: string,
     handler: (message: TopicMessageData) => void,
     options: WatchTopicMessagesOptions = {},
-  ): TopicWatchHandle => {
+  ): (() => void) => {
     const query = applyTopicWatchOptions(new TopicMessageQuery().setTopicId(topicId), options);
     const errorHandler = options.onError
       ? (_message: import("@hiero-ledger/sdk").TopicMessage | null, error: Error) => {
@@ -273,10 +271,10 @@ export function createTopicsNamespace(context: {
   };
 
   const watchFrom = (
-    topicId: EntityId,
+    topicId: string,
     handler: (message: TopicMessageData) => void,
     options: WatchTopicMessagesFromOptions = {},
-  ): TopicWatchHandle => {
+  ): (() => void) => {
     let active = true;
     let cursorSequence = options.sinceSequence;
     let cursorTimestamp = options.sinceTimestamp;
@@ -402,7 +400,7 @@ export function createTopicsNamespace(context: {
     return ok(compactReceipts);
   };
 
-  const info = async (topicId: EntityId): Promise<Result<TopicInfoData>> => {
+  const info = async (topicId: string): Promise<Result<TopicInfoData>> => {
     const result = await context.mirror.topic.getInfo(topicId);
     if (!result.success) {
       return createMirrorQueryFailure("topic.getInfo", result.error);
@@ -412,7 +410,7 @@ export function createTopicsNamespace(context: {
   };
 
   const messages = async (
-    topicId: EntityId,
+    topicId: string,
     params?: import("@hieco/mirror").TopicMessagesParams,
   ): Promise<Result<TopicMessagesData>> => {
     const result = await context.mirror.topic.getMessages(topicId, params);

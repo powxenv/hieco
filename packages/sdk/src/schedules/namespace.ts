@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type {
   ScheduleInfoData,
@@ -14,7 +13,7 @@ export interface SchedulesNamespace {
     tx: (params: import("../shared/params.ts").ScheduleCreateParams) => TransactionDescriptor;
   };
   sign: ((
-    scheduleId: EntityId,
+    scheduleId: string,
     params?: Omit<import("../shared/params.ts").ScheduleSignParams, "scheduleId"> & {
       readonly signer?: import("@hiero-ledger/sdk").Signer;
     },
@@ -22,16 +21,16 @@ export interface SchedulesNamespace {
     tx: (params: import("../shared/params.ts").ScheduleSignParams) => TransactionDescriptor;
   };
   delete: ((
-    scheduleId: EntityId,
+    scheduleId: string,
     params?: Omit<import("../shared/params.ts").ScheduleDeleteParams, "scheduleId"> & {
       readonly signer?: import("@hiero-ledger/sdk").Signer;
     },
   ) => Promise<Result<TransactionReceiptData>>) & {
     tx: (params: import("../shared/params.ts").ScheduleDeleteParams) => TransactionDescriptor;
   };
-  info: (scheduleId: EntityId) => Promise<Result<ScheduleInfoData>>;
+  info: (scheduleId: string) => Promise<Result<ScheduleInfoData>>;
   wait: (
-    scheduleId: EntityId,
+    scheduleId: string,
     options?: import("../shared/params.ts").ScheduleWaitOptions,
   ) => Promise<Result<ScheduleInfoData>>;
   createIdempotent: (
@@ -46,7 +45,7 @@ export interface SchedulesNamespace {
     params: import("../shared/params.ts").ScheduleCollectSignaturesParams,
   ) => Promise<Result<ReadonlyArray<TransactionReceiptData>>>;
   waitForExecution: (
-    scheduleId: EntityId,
+    scheduleId: string,
     options?: import("../shared/params.ts").ScheduleWaitExecutionOptions,
   ) => Promise<Result<ScheduleInfoData>>;
 }

@@ -6,8 +6,6 @@ import type {
 } from "../results/shapes.ts";
 import type { TransactionDescriptor } from "../shared/params.ts";
 
-export type TransactionIdInput = string | { readonly transactionId: string };
-
 export type TransactionReceiptQueryOptions = {
   readonly includeChildren?: boolean;
   readonly includeDuplicates?: boolean;
@@ -16,9 +14,9 @@ export type TransactionReceiptQueryOptions = {
 
 export interface TransactionsNamespace {
   submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
-  record: (transactionId: TransactionIdInput) => Promise<Result<TransactionRecordData>>;
+  record: (transactionId: string) => Promise<Result<TransactionRecordData>>;
   receipt: (
-    transactionId: TransactionIdInput,
+    transactionId: string,
     options?: TransactionReceiptQueryOptions,
   ) => Promise<Result<TransactionReceiptQueryData>>;
 }
@@ -33,26 +31,19 @@ export function createTransactionsNamespace(context: {
     options?: TransactionReceiptQueryOptions,
   ) => Promise<Result<import("@hiero-ledger/sdk").TransactionReceipt>>;
 }): TransactionsNamespace {
-  const resolveId = (input: TransactionIdInput): string =>
-    typeof input === "string" ? input : input.transactionId;
-
-  const record = async (
-    transactionId: TransactionIdInput,
-  ): Promise<Result<TransactionRecordData>> => {
-    const id = resolveId(transactionId);
-    const result = await context.queryRecord(id);
+  const record = async (transactionId: string): Promise<Result<TransactionRecordData>> => {
+    const result = await context.queryRecord(transactionId);
     if (!result.ok) return result;
-    return { ok: true, value: { transactionId: id, record: result.value } };
+    return { ok: true, value: { transactionId, record: result.value } };
   };
 
   const receipt = async (
-    transactionId: TransactionIdInput,
+    transactionId: string,
     options?: TransactionReceiptQueryOptions,
   ): Promise<Result<TransactionReceiptQueryData>> => {
-    const id = resolveId(transactionId);
-    const result = await context.queryReceipt(id, options);
+    const result = await context.queryReceipt(transactionId, options);
     if (!result.ok) return result;
-    return { ok: true, value: { transactionId: id, receipt: result.value } };
+    return { ok: true, value: { transactionId, receipt: result.value } };
   };
 
   return {

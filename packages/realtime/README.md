@@ -193,14 +193,12 @@ The package exports the Relay JSON-RPC request and response types for tooling, t
 
 ### Subscription Exports
 
-| Export                 | Kind     | Purpose                                        | Usage form                 |
-| ---------------------- | -------- | ---------------------------------------------- | -------------------------- | -------------------------- |
-| `RelaySubscription`    | type     | Subscription request payload.                  | `{ type: "logs"            | "newHeads", filter: ... }` |
-| `RelayMessage`         | type     | Message received from a subscription callback. | `type RelayMessage`        |
-| `LogResult`            | type     | Contract log payload.                          | `type LogResult`           |
-| `NewHeadsResult`       | type     | New block header payload.                      | `type NewHeadsResult`      |
-| `SubscriptionId`       | type     | Branded subscription identifier.               | `type SubscriptionId`      |
-| `createSubscriptionId` | function | Brand a raw string as `SubscriptionId`.        | `createSubscriptionId(id)` |
+| Export              | Kind | Purpose                                        | Usage form            |
+| ------------------- | ---- | ---------------------------------------------- | --------------------- | -------------------------- |
+| `RelaySubscription` | type | Subscription request payload.                  | `{ type: "logs"       | "newHeads", filter: ... }` |
+| `RelayMessage`      | type | Message received from a subscription callback. | `type RelayMessage`   |
+| `LogResult`         | type | Contract log payload.                          | `type LogResult`      |
+| `NewHeadsResult`    | type | New block header payload.                      | `type NewHeadsResult` |
 
 ### Protocol Exports
 

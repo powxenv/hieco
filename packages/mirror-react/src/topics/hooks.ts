@@ -5,7 +5,7 @@ import type {
   UseQueryResult,
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
-import type { ApiResult, ApiError, EntityId, PaginationParams } from "@hieco/mirror";
+import type { ApiResult, ApiError, PaginationParams } from "@hieco/mirror";
 import type { Topic, TopicMessage } from "@hieco/mirror";
 import type { PaginatedResponse } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
@@ -20,7 +20,7 @@ export interface UseTopicInfoOptions extends Omit<
   UseQueryOptions<TopicQueryFnData<Topic>, TopicQueryError>,
   "queryKey" | "queryFn"
 > {
-  topicId: EntityId;
+  topicId: string;
 }
 
 export type UseTopicInfoResult = UseQueryResult<TopicQueryFnData<Topic>, TopicQueryError>;
@@ -29,7 +29,7 @@ export interface UseTopicMessagesOptions extends Omit<
   UseQueryOptions<TopicQueryFnData<TopicMessage[]>, TopicQueryError>,
   "queryKey" | "queryFn"
 > {
-  topicId: EntityId;
+  topicId: string;
   params?: {
     limit?: number;
     order?: "asc" | "desc";
@@ -47,7 +47,7 @@ export interface UseTopicMessageOptions extends Omit<
   UseQueryOptions<TopicQueryFnData<TopicMessage>, TopicQueryError>,
   "queryKey" | "queryFn"
 > {
-  topicId: EntityId;
+  topicId: string;
   sequenceNumber: number;
 }
 

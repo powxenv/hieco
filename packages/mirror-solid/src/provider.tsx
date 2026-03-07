@@ -1,36 +1,30 @@
 import { createContext, createMemo, createSignal, type JSX, type Accessor } from "solid-js";
-import { MirrorNodeClient, type NetworkType } from "@hieco/mirror";
-import { type AnyNetwork, type NetworkConfig, isDefaultNetwork, getNetworkUrl } from "@hieco/utils";
+import { MirrorNodeClient } from "@hieco/mirror";
+import { type NetworkConfig, isDefaultNetwork, getNetworkUrl } from "@hieco/utils";
 
-export type { AnyNetwork, NetworkConfig };
+export type { NetworkConfig };
 
 const EMPTY_NETWORKS: Record<string, string> = {};
 
 export interface MirrorNodeContextValue {
   client: Accessor<MirrorNodeClient>;
-  network: Accessor<AnyNetwork>;
+  network: Accessor<string>;
   mirrorNodeUrl: Accessor<string | undefined>;
-  switchNetwork: (network: AnyNetwork) => void;
+  switchNetwork: (network: string) => void;
 }
 
 const MirrorNodeContext = createContext<MirrorNodeContextValue>();
 
-export interface MirrorNodeProviderProps<
-  T extends string = string,
-  U extends NetworkType = NetworkType,
-> {
+export interface MirrorNodeProviderProps {
   children: JSX.Element;
-  config: NetworkConfig<T, U>;
+  config: NetworkConfig;
 }
 
-export function MirrorNodeProvider<T extends string, U extends NetworkType = NetworkType>({
-  children,
-  config,
-}: MirrorNodeProviderProps<T, U>): JSX.Element {
+export function MirrorNodeProvider({ children, config }: MirrorNodeProviderProps): JSX.Element {
   const defaultNetwork = config.defaultNetwork;
   const networks = config.networks ?? EMPTY_NETWORKS;
 
-  const [network, setNetwork] = createSignal<AnyNetwork>(defaultNetwork);
+  const [network, setNetwork] = createSignal<string>(defaultNetwork);
   const [mirrorNodeUrl, setMirrorNodeUrl] = createSignal<string | undefined>(
     getNetworkUrl(defaultNetwork, networks),
   );
@@ -44,7 +38,7 @@ export function MirrorNodeProvider<T extends string, U extends NetworkType = Net
     });
   });
 
-  const switchNetwork = (nextNetwork: AnyNetwork): void => {
+  const switchNetwork = (nextNetwork: string): void => {
     setNetwork(nextNetwork);
     setMirrorNodeUrl(getNetworkUrl(nextNetwork, networks));
   };

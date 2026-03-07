@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, EntityId, PaginationParams, QueryOperator } from "@hieco/mirror";
+import type { ApiResult, ApiError, PaginationParams, QueryOperator } from "@hieco/mirror";
 import type {
   AccountInfo,
   Balance,
@@ -20,38 +20,38 @@ import { createMirrorNodeInfiniteQuery } from "../polling/infinite";
 export type { AccountListParams, AccountNftsParams } from "@hieco/mirror";
 
 export interface AccountTokenAllowancesParams {
-  readonly spender?: EntityId;
-  readonly "token.id"?: EntityId;
+  readonly spender?: string;
+  readonly "token.id"?: string;
 }
 
 export interface CreateAccountInfoOptions {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly enabled?: boolean;
 }
 
 export type CreateAccountInfoResult = UseQueryResult<ApiResult<AccountInfo>, ApiError>;
 
 export interface CreateAccountBalancesOptions {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly enabled?: boolean;
 }
 
 export type CreateAccountBalancesResult = UseQueryResult<ApiResult<Balance>, ApiError>;
 
 export interface CreateAccountTokensOptions {
-  readonly accountId: EntityId;
-  readonly params?: PaginationParams & { readonly "token.id"?: EntityId };
+  readonly accountId: string;
+  readonly params?: PaginationParams & { readonly "token.id"?: string };
   readonly enabled?: boolean;
 }
 
 export type CreateAccountTokensResult = UseQueryResult<ApiResult<TokenRelationship[]>, ApiError>;
 
 export interface CreateAccountNftsOptions {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly "token.id"?: EntityId;
+    readonly "token.id"?: string;
     readonly serial_number?: number;
   };
   readonly enabled?: boolean;
@@ -60,7 +60,7 @@ export interface CreateAccountNftsOptions {
 export type CreateAccountNftsResult = UseQueryResult<ApiResult<TokenRelationship[]>, ApiError>;
 
 export interface CreateAccountStakingRewardsOptions {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly params?: PaginationParams & { readonly timestamp?: string };
   readonly enabled?: boolean;
 }
@@ -71,7 +71,7 @@ export type CreateAccountStakingRewardsResult = UseQueryResult<
 >;
 
 export interface CreateAccountCryptoAllowancesOptions {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly enabled?: boolean;
 }
 
@@ -81,7 +81,7 @@ export type CreateAccountCryptoAllowancesResult = UseQueryResult<
 >;
 
 export interface CreateAccountTokenAllowancesOptions {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly params?: AccountTokenAllowancesParams;
   readonly enabled?: boolean;
 }
@@ -92,8 +92,8 @@ export type CreateAccountTokenAllowancesResult = UseQueryResult<
 >;
 
 export interface CreateAccountNftAllowancesOptions {
-  readonly accountId: EntityId;
-  readonly params?: { readonly "token.id"?: EntityId };
+  readonly accountId: string;
+  readonly params?: { readonly "token.id"?: string };
   readonly enabled?: boolean;
 }
 
@@ -103,7 +103,7 @@ export interface CreateAccountsOptions {
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly account?: EntityId | QueryOperator<EntityId>;
+    readonly account?: string | QueryOperator<string>;
     readonly alias?: string;
   };
   readonly enabled?: boolean;
@@ -327,13 +327,13 @@ export function createAccountsInfinite(
 }
 
 export interface CreateAccountOutstandingAirdropsOptions {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly "receiver.id"?: EntityId;
+    readonly "receiver.id"?: string;
     readonly serial_number?: number;
-    readonly "token.id"?: EntityId;
+    readonly "token.id"?: string;
   };
   readonly enabled?: boolean;
 }
@@ -344,13 +344,13 @@ export type CreateAccountOutstandingAirdropsResult = UseQueryResult<
 >;
 
 export interface CreateAccountPendingAirdropsOptions {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly "sender.id"?: EntityId;
+    readonly "sender.id"?: string;
     readonly serial_number?: number;
-    readonly "token.id"?: EntityId;
+    readonly "token.id"?: string;
   };
   readonly enabled?: boolean;
 }

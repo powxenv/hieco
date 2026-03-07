@@ -1,18 +1,17 @@
-import type { EntityId } from "@hieco/utils";
 import type { ContractInfo, ContractLog } from "@hieco/mirror";
 import type { TransactionReceiptData } from "../results/transaction.ts";
 
 export interface ContractReceipt {
   readonly receipt: TransactionReceiptData;
   readonly transactionId: string;
-  readonly contractId: EntityId;
+  readonly contractId: string;
 }
 
 export interface ContractDeployArtifactResult {
   readonly receipt: TransactionReceiptData;
   readonly transactionId: string;
-  readonly contractId: EntityId;
-  readonly fileId?: EntityId;
+  readonly contractId: string;
+  readonly fileId?: string;
   readonly chunks?: number;
 }
 
@@ -22,7 +21,7 @@ export interface ContractExecuteReceipt {
 }
 
 export interface ContractCallResult<T = unknown> {
-  readonly contractId: EntityId;
+  readonly contractId: string;
   readonly gasUsed: number;
   readonly errorMessage: string;
   readonly raw: Uint8Array;
@@ -30,28 +29,28 @@ export interface ContractCallResult<T = unknown> {
 }
 
 export interface ContractInfoData {
-  readonly contractId: EntityId;
+  readonly contractId: string;
   readonly contract: ContractInfo;
 }
 
 export interface ContractLogsData {
-  readonly contractId: EntityId;
+  readonly contractId: string;
   readonly logs: ReadonlyArray<ContractLog>;
 }
 
 export interface ContractBytecodeData {
-  readonly contractId: EntityId;
+  readonly contractId: string;
   readonly bytecode: Uint8Array;
 }
 
 export interface MirrorContractCallData {
-  readonly contractId: EntityId;
+  readonly contractId: string;
   readonly raw: string;
   readonly bytes: Uint8Array;
 }
 
 export interface MirrorContractEstimateData {
-  readonly contractId: EntityId;
+  readonly contractId: string;
   readonly gas: number;
 }
 

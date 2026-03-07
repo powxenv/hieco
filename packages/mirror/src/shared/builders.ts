@@ -1,4 +1,4 @@
-import type { ApiResult, PaginationParams, QueryOperator, Timestamp } from "@hieco/utils";
+import type { ApiResult, PaginationParams, QueryOperator, TimestampFilter } from "@hieco/utils";
 import { findPageItems } from "./page";
 
 export class QueryBuilder {
@@ -31,7 +31,7 @@ export class QueryBuilder {
     return this;
   }
 
-  addTimestamp(timestamp: Timestamp | { from?: Timestamp; to?: Timestamp } | undefined): this {
+  addTimestamp(timestamp: TimestampFilter | undefined): this {
     if (!timestamp) return this;
 
     if (typeof timestamp === "string") {

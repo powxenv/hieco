@@ -11,7 +11,6 @@ import type {
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
-import type { EntityId } from "@hieco/utils";
 
 export type HiecoQueryOptions<TQueryFnData, TData = TQueryFnData> = Omit<
   UseQueryOptions<TQueryFnData, HieroError, TData>,
@@ -80,7 +79,7 @@ export type SingleOperationInput<TOperation> =
 
 export interface QueueParams {
   readonly adminKey?: string | true;
-  readonly payerAccountId?: EntityId;
+  readonly payerAccountId?: string;
   readonly expirationTime?: Date;
   readonly waitForExpiry?: boolean;
   readonly memo?: string;

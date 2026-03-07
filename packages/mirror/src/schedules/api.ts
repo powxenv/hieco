@@ -1,23 +1,23 @@
-import type { ApiResult, EntityId, PaginationParams, QueryOperator, Timestamp } from "@hieco/utils";
+import type { ApiResult, PaginationParams, QueryOperator } from "@hieco/utils";
 import type { Schedule } from "./types";
 import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface ScheduleListParams extends PaginationParams {
-  "account.id"?: EntityId | QueryOperator<EntityId>;
-  "creator.account.id"?: EntityId | QueryOperator<EntityId>;
-  "payer.account.id"?: EntityId | QueryOperator<EntityId>;
-  schedule_id?: EntityId;
+  "account.id"?: string | QueryOperator<string>;
+  "creator.account.id"?: string | QueryOperator<string>;
+  "payer.account.id"?: string | QueryOperator<string>;
+  schedule_id?: string;
   admin_key?: string;
   deleted?: boolean;
-  executed_timestamp?: Timestamp;
-  expiration_timestamp?: Timestamp;
+  executed_timestamp?: string;
+  expiration_timestamp?: string;
   memo?: string;
-  wait_for_expiry_expiration?: Timestamp;
+  wait_for_expiry_expiration?: string;
 }
 
 export class ScheduleApi extends BaseApi {
-  async getInfo(scheduleId: EntityId): Promise<ApiResult<Schedule>> {
+  async getInfo(scheduleId: string): Promise<ApiResult<Schedule>> {
     return this.getSingle<Schedule>(`schedules/${scheduleId}`);
   }
 

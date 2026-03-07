@@ -3,7 +3,6 @@ import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-que
 import type {
   ApiResult,
   ApiError,
-  EntityId,
   PaginationParams,
   QueryOperator,
   TokenBalancesResponse,
@@ -21,18 +20,18 @@ import { createMirrorNodeInfiniteQuery } from "../polling/infinite";
 export type { TokenListParams, TokenBalancesParams, TokenNftsParams } from "@hieco/mirror";
 
 export interface CreateTokenInfoOptions {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly enabled?: boolean;
 }
 
 export type CreateTokenInfoResult = UseQueryResult<ApiResult<TokenInfo>, ApiError>;
 
 export interface CreateTokenBalancesOptions {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly account?: EntityId;
+    readonly account?: string;
     readonly "account.balance"?: QueryOperator<number>;
   };
   readonly enabled?: boolean;
@@ -41,11 +40,11 @@ export interface CreateTokenBalancesOptions {
 export type CreateTokenBalancesResult = UseQueryResult<ApiResult<TokenDistribution[]>, ApiError>;
 
 export interface CreateTokenBalancesSnapshotOptions {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly account?: EntityId;
+    readonly account?: string;
     readonly "account.balance"?: QueryOperator<number>;
   };
   readonly enabled?: boolean;
@@ -57,7 +56,7 @@ export type CreateTokenBalancesSnapshotResult = UseQueryResult<
 >;
 
 export interface CreateTokenNftsOptions {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
@@ -69,7 +68,7 @@ export interface CreateTokenNftsOptions {
 export type CreateTokenNftsResult = UseQueryResult<ApiResult<PaginatedResponse<Nft>>, ApiError>;
 
 export interface CreateTokenNftOptions {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly serialNumber: number;
   readonly enabled?: boolean;
 }
@@ -77,7 +76,7 @@ export interface CreateTokenNftOptions {
 export type CreateTokenNftResult = UseQueryResult<ApiResult<Nft>, ApiError>;
 
 export interface CreateTokenNftTransactionsOptions {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly serialNumber: number;
   readonly params?: PaginationParams;
   readonly enabled?: boolean;
@@ -89,7 +88,7 @@ export interface CreateTokensOptions {
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly "token.id"?: EntityId | QueryOperator<EntityId>;
+    readonly "token.id"?: string | QueryOperator<string>;
     readonly type?: "FUNGIBLE_COMMON" | "NON_FUNGIBLE_UNIQUE";
   };
   readonly enabled?: boolean;

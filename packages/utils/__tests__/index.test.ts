@@ -232,7 +232,7 @@ describe("ApiErrorFactory.validation", () => {
 
   describe("Hedera-specific validation codes", () => {
     test("handles INVALID_ENTITY_ID format", () => {
-      const error = ApiErrorFactory.validation("Invalid EntityId", "INVALID_ENTITY_ID");
+      const error = ApiErrorFactory.validation("Invalid string", "INVALID_ENTITY_ID");
       expect(error.code).toStrictEqual("INVALID_ENTITY_ID");
     });
 
@@ -268,7 +268,7 @@ describe("ApiErrorFactory.notFound", () => {
       expect(error._tag).toStrictEqual("NotFoundError");
     });
 
-    test("handles message with EntityId format", () => {
+    test("handles message with string format", () => {
       const error = ApiErrorFactory.notFound("Contract 0.0.456-789 not found");
       expect(error.message).toStrictEqual("Contract 0.0.456-789 not found");
     });

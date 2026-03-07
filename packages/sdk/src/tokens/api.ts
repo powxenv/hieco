@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type {
   MintReceipt,
@@ -40,7 +39,7 @@ import type { TokensNamespace } from "./namespace.ts";
 
 export function createTokensNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
-  readonly operator?: EntityId;
+  readonly operator?: string;
   readonly signer?: import("@hiero-ledger/sdk").Signer;
   readonly mirror: import("@hieco/mirror").MirrorNodeClient;
   readonly nativeClient: import("@hiero-ledger/sdk").Client;
@@ -261,7 +260,7 @@ export function createTokensNamespace(context: {
     params,
   });
 
-  const info = async (tokenId: EntityId): Promise<Result<TokenInfoData>> => {
+  const info = async (tokenId: string): Promise<Result<TokenInfoData>> => {
     const result = await context.mirror.token.getInfo(tokenId);
     if (!result.success) {
       return err(
@@ -277,11 +276,11 @@ export function createTokensNamespace(context: {
     return ok({ tokenId, token: result.data });
   };
 
-  const resolveNftId = (input: string | { readonly tokenId: EntityId; readonly serial: number }) =>
+  const resolveNftId = (input: string | { readonly tokenId: string; readonly serial: number }) =>
     typeof input === "string" ? input : `${input.tokenId}/${String(input.serial)}`;
 
   const nftInfo = async (
-    nft: string | { readonly tokenId: EntityId; readonly serial: number },
+    nft: string | { readonly tokenId: string; readonly serial: number },
   ): Promise<Result<TokenNftInfoData>> => {
     const nftId = resolveNftId(nft);
     const signing: SigningContext | undefined = context.signer
@@ -302,7 +301,7 @@ export function createTokensNamespace(context: {
   };
 
   const allowancesList = async (
-    accountId: EntityId,
+    accountId: string,
     params?: TokenAllowancesQueryParams,
   ): Promise<
     Result<{

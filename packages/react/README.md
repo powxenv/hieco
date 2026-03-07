@@ -68,9 +68,9 @@ For server-only logic, scripts, or framework loaders, use [`@hieco/sdk`](../sdk/
 ```tsx
 "use client";
 
-import { HiecoProvider, useAccountInfo, type EntityId } from "@hieco/react";
+import { HiecoProvider, useAccountInfo } from "@hieco/react";
 
-function AccountCard({ accountId }: { accountId: EntityId }) {
+function AccountCard({ accountId }: { accountId: string }) {
   const account = useAccountInfo(accountId);
 
   if (account.isPending) return <div>Loading...</div>;
@@ -160,7 +160,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 ```tsx
 "use client";
 
-import { HiecoProvider, type EntityId } from "@hieco/react";
+import { HiecoProvider } from "@hieco/react";
 import type { DehydratedState, QueryClient } from "@tanstack/react-query";
 
 export function Providers({
@@ -355,7 +355,7 @@ All query hooks follow the SDK query pattern and all mutation hooks follow the S
 
 ### SDK Re-Exports
 
-`@hieco/react` re-exports the public surface of [`@hieco/sdk`](../sdk/README.md). Import shared types such as `EntityId`, `Signer`, `Result`, `HiecoClient`, and all SDK param or result types directly from `@hieco/react` when that is your main app dependency.
+`@hieco/react` re-exports the public surface of [`@hieco/sdk`](../sdk/README.md). Import shared types such as `Signer`, `Result`, `HiecoClient`, `NetworkType`, and all SDK param or result types directly from `@hieco/react` when that is your main app dependency.
 
 ## Related Packages
 

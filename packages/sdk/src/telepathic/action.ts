@@ -5,7 +5,7 @@ export interface ActionPlan<T> {
   >;
   readonly schedule: (params?: {
     readonly adminKey?: string | true;
-    readonly payerAccountId?: import("@hieco/utils").EntityId;
+    readonly payerAccountId?: string;
     readonly expirationTime?: Date;
     readonly waitForExpiry?: boolean;
     readonly memo?: string;
@@ -21,7 +21,7 @@ export function actionPlan<T>(input: {
   readonly schedule?: (
     params: {
       readonly adminKey?: string | true;
-      readonly payerAccountId?: import("@hieco/utils").EntityId;
+      readonly payerAccountId?: string;
       readonly expirationTime?: Date;
       readonly waitForExpiry?: boolean;
       readonly memo?: string;

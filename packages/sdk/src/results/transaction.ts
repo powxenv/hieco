@@ -1,15 +1,14 @@
-import type { EntityId } from "@hieco/utils";
 import type { TransactionRecord, TransactionReceipt } from "@hiero-ledger/sdk";
 
 export interface TransactionReceiptData {
   readonly status: string;
   readonly transactionId: string;
-  readonly accountId?: EntityId;
-  readonly fileId?: EntityId;
-  readonly contractId?: EntityId;
-  readonly topicId?: EntityId;
-  readonly tokenId?: EntityId;
-  readonly scheduleId?: EntityId;
+  readonly accountId?: string;
+  readonly fileId?: string;
+  readonly contractId?: string;
+  readonly topicId?: string;
+  readonly tokenId?: string;
+  readonly scheduleId?: string;
   readonly totalSupply?: string;
   readonly serialNumbers?: ReadonlyArray<number>;
   readonly topicSequenceNumber?: string;

@@ -1,12 +1,11 @@
 import type { Signer } from "@hiero-ledger/sdk";
-import type { EntityId } from "@hieco/utils";
 import type { Amount } from "../shared/amount.ts";
 import type { TransactionDescriptor } from "../transactions/types.ts";
 
 export interface ScheduleCreateParams {
   readonly tx: TransactionDescriptor;
   readonly adminKey?: string | true;
-  readonly payerAccountId?: EntityId;
+  readonly payerAccountId?: string;
   readonly expirationTime?: Date;
   readonly waitForExpiry?: boolean;
   readonly memo?: string;
@@ -14,13 +13,13 @@ export interface ScheduleCreateParams {
 }
 
 export interface ScheduleSignParams {
-  readonly scheduleId: EntityId;
+  readonly scheduleId: string;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface ScheduleDeleteParams {
-  readonly scheduleId: EntityId;
+  readonly scheduleId: string;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
@@ -34,7 +33,7 @@ export interface ScheduleWaitOptions {
 export interface ScheduleIdempotentCreateParams {
   readonly tx: TransactionDescriptor;
   readonly adminKey?: string | true;
-  readonly payerAccountId?: EntityId;
+  readonly payerAccountId?: string;
   readonly expirationTime?: Date;
   readonly waitForExpiry?: boolean;
   readonly memo?: string;
@@ -42,7 +41,7 @@ export interface ScheduleIdempotentCreateParams {
 }
 
 export interface ScheduleCollectSignaturesParams {
-  readonly scheduleId: EntityId;
+  readonly scheduleId: string;
   readonly signers: ReadonlyArray<Signer>;
   readonly memo?: string;
   readonly maxFee?: Amount;

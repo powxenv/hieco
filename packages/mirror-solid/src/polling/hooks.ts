@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/solid-query";
 import { createSignal } from "solid-js";
 import type { Accessor } from "solid-js";
 import type { UseQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, EntityId, TransactionDetails } from "@hieco/mirror";
+import type { ApiResult, ApiError, TransactionDetails } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/utils";
 
 export interface CreatePollTransactionOptions {
-  readonly transactionId: EntityId;
+  readonly transactionId: string;
   readonly maxAttempts?: number;
   readonly intervalMs?: number;
   readonly stopOnConfirmed?: boolean;

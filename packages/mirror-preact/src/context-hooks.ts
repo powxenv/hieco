@@ -1,7 +1,7 @@
 import { useContext } from "preact/hooks";
 import { MirrorNodeContext } from "./provider";
 import type { MirrorNodeClient } from "@hieco/mirror";
-import type { MirrorNodeContextValue, AnyNetwork } from "./provider";
+import type { MirrorNodeContextValue } from "./provider";
 
 export function useMirrorNodeContext(): MirrorNodeContextValue {
   const context = useContext(MirrorNodeContext);
@@ -32,4 +32,4 @@ export function useNetwork(): Pick<
   };
 }
 
-export type { AnyNetwork, MirrorNodeContextValue };
+export type { MirrorNodeContextValue };

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, QueryOperator, Timestamp } from "@hieco/mirror";
+import type { ApiResult, ApiError, QueryOperator } from "@hieco/mirror";
 import type { BalancesResponse } from "@hieco/mirror";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
@@ -15,7 +15,7 @@ export interface CreateBalancesOptions {
     readonly account?: string;
     readonly "account.balance"?: QueryOperator<number>;
     readonly public_key?: string;
-    readonly timestamp?: Timestamp;
+    readonly timestamp?: string;
   };
   readonly enabled?: boolean;
 }

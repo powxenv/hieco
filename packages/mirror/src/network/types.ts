@@ -1,21 +1,21 @@
-import type { EntityId, Key, Timestamp } from "@hieco/utils";
+import type { Key } from "@hieco/utils";
 import type { TokenBalance } from "../accounts/types";
 
 export interface ExchangeRate {
   readonly current_rate: Rate;
   readonly next_rate: Rate;
-  readonly timestamp: Timestamp;
+  readonly timestamp: string;
 }
 
 export interface Rate {
   readonly cent_equality: number;
-  readonly expiration_time: Timestamp;
+  readonly expiration_time: string;
   readonly hbar_equality: number;
 }
 
 export interface NetworkFee {
   readonly data: readonly FeeData[];
-  readonly timestamp: Timestamp;
+  readonly timestamp: string;
 }
 
 export interface FeeData {
@@ -35,24 +35,24 @@ export interface ServiceEndpoint {
 }
 
 export interface TimestampRange {
-  readonly from: Timestamp;
-  readonly to: Timestamp | null;
+  readonly from: string;
+  readonly to: string | null;
 }
 
 export interface TimestampRangeNullable {
-  readonly from: Timestamp | null;
-  readonly to: Timestamp | null;
+  readonly from: string | null;
+  readonly to: string | null;
 }
 
 export interface NetworkNode {
   readonly admin_key: Key | null;
   readonly decline_reward: boolean | null;
   readonly description: string | null;
-  readonly file_id: EntityId;
+  readonly file_id: string;
   readonly max_stake: number | null;
   readonly memo: string | null;
   readonly min_stake: number | null;
-  readonly node_account_id: EntityId;
+  readonly node_account_id: string;
   readonly node_id: number;
   readonly node_cert_hash: string | null;
   readonly public_key: string | null;
@@ -84,19 +84,19 @@ export interface NetworkStake {
 }
 
 export interface NetworkSupply {
-  readonly timestamp: Timestamp;
+  readonly timestamp: string;
   readonly total_supply: number;
   readonly released_supply: number;
 }
 
 export interface AccountBalance {
-  readonly account: EntityId;
+  readonly account: string;
   readonly balance: number;
   readonly tokens: readonly TokenBalance[];
 }
 
 export interface BalancesResponse {
-  readonly timestamp: Timestamp | null;
+  readonly timestamp: string | null;
   readonly balances: readonly AccountBalance[];
   readonly links: {
     readonly next?: string;

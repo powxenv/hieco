@@ -1,11 +1,9 @@
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
-import type { EntityId } from "@hieco/utils";
 import { HieroClient as CoreClient } from "../client/client.ts";
 import type * as Params from "../shared/params.ts";
 import type * as Shapes from "../results/shapes.ts";
 import type { ClientRuntimeConfig } from "../client/runtime.ts";
 import type { Result } from "../results/result.ts";
-import type { TopicWatchHandle } from "../topics/types.ts";
 import { fluentAction } from "./fluent.ts";
 
 type MaybeArray<T> = T | ReadonlyArray<T>;
@@ -14,26 +12,26 @@ type BuilderResult<T, P extends object = Record<string, unknown>> = {
   readonly with: (params: Partial<P>) => BuilderResult<T, P>;
   readonly memo: (value: string) => BuilderResult<T, P>;
   readonly fee: (value: Params.Amount) => BuilderResult<T, P>;
-  readonly from: (value: EntityId) => BuilderResult<T, P>;
-  readonly to: (value: EntityId) => BuilderResult<T, P>;
+  readonly from: (value: string) => BuilderResult<T, P>;
+  readonly to: (value: string) => BuilderResult<T, P>;
   readonly hbar: (value: Params.Amount) => BuilderResult<T, P>;
   readonly amount: (value: Params.Amount) => BuilderResult<T, P>;
   readonly key: (value: string | true) => BuilderResult<T, P>;
   readonly publicKey: (value: string) => BuilderResult<T, P>;
-  readonly id: (value: EntityId) => BuilderResult<T, P>;
-  readonly token: (value: EntityId) => BuilderResult<T, P>;
-  readonly account: (value: EntityId) => BuilderResult<T, P>;
-  readonly topic: (value: EntityId) => BuilderResult<T, P>;
-  readonly contract: (value: EntityId) => BuilderResult<T, P>;
-  readonly file: (value: EntityId) => BuilderResult<T, P>;
-  readonly schedule: (value: EntityId) => BuilderResult<T, P>;
+  readonly id: (value: string) => BuilderResult<T, P>;
+  readonly token: (value: string) => BuilderResult<T, P>;
+  readonly account: (value: string) => BuilderResult<T, P>;
+  readonly topic: (value: string) => BuilderResult<T, P>;
+  readonly contract: (value: string) => BuilderResult<T, P>;
+  readonly file: (value: string) => BuilderResult<T, P>;
+  readonly schedule: (value: string) => BuilderResult<T, P>;
   readonly serial: (value: number) => BuilderResult<T, P>;
   readonly serials: (values: ReadonlyArray<number>) => BuilderResult<T, P>;
-  readonly tokenIds: (values: ReadonlyArray<EntityId>) => BuilderResult<T, P>;
-  readonly owner: (value: EntityId) => BuilderResult<T, P>;
-  readonly spender: (value: EntityId) => BuilderResult<T, P>;
-  readonly payer: (value: EntityId) => BuilderResult<T, P>;
-  readonly treasury: (value: EntityId) => BuilderResult<T, P>;
+  readonly tokenIds: (values: ReadonlyArray<string>) => BuilderResult<T, P>;
+  readonly owner: (value: string) => BuilderResult<T, P>;
+  readonly spender: (value: string) => BuilderResult<T, P>;
+  readonly payer: (value: string) => BuilderResult<T, P>;
+  readonly treasury: (value: string) => BuilderResult<T, P>;
   readonly name: (value: string) => BuilderResult<T, P>;
   readonly symbol: (value: string) => BuilderResult<T, P>;
   readonly decimals: (value: number) => BuilderResult<T, P>;
@@ -57,7 +55,7 @@ type BuilderResult<T, P extends object = Record<string, unknown>> = {
   readonly tx: () => Result<Params.TransactionDescriptor>;
   readonly queue: (params?: {
     readonly adminKey?: string | true;
-    readonly payerAccountId?: EntityId;
+    readonly payerAccountId?: string;
     readonly expirationTime?: Date;
     readonly waitForExpiry?: boolean;
     readonly memo?: string;
@@ -131,7 +129,7 @@ export interface TelepathicClient {
     readonly allowancesDeleteNft: (
       params?: Partial<Params.DeleteNftAllowancesParams>,
     ) => BuilderResult<Shapes.TransactionReceiptData, Params.DeleteNftAllowancesParams>;
-    readonly allowanceSnapshot: (accountId: EntityId) => QueryResult<{
+    readonly allowanceSnapshot: (accountId: string) => QueryResult<{
       readonly hbar: ReadonlyArray<import("@hieco/mirror").CryptoAllowance>;
       readonly tokens: ReadonlyArray<import("@hieco/mirror").TokenAllowance>;
       readonly nfts: ReadonlyArray<import("@hieco/mirror").NftAllowance>;
@@ -146,7 +144,7 @@ export interface TelepathicClient {
       | { readonly status: "skipped"; readonly reason: "already-approved" }
       | { readonly status: "submitted"; readonly receipt: Shapes.TransactionReceiptData }
     >;
-    readonly balance: (accountId?: EntityId) => QueryResult<{
+    readonly balance: (accountId?: string) => QueryResult<{
       readonly hbar: string;
       readonly tokens: ReadonlyArray<{
         readonly tokenId: string;
@@ -154,12 +152,12 @@ export interface TelepathicClient {
         readonly decimals: number;
       }>;
     }>;
-    readonly info: (accountId: EntityId) => QueryResult<Shapes.AccountInfoData>;
+    readonly info: (accountId: string) => QueryResult<Shapes.AccountInfoData>;
     readonly infoFlow: (
-      accountId: EntityId,
+      accountId: string,
       options?: Params.AccountInfoFlowOptions,
     ) => QueryResult<Shapes.AccountInfoData>;
-    readonly records: (accountId?: EntityId) => QueryResult<Shapes.AccountRecordsData>;
+    readonly records: (accountId?: string) => QueryResult<Shapes.AccountRecordsData>;
   };
   readonly token: {
     readonly create: (
@@ -240,12 +238,12 @@ export interface TelepathicClient {
     readonly updateNfts: (
       params?: Partial<Params.TokenUpdateNftsParams>,
     ) => BuilderResult<Shapes.TransactionReceiptData, Params.TokenUpdateNftsParams>;
-    readonly info: (tokenId: EntityId) => QueryResult<Shapes.TokenInfoData>;
+    readonly info: (tokenId: string) => QueryResult<Shapes.TokenInfoData>;
     readonly nft: (
-      nft: string | { readonly tokenId: EntityId; readonly serial: number },
+      nft: string | { readonly tokenId: string; readonly serial: number },
     ) => QueryResult<Shapes.TokenNftInfoData>;
     readonly allowances: (
-      accountId: EntityId,
+      accountId: string,
       params?: Params.TokenAllowancesQueryParams,
     ) => QueryResult<{
       readonly allowances: ReadonlyArray<import("@hieco/mirror").TokenAllowance>;
@@ -280,18 +278,18 @@ export interface TelepathicClient {
       params?: Partial<Params.BatchSubmitMessagesParams>,
     ) => QueryResult<ReadonlyArray<Shapes.MessageReceipt>>;
     readonly watch: (
-      topicId: EntityId,
+      topicId: string,
       handler: (message: Params.TopicMessageData) => void,
       options?: Params.WatchTopicMessagesOptions,
-    ) => TopicWatchHandle;
+    ) => () => void;
     readonly watchFrom: (
-      topicId: EntityId,
+      topicId: string,
       handler: (message: Params.TopicMessageData) => void,
       options?: Params.WatchTopicMessagesFromOptions,
-    ) => TopicWatchHandle;
-    readonly info: (topicId: EntityId) => QueryResult<Shapes.TopicInfoData>;
+    ) => () => void;
+    readonly info: (topicId: string) => QueryResult<Shapes.TopicInfoData>;
     readonly messages: (
-      topicId: EntityId,
+      topicId: string,
       params?: import("@hieco/mirror").TopicMessagesParams,
     ) => QueryResult<Shapes.TopicMessagesData>;
   };
@@ -318,15 +316,15 @@ export interface TelepathicClient {
       params: Params.CallContractParams,
     ) => QueryResult<Shapes.ContractCallResult<unknown>>;
     readonly callTyped: (params: {
-      readonly id: EntityId;
+      readonly id: string;
       readonly fn: string;
       readonly params: Params.FunctionParamsConfig;
       readonly gas?: number;
-      readonly senderAccountId?: EntityId;
+      readonly senderAccountId?: string;
       readonly returns?: import("../contracts/abi.ts").ReturnTypeHint;
     }) => QueryResult<Shapes.ContractCallResult<unknown>>;
     readonly preflight: (params: {
-      readonly id: EntityId;
+      readonly id: string;
       readonly fn: string;
       readonly args?: ReadonlyArray<unknown>;
       readonly senderEvmAddress?: string;
@@ -345,12 +343,12 @@ export interface TelepathicClient {
     readonly update: (
       params?: Partial<Params.UpdateContractParams>,
     ) => BuilderResult<Shapes.TransactionReceiptData, Params.UpdateContractParams>;
-    readonly info: (contractId: EntityId) => QueryResult<Shapes.ContractInfoData>;
+    readonly info: (contractId: string) => QueryResult<Shapes.ContractInfoData>;
     readonly logs: (
-      contractId: EntityId,
+      contractId: string,
       params?: import("@hieco/mirror").ContractLogsParams,
     ) => QueryResult<Shapes.ContractLogsData>;
-    readonly bytecode: (contractId: EntityId) => QueryResult<Shapes.ContractBytecodeData>;
+    readonly bytecode: (contractId: string) => QueryResult<Shapes.ContractBytecodeData>;
     readonly simulate: (
       params: Parameters<CoreClient["contracts"]["simulate"]>[0],
     ) => QueryResult<Shapes.MirrorContractCallData>;
@@ -380,40 +378,40 @@ export interface TelepathicClient {
     readonly updateLarge: (
       params?: Partial<Params.UpdateLargeFileParams>,
     ) => QueryResult<Shapes.FileChunkedReceipt>;
-    readonly info: (fileId: EntityId) => QueryResult<Shapes.FileInfoData>;
-    readonly contents: (fileId: EntityId) => QueryResult<Shapes.FileContentsData>;
+    readonly info: (fileId: string) => QueryResult<Shapes.FileInfoData>;
+    readonly contents: (fileId: string) => QueryResult<Shapes.FileContentsData>;
     readonly text: (
-      fileId: EntityId,
-    ) => QueryResult<{ readonly fileId: EntityId; readonly text: string }>;
+      fileId: string,
+    ) => QueryResult<{ readonly fileId: string; readonly text: string }>;
     readonly contentsText: (
-      fileId: EntityId,
-    ) => QueryResult<{ readonly fileId: EntityId; readonly text: string }>;
+      fileId: string,
+    ) => QueryResult<{ readonly fileId: string; readonly text: string }>;
     readonly json: <T = unknown>(
-      fileId: EntityId,
-    ) => QueryResult<{ readonly fileId: EntityId; readonly json: T }>;
+      fileId: string,
+    ) => QueryResult<{ readonly fileId: string; readonly json: T }>;
     readonly contentsJson: <T = unknown>(
-      fileId: EntityId,
-    ) => QueryResult<{ readonly fileId: EntityId; readonly json: T }>;
+      fileId: string,
+    ) => QueryResult<{ readonly fileId: string; readonly json: T }>;
   };
   readonly schedule: {
     readonly create: (
       params?: Partial<Params.ScheduleCreateParams>,
     ) => BuilderResult<Shapes.ScheduleReceipt, Params.ScheduleCreateParams>;
     readonly sign: (
-      scheduleId: EntityId,
+      scheduleId: string,
       params?: Omit<Params.ScheduleSignParams, "scheduleId"> & {
         readonly signer?: HieroSigner;
       },
     ) => QueryResult<Shapes.TransactionReceiptData>;
     readonly delete: (
-      scheduleId: EntityId,
+      scheduleId: string,
       params?: Omit<Params.ScheduleDeleteParams, "scheduleId"> & {
         readonly signer?: HieroSigner;
       },
     ) => QueryResult<Shapes.TransactionReceiptData>;
-    readonly info: (scheduleId: EntityId) => QueryResult<Shapes.ScheduleInfoData>;
+    readonly info: (scheduleId: string) => QueryResult<Shapes.ScheduleInfoData>;
     readonly wait: (
-      scheduleId: EntityId,
+      scheduleId: string,
       options?: Params.ScheduleWaitOptions,
     ) => QueryResult<Shapes.ScheduleInfoData>;
     readonly createIdempotent: (
@@ -429,7 +427,7 @@ export interface TelepathicClient {
       params?: Partial<Params.ScheduleCollectSignaturesParams>,
     ) => QueryResult<ReadonlyArray<Shapes.TransactionReceiptData>>;
     readonly waitForExecution: (
-      scheduleId: EntityId,
+      scheduleId: string,
       options?: Params.ScheduleWaitExecutionOptions,
     ) => QueryResult<Shapes.ScheduleInfoData>;
   };
@@ -498,10 +496,10 @@ export interface TelepathicClient {
   readonly as: (signer: HieroSigner) => TelepathicClient;
   readonly with: (input: {
     readonly signer?: HieroSigner;
-    readonly operator?: EntityId;
+    readonly operator?: string;
     readonly key?: string;
   }) => TelepathicClient;
-  readonly setOperator: (operator: EntityId, key: string) => TelepathicClient;
+  readonly setOperator: (operator: string, key: string) => TelepathicClient;
   readonly setMaxAttempts: (maxAttempts: number) => TelepathicClient;
   readonly setMaxNodeAttempts: (maxNodeAttempts: number) => TelepathicClient;
   readonly setRequestTimeout: (requestTimeoutMs: number) => TelepathicClient;
@@ -602,10 +600,10 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
   const tx = {
     submit: (descriptor: Params.TransactionDescriptor) =>
       toQueryResult(() => client.submit(descriptor)),
-    record: (transactionId: string | { readonly transactionId: string }) =>
+    record: (transactionId: string) =>
       toQueryResult(() => client.transactions.record(transactionId)),
     receipt: (
-      transactionId: string | { readonly transactionId: string },
+      transactionId: string,
       options?: {
         readonly includeChildren?: boolean;
         readonly includeDuplicates?: boolean;
@@ -690,7 +688,7 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
           (value) => client.accounts.allowancesDeleteNft(value),
           (value) => client.accounts.allowancesDeleteNft.tx(value),
         ),
-      allowanceSnapshot: (accountId: EntityId) =>
+      allowanceSnapshot: (accountId: string) =>
         toQueryResult(() => client.accounts.allowancesList(accountId)),
       ensureAllowances: (params: {
         readonly hbar?: ReadonlyArray<Params.HbarAllowanceParams>;
@@ -699,9 +697,9 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
         readonly memo?: string;
         readonly maxFee?: Params.Amount;
       }) => toQueryResult(() => client.accounts.allowancesEnsure(params)),
-      balance: (accountId?: EntityId) => toQueryResult(() => client.accounts.balance(accountId)),
-      info: (accountId: EntityId) => toQueryResult(() => client.accounts.info(accountId)),
-      infoFlow: (accountId: EntityId, options: Params.AccountInfoFlowOptions = {}) =>
+      balance: (accountId?: string) => toQueryResult(() => client.accounts.balance(accountId)),
+      info: (accountId: string) => toQueryResult(() => client.accounts.info(accountId)),
+      infoFlow: (accountId: string, options: Params.AccountInfoFlowOptions = {}) =>
         toQueryResult(async () => {
           const maxAttempts = options.maxAttempts ?? 3;
           const retryDelayMs = options.retryDelayMs ?? 300;
@@ -724,7 +722,7 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
             } as const)
           );
         }),
-      records: (accountId?: EntityId) => toQueryResult(() => client.accounts.records(accountId)),
+      records: (accountId?: string) => toQueryResult(() => client.accounts.records(accountId)),
     },
     token: {
       create: (params: Partial<Params.CreateTokenParams> = {}) =>
@@ -900,10 +898,10 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
           (value) => base.submit({ kind: "tokens.updateNfts", params: value }),
           (value) => ({ kind: "tokens.updateNfts", params: value }),
         ),
-      info: (tokenId: EntityId) => toQueryResult(() => base.tokens.info(tokenId)),
-      nft: (nft: string | { readonly tokenId: EntityId; readonly serial: number }) =>
+      info: (tokenId: string) => toQueryResult(() => base.tokens.info(tokenId)),
+      nft: (nft: string | { readonly tokenId: string; readonly serial: number }) =>
         toQueryResult(() => base.tokens.nftInfo(nft)),
-      allowances: (accountId: EntityId, params?: Params.TokenAllowancesQueryParams) =>
+      allowances: (accountId: string, params?: Params.TokenAllowancesQueryParams) =>
         toQueryResult(() => base.tokens.allowancesList(accountId, params)),
     },
     topic: {
@@ -956,17 +954,17 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
           (value) => base.topics.batchSubmit(value),
         ),
       watch: (
-        topicId: EntityId,
+        topicId: string,
         handler: (message: Params.TopicMessageData) => void,
         options?: Params.WatchTopicMessagesOptions,
       ) => base.topics.watch(topicId, handler, options),
       watchFrom: (
-        topicId: EntityId,
+        topicId: string,
         handler: (message: Params.TopicMessageData) => void,
         options?: Params.WatchTopicMessagesFromOptions,
       ) => base.topics.watchFrom(topicId, handler, options),
-      info: (topicId: EntityId) => toQueryResult(() => base.topics.info(topicId)),
-      messages: (topicId: EntityId, params?: import("@hieco/mirror").TopicMessagesParams) =>
+      info: (topicId: string) => toQueryResult(() => base.topics.info(topicId)),
+      messages: (topicId: string, params?: import("@hieco/mirror").TopicMessagesParams) =>
         toQueryResult(() => base.topics.messages(topicId, params)),
     },
     contract: {
@@ -1007,15 +1005,15 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
         ),
       call: (params: Params.CallContractParams) => toQueryResult(() => base.contracts.call(params)),
       callTyped: (params: {
-        readonly id: EntityId;
+        readonly id: string;
         readonly fn: string;
         readonly params: Params.FunctionParamsConfig;
         readonly gas?: number;
-        readonly senderAccountId?: EntityId;
+        readonly senderAccountId?: string;
         readonly returns?: import("../contracts/abi.ts").ReturnTypeHint;
       }) => toQueryResult(() => base.contracts.callTyped(params)),
       preflight: (params: {
-        readonly id: EntityId;
+        readonly id: string;
         readonly fn: string;
         readonly args?: ReadonlyArray<unknown>;
         readonly senderEvmAddress?: string;
@@ -1038,10 +1036,10 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
           (value) => base.contracts.update(value),
           (value) => base.contracts.update.tx(value),
         ),
-      info: (contractId: EntityId) => toQueryResult(() => base.contracts.info(contractId)),
-      logs: (contractId: EntityId, params?: import("@hieco/mirror").ContractLogsParams) =>
+      info: (contractId: string) => toQueryResult(() => base.contracts.info(contractId)),
+      logs: (contractId: string, params?: import("@hieco/mirror").ContractLogsParams) =>
         toQueryResult(() => base.contracts.logs(contractId, params)),
-      bytecode: (contractId: EntityId) => toQueryResult(() => base.contracts.bytecode(contractId)),
+      bytecode: (contractId: string) => toQueryResult(() => base.contracts.bytecode(contractId)),
       simulate: (params: Parameters<typeof base.contracts.simulate>[0]) =>
         toQueryResult(() => base.contracts.simulate(params)),
       estimate: (params: Parameters<typeof base.contracts.estimateGas>[0]) =>
@@ -1082,13 +1080,13 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
         queryPlan<Params.UpdateLargeFileParams, Shapes.FileChunkedReceipt>(params, (value) =>
           base.files.updateLarge(value),
         ),
-      info: (fileId: EntityId) => toQueryResult(() => base.files.info(fileId)),
-      contents: (fileId: EntityId) => toQueryResult(() => base.files.contents(fileId)),
-      text: (fileId: EntityId) => toQueryResult(() => base.files.contentsText(fileId)),
-      contentsText: (fileId: EntityId) => toQueryResult(() => base.files.contentsText(fileId)),
-      json: <T = unknown>(fileId: EntityId) =>
+      info: (fileId: string) => toQueryResult(() => base.files.info(fileId)),
+      contents: (fileId: string) => toQueryResult(() => base.files.contents(fileId)),
+      text: (fileId: string) => toQueryResult(() => base.files.contentsText(fileId)),
+      contentsText: (fileId: string) => toQueryResult(() => base.files.contentsText(fileId)),
+      json: <T = unknown>(fileId: string) =>
         toQueryResult(() => base.files.contentsJson<T>(fileId)),
-      contentsJson: <T = unknown>(fileId: EntityId) =>
+      contentsJson: <T = unknown>(fileId: string) =>
         toQueryResult(() => base.files.contentsJson<T>(fileId)),
     },
     schedule: {
@@ -1099,17 +1097,17 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
           (value) => base.schedules.create.tx(value),
         ),
       sign: (
-        scheduleId: EntityId,
+        scheduleId: string,
         params?: Omit<Params.ScheduleSignParams, "scheduleId"> & { readonly signer?: HieroSigner },
       ) => toQueryResult(() => base.schedules.sign(scheduleId, params)),
       delete: (
-        scheduleId: EntityId,
+        scheduleId: string,
         params?: Omit<Params.ScheduleDeleteParams, "scheduleId"> & {
           readonly signer?: HieroSigner;
         },
       ) => toQueryResult(() => base.schedules.delete(scheduleId, params)),
-      info: (scheduleId: EntityId) => toQueryResult(() => base.schedules.info(scheduleId)),
-      wait: (scheduleId: EntityId, options?: Params.ScheduleWaitOptions) =>
+      info: (scheduleId: string) => toQueryResult(() => base.schedules.info(scheduleId)),
+      wait: (scheduleId: string, options?: Params.ScheduleWaitOptions) =>
         toQueryResult(() => base.schedules.wait(scheduleId, options)),
       createIdempotent: (params: Partial<Params.ScheduleIdempotentCreateParams> = {}) =>
         queryPlan<
@@ -1127,7 +1125,7 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
           Params.ScheduleCollectSignaturesParams,
           ReadonlyArray<Shapes.TransactionReceiptData>
         >(params, (value) => base.schedules.collectSignatures(value)),
-      waitForExecution: (scheduleId: EntityId, options?: Params.ScheduleWaitExecutionOptions) =>
+      waitForExecution: (scheduleId: string, options?: Params.ScheduleWaitExecutionOptions) =>
         toQueryResult(() => base.schedules.waitForExecution(scheduleId, options)),
     },
     node: {
@@ -1217,10 +1215,10 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
     as: (signer: HieroSigner) => createTelepathic(base.as(signer)),
     with: (input: {
       readonly signer?: HieroSigner;
-      readonly operator?: EntityId;
+      readonly operator?: string;
       readonly key?: string;
     }) => createTelepathic(base.with(input)),
-    setOperator: (operator: EntityId, key: string) =>
+    setOperator: (operator: string, key: string) =>
       createTelepathic(base.setOperator(operator, key)),
     setMaxAttempts: (maxAttempts: number) => createTelepathic(base.setMaxAttempts(maxAttempts)),
     setMaxNodeAttempts: (maxNodeAttempts: number) =>

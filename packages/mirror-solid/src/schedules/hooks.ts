@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, EntityId, QueryOperator } from "@hieco/mirror";
+import type { ApiResult, ApiError, QueryOperator } from "@hieco/mirror";
 import type { Schedule } from "@hieco/mirror";
 import type { PaginatedResponse } from "@hieco/mirror";
 import type { Accessor } from "solid-js";
@@ -11,7 +11,7 @@ import { createMirrorNodeInfiniteQuery } from "../polling/infinite";
 export type { ScheduleListParams } from "@hieco/mirror";
 
 export interface CreateScheduleInfoOptions {
-  readonly scheduleId: EntityId;
+  readonly scheduleId: string;
   readonly enabled?: boolean;
 }
 
@@ -21,9 +21,9 @@ export interface CreateSchedulesOptions {
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
-    readonly "creator.account.id"?: EntityId | QueryOperator<EntityId>;
-    readonly "payer.account.id"?: EntityId | QueryOperator<EntityId>;
-    readonly schedule_id?: EntityId;
+    readonly "creator.account.id"?: string | QueryOperator<string>;
+    readonly "payer.account.id"?: string | QueryOperator<string>;
+    readonly schedule_id?: string;
     readonly deleted?: boolean;
   };
   readonly enabled?: boolean;

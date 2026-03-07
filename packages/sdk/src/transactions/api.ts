@@ -86,7 +86,6 @@ import {
   ContractId,
 } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
-import type { EntityId } from "@hieco/utils";
 import type {
   TransactionDescriptor,
   FunctionParamsConfig,
@@ -115,7 +114,7 @@ export type SigningContext =
 export interface SubmitContext {
   readonly client: Client;
   readonly signing: SigningContext;
-  readonly operator?: EntityId;
+  readonly operator?: string;
 }
 
 const INSUFFICIENT_BALANCE_STATUSES = new Set([
@@ -1488,11 +1487,11 @@ export async function submitTransaction(
 export async function callContract(
   context: SubmitContext,
   params: {
-    readonly id: EntityId;
+    readonly id: string;
     readonly fn: string;
     readonly args?: ReadonlyArray<unknown>;
     readonly gas: number;
-    readonly senderAccountId?: EntityId;
+    readonly senderAccountId?: string;
   },
 ): Promise<
   Result<{
@@ -1552,11 +1551,11 @@ export async function callContract(
 export async function callContractWithParams(
   context: SubmitContext,
   params: {
-    readonly id: EntityId;
+    readonly id: string;
     readonly fn: string;
     readonly params: FunctionParamsConfig;
     readonly gas: number;
-    readonly senderAccountId?: EntityId;
+    readonly senderAccountId?: string;
   },
 ): Promise<
   Result<{
@@ -1614,7 +1613,7 @@ export async function callContractWithParams(
 
 export async function queryFileInfo(
   context: SubmitContext,
-  fileId: EntityId,
+  fileId: string,
 ): Promise<Result<import("@hiero-ledger/sdk").FileInfo>> {
   try {
     const query = new FileInfoQuery().setFileId(fileId);
@@ -1641,7 +1640,7 @@ export async function queryFileInfo(
 
 export async function queryFileContents(
   context: SubmitContext,
-  fileId: EntityId,
+  fileId: string,
 ): Promise<Result<Uint8Array>> {
   try {
     const query = new FileContentsQuery().setFileId(fileId);
@@ -1744,7 +1743,7 @@ export async function queryTransactionReceipt(
 
 export async function queryAccountRecords(
   context: SubmitContext,
-  accountId: EntityId,
+  accountId: string,
 ): Promise<Result<AccountRecordsData>> {
   try {
     const query = new AccountRecordsQuery().setAccountId(accountId);
@@ -1775,7 +1774,7 @@ export async function queryAccountRecords(
 
 export async function queryContractBytecode(
   context: SubmitContext,
-  contractId: EntityId,
+  contractId: string,
 ): Promise<Result<ContractBytecodeData>> {
   try {
     const query = new ContractByteCodeQuery().setContractId(contractId);
@@ -1834,7 +1833,7 @@ export async function queryTokenNftInfo(
 export async function queryLiveHash(
   context: SubmitContext,
   params: {
-    readonly accountId: EntityId;
+    readonly accountId: string;
     readonly hash: Uint8Array;
   },
 ): Promise<Result<import("../results/shapes.ts").LiveHashData>> {
@@ -1863,7 +1862,7 @@ export async function queryLiveHash(
 
 export async function queryMirrorContractCall(context: {
   readonly client: Client;
-  readonly contractId: EntityId;
+  readonly contractId: string;
   readonly functionName: string;
   readonly args?: ReadonlyArray<unknown>;
   readonly senderEvmAddress?: string;
@@ -1911,7 +1910,7 @@ export async function queryMirrorContractCall(context: {
 
 export async function queryMirrorContractEstimate(context: {
   readonly client: Client;
-  readonly contractId: EntityId;
+  readonly contractId: string;
   readonly functionName: string;
   readonly args?: ReadonlyArray<unknown>;
   readonly senderEvmAddress?: string;
@@ -1990,10 +1989,7 @@ export function resolveQueryContext(input: {
   );
 }
 
-export function inferAccountId(
-  signer: HieroSigner | undefined,
-  operator?: EntityId,
-): Result<EntityId> {
+export function inferAccountId(signer: HieroSigner | undefined, operator?: string): Result<string> {
   if (operator) return ok(operator);
   if (!signer) {
     return err(
@@ -2024,32 +2020,32 @@ export function mapReceiptField<T extends keyof TransactionReceiptData>(
   return ok(value);
 }
 
-export function ensureScheduleId(result: Result<TransactionReceiptData>): Result<EntityId> {
+export function ensureScheduleId(result: Result<TransactionReceiptData>): Result<string> {
   if (!result.ok) return result;
   return mapReceiptField(result.value, "scheduleId", "scheduleId");
 }
 
-export function ensureTokenId(result: Result<TransactionReceiptData>): Result<EntityId> {
+export function ensureTokenId(result: Result<TransactionReceiptData>): Result<string> {
   if (!result.ok) return result;
   return mapReceiptField(result.value, "tokenId", "tokenId");
 }
 
-export function ensureAccountId(result: Result<TransactionReceiptData>): Result<EntityId> {
+export function ensureAccountId(result: Result<TransactionReceiptData>): Result<string> {
   if (!result.ok) return result;
   return mapReceiptField(result.value, "accountId", "accountId");
 }
 
-export function ensureTopicId(result: Result<TransactionReceiptData>): Result<EntityId> {
+export function ensureTopicId(result: Result<TransactionReceiptData>): Result<string> {
   if (!result.ok) return result;
   return mapReceiptField(result.value, "topicId", "topicId");
 }
 
-export function ensureContractId(result: Result<TransactionReceiptData>): Result<EntityId> {
+export function ensureContractId(result: Result<TransactionReceiptData>): Result<string> {
   if (!result.ok) return result;
   return mapReceiptField(result.value, "contractId", "contractId");
 }
 
-export function ensureFileId(result: Result<TransactionReceiptData>): Result<EntityId> {
+export function ensureFileId(result: Result<TransactionReceiptData>): Result<string> {
   if (!result.ok) return result;
   return mapReceiptField(result.value, "fileId", "fileId");
 }

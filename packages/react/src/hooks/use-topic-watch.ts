@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import type { TopicMessageData, WatchTopicMessagesOptions } from "@hieco/sdk";
-import type { EntityId } from "@hieco/utils";
 import { useHiecoClient } from "./use-hieco-client";
 import { useLatestRef } from "../shared/use-latest-ref";
 
@@ -9,7 +8,7 @@ export interface UseTopicWatchOptions extends WatchTopicMessagesOptions {
 }
 
 export function useTopicWatch(
-  topicId: EntityId | undefined,
+  topicId: string | undefined,
   handler: (message: TopicMessageData) => void,
   options?: UseTopicWatchOptions,
 ): void {

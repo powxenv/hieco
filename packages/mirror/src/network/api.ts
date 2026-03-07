@@ -1,4 +1,4 @@
-import type { ApiResult, PaginationParams, Timestamp } from "@hieco/utils";
+import type { ApiResult, PaginationParams } from "@hieco/utils";
 import type { ExchangeRate, NetworkFee, NetworkNode, NetworkStake, NetworkSupply } from "./types";
 import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
@@ -9,7 +9,7 @@ export interface NetworkNodesParams extends PaginationParams {
 }
 
 export class NetworkApi extends BaseApi {
-  async getExchangeRate(params?: { timestamp?: Timestamp }): Promise<ApiResult<ExchangeRate>> {
+  async getExchangeRate(params?: { timestamp?: string }): Promise<ApiResult<ExchangeRate>> {
     const builder = new QueryBuilder();
 
     if (params?.timestamp) {
@@ -20,7 +20,7 @@ export class NetworkApi extends BaseApi {
   }
 
   async getFees(
-    params?: PaginationParams & { timestamp?: Timestamp },
+    params?: PaginationParams & { timestamp?: string },
   ): Promise<ApiResult<NetworkFee>> {
     const builder = new QueryBuilder();
 

@@ -1,10 +1,10 @@
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
-import type { EntityId, NetworkType } from "@hieco/utils";
+import type { NetworkType } from "@hieco/utils";
 import type { Amount } from "../shared/amount.ts";
 
 export interface ClientConfig {
   readonly network?: NetworkType;
-  readonly operator?: EntityId;
+  readonly operator?: string;
   readonly key?: string;
   readonly signer?: HieroSigner;
   readonly mirrorUrl?: string;

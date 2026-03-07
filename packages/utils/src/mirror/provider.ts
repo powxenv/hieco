@@ -8,11 +8,9 @@ export const DEFAULT_MIRROR_NODE_URLS: Record<NetworkType, string> = {
   previewnet: "https://previewnet.mirrornode.hedera.com",
 };
 
-export type AnyNetwork = NetworkType | string;
-
-export interface NetworkConfig<T extends string = string, U extends NetworkType = NetworkType> {
-  defaultNetwork: U | T;
-  networks?: Record<T, string>;
+export interface NetworkConfig {
+  defaultNetwork: string;
+  networks?: Record<string, string>;
 }
 
 export function isDefaultNetwork(network: string): network is NetworkType {
@@ -20,7 +18,7 @@ export function isDefaultNetwork(network: string): network is NetworkType {
 }
 
 export function getNetworkUrl(
-  network: AnyNetwork,
+  network: string,
   customNetworks: Record<string, string>,
 ): string | undefined {
   if (isDefaultNetwork(network)) {

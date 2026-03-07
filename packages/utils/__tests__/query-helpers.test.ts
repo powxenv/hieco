@@ -99,7 +99,6 @@ describe("findMethodMapping", () => {
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("account");
     expect(result?.mapping.methodName).toBe("getInfo");
-    expect(result?.mapping.entityName).toBe("account");
     expect(result?.args).toEqual(["0.0.123"]);
   });
 
@@ -110,7 +109,6 @@ describe("findMethodMapping", () => {
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("token");
     expect(result?.mapping.methodName).toBe("getInfo");
-    expect(result?.mapping.entityName).toBe("token");
   });
 
   test("returns mapping for valid contract results key", () => {
@@ -120,7 +118,6 @@ describe("findMethodMapping", () => {
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("contract");
     expect(result?.mapping.methodName).toBe("getResults");
-    expect(result?.mapping.entityName).toBe("contract");
   });
 
   test("returns mapping with args extracted for account balances", () => {
@@ -203,7 +200,6 @@ describe("findMethodMapping", () => {
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("network");
     expect(result?.mapping.methodName).toBe("getExchangeRate");
-    expect(result?.mapping.entityName).toBe("network");
   });
 
   test("returns mapping for block info", () => {
@@ -213,7 +209,6 @@ describe("findMethodMapping", () => {
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("block");
     expect(result?.mapping.methodName).toBe("getBlock");
-    expect(result?.mapping.entityName).toBe("block");
   });
 
   test("returns mapping for transaction by account", () => {
@@ -231,7 +226,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("contract");
-    expect(result?.mapping.entityName).toBe("contract");
   });
 
   test("returns mapping for topic message by timestamp", () => {
@@ -240,7 +234,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("topic");
-    expect(result?.mapping.entityName).toBe("topic");
   });
 
   test("returns mapping for contract all results", () => {
@@ -249,7 +242,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("contract");
-    expect(result?.mapping.entityName).toBe("contract");
   });
 
   test("returns mapping for contract result actions", () => {
@@ -258,7 +250,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("contract");
-    expect(result?.mapping.entityName).toBe("contract");
   });
 
   test("returns mapping for contract result opcodes", () => {
@@ -267,7 +258,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("contract");
-    expect(result?.mapping.entityName).toBe("contract");
   });
 
   test("returns mapping for contract all logs", () => {
@@ -276,7 +266,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("contract");
-    expect(result?.mapping.entityName).toBe("contract");
   });
 
   test("returns mapping for account outstanding airdrops", () => {
@@ -303,7 +292,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("account");
-    expect(result?.mapping.entityName).toBe("account");
   });
 
   test("handles plural entity name: tokens list", () => {
@@ -312,7 +300,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("token");
-    expect(result?.mapping.entityName).toBe("token");
   });
 
   test("handles plural entity name: contracts list", () => {
@@ -321,7 +308,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("contract");
-    expect(result?.mapping.entityName).toBe("contract");
   });
 
   test("handles plural entity name: transactions list", () => {
@@ -330,7 +316,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("transaction");
-    expect(result?.mapping.entityName).toBe("transaction");
   });
 
   test("handles plural entity name: topics list", () => {
@@ -339,7 +324,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("topic");
-    expect(result?.mapping.entityName).toBe("topic");
   });
 
   test("handles plural entity name: schedules list", () => {
@@ -348,7 +332,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("schedule");
-    expect(result?.mapping.entityName).toBe("schedule");
   });
 
   test("handles plural entity name: balances list", () => {
@@ -357,7 +340,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("balance");
-    expect(result?.mapping.entityName).toBe("balance");
   });
 
   test("handles plural entity name: blocks list", () => {
@@ -366,7 +348,6 @@ describe("findMethodMapping", () => {
 
     expect(result).not.toBeNull();
     expect(result?.mapping.apiProperty).toBe("block");
-    expect(result?.mapping.entityName).toBe("block");
   });
 });
 

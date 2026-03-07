@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { AccountInfo } from "@hieco/mirror";
 import type { TransactionRecord } from "@hiero-ledger/sdk";
 import type { TransactionReceiptData } from "../results/transaction.ts";
@@ -11,7 +10,7 @@ export interface TransferResult {
 export interface CreateAccountResult {
   readonly receipt: TransactionReceiptData;
   readonly transactionId: string;
-  readonly accountId: EntityId;
+  readonly accountId: string;
 }
 
 export interface UpdateAccountResult {
@@ -25,11 +24,11 @@ export interface DeleteAccountResult {
 }
 
 export interface AccountInfoData {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly account: AccountInfo;
 }
 
 export interface AccountRecordsData {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly records: ReadonlyArray<TransactionRecord>;
 }

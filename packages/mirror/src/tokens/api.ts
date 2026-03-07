@@ -1,35 +1,32 @@
-import type { ApiResult, EntityId, PaginationParams, QueryOperator, Timestamp } from "@hieco/utils";
+import type { ApiResult, PaginationParams, QueryOperator, TimestampFilter } from "@hieco/utils";
 import type { Nft, TokenBalancesResponse, TokenDistribution, TokenInfo } from "./types";
 import type { Transaction } from "../transactions/types";
 import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface TokenListParams extends PaginationParams {
-  "account.id"?: EntityId | QueryOperator<EntityId>;
-  "token.id"?: EntityId | QueryOperator<EntityId>;
-  created_timestamp?: Timestamp | { from?: Timestamp; to?: Timestamp };
+  "account.id"?: string | QueryOperator<string>;
+  "token.id"?: string | QueryOperator<string>;
+  created_timestamp?: TimestampFilter;
   name?: string;
   public_key?: string;
   type?: "FUNGIBLE_COMMON" | "NON_FUNGIBLE_UNIQUE";
 }
 
 export interface TokenBalancesParams extends PaginationParams {
-  account?: EntityId;
+  account?: string;
   "account.balance"?: QueryOperator<number>;
   "account.publickey"?: string;
-  timestamp?: Timestamp;
+  timestamp?: string;
 }
 
 export interface TokenNftsParams extends PaginationParams {
-  "account.id"?: EntityId;
+  "account.id"?: string;
   serial_number?: number;
 }
 
 export class TokenApi extends BaseApi {
-  async getInfo(
-    tokenId: EntityId,
-    params?: { timestamp?: Timestamp },
-  ): Promise<ApiResult<TokenInfo>> {
+  async getInfo(tokenId: string, params?: { timestamp?: string }): Promise<ApiResult<TokenInfo>> {
     const builder = new QueryBuilder();
 
     if (params?.timestamp) {
@@ -40,7 +37,7 @@ export class TokenApi extends BaseApi {
   }
 
   async getBalances(
-    tokenId: EntityId,
+    tokenId: string,
     params?: TokenBalancesParams,
   ): Promise<ApiResult<TokenDistribution[]>> {
     const builder = new QueryBuilder();
@@ -66,7 +63,7 @@ export class TokenApi extends BaseApi {
   }
 
   async getBalancesSnapshot(
-    tokenId: EntityId,
+    tokenId: string,
     params?: TokenBalancesParams,
   ): Promise<ApiResult<TokenBalancesResponse>> {
     const builder = new QueryBuilder();
@@ -92,7 +89,7 @@ export class TokenApi extends BaseApi {
   }
 
   async getNfts(
-    tokenId: EntityId,
+    tokenId: string,
     params?: TokenNftsParams,
   ): Promise<ApiResult<PaginatedResponse<Nft>>> {
     const builder = new QueryBuilder();
@@ -111,14 +108,14 @@ export class TokenApi extends BaseApi {
     return this.getSinglePage<Nft>(`tokens/${tokenId}/nfts`, builder.build());
   }
 
-  async getNft(tokenId: EntityId, serialNumber: number): Promise<ApiResult<Nft>> {
+  async getNft(tokenId: string, serialNumber: number): Promise<ApiResult<Nft>> {
     return this.getSingle<Nft>(`tokens/${tokenId}/nfts/${serialNumber}`);
   }
 
   async getNftTransactions(
-    tokenId: EntityId,
+    tokenId: string,
     serialNumber: number,
-    params?: PaginationParams & { timestamp?: Timestamp },
+    params?: PaginationParams & { timestamp?: string },
   ): Promise<ApiResult<Transaction[]>> {
     const builder = new QueryBuilder();
 

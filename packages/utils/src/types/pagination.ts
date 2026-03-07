@@ -3,6 +3,8 @@ export interface PaginationParams {
   readonly order?: "asc" | "desc";
 }
 
+export type TimestampFilter = string | { readonly from?: string; readonly to?: string };
+
 export type QueryOperator<T extends string | number | boolean> =
   | T
   | `eq:${T}`

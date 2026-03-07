@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/solid-query";
 import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
-import type { ApiResult, ApiError, EntityId, PaginationParams } from "@hieco/mirror";
+import type { ApiResult, ApiError, PaginationParams } from "@hieco/mirror";
 import type { PaginatedResponse, Topic, TopicMessage } from "@hieco/mirror";
 import type { Accessor } from "solid-js";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
@@ -10,14 +10,14 @@ import { createMirrorNodeInfiniteQuery } from "../polling/infinite";
 export type { TopicMessagesParams } from "@hieco/mirror";
 
 export interface CreateTopicInfoOptions {
-  readonly topicId: EntityId;
+  readonly topicId: string;
   readonly enabled?: boolean;
 }
 
 export type CreateTopicInfoResult = UseQueryResult<ApiResult<Topic>, ApiError>;
 
 export interface CreateTopicMessagesOptions {
-  readonly topicId: EntityId;
+  readonly topicId: string;
   readonly params?: {
     readonly limit?: number;
     readonly order?: "asc" | "desc";
@@ -30,7 +30,7 @@ export interface CreateTopicMessagesOptions {
 export type CreateTopicMessagesResult = UseQueryResult<ApiResult<TopicMessage[]>, ApiError>;
 
 export interface CreateTopicMessageOptions {
-  readonly topicId: EntityId;
+  readonly topicId: string;
   readonly sequenceNumber: number;
   readonly enabled?: boolean;
 }

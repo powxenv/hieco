@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type {
   AdjustAllowanceParams,
   ApproveAllowanceParams,
@@ -67,7 +66,7 @@ import type {
 } from "../tokens/types.ts";
 
 export interface LiveHashAddParams {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly hash: Uint8Array;
   readonly keys: ReadonlyArray<string>;
   readonly durationSeconds: number;
@@ -76,20 +75,20 @@ export interface LiveHashAddParams {
 }
 
 export interface LiveHashDeleteParams {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly hash: Uint8Array;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface LiveHashQueryParams {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly hash: Uint8Array;
 }
 
 export interface EthereumSendRawParams {
   readonly ethereumData: Uint8Array | string;
-  readonly callDataFileId?: EntityId;
+  readonly callDataFileId?: string;
   readonly maxGasAllowance?: Amount;
   readonly memo?: string;
   readonly maxFee?: Amount;

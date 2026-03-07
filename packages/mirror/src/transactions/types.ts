@@ -1,28 +1,28 @@
-import type { EntityId, Key, Timestamp } from "@hieco/utils";
+import type { Key } from "@hieco/utils";
 
 export interface Transfer {
-  readonly account: EntityId;
+  readonly account: string;
   readonly amount: number;
   readonly is_approval: boolean;
 }
 
 export interface TokenTransfer {
-  readonly token_id: EntityId;
-  readonly account: EntityId;
+  readonly token_id: string;
+  readonly account: string;
   readonly amount: number;
   readonly is_approval: boolean;
 }
 
 export interface NftTransfer {
   readonly is_approval: boolean;
-  readonly receiver_account_id: EntityId;
-  readonly sender_account_id: EntityId;
-  readonly token_id: EntityId;
+  readonly receiver_account_id: string;
+  readonly sender_account_id: string;
+  readonly token_id: string;
   readonly serial_number: number;
 }
 
 export interface StakingRewardTransfer {
-  readonly account: EntityId;
+  readonly account: string;
   readonly amount: number;
 }
 
@@ -30,15 +30,15 @@ export interface Transaction {
   readonly batch_key: Key | null;
   readonly bytes: string | null;
   readonly charged_tx_fee: number;
-  readonly consensus_timestamp: Timestamp;
-  readonly entity_id: EntityId | null;
+  readonly consensus_timestamp: string;
+  readonly entity_id: string | null;
   readonly max_fee: string;
   readonly memo_base64: string | null;
   readonly name: TransactionType;
   readonly nft_transfers: readonly NftTransfer[];
-  readonly node: EntityId;
+  readonly node: string;
   readonly nonce: number | null;
-  readonly parent_consensus_timestamp: Timestamp | null;
+  readonly parent_consensus_timestamp: string | null;
   readonly result: string;
   readonly scheduled: boolean;
   readonly staking_reward_transfers: readonly StakingRewardTransfer[];
@@ -47,7 +47,7 @@ export interface Transaction {
   readonly transaction_id: string;
   readonly transfers: readonly Transfer[];
   readonly valid_duration_seconds: string;
-  readonly valid_start_timestamp: Timestamp;
+  readonly valid_start_timestamp: string;
 }
 
 export interface TransactionDetails extends Transaction {
@@ -56,9 +56,9 @@ export interface TransactionDetails extends Transaction {
 
 export interface AssessedCustomFee {
   readonly amount: number;
-  readonly collector_account_id: EntityId;
-  readonly effective_payer_account_ids: readonly EntityId[];
-  readonly token_id: EntityId | null;
+  readonly collector_account_id: string;
+  readonly effective_payer_account_ids: readonly string[];
+  readonly token_id: string | null;
 }
 
 export type TransactionType =

@@ -1,4 +1,4 @@
-import type { ApiResult, EntityId, PaginationParams, Timestamp } from "@hieco/utils";
+import type { ApiResult, PaginationParams } from "@hieco/utils";
 import type { Topic, TopicMessage } from "./types";
 import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
@@ -6,18 +6,18 @@ import { BaseApi } from "../shared/base";
 export interface TopicMessagesParams extends PaginationParams {
   encoding?: "base64" | "utf-8";
   sequencenumber?: number;
-  timestamp?: Timestamp;
+  timestamp?: string;
   transaction_id?: string;
   scheduled?: boolean;
 }
 
 export class TopicApi extends BaseApi {
-  async getInfo(topicId: EntityId): Promise<ApiResult<Topic>> {
+  async getInfo(topicId: string): Promise<ApiResult<Topic>> {
     return this.getSingle<Topic>(`topics/${topicId}`);
   }
 
   async getMessages(
-    topicId: EntityId,
+    topicId: string,
     params?: TopicMessagesParams,
   ): Promise<ApiResult<TopicMessage[]>> {
     const builder = new QueryBuilder();
@@ -45,7 +45,7 @@ export class TopicApi extends BaseApi {
     return this.getList<TopicMessage>(`topics/${topicId}/messages`, builder.build());
   }
 
-  async getMessage(topicId: EntityId, sequenceNumber: number): Promise<ApiResult<TopicMessage>> {
+  async getMessage(topicId: string, sequenceNumber: number): Promise<ApiResult<TopicMessage>> {
     return this.getSingle<TopicMessage>(`topics/${topicId}/messages/${sequenceNumber}`);
   }
 

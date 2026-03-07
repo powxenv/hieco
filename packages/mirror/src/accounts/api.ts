@@ -1,4 +1,4 @@
-import type { ApiResult, EntityId, PaginationParams, QueryOperator, Timestamp } from "@hieco/utils";
+import type { ApiResult, PaginationParams, QueryOperator, TimestampFilter } from "@hieco/utils";
 import type {
   AccountInfo,
   Balance,
@@ -13,42 +13,42 @@ import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../s
 import { BaseApi } from "../shared/base";
 
 export interface AccountListParams extends PaginationParams {
-  readonly account?: EntityId | QueryOperator<EntityId>;
+  readonly account?: string | QueryOperator<string>;
   readonly alias?: string;
   readonly balance?: QueryOperator<number>;
   readonly balance_gte?: number;
   readonly balance_lte?: number;
-  readonly created_timestamp?: Timestamp | { readonly from?: Timestamp; readonly to?: Timestamp };
+  readonly created_timestamp?: TimestampFilter;
   readonly evm_address?: string;
   readonly key?: string;
   readonly memo?: string;
   readonly public_key?: string;
   readonly smart_contract?: boolean;
-  readonly staked_account_id?: EntityId;
+  readonly staked_account_id?: string;
   readonly staked_node_id?: number;
 }
 
 export interface AccountNftsParams extends PaginationParams {
-  readonly "spender.id"?: EntityId;
-  readonly "token.id"?: EntityId;
+  readonly "spender.id"?: string;
+  readonly "token.id"?: string;
   readonly serial_number?: number;
 }
 
 export interface AccountTokenAllowancesParams extends PaginationParams {
-  readonly "spender.id"?: EntityId;
-  readonly "token.id"?: EntityId;
+  readonly "spender.id"?: string;
+  readonly "token.id"?: string;
 }
 
 export interface AccountNftAllowancesParams extends PaginationParams {
-  readonly "account.id"?: EntityId;
+  readonly "account.id"?: string;
   readonly owner?: boolean;
-  readonly "token.id"?: EntityId;
+  readonly "token.id"?: string;
 }
 
 export class AccountApi extends BaseApi {
   async getInfo(
-    accountId: EntityId,
-    params?: { readonly timestamp?: Timestamp; readonly transactions?: boolean },
+    accountId: string,
+    params?: { readonly timestamp?: string; readonly transactions?: boolean },
   ): Promise<ApiResult<AccountInfo>> {
     const builder = new QueryBuilder();
 
@@ -64,13 +64,13 @@ export class AccountApi extends BaseApi {
     return this.getSingle<AccountInfo>(`accounts/${accountId}`, builder.build());
   }
 
-  async getBalances(accountId: EntityId): Promise<ApiResult<Balance>> {
+  async getBalances(accountId: string): Promise<ApiResult<Balance>> {
     return this.getSingle<Balance>(`accounts/${accountId}/balances`);
   }
 
   async getTokens(
-    accountId: EntityId,
-    params?: PaginationParams & { "token.id"?: EntityId },
+    accountId: string,
+    params?: PaginationParams & { "token.id"?: string },
   ): Promise<ApiResult<TokenRelationship[]>> {
     const builder = new QueryBuilder();
 
@@ -85,7 +85,7 @@ export class AccountApi extends BaseApi {
   }
 
   async getNfts(
-    accountId: EntityId,
+    accountId: string,
     params?: AccountNftsParams,
   ): Promise<ApiResult<TokenRelationship[]>> {
     const builder = new QueryBuilder();
@@ -107,8 +107,8 @@ export class AccountApi extends BaseApi {
   }
 
   async getStakingRewards(
-    accountId: EntityId,
-    params?: PaginationParams & { timestamp?: Timestamp },
+    accountId: string,
+    params?: PaginationParams & { timestamp?: string },
   ): Promise<ApiResult<StakingReward[]>> {
     const builder = new QueryBuilder();
 
@@ -123,8 +123,8 @@ export class AccountApi extends BaseApi {
   }
 
   async getCryptoAllowances(
-    accountId: EntityId,
-    params?: PaginationParams & { "spender.id"?: EntityId },
+    accountId: string,
+    params?: PaginationParams & { "spender.id"?: string },
   ): Promise<ApiResult<CryptoAllowance[]>> {
     const builder = new QueryBuilder();
 
@@ -142,7 +142,7 @@ export class AccountApi extends BaseApi {
   }
 
   async getTokenAllowances(
-    accountId: EntityId,
+    accountId: string,
     params?: AccountTokenAllowancesParams,
   ): Promise<ApiResult<TokenAllowance[]>> {
     const builder = new QueryBuilder();
@@ -161,7 +161,7 @@ export class AccountApi extends BaseApi {
   }
 
   async getNftAllowances(
-    accountId: EntityId,
+    accountId: string,
     params?: AccountNftAllowancesParams,
   ): Promise<ApiResult<NftAllowance[]>> {
     const builder = new QueryBuilder();
@@ -183,13 +183,13 @@ export class AccountApi extends BaseApi {
   }
 
   async getOutstandingAirdrops(
-    accountId: EntityId,
+    accountId: string,
     params?: {
       limit?: number;
       order?: "asc" | "desc";
-      "receiver.id"?: EntityId;
+      "receiver.id"?: string;
       serial_number?: number;
-      "token.id"?: EntityId;
+      "token.id"?: string;
     },
   ): Promise<ApiResult<TokenAirdropsResponse>> {
     const builder = new QueryBuilder();
@@ -214,13 +214,13 @@ export class AccountApi extends BaseApi {
   }
 
   async getPendingAirdrops(
-    accountId: EntityId,
+    accountId: string,
     params?: {
       limit?: number;
       order?: "asc" | "desc";
-      "sender.id"?: EntityId;
+      "sender.id"?: string;
       serial_number?: number;
-      "token.id"?: EntityId;
+      "token.id"?: string;
     },
   ): Promise<ApiResult<TokenAirdropsResponse>> {
     const builder = new QueryBuilder();

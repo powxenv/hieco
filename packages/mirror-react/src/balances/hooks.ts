@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { UseQueryOptions, UseQueryResult } from "@tanstack/react-query";
-import type { ApiResult, ApiError, QueryOperator, Timestamp } from "@hieco/mirror";
+import type { ApiResult, ApiError, QueryOperator } from "@hieco/mirror";
 import type { BalancesResponse } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/utils";
@@ -20,7 +20,7 @@ export interface UseBalancesOptions extends Omit<
     account?: string;
     "account.balance"?: QueryOperator<number>;
     public_key?: string;
-    timestamp?: Timestamp;
+    timestamp?: string;
   };
 }
 

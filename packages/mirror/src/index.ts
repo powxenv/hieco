@@ -100,13 +100,12 @@ export type {
 export type {
   ApiError,
   ApiResult,
-  EntityId,
   Key,
   MirrorNetworkConfig,
   MirrorNodeConfig,
   NetworkType,
   PaginationParams,
   QueryOperator,
-  Timestamp,
+  TimestampFilter,
 } from "@hieco/utils";
 export { ApiErrorFactory, NETWORK_CONFIGS } from "@hieco/utils";

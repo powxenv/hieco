@@ -1,9 +1,8 @@
-import type { EntityId } from "@hieco/utils";
 import type { Amount } from "../shared/amount.ts";
 
 export interface TransferParams {
-  readonly from?: EntityId;
-  readonly to: EntityId;
+  readonly from?: string;
+  readonly to: string;
   readonly hbar: Amount;
   readonly memo?: string;
   readonly maxFee?: Amount;
@@ -20,48 +19,48 @@ export interface CreateAccountParams {
 }
 
 export interface UpdateAccountParams {
-  readonly accountId: EntityId;
+  readonly accountId: string;
   readonly key?: string;
   readonly memo?: string;
   readonly maxAutomaticTokenAssociations?: number;
   readonly autoRenewPeriodSeconds?: number;
   readonly expirationTime?: Date;
-  readonly stakedAccountId?: EntityId;
+  readonly stakedAccountId?: string;
   readonly stakedNodeId?: number;
   readonly declineStakingReward?: boolean;
   readonly maxFee?: Amount;
 }
 
 export interface DeleteAccountParams {
-  readonly accountId: EntityId;
-  readonly transferAccountId: EntityId;
+  readonly accountId: string;
+  readonly transferAccountId: string;
   readonly maxFee?: Amount;
 }
 
 export interface HbarAllowanceParams {
-  readonly ownerAccountId: EntityId;
-  readonly spenderAccountId: EntityId;
+  readonly ownerAccountId: string;
+  readonly spenderAccountId: string;
   readonly amount: Amount;
 }
 
 export interface TokenAllowanceParams {
-  readonly tokenId: EntityId;
-  readonly ownerAccountId: EntityId;
-  readonly spenderAccountId: EntityId;
+  readonly tokenId: string;
+  readonly ownerAccountId: string;
+  readonly spenderAccountId: string;
   readonly amount: Amount;
 }
 
 export interface NftAllowanceParams {
-  readonly tokenId: EntityId;
-  readonly ownerAccountId: EntityId;
-  readonly spenderAccountId: EntityId;
+  readonly tokenId: string;
+  readonly ownerAccountId: string;
+  readonly spenderAccountId: string;
   readonly serial?: number;
   readonly approveAll?: boolean;
 }
 
 export interface TokenAllowancesQueryParams {
-  readonly spenderId?: EntityId;
-  readonly tokenId?: EntityId;
+  readonly spenderId?: string;
+  readonly tokenId?: string;
   readonly limit?: number;
   readonly order?: "asc" | "desc";
 }
@@ -75,18 +74,18 @@ export interface ApproveAllowanceParams {
 }
 
 export interface DeleteHbarAllowanceParams {
-  readonly ownerAccountId: EntityId;
+  readonly ownerAccountId: string;
 }
 
 export interface DeleteTokenAllowanceParams {
-  readonly tokenId: EntityId;
-  readonly ownerAccountId: EntityId;
+  readonly tokenId: string;
+  readonly ownerAccountId: string;
 }
 
 export interface DeleteNftAllowanceParams {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly serial: number;
-  readonly ownerAccountId: EntityId;
+  readonly ownerAccountId: string;
 }
 
 export interface DeleteAllowanceParams {
@@ -104,22 +103,22 @@ export interface DeleteNftAllowancesParams {
 }
 
 export interface AdjustHbarAllowanceParams {
-  readonly ownerAccountId: EntityId;
-  readonly spenderAccountId: EntityId;
+  readonly ownerAccountId: string;
+  readonly spenderAccountId: string;
   readonly amount: Amount;
 }
 
 export interface AdjustTokenAllowanceParams {
-  readonly tokenId: EntityId;
-  readonly ownerAccountId: EntityId;
-  readonly spenderAccountId: EntityId;
+  readonly tokenId: string;
+  readonly ownerAccountId: string;
+  readonly spenderAccountId: string;
   readonly amount: Amount;
 }
 
 export interface AdjustNftAllowanceParams {
-  readonly tokenId: EntityId;
-  readonly ownerAccountId: EntityId;
-  readonly spenderAccountId: EntityId;
+  readonly tokenId: string;
+  readonly ownerAccountId: string;
+  readonly spenderAccountId: string;
   readonly serial?: number;
   readonly approveAll?: boolean;
 }

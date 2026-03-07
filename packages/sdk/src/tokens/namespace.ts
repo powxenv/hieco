@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type {
   MintReceipt,
@@ -97,12 +96,12 @@ export interface TokensNamespace {
       params: import("../shared/params.ts").UpdateTokenFeeScheduleParams,
     ) => TransactionDescriptor;
   };
-  info: (tokenId: EntityId) => Promise<Result<TokenInfoData>>;
+  info: (tokenId: string) => Promise<Result<TokenInfoData>>;
   nftInfo: (
-    nft: string | { readonly tokenId: EntityId; readonly serial: number },
+    nft: string | { readonly tokenId: string; readonly serial: number },
   ) => Promise<Result<TokenNftInfoData>>;
   allowancesList: (
-    accountId: EntityId,
+    accountId: string,
     params?: import("../shared/params.ts").TokenAllowancesQueryParams,
   ) => Promise<
     Result<{

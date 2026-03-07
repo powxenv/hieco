@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { Amount, FunctionParamsConfig } from "../shared/params.ts";
 import { actionPlan, type ActionPlan } from "./action.ts";
 
@@ -36,11 +35,11 @@ export class FluentAction<P extends object, T> {
     return this.#setField("maxFee", value);
   }
 
-  from(value: EntityId): this {
+  from(value: string): this {
     return this.#setField("from", value);
   }
 
-  to(value: EntityId): this {
+  to(value: string): this {
     return this.#setField("to", value);
   }
 
@@ -60,31 +59,31 @@ export class FluentAction<P extends object, T> {
     return this.#setField("publicKey", value);
   }
 
-  id(value: EntityId): this {
+  id(value: string): this {
     return this.#setField("id", value);
   }
 
-  token(value: EntityId): this {
+  token(value: string): this {
     return this.#setField("tokenId", value);
   }
 
-  account(value: EntityId): this {
+  account(value: string): this {
     return this.#setField("accountId", value);
   }
 
-  topic(value: EntityId): this {
+  topic(value: string): this {
     return this.#setField("topicId", value);
   }
 
-  contract(value: EntityId): this {
+  contract(value: string): this {
     return this.#setField("contractId", value);
   }
 
-  file(value: EntityId): this {
+  file(value: string): this {
     return this.#setField("fileId", value);
   }
 
-  schedule(value: EntityId): this {
+  schedule(value: string): this {
     return this.#setField("scheduleId", value);
   }
 
@@ -96,23 +95,23 @@ export class FluentAction<P extends object, T> {
     return this.#setField("serials", values);
   }
 
-  tokenIds(values: ReadonlyArray<EntityId>): this {
+  tokenIds(values: ReadonlyArray<string>): this {
     return this.#setField("tokenIds", values);
   }
 
-  owner(value: EntityId): this {
+  owner(value: string): this {
     return this.#setField("ownerAccountId", value);
   }
 
-  spender(value: EntityId): this {
+  spender(value: string): this {
     return this.#setField("spenderAccountId", value);
   }
 
-  payer(value: EntityId): this {
+  payer(value: string): this {
     return this.#setField("payerAccountId", value);
   }
 
-  treasury(value: EntityId): this {
+  treasury(value: string): this {
     return this.#setField("treasury", value);
   }
 
@@ -193,7 +192,7 @@ export class FluentAction<P extends object, T> {
 
   queue(params?: {
     readonly adminKey?: string | true;
-    readonly payerAccountId?: EntityId;
+    readonly payerAccountId?: string;
     readonly expirationTime?: Date;
     readonly waitForExpiry?: boolean;
     readonly memo?: string;
@@ -218,7 +217,7 @@ export function fluentAction<P extends object, T>(input: {
   readonly schedule?: (
     params: {
       readonly adminKey?: string | true;
-      readonly payerAccountId?: EntityId;
+      readonly payerAccountId?: string;
       readonly expirationTime?: Date;
       readonly waitForExpiry?: boolean;
       readonly memo?: string;

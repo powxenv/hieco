@@ -1,4 +1,4 @@
-import type { ApiResult, EntityId, PaginationParams, QueryOperator, Timestamp } from "@hieco/utils";
+import type { ApiResult, PaginationParams, QueryOperator, TimestampFilter } from "@hieco/utils";
 import type {
   ContractAction,
   ContractCallParams,
@@ -15,10 +15,10 @@ import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../s
 import { BaseApi } from "../shared/base";
 
 export interface ContractListParams extends PaginationParams {
-  "contract.id"?: EntityId | QueryOperator<EntityId>;
+  "contract.id"?: string | QueryOperator<string>;
   address?: string;
-  smart_contract_id?: EntityId | QueryOperator<EntityId>;
-  created_timestamp?: Timestamp | { from?: Timestamp; to?: Timestamp };
+  smart_contract_id?: string | QueryOperator<string>;
+  created_timestamp?: TimestampFilter;
 }
 
 export interface ContractResultsParams extends PaginationParams {
@@ -26,18 +26,18 @@ export interface ContractResultsParams extends PaginationParams {
   block_number?: number;
   from?: string;
   internal?: boolean;
-  timestamp?: Timestamp;
+  timestamp?: string;
   transaction_index?: number;
 }
 
 export interface ContractStateParams extends PaginationParams {
   slot?: string;
-  timestamp?: Timestamp;
+  timestamp?: string;
 }
 
 export interface ContractLogsParams extends PaginationParams {
   index?: number;
-  timestamp?: Timestamp;
+  timestamp?: string;
   topic0?: string;
   topic1?: string;
   topic2?: string;
@@ -47,8 +47,8 @@ export interface ContractLogsParams extends PaginationParams {
 
 export class ContractApi extends BaseApi {
   async getInfo(
-    contractIdOrAddress: EntityId | string,
-    params?: { timestamp?: Timestamp },
+    contractIdOrAddress: string,
+    params?: { timestamp?: string },
   ): Promise<ApiResult<ContractInfo>> {
     const builder = new QueryBuilder();
 
@@ -73,7 +73,7 @@ export class ContractApi extends BaseApi {
   }
 
   async getResults(
-    contractId: EntityId,
+    contractId: string,
     params?: ContractResultsParams,
   ): Promise<ApiResult<ContractResult[]>> {
     const builder = new QueryBuilder();
@@ -104,12 +104,12 @@ export class ContractApi extends BaseApi {
     return this.getList<ContractResult>(`contracts/${contractId}/results`, builder.build());
   }
 
-  async getResult(contractId: EntityId, timestamp: Timestamp): Promise<ApiResult<ContractResult>> {
+  async getResult(contractId: string, timestamp: string): Promise<ApiResult<ContractResult>> {
     return this.getSingle<ContractResult>(`contracts/${contractId}/results/${timestamp}`);
   }
 
   async getState(
-    contractId: EntityId,
+    contractId: string,
     params?: ContractStateParams,
   ): Promise<ApiResult<ContractState[]>> {
     const builder = new QueryBuilder();
@@ -129,7 +129,7 @@ export class ContractApi extends BaseApi {
   }
 
   async getLogs(
-    contractId: EntityId,
+    contractId: string,
     params?: ContractLogsParams,
   ): Promise<ApiResult<ContractLog[]>> {
     const builder = new QueryBuilder();
@@ -170,7 +170,7 @@ export class ContractApi extends BaseApi {
     block_hash?: string;
     block_number?: number;
     internal?: boolean;
-    timestamp?: Timestamp;
+    timestamp?: string;
     transaction_index?: number;
   }): Promise<ApiResult<ContractResultsResponse>> {
     const builder = new QueryBuilder();
@@ -263,7 +263,7 @@ export class ContractApi extends BaseApi {
   async getAllContractLogs(
     params?: PaginationParams & {
       index?: number;
-      timestamp?: Timestamp;
+      timestamp?: string;
       topic0?: string;
       topic1?: string;
       topic2?: string;

@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { Amount } from "../shared/amount.ts";
 
 export interface CreateFileParams {
@@ -10,7 +9,7 @@ export interface CreateFileParams {
 }
 
 export interface AppendFileParams {
-  readonly fileId: EntityId;
+  readonly fileId: string;
   readonly contents: Uint8Array | string;
   readonly maxChunks?: number;
   readonly chunkSize?: number;
@@ -19,7 +18,7 @@ export interface AppendFileParams {
 }
 
 export interface UpdateFileParams {
-  readonly fileId: EntityId;
+  readonly fileId: string;
   readonly contents?: Uint8Array | string;
   readonly keys?: ReadonlyArray<string>;
   readonly expirationTime?: Date;
@@ -37,7 +36,7 @@ export interface UploadFileParams {
 }
 
 export interface UpdateLargeFileParams {
-  readonly fileId: EntityId;
+  readonly fileId: string;
   readonly contents: Uint8Array | string;
   readonly memo?: string;
   readonly maxFee?: Amount;
@@ -45,7 +44,7 @@ export interface UpdateLargeFileParams {
 }
 
 export interface DeleteFileParams {
-  readonly fileId: EntityId;
+  readonly fileId: string;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }

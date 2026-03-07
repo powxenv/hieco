@@ -1,4 +1,4 @@
-import type { ApiResult, PaginationParams, QueryOperator, Timestamp } from "@hieco/utils";
+import type { ApiResult, PaginationParams, QueryOperator } from "@hieco/utils";
 import type { AccountBalance, BalancesResponse } from "../network/types";
 import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
@@ -7,7 +7,7 @@ export interface BalancesListParams extends PaginationParams {
   account?: string;
   "account.balance"?: QueryOperator<number>;
   public_key?: string;
-  timestamp?: Timestamp;
+  timestamp?: string;
 }
 
 export class BalanceApi extends BaseApi {

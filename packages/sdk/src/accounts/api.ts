@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type {
   AccountInfoData,
@@ -36,7 +35,7 @@ import type { AccountsNamespace } from "./namespace.ts";
 
 export function createAccountsNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
-  readonly operator?: EntityId;
+  readonly operator?: string;
   readonly signer?: import("@hiero-ledger/sdk").Signer;
   readonly mirror: import("@hieco/mirror").MirrorNodeClient;
   readonly nativeClient?: import("@hiero-ledger/sdk").Client;
@@ -142,7 +141,7 @@ export function createAccountsNamespace(context: {
   });
 
   const allowancesList = async (
-    accountId: EntityId,
+    accountId: string,
   ): Promise<
     Result<{
       readonly hbar: ReadonlyArray<import("@hieco/mirror").CryptoAllowance>;
@@ -293,7 +292,7 @@ export function createAccountsNamespace(context: {
   };
 
   const balance = async (
-    accountId?: EntityId,
+    accountId?: string,
   ): Promise<
     Result<{
       readonly hbar: string;
@@ -362,7 +361,7 @@ export function createAccountsNamespace(context: {
     });
   };
 
-  const info = async (accountId: EntityId): Promise<Result<AccountInfoData>> => {
+  const info = async (accountId: string): Promise<Result<AccountInfoData>> => {
     const result = await context.mirror.account.getInfo(accountId);
     if (!result.success) {
       return err(
@@ -382,7 +381,7 @@ export function createAccountsNamespace(context: {
     return ok({ accountId, account: result.data });
   };
 
-  const records = async (accountId?: EntityId): Promise<Result<AccountRecordsData>> => {
+  const records = async (accountId?: string): Promise<Result<AccountRecordsData>> => {
     const inferred = accountId ? ok(accountId) : inferAccountId(context.signer, context.operator);
     if (!inferred.ok) return err(inferred.error);
     if (!context.nativeClient) {

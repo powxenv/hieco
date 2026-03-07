@@ -4,7 +4,6 @@ import type { JsonRpcRequest } from "../protocol/rpc";
 import type { RelayMessage, RelaySubscription } from "../subscriptions/subscription";
 import { RequestManager } from "./requests";
 import { SubscriptionManager } from "../subscriptions/manager";
-import { createSubscriptionId } from "../subscriptions/ids";
 
 type ConnectSettler = (result: ApiResult<null>) => void;
 
@@ -53,7 +52,7 @@ export class RelayWebSocketClient {
 
     return new Promise<ApiResult<string>>((resolve) => {
       const requestId = this.nextRequestId();
-      const localSubscriptionId = createSubscriptionId(crypto.randomUUID());
+      const localSubscriptionId = crypto.randomUUID();
       const request = this.createRequest("eth_subscribe", requestId, [
         subscription.type,
         subscription.filter,

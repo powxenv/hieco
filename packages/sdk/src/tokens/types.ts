@@ -1,4 +1,3 @@
-import type { EntityId } from "@hieco/utils";
 import type { Amount } from "../shared/amount.ts";
 
 export type TokenTypeParam = "FUNGIBLE_COMMON" | "NON_FUNGIBLE_UNIQUE";
@@ -7,8 +6,8 @@ export type TokenSupplyTypeParam = "INFINITE" | "FINITE";
 
 export interface CustomFixedFeeParams {
   readonly amount: Amount;
-  readonly denominatingTokenId?: EntityId;
-  readonly feeCollectorAccountId: EntityId;
+  readonly denominatingTokenId?: string;
+  readonly feeCollectorAccountId: string;
 }
 
 export interface CustomFractionalFeeParams {
@@ -17,15 +16,15 @@ export interface CustomFractionalFeeParams {
   readonly min?: number;
   readonly max?: number;
   readonly netOfTransfers?: boolean;
-  readonly feeCollectorAccountId: EntityId;
+  readonly feeCollectorAccountId: string;
 }
 
 export interface CustomRoyaltyFeeParams {
   readonly numerator: number;
   readonly denominator: number;
   readonly fallbackAmount?: Amount;
-  readonly fallbackDenominatingTokenId?: EntityId;
-  readonly feeCollectorAccountId: EntityId;
+  readonly fallbackDenominatingTokenId?: string;
+  readonly feeCollectorAccountId: string;
 }
 
 export type CustomFeeParams =
@@ -38,7 +37,7 @@ export interface CreateTokenParams {
   readonly symbol: string;
   readonly decimals?: number;
   readonly supply?: Amount;
-  readonly treasury?: EntityId;
+  readonly treasury?: string;
   readonly tokenType?: TokenTypeParam;
   readonly supplyType?: TokenSupplyTypeParam;
   readonly maxSupply?: Amount;
@@ -52,7 +51,7 @@ export interface CreateTokenParams {
   readonly metadataKey?: string | true;
   readonly feeScheduleKey?: string | true;
   readonly customFees?: ReadonlyArray<CustomFeeParams>;
-  readonly autoRenewAccountId?: EntityId;
+  readonly autoRenewAccountId?: string;
   readonly autoRenewPeriodSeconds?: number;
   readonly expirationTime?: Date;
   readonly memo?: string;
@@ -60,7 +59,7 @@ export interface CreateTokenParams {
 }
 
 export interface MintTokenParams {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly amount?: Amount;
   readonly metadata?: ReadonlyArray<Uint8Array>;
   readonly memo?: string;
@@ -68,7 +67,7 @@ export interface MintTokenParams {
 }
 
 export interface BurnTokenParams {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly amount?: Amount;
   readonly serials?: ReadonlyArray<number>;
   readonly memo?: string;
@@ -76,80 +75,80 @@ export interface BurnTokenParams {
 }
 
 export interface TransferTokenParams {
-  readonly tokenId: EntityId;
-  readonly from?: EntityId;
-  readonly to: EntityId;
+  readonly tokenId: string;
+  readonly from?: string;
+  readonly to: string;
   readonly amount: Amount;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface TransferNftParams {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly serial: number;
-  readonly from: EntityId;
-  readonly to: EntityId;
+  readonly from: string;
+  readonly to: string;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface AssociateTokenParams {
-  readonly accountId: EntityId;
-  readonly tokenIds: ReadonlyArray<EntityId>;
+  readonly accountId: string;
+  readonly tokenIds: ReadonlyArray<string>;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface DissociateTokenParams {
-  readonly accountId: EntityId;
-  readonly tokenIds: ReadonlyArray<EntityId>;
+  readonly accountId: string;
+  readonly tokenIds: ReadonlyArray<string>;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface FreezeTokenParams {
-  readonly tokenId: EntityId;
-  readonly accountId: EntityId;
+  readonly tokenId: string;
+  readonly accountId: string;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface UnfreezeTokenParams {
-  readonly tokenId: EntityId;
-  readonly accountId: EntityId;
+  readonly tokenId: string;
+  readonly accountId: string;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface GrantKycParams {
-  readonly tokenId: EntityId;
-  readonly accountId: EntityId;
+  readonly tokenId: string;
+  readonly accountId: string;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface RevokeKycParams {
-  readonly tokenId: EntityId;
-  readonly accountId: EntityId;
+  readonly tokenId: string;
+  readonly accountId: string;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface PauseTokenParams {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface UnpauseTokenParams {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface WipeTokenParams {
-  readonly tokenId: EntityId;
-  readonly accountId: EntityId;
+  readonly tokenId: string;
+  readonly accountId: string;
   readonly amount?: Amount;
   readonly serials?: ReadonlyArray<number>;
   readonly memo?: string;
@@ -157,16 +156,16 @@ export interface WipeTokenParams {
 }
 
 export interface DeleteTokenParams {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface UpdateTokenParams {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly name?: string;
   readonly symbol?: string;
-  readonly treasury?: EntityId;
+  readonly treasury?: string;
   readonly adminKey?: string | true;
   readonly kycKey?: string | true;
   readonly freezeKey?: string | true;
@@ -175,7 +174,7 @@ export interface UpdateTokenParams {
   readonly pauseKey?: string | true;
   readonly metadataKey?: string | true;
   readonly feeScheduleKey?: string | true;
-  readonly autoRenewAccountId?: EntityId;
+  readonly autoRenewAccountId?: string;
   readonly autoRenewPeriodSeconds?: number;
   readonly expirationTime?: Date;
   readonly memo?: string;
@@ -183,25 +182,25 @@ export interface UpdateTokenParams {
 }
 
 export interface UpdateTokenFeeScheduleParams {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly customFees: ReadonlyArray<CustomFeeParams>;
   readonly memo?: string;
   readonly maxFee?: Amount;
 }
 
 export interface TokenAirdropTokenTransferParams {
-  readonly tokenId: EntityId;
-  readonly accountId: EntityId;
+  readonly tokenId: string;
+  readonly accountId: string;
   readonly amount: Amount;
   readonly expectedDecimals?: number;
   readonly approved?: boolean;
 }
 
 export interface TokenAirdropNftTransferParams {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly serial: number;
-  readonly from: EntityId;
-  readonly to: EntityId;
+  readonly from: string;
+  readonly to: string;
   readonly approved?: boolean;
 }
 
@@ -213,11 +212,11 @@ export interface TokenAirdropParams {
 }
 
 export interface PendingAirdropReference {
-  readonly senderId: EntityId;
-  readonly receiverId: EntityId;
-  readonly tokenId?: EntityId;
+  readonly senderId: string;
+  readonly receiverId: string;
+  readonly tokenId?: string;
   readonly nft?: {
-    readonly tokenId: EntityId;
+    readonly tokenId: string;
     readonly serial: number;
   };
 }
@@ -235,10 +234,10 @@ export interface TokenCancelAirdropParams {
 }
 
 export interface TokenRejectParams {
-  readonly owner?: EntityId;
-  readonly tokenIds?: ReadonlyArray<EntityId>;
+  readonly owner?: string;
+  readonly tokenIds?: ReadonlyArray<string>;
   readonly nfts?: ReadonlyArray<{
-    readonly tokenId: EntityId;
+    readonly tokenId: string;
     readonly serial: number;
   }>;
   readonly memo?: string;
@@ -246,7 +245,7 @@ export interface TokenRejectParams {
 }
 
 export interface TokenUpdateNftsParams {
-  readonly tokenId: EntityId;
+  readonly tokenId: string;
   readonly serialNumbers: ReadonlyArray<number>;
   readonly metadata: Uint8Array;
   readonly memo?: string;

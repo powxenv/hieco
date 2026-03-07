@@ -178,16 +178,15 @@ export function Screen() {
 
 ### Provider And Context
 
-| Export                    | Kind      | Purpose                                                       | Usage form                           |
-| ------------------------- | --------- | ------------------------------------------------------------- | ------------------------------------ |
-| `MirrorNodeProvider`      | component | Root provider for the mirror client and active network.       | `<MirrorNodeProvider config={...}>`  |
-| `MirrorNodeProviderProps` | type      | Props accepted by `MirrorNodeProvider`.                       | `type MirrorNodeProviderProps<T, U>` |
-| `MirrorNodeContextValue`  | type      | Context value exposed by the provider.                        | `type MirrorNodeContextValue`        |
-| `useMirrorNodeContext`    | hook      | Access the full mirror context.                               | `useMirrorNodeContext()`             |
-| `useMirrorNodeClient`     | hook      | Access the underlying `MirrorNodeClient`.                     | `useMirrorNodeClient()`              |
-| `useNetwork`              | hook      | Access the active network, URL, and `switchNetwork`.          | `useNetwork()`                       |
-| `AnyNetwork`              | type      | Built-in network or custom string.                            | `type AnyNetwork`                    |
-| `NetworkConfig`           | type      | Provider network config type re-exported from `@hieco/utils`. | `type NetworkConfig<T, U>`           |
+| Export                    | Kind      | Purpose                                                       | Usage form                          |
+| ------------------------- | --------- | ------------------------------------------------------------- | ----------------------------------- |
+| `MirrorNodeProvider`      | component | Root provider for the mirror client and active network.       | `<MirrorNodeProvider config={...}>` |
+| `MirrorNodeProviderProps` | type      | Props accepted by `MirrorNodeProvider`.                       | `type MirrorNodeProviderProps`      |
+| `MirrorNodeContextValue`  | type      | Context value exposed by the provider.                        | `type MirrorNodeContextValue`       |
+| `useMirrorNodeContext`    | hook      | Access the full mirror context.                               | `useMirrorNodeContext()`            |
+| `useMirrorNodeClient`     | hook      | Access the underlying `MirrorNodeClient`.                     | `useMirrorNodeClient()`             |
+| `useNetwork`              | hook      | Access the active network, URL, and `switchNetwork`.          | `useNetwork()`                      |
+| `NetworkConfig`           | type      | Provider network config type re-exported from `@hieco/utils`. | `type NetworkConfig`                |
 
 ### Hook Families
 
@@ -206,7 +205,7 @@ export function Screen() {
 
 ### Utility Re-Exports
 
-`@hieco/mirror-preact` re-exports the public utilities from [`@hieco/utils`](../utils/README.md), including `ApiResult`, `ApiError`, `EntityId`, `NetworkConfig`, `NETWORK_CONFIGS`, `mirrorNodeKeys`, and the mirror type guards.
+`@hieco/mirror-preact` re-exports the public utilities from [`@hieco/utils`](../utils/README.md), including `ApiResult`, `ApiError`, `NetworkConfig`, `NETWORK_CONFIGS`, `mirrorNodeKeys`, and the mirror type guards.
 
 ## Related Packages
 

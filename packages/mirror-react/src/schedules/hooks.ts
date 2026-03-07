@@ -5,7 +5,7 @@ import type {
   UseQueryResult,
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
-import type { ApiResult, ApiError, EntityId, QueryOperator } from "@hieco/mirror";
+import type { ApiResult, ApiError, QueryOperator } from "@hieco/mirror";
 import type { Schedule } from "@hieco/mirror";
 import type { PaginatedResponse } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
@@ -20,7 +20,7 @@ export interface UseScheduleInfoOptions extends Omit<
   UseQueryOptions<ScheduleQueryFnData<Schedule>, ScheduleQueryError>,
   "queryKey" | "queryFn"
 > {
-  scheduleId: EntityId;
+  scheduleId: string;
 }
 
 export type UseScheduleInfoResult = UseQueryResult<
@@ -35,9 +35,9 @@ export interface UseSchedulesOptions extends Omit<
   params?: {
     limit?: number;
     order?: "asc" | "desc";
-    "creator.account.id"?: EntityId | QueryOperator<EntityId>;
-    "payer.account.id"?: EntityId | QueryOperator<EntityId>;
-    schedule_id?: EntityId;
+    "creator.account.id"?: string | QueryOperator<string>;
+    "payer.account.id"?: string | QueryOperator<string>;
+    schedule_id?: string;
     deleted?: boolean;
   };
 }
