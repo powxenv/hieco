@@ -6,7 +6,7 @@ import {
   isNotFoundError,
   isRateLimitError,
   isValidationError,
-} from "../src/mirror/type-guards";
+} from "../src/mirror/guards";
 import type { ApiResult, ApiError } from "../src/types/api";
 
 describe("isSuccess", () => {

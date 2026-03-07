@@ -38,6 +38,15 @@ Start with one of these patterns:
 | Explicit runtime config                   | `hieco({ network, mirrorUrl, ... })` |
 | Testnet-only setup                        | `hieco.forTestnet()`                 |
 
+## Package Layout
+
+`@hieco/sdk` is organized by domain:
+
+- `client/` contains runtime config and the core client
+- `accounts/`, `contracts/`, `files/`, `network/`, `reads/`, `schedules/`, `tokens/`, `topics/`, and `transactions/` contain the public Hedera operations
+- `telepathic/` contains the fluent builder client
+- `errors/`, `results/`, and `shared/` contain the small cross-domain primitives shared by those domains
+
 ## Quick Start
 
 ### Server

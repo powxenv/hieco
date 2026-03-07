@@ -36,17 +36,17 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./bridge/appkit": {
-      "types": "./dist/bridge/appkit/index.d.ts",
-      "import": "./dist/bridge/appkit/index.js"
+    "./appkit": {
+      "types": "./dist/appkit/index.d.ts",
+      "import": "./dist/appkit/index.js"
     }
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "bun run generate && bun build ./src/index.ts ./src/bridge/appkit/index.ts --outdir ./dist --target browser --format esm --sourcemap --external react --external react-dom --external @hieco/sdk --external @tanstack/react-query --external @reown/appkit/react --external @hashgraph/hedera-wallet-connect && bunx tsc -p tsconfig.build.json",
-    "dev": "bun run generate && bun build ./src/index.ts ./src/bridge/appkit/index.ts --outdir ./dist --target browser --format esm --watch --external react --external react-dom --external @hieco/sdk --external @tanstack/react-query --external @reown/appkit/react --external @hashgraph/hedera-wallet-connect",
+    "build": "bun run generate && bun build ./src/index.ts ./src/appkit/index.ts --outdir ./dist --target browser --format esm --sourcemap --external react --external react-dom --external @hieco/sdk --external @tanstack/react-query --external @reown/appkit/react --external @hashgraph/hedera-wallet-connect && bunx tsc -p tsconfig.build.json",
+    "dev": "bun run generate && bun build ./src/index.ts ./src/appkit/index.ts --outdir ./dist --target browser --format esm --watch --external react --external react-dom --external @hieco/sdk --external @tanstack/react-query --external @reown/appkit/react --external @hashgraph/hedera-wallet-connect",
     "generate": "bun ./scripts/generate-hooks.ts",
     "typecheck": "tsgo --noEmit",
     "lint": "oxlint --type-aware",

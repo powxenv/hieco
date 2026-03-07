@@ -58,6 +58,16 @@ Pick the workflow that matches what you are building:
 | A Reown AppKit app for Hedera wallets                              | `createHiecoAppKit()` with `HiecoAppKitProvider`         |
 | A full-stack app with server-side credentials and a React frontend | `@hieco/react` in the UI and `@hieco/sdk` in server code |
 
+## Package Layout
+
+`@hieco/react` is organized by domain:
+
+- `provider.tsx` is the single root provider
+- `appkit/` contains the first-party AppKit integration
+- `hooks/accounts`, `hooks/contracts`, `hooks/files`, `hooks/network`, `hooks/reads`, `hooks/schedules`, `hooks/tokens`, `hooks/topics`, and `hooks/transactions` contain the generated SDK hooks
+- `hooks/` root files contain the hand-written React runtime hooks
+- `shared/` contains the TanStack Query glue used by the public hooks
+
 ## Quick Start
 
 ```tsx
@@ -310,7 +320,7 @@ import {
   HederaChainDefinition,
   hederaNamespace,
 } from "@hashgraph/hedera-wallet-connect";
-import { createHiecoAppKit } from "@hieco/react/bridge/appkit";
+import { createHiecoAppKit } from "@hieco/react/appkit";
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!;
 const metadata = {
@@ -345,7 +355,7 @@ Wrap AppKit and Hieco together:
 "use client";
 
 import { useEffect } from "react";
-import { HiecoAppKitProvider } from "@hieco/react/bridge/appkit";
+import { HiecoAppKitProvider } from "@hieco/react/appkit";
 import { ensureAppKit } from "./appkit";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -693,7 +703,7 @@ Blocks:
 
 The root package also re-exports the full `@hieco/sdk` surface, so SDK types and helpers such as `Signer`, `HiecoClient`, `Result`, `EntityId`, `NetworkType`, `isValidEntityId()`, and `formatEntityId()` are available from `@hieco/react`.
 
-### `@hieco/react/bridge/appkit`
+### `@hieco/react/appkit`
 
 Use this subpath when your app uses Reown AppKit with Hedera WalletConnect.
 

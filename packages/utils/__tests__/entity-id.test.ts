@@ -6,7 +6,7 @@ import {
   formatEntityId,
   parseEntityIdParts,
   asEntityId,
-} from "../src/mirror/entity-id";
+} from "../src/mirror/entity";
 import type { EntityId } from "../src/types/entity";
 
 describe("isValidEntityId", () => {

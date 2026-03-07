@@ -1,11 +1,11 @@
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
 import type { EntityId } from "@hieco/utils";
-import { HieroClient as CoreClient } from "../core/client.ts";
-import type { TopicWatchHandle } from "../domains/hcs/namespace.ts";
-import type * as Params from "../foundation/params.ts";
-import type * as Shapes from "../foundation/results-shapes.ts";
-import type { ClientRuntimeConfig } from "../foundation/client-types.ts";
-import type { Result } from "../foundation/results.ts";
+import { HieroClient as CoreClient } from "../client/client.ts";
+import type * as Params from "../shared/params.ts";
+import type * as Shapes from "../results/shapes.ts";
+import type { ClientRuntimeConfig } from "../client/runtime.ts";
+import type { Result } from "../results/result.ts";
+import type { TopicWatchHandle } from "../topics/types.ts";
 import { fluentAction } from "./fluent.ts";
 
 type MaybeArray<T> = T | ReadonlyArray<T>;
@@ -323,7 +323,7 @@ export interface TelepathicClient {
       readonly params: Params.FunctionParamsConfig;
       readonly gas?: number;
       readonly senderAccountId?: EntityId;
-      readonly returns?: import("../domains/contracts/abi.ts").ReturnTypeHint;
+      readonly returns?: import("../contracts/abi.ts").ReturnTypeHint;
     }) => QueryResult<Shapes.ContractCallResult<unknown>>;
     readonly preflight: (params: {
       readonly id: EntityId;
@@ -337,7 +337,7 @@ export interface TelepathicClient {
       readonly gasBuffer?: number;
     }) => QueryResult<Shapes.ContractPreflightData>;
     readonly withAbi: (
-      abi: import("../domains/contracts/abi.ts").AbiSpec,
+      abi: import("../contracts/abi.ts").AbiSpec,
     ) => ReturnType<CoreClient["contracts"]["withAbi"]>;
     readonly delete: (
       params?: Partial<Params.DeleteContractParams>,
@@ -914,64 +914,64 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
       create: (params: Partial<Params.CreateTopicParams> = {}) =>
         plan<Params.CreateTopicParams, Shapes.TopicReceipt>(
           params,
-          (value) => base.hcs.create(value),
-          (value) => base.hcs.create.tx(value),
+          (value) => base.topics.create(value),
+          (value) => base.topics.create.tx(value),
         ),
       update: (params: Partial<Params.UpdateTopicParams> = {}) =>
         plan<Params.UpdateTopicParams, Shapes.TransactionReceiptData>(
           params,
-          (value) => base.hcs.update(value),
-          (value) => base.hcs.update.tx(value),
+          (value) => base.topics.update(value),
+          (value) => base.topics.update.tx(value),
         ),
       delete: (params: Partial<Params.DeleteTopicParams> = {}) =>
         plan<Params.DeleteTopicParams, Shapes.TransactionReceiptData>(
           params,
-          (value) => base.hcs.delete(value),
-          (value) => base.hcs.delete.tx(value),
+          (value) => base.topics.delete(value),
+          (value) => base.topics.delete.tx(value),
         ),
       send: (params: Partial<Params.SubmitMessageParams> = {}) =>
         plan<Params.SubmitMessageParams, Shapes.MessageReceipt>(
           params,
-          (value) => base.hcs.submit(value),
-          (value) => base.hcs.submit.tx(value),
+          (value) => base.topics.submit(value),
+          (value) => base.topics.submit.tx(value),
         ),
       submit: (params: Partial<Params.SubmitMessageParams> = {}) =>
         plan<Params.SubmitMessageParams, Shapes.MessageReceipt>(
           params,
-          (value) => base.hcs.submit(value),
-          (value) => base.hcs.submit.tx(value),
+          (value) => base.topics.submit(value),
+          (value) => base.topics.submit.tx(value),
         ),
       sendJson: (params: Partial<Params.SubmitJsonMessageParams> = {}) =>
         queryPlan<Params.SubmitJsonMessageParams, Shapes.MessageReceipt>(params, (value) =>
-          base.hcs.submitJson(value),
+          base.topics.submitJson(value),
         ),
       submitJson: (params: Partial<Params.SubmitJsonMessageParams> = {}) =>
         queryPlan<Params.SubmitJsonMessageParams, Shapes.MessageReceipt>(params, (value) =>
-          base.hcs.submitJson(value),
+          base.topics.submitJson(value),
         ),
       sendMany: (params: Partial<Params.BatchSubmitMessagesParams> = {}) =>
         queryPlan<Params.BatchSubmitMessagesParams, ReadonlyArray<Shapes.MessageReceipt>>(
           params,
-          (value) => base.hcs.batchSubmit(value),
+          (value) => base.topics.batchSubmit(value),
         ),
       batchSubmit: (params: Partial<Params.BatchSubmitMessagesParams> = {}) =>
         queryPlan<Params.BatchSubmitMessagesParams, ReadonlyArray<Shapes.MessageReceipt>>(
           params,
-          (value) => base.hcs.batchSubmit(value),
+          (value) => base.topics.batchSubmit(value),
         ),
       watch: (
         topicId: EntityId,
         handler: (message: Params.TopicMessageData) => void,
         options?: Params.WatchTopicMessagesOptions,
-      ) => base.hcs.watch(topicId, handler, options),
+      ) => base.topics.watch(topicId, handler, options),
       watchFrom: (
         topicId: EntityId,
         handler: (message: Params.TopicMessageData) => void,
         options?: Params.WatchTopicMessagesFromOptions,
-      ) => base.hcs.watchFrom(topicId, handler, options),
-      info: (topicId: EntityId) => toQueryResult(() => base.hcs.info(topicId)),
+      ) => base.topics.watchFrom(topicId, handler, options),
+      info: (topicId: EntityId) => toQueryResult(() => base.topics.info(topicId)),
       messages: (topicId: EntityId, params?: import("@hieco/mirror").TopicMessagesParams) =>
-        toQueryResult(() => base.hcs.messages(topicId, params)),
+        toQueryResult(() => base.topics.messages(topicId, params)),
     },
     contract: {
       deploy: (params: Partial<Params.DeployContractParams> = {}) =>
@@ -1016,7 +1016,7 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
         readonly params: Params.FunctionParamsConfig;
         readonly gas?: number;
         readonly senderAccountId?: EntityId;
-        readonly returns?: import("../domains/contracts/abi.ts").ReturnTypeHint;
+        readonly returns?: import("../contracts/abi.ts").ReturnTypeHint;
       }) => toQueryResult(() => base.contracts.callTyped(params)),
       preflight: (params: {
         readonly id: EntityId;
@@ -1029,7 +1029,7 @@ export function createTelepathic(client: CoreClient): TelepathicClient {
         readonly blockNumber?: string | number | bigint;
         readonly gasBuffer?: number;
       }) => toQueryResult(() => base.contracts.preflight(params)),
-      withAbi: (abi: import("../domains/contracts/abi.ts").AbiSpec) => base.contracts.withAbi(abi),
+      withAbi: (abi: import("../contracts/abi.ts").AbiSpec) => base.contracts.withAbi(abi),
       delete: (params: Partial<Params.DeleteContractParams> = {}) =>
         plan<Params.DeleteContractParams, Shapes.TransactionReceiptData>(
           params,

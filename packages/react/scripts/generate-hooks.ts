@@ -1,7 +1,7 @@
 import { mkdir, rm } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 
-const root = new URL("../src/hooks/generated", import.meta.url).pathname;
+const root = new URL("../src/hooks", import.meta.url).pathname;
 
 type QueryArgument = {
   readonly name: string;
@@ -43,8 +43,33 @@ function toPublicHookName(value: string): string {
   return value.replace(/(Query|Mutation)$/, "");
 }
 
+function toDomainFolder(folder: string): string {
+  switch (folder) {
+    case "account":
+      return "accounts";
+    case "contract":
+      return "contracts";
+    case "file":
+      return "files";
+    case "node":
+      return "network";
+    case "schedule":
+      return "schedules";
+    case "token":
+      return "tokens";
+    case "topic":
+      return "topics";
+    case "transaction":
+      return "transactions";
+    case "util":
+      return "utilities";
+    default:
+      return folder;
+  }
+}
+
 function filePath(folder: string, hookName: string): string {
-  return `${folder}/${toKebab(hookName)}.ts`;
+  return `${toDomainFolder(folder)}/${toKebab(hookName)}.ts`;
 }
 
 function queryHook(
@@ -173,8 +198,8 @@ function createQueryHookFile(definition: QueryHook): string {
   const methodType = createMethodType(definition.methodPath);
   const optionsType = `${definition.hookName.replace(/^use/, "Use")}Options`;
   const depth = definition.filePath.split("/").length - 1;
-  const hooksPrefix = "../".repeat(depth + 1);
-  const internalPrefix = "../".repeat(depth + 2);
+  const hooksPrefix = "../".repeat(depth);
+  const internalPrefix = "../".repeat(depth + 1);
   const argTypeImports = definition.args
     .map((arg) => `OperationArg${String(arg.index)}`)
     .filter((value, index, array) => array.indexOf(value) === index)
@@ -197,11 +222,11 @@ function createQueryHookFile(definition: QueryHook): string {
   return `import type { HieroError, HiecoClient } from "@hieco/sdk";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { useHiecoClient } from "${hooksPrefix}use-hieco-client";
-import { useHiecoQuery } from "${internalPrefix}internal/use-hieco-query";
+import { useHiecoQuery } from "${internalPrefix}shared/use-hieco-query";
 import type {
   HiecoQueryOptions,
   ${importBlock}
-} from "${internalPrefix}internal/types";
+} from "${internalPrefix}shared/types";
 
 type Operation = ${methodType};
 type QueryFnData = OperationData<Operation>;
@@ -227,8 +252,8 @@ function createMutationHookFile(definition: MutationHook): string {
   const methodType = createMethodType(definition.methodPath);
   const optionsType = `${definition.hookName.replace(/^use/, "Use")}Options`;
   const depth = definition.filePath.split("/").length - 1;
-  const hooksPrefix = "../".repeat(depth + 1);
-  const internalPrefix = "../".repeat(depth + 2);
+  const hooksPrefix = "../".repeat(depth);
+  const internalPrefix = "../".repeat(depth + 1);
   const imports = ["HiecoMutationOptions", "HiecoMutationResult", "OperationData"];
   const lines: string[] = [];
 
@@ -269,10 +294,10 @@ function createMutationHookFile(definition: MutationHook): string {
 
   return `import type { HiecoClient } from "@hieco/sdk";
 import { useHiecoClient } from "${hooksPrefix}use-hieco-client";
-import { useHiecoMutation } from "${internalPrefix}internal/use-hieco-mutation";
+import { useHiecoMutation } from "${internalPrefix}shared/use-hieco-mutation";
 import type {
   ${imports.join(",\n  ")}
-} from "${internalPrefix}internal/types";
+} from "${internalPrefix}shared/types";
 
 type Operation = ${methodType};
 type MutationData = OperationData<Operation>;
@@ -900,23 +925,63 @@ const definitions: ReadonlyArray<HookDefinition> = [
 ];
 
 async function main() {
-  await rm(root, { recursive: true, force: true });
+  await rm(join(root, "generated"), { recursive: true, force: true });
   await mkdir(root, { recursive: true });
 
-  const exports: string[] = [];
+  const fileExportsByDirectory = new Map<string, string[]>();
+  const allDirectories = new Set<string>();
+  const topLevelDirectories = new Set<string>();
+
+  function addDirectoryTree(directory: string): void {
+    if (directory === "." || allDirectories.has(directory)) {
+      return;
+    }
+
+    allDirectories.add(directory);
+    const parentDirectory = dirname(directory);
+
+    if (parentDirectory !== ".") {
+      addDirectoryTree(parentDirectory);
+    }
+  }
+
+  for (const definition of definitions) {
+    topLevelDirectories.add(definition.filePath.split("/")[0] ?? definition.filePath);
+    addDirectoryTree(dirname(definition.filePath));
+  }
+
+  for (const directory of topLevelDirectories) {
+    await rm(join(root, directory), { recursive: true, force: true });
+  }
 
   for (const definition of definitions) {
     const outputPath = join(root, definition.filePath);
+    const directory = dirname(definition.filePath);
+    const exportLines = fileExportsByDirectory.get(directory) ?? [];
+
     await mkdir(dirname(outputPath), { recursive: true });
     const contents =
       definition.kind === "query"
         ? createQueryHookFile(definition)
         : createMutationHookFile(definition);
     await Bun.write(outputPath, contents);
-    exports.push(`export * from "./${definition.filePath.replace(/\\.ts$/, "")}";`);
+    exportLines.push(`export * from "./${basename(definition.filePath, ".ts")}";`);
+    fileExportsByDirectory.set(directory, exportLines);
   }
 
-  await Bun.write(join(root, "index.ts"), `${exports.join("\n")}\n`);
+  const orderedDirectories = [...allDirectories].sort(
+    (left, right) => right.split("/").length - left.split("/").length,
+  );
+
+  for (const directory of orderedDirectories) {
+    const childDirectoryExports = orderedDirectories
+      .filter((candidate) => dirname(candidate) === directory)
+      .map((candidate) => `export * from "./${basename(candidate)}";`);
+    const fileExports = fileExportsByDirectory.get(directory) ?? [];
+    const lines = [...childDirectoryExports, ...fileExports];
+
+    await Bun.write(join(root, directory, "index.ts"), `${lines.join("\n")}\n`);
+  }
 }
 
 await main();

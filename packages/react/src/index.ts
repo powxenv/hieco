@@ -5,6 +5,6 @@ export type {
   HiecoMutationResult,
   HiecoQueryOptions,
   HiecoQueryResult,
-} from "./internal/types";
-export { createHiecoMutationKey, createHiecoQueryKey } from "./internal/query-keys";
+} from "./shared/types";
+export { createHiecoMutationKey, createHiecoQueryKey } from "./shared/keys";
 export * from "@hieco/sdk";

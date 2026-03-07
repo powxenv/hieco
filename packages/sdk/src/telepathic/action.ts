@@ -1,7 +1,7 @@
 export interface ActionPlan<T> {
   readonly now: () => Promise<T>;
-  readonly tx: () => import("../foundation/results.ts").Result<
-    import("../foundation/params.ts").TransactionDescriptor
+  readonly tx: () => import("../results/result.ts").Result<
+    import("../shared/params.ts").TransactionDescriptor
   >;
   readonly schedule: (params?: {
     readonly adminKey?: string | true;
@@ -9,17 +9,15 @@ export interface ActionPlan<T> {
     readonly expirationTime?: Date;
     readonly waitForExpiry?: boolean;
     readonly memo?: string;
-    readonly maxFee?: import("../foundation/params.ts").Amount;
+    readonly maxFee?: import("../shared/params.ts").Amount;
   }) => Promise<
-    import("../foundation/results.ts").Result<
-      import("../foundation/results-shapes.ts").ScheduleReceipt
-    >
+    import("../results/result.ts").Result<import("../results/shapes.ts").ScheduleReceipt>
   >;
 }
 
 export function actionPlan<T>(input: {
   readonly execute: () => Promise<T>;
-  readonly descriptor?: () => import("../foundation/params.ts").TransactionDescriptor;
+  readonly descriptor?: () => import("../shared/params.ts").TransactionDescriptor;
   readonly schedule?: (
     params: {
       readonly adminKey?: string | true;
@@ -27,13 +25,11 @@ export function actionPlan<T>(input: {
       readonly expirationTime?: Date;
       readonly waitForExpiry?: boolean;
       readonly memo?: string;
-      readonly maxFee?: import("../foundation/params.ts").Amount;
+      readonly maxFee?: import("../shared/params.ts").Amount;
     },
-    descriptor: import("../foundation/params.ts").TransactionDescriptor,
+    descriptor: import("../shared/params.ts").TransactionDescriptor,
   ) => Promise<
-    import("../foundation/results.ts").Result<
-      import("../foundation/results-shapes.ts").ScheduleReceipt
-    >
+    import("../results/result.ts").Result<import("../results/shapes.ts").ScheduleReceipt>
   >;
 }): ActionPlan<T> {
   return {

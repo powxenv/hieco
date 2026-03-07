@@ -4,7 +4,7 @@ import {
   findMethodMapping,
   invalidateQueries,
   prefetchQuery,
-} from "../src/mirror/query-helpers";
+} from "../src/mirror/helpers";
 import type { QueryClient } from "@tanstack/query-core";
 
 type MirrorNodeClientLike = Record<

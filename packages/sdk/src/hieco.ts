@@ -1,9 +1,9 @@
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
-import { HieroClient } from "./core/client.ts";
+import { HieroClient } from "./client/client.ts";
 import { createTelepathic, type TelepathicClient } from "./telepathic/client.ts";
-import type { ClientRuntimeConfig } from "./foundation/client-types.ts";
-import type { Result } from "./foundation/results.ts";
-import type * as Params from "./foundation/params.ts";
+import type { ClientRuntimeConfig } from "./client/runtime.ts";
+import type { Result } from "./results/result.ts";
+import type * as Params from "./shared/params.ts";
 
 export type HiecoClient = TelepathicClient;
 

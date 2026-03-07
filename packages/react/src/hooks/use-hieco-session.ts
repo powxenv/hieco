@@ -1,4 +1,4 @@
-import type { HiecoSession } from "../internal/session";
+import type { HiecoSession } from "../shared/session";
 import { useHiecoContext } from "./use-hieco-context";
 
 export function useHiecoSession(): HiecoSession {

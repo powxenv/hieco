@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { mirrorNodeKeys } from "../src/mirror/query-keys";
+import { mirrorNodeKeys } from "../src/mirror/keys";
 
 describe("mirrorNodeKeys.account", () => {
   test("info returns readonly const array with correct structure", () => {

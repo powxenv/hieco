@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import type { TopicMessageData, WatchTopicMessagesOptions } from "@hieco/sdk";
 import type { EntityId } from "@hieco/utils";
 import { useHiecoClient } from "./use-hieco-client";
-import { useLatestRef } from "../internal/use-latest-ref";
+import { useLatestRef } from "../shared/use-latest-ref";
 
 export interface UseTopicWatchOptions extends WatchTopicMessagesOptions {
   readonly enabled?: boolean;

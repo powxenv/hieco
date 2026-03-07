@@ -1,5 +1,5 @@
 import type { EntityId } from "@hieco/utils";
-import type { Amount, FunctionParamsConfig } from "../foundation/params.ts";
+import type { Amount, FunctionParamsConfig } from "../shared/params.ts";
 import { actionPlan, type ActionPlan } from "./action.ts";
 
 type MaybeArray<T> = T | ReadonlyArray<T>;
@@ -214,7 +214,7 @@ export class FluentAction<P extends object, T> {
 
 export function fluentAction<P extends object, T>(input: {
   readonly execute: (params: P) => Promise<T>;
-  readonly tx?: (params: P) => import("../foundation/params.ts").TransactionDescriptor;
+  readonly tx?: (params: P) => import("../shared/params.ts").TransactionDescriptor;
   readonly schedule?: (
     params: {
       readonly adminKey?: string | true;
@@ -224,11 +224,9 @@ export function fluentAction<P extends object, T>(input: {
       readonly memo?: string;
       readonly maxFee?: Amount;
     },
-    descriptor: import("../foundation/params.ts").TransactionDescriptor,
+    descriptor: import("../shared/params.ts").TransactionDescriptor,
   ) => Promise<
-    import("../foundation/results.ts").Result<
-      import("../foundation/results-shapes.ts").ScheduleReceipt
-    >
+    import("../results/result.ts").Result<import("../results/shapes.ts").ScheduleReceipt>
   >;
   readonly seed?: Partial<P>;
 }): FluentAction<P, T> {

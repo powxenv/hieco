@@ -1,8 +1,8 @@
 import type { HiecoClient, HieroError } from "@hieco/sdk";
 import type { UseQueryResult } from "@tanstack/react-query";
 import { useHiecoClient } from "./use-hieco-client";
-import { useHiecoQuery } from "../internal/use-hieco-query";
-import type { HiecoQueryOptions } from "../internal/types";
+import { useHiecoQuery } from "../shared/use-hieco-query";
+import type { HiecoQueryOptions } from "../shared/types";
 
 type FileId = Parameters<HiecoClient["file"]["contentsJson"]>[0];
 

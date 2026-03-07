@@ -1,0 +1,18 @@
+import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
+import type { EntityId, NetworkType } from "@hieco/utils";
+import type { Amount } from "../shared/amount.ts";
+
+export interface ClientConfig {
+  readonly network?: NetworkType;
+  readonly operator?: EntityId;
+  readonly key?: string;
+  readonly signer?: HieroSigner;
+  readonly mirrorUrl?: string;
+  readonly maxFee?: Amount;
+  readonly maxAttempts?: number;
+  readonly maxNodeAttempts?: number;
+  readonly requestTimeoutMs?: number;
+  readonly grpcDeadlineMs?: number;
+  readonly minBackoffMs?: number;
+  readonly maxBackoffMs?: number;
+}

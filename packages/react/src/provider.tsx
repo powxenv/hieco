@@ -15,7 +15,7 @@ import {
   QueryClientProvider,
   type DehydratedState,
 } from "@tanstack/react-query";
-import { createHiecoSession, createHiecoSessionKey, type HiecoSession } from "./internal/session";
+import { createHiecoSession, createHiecoSessionKey, type HiecoSession } from "./shared/session";
 
 export type HiecoQueryClientConfig = ConstructorParameters<typeof QueryClient>[0];
 

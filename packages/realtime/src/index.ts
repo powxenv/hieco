@@ -1,7 +1,21 @@
-export * from "./client";
-export * from "./types";
-export { createSubscriptionId, type SubscriptionId } from "./utils/subscription";
-export { mapJsonRpcErrorCode, isCloseErrorRecoverable } from "./utils/error-mapper";
+export * from "./connection";
+export type { StreamConfig, StreamState } from "./connection/stream";
+export type {
+  ChainIdResponse,
+  JsonRpcErrorCode,
+  JsonRpcRequest,
+  JsonRpcResponse,
+  SubscribeResponse,
+  UnsubscribeResponse,
+} from "./protocol/rpc";
+export { createSubscriptionId, type SubscriptionId } from "./subscriptions/ids";
+export type {
+  LogResult,
+  NewHeadsResult,
+  RelayMessage,
+  RelaySubscription,
+} from "./subscriptions/subscription";
+export { mapJsonRpcErrorCode, isCloseErrorRecoverable } from "./protocol/errors";
 export {
   isJsonRpcResponse,
   isRelayMessage,
@@ -9,4 +23,4 @@ export {
   isSubscribeResponse,
   isUnsubscribeResponse,
   isChainIdResponse,
-} from "./utils/type-guards";
+} from "./protocol/guards";
