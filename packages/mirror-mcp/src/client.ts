@@ -1,4 +1,4 @@
-import { MirrorNodeClient, createMirrorNodeClient } from "@hieco/mirror";
+import { MirrorNodeClient } from "@hieco/mirror";
 import type { NetworkType } from "@hieco/utils";
 import { NETWORK_CONFIGS } from "@hieco/utils";
 
@@ -38,7 +38,10 @@ const allowNetworkSwitch = getBooleanEnv("MIRROR_ALLOW_NETWORK_SWITCH");
 
 let currentNetwork: NetworkType = defaultNetwork;
 let currentMirrorNodeUrl = defaultMirrorNodeUrl;
-let mirrorClient = createMirrorNodeClient(currentNetwork, currentMirrorNodeUrl);
+let mirrorClient = new MirrorNodeClient({
+  network: currentNetwork,
+  mirrorNodeUrl: currentMirrorNodeUrl,
+});
 
 function createState(): MirrorNetworkState {
   return {
@@ -88,7 +91,10 @@ export function switchMirrorNetwork(
 
   currentNetwork = network;
   currentMirrorNodeUrl = getMirrorNodeUrl(network, mirrorNodeUrl);
-  mirrorClient = createMirrorNodeClient(currentNetwork, currentMirrorNodeUrl);
+  mirrorClient = new MirrorNodeClient({
+    network: currentNetwork,
+    mirrorNodeUrl: currentMirrorNodeUrl,
+  });
 
   return createState();
 }

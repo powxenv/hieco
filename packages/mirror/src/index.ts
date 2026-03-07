@@ -1,4 +1,4 @@
-export { MirrorNodeClient, createMirrorNodeClient } from "./client";
+export { MirrorNodeClient } from "./client";
 export type { CursorPaginator, PaginatedResponse } from "./shared/builders";
 
 export { AccountApi, type AccountListParams, type AccountNftsParams } from "./accounts/api";

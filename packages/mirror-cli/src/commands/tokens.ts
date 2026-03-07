@@ -1,4 +1,3 @@
-import { asEntityId } from "@hieco/utils";
 import { formatOutput, formatError, formatYesNo, type FormatOptions } from "../utils/format";
 import { getClient } from "./accounts";
 
@@ -8,7 +7,7 @@ export async function getTokenInfo(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.token.getInfo(asEntityId(tokenId));
+    const result = await mirrorClient.token.getInfo(tokenId);
 
     if (!result.success) {
       console.error(formatError(new Error(result.error.message)));
@@ -73,8 +72,8 @@ export async function getTokenBalances(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.token.getBalances(asEntityId(tokenId), {
-      account: options.accountId ? asEntityId(options.accountId) : undefined,
+    const result = await mirrorClient.token.getBalances(tokenId, {
+      account: options.accountId,
       "account.balance": options.accountBalance,
       "account.publickey": options.accountPublicKey,
       timestamp: options.timestamp,
@@ -114,8 +113,8 @@ export async function getTokenNfts(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.token.getNfts(asEntityId(tokenId), {
-      "account.id": options.accountId ? asEntityId(options.accountId) : undefined,
+    const result = await mirrorClient.token.getNfts(tokenId, {
+      "account.id": options.accountId,
       serial_number: options.serialNumber,
     });
 
@@ -158,7 +157,7 @@ export async function getNftBySerial(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.token.getNft(asEntityId(tokenId), serialNumber);
+    const result = await mirrorClient.token.getNft(tokenId, serialNumber);
 
     if (!result.success) {
       console.error(formatError(new Error(result.error.message)));
@@ -196,7 +195,7 @@ export async function getNftTransactions(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.token.getNftTransactions(asEntityId(tokenId), serialNumber, {
+    const result = await mirrorClient.token.getNftTransactions(tokenId, serialNumber, {
       timestamp: options.timestamp,
     });
 
@@ -242,8 +241,8 @@ export async function listTokens(
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
     const result = await mirrorClient.token.listPaginated({
-      "account.id": options.accountId ? asEntityId(options.accountId) : undefined,
-      "token.id": options.tokenId ? asEntityId(options.tokenId) : undefined,
+      "account.id": options.accountId,
+      "token.id": options.tokenId,
       limit: options.limit,
       name: options.name,
       order: options.order,

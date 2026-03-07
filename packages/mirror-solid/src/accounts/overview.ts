@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/solid-query";
 import type { EntityId } from "@hieco/mirror";
 import type { AccountInfo, Balance, TokenRelationship } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys, isSuccess } from "@hieco/utils";
+import { mirrorNodeKeys } from "@hieco/utils";
 
 export interface CreateAccountOverviewOptions {
   readonly accountId: EntityId;
@@ -56,8 +56,8 @@ export function createAccountOverview(
   });
 
   return createMemo(() => ({
-    info: infoQuery.data && isSuccess(infoQuery.data) ? infoQuery.data.data : null,
-    balances: balancesQuery.data && isSuccess(balancesQuery.data) ? balancesQuery.data.data : null,
-    tokens: tokensQuery.data && isSuccess(tokensQuery.data) ? tokensQuery.data.data : null,
+    info: infoQuery.data?.success ? infoQuery.data.data : null,
+    balances: balancesQuery.data?.success ? balancesQuery.data.data : null,
+    tokens: tokensQuery.data?.success ? tokensQuery.data.data : null,
   }));
 }

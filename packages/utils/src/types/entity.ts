@@ -1,4 +1,4 @@
-export type EntityId = `${number}.${number}.${number}`;
+export type EntityId = string;
 
 export type Timestamp = string;
 

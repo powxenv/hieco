@@ -40,13 +40,6 @@ interface TopicMessageShape {
   readonly topicId: string;
 }
 
-interface SubmitMessageOptions {
-  readonly maxChunks: number | undefined;
-  readonly chunkSize: number | undefined;
-  readonly memo: string | undefined;
-  readonly maxFee: SubmitMessageParams["maxFee"] | undefined;
-}
-
 type SupportedTopicMessage = string | Uint8Array | Record<string, unknown>;
 
 const topicMessageDecoder = new TextDecoder();
@@ -77,15 +70,6 @@ function createTopicMessageData(fields: TopicMessageShape): TopicMessageData {
   };
 }
 
-function createTopicWatchHandle(stop: () => void): TopicWatchHandle {
-  return Object.assign(
-    (): void => {
-      stop();
-    },
-    { stop },
-  );
-}
-
 function applyTopicWatchOptions(
   query: TopicMessageQuery,
   options: WatchTopicMessagesOptions,
@@ -103,18 +87,6 @@ function applyTopicWatchOptions(
   }
 
   return query;
-}
-
-function createTopicWatchErrorHandler(
-  onError: WatchTopicMessagesOptions["onError"],
-): ((message: import("@hiero-ledger/sdk").TopicMessage | null, error: Error) => void) | null {
-  if (!onError) {
-    return null;
-  }
-
-  return (_message, error) => {
-    onError(error);
-  };
 }
 
 function isMessageObject(value: unknown): value is Record<string, unknown> {
@@ -171,21 +143,6 @@ function createMirrorTopicMessage(message: import("@hieco/mirror").TopicMessage)
     sequenceNumber: message.sequence_number,
     topicId: message.topic_id,
   });
-}
-
-function createSubmitMessageParams(
-  topicId: EntityId,
-  message: SupportedTopicMessage,
-  options: SubmitMessageOptions,
-): SubmitMessageParams {
-  return {
-    topicId,
-    message,
-    ...(options.maxChunks !== undefined ? { maxChunks: options.maxChunks } : {}),
-    ...(options.chunkSize !== undefined ? { chunkSize: options.chunkSize } : {}),
-    ...(options.memo ? { memo: options.memo } : {}),
-    ...(options.maxFee !== undefined ? { maxFee: options.maxFee } : {}),
-  };
 }
 
 function createMirrorQueryFailure<T>(operation: string, error: MirrorFailureShape): Result<T> {
@@ -287,7 +244,11 @@ export function createTopicsNamespace(context: {
     options: WatchTopicMessagesOptions = {},
   ): TopicWatchHandle => {
     const query = applyTopicWatchOptions(new TopicMessageQuery().setTopicId(topicId), options);
-    const errorHandler = createTopicWatchErrorHandler(options.onError);
+    const errorHandler = options.onError
+      ? (_message: import("@hiero-ledger/sdk").TopicMessage | null, error: Error) => {
+          options.onError?.(error);
+        }
+      : null;
     const subscription = query.subscribe(context.nativeClient, errorHandler, (message) => {
       if (!message) {
         return;
@@ -304,7 +265,11 @@ export function createTopicsNamespace(context: {
       );
     });
 
-    return createTopicWatchHandle(() => subscription.unsubscribe());
+    const stop = (): void => {
+      subscription.unsubscribe();
+    };
+
+    return Object.assign(stop, { stop });
   };
 
   const watchFrom = (
@@ -356,13 +321,15 @@ export function createTopicsNamespace(context: {
 
     void poll();
 
-    return createTopicWatchHandle(() => {
+    const stop = (): void => {
       active = false;
 
       if (timeoutId !== undefined) {
         clearTimeout(timeoutId);
       }
-    });
+    };
+
+    return Object.assign(stop, { stop });
   };
 
   const submitJson = async (params: SubmitJsonMessageParams): Promise<Result<MessageReceipt>> => {
@@ -371,14 +338,14 @@ export function createTopicsNamespace(context: {
       return normalized;
     }
 
-    return submit(
-      createSubmitMessageParams(params.topicId, normalized.value, {
-        maxChunks: params.maxChunks,
-        chunkSize: params.chunkSize,
-        memo: params.memo,
-        maxFee: params.maxFee,
-      }),
-    );
+    return submit({
+      topicId: params.topicId,
+      message: normalized.value,
+      ...(params.maxChunks !== undefined ? { maxChunks: params.maxChunks } : {}),
+      ...(params.chunkSize !== undefined ? { chunkSize: params.chunkSize } : {}),
+      ...(params.memo ? { memo: params.memo } : {}),
+      ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+    });
   };
 
   const batchSubmit = async (
@@ -405,14 +372,14 @@ export function createTopicsNamespace(context: {
         return normalized;
       }
 
-      const receipt = await submit(
-        createSubmitMessageParams(params.topicId, normalized.value, {
-          maxChunks: params.maxChunks,
-          chunkSize: params.chunkSize,
-          memo: params.memo,
-          maxFee: params.maxFee,
-        }),
-      );
+      const receipt = await submit({
+        topicId: params.topicId,
+        message: normalized.value,
+        ...(params.maxChunks !== undefined ? { maxChunks: params.maxChunks } : {}),
+        ...(params.chunkSize !== undefined ? { chunkSize: params.chunkSize } : {}),
+        ...(params.memo ? { memo: params.memo } : {}),
+        ...(params.maxFee !== undefined ? { maxFee: params.maxFee } : {}),
+      });
       if (!receipt.ok) {
         return receipt;
       }

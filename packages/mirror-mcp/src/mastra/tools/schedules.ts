@@ -1,8 +1,7 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 import { getMirrorClient } from "../../client";
-import { asEntityId } from "@hieco/utils";
-import { entityIdSchema, limitSchema, toApiParams } from "../../schemas";
+import { entityIdSchema, limitSchema } from "../../schemas";
 import { handleApiResult } from "../../errors";
 
 export const getScheduleInfo = createTool({
@@ -12,7 +11,7 @@ export const getScheduleInfo = createTool({
     scheduleId: entityIdSchema.describe("Hedera schedule ID in format 0.0.123"),
   }),
   execute: async ({ scheduleId }) => {
-    const result = await getMirrorClient().schedule.getInfo(asEntityId(scheduleId));
+    const result = await getMirrorClient().schedule.getInfo(scheduleId);
     return handleApiResult(result, "getScheduleInfo");
   },
 });
@@ -35,20 +34,20 @@ export const listSchedules = createTool({
     waitForExpiryExpiration: z.string().optional().describe("Filter by wait for expiry expiration"),
   }),
   execute: async (params) => {
-    const apiParams = toApiParams({
-      accountId: params.accountId,
-      creatorAccountId: params.creatorAccountId,
-      payerAccountId: params.payerAccountId,
-      scheduleId: params.scheduleId,
-      adminKey: params.adminKey,
+    const apiParams = {
+      "account.id": params.accountId,
+      "creator.account.id": params.creatorAccountId,
+      "payer.account.id": params.payerAccountId,
+      schedule_id: params.scheduleId,
+      admin_key: params.adminKey,
       deleted: params.deleted,
-      executedTimestamp: params.executedTimestamp,
-      expirationTimestamp: params.expirationTimestamp,
+      executed_timestamp: params.executedTimestamp,
+      expiration_timestamp: params.expirationTimestamp,
       limit: params.limit,
       memo: params.memo,
       order: params.order,
-      waitForExpiryExpiration: params.waitForExpiryExpiration,
-    });
+      wait_for_expiry_expiration: params.waitForExpiryExpiration,
+    };
     const result = await getMirrorClient().schedule.listPaginated(apiParams);
     return handleApiResult(result, "listSchedules");
   },

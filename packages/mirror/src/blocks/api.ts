@@ -1,6 +1,6 @@
 import type { ApiResult, PaginationParams, Timestamp } from "@hieco/utils";
 import type { Block, BlocksResponse } from "../network/types";
-import type { CursorPaginator, PaginatedResponse } from "../shared/builders";
+import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface BlocksListParams extends PaginationParams {
@@ -10,7 +10,7 @@ export interface BlocksListParams extends PaginationParams {
 
 export class BlockApi extends BaseApi {
   private buildBlocksParams(params?: BlocksListParams): Record<string, string> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);

@@ -11,7 +11,7 @@ import type {
   ContractResultsResponse,
   ContractState,
 } from "./types";
-import type { CursorPaginator, PaginatedResponse } from "../shared/builders";
+import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface ContractListParams extends PaginationParams {
@@ -50,7 +50,7 @@ export class ContractApi extends BaseApi {
     contractIdOrAddress: EntityId | string,
     params?: { timestamp?: Timestamp },
   ): Promise<ApiResult<ContractInfo>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params?.timestamp) {
       builder.addTimestamp(params.timestamp);
@@ -76,7 +76,7 @@ export class ContractApi extends BaseApi {
     contractId: EntityId,
     params?: ContractResultsParams,
   ): Promise<ApiResult<ContractResult[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -112,7 +112,7 @@ export class ContractApi extends BaseApi {
     contractId: EntityId,
     params?: ContractStateParams,
   ): Promise<ApiResult<ContractState[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -132,7 +132,7 @@ export class ContractApi extends BaseApi {
     contractId: EntityId,
     params?: ContractLogsParams,
   ): Promise<ApiResult<ContractLog[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -173,7 +173,7 @@ export class ContractApi extends BaseApi {
     timestamp?: Timestamp;
     transaction_index?: number;
   }): Promise<ApiResult<ContractResultsResponse>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -205,7 +205,7 @@ export class ContractApi extends BaseApi {
     transactionIdOrHash: string,
     params?: { nonce?: number },
   ): Promise<ApiResult<ContractResultDetails>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params?.nonce !== undefined) {
       builder.add("nonce", params.nonce);
@@ -221,7 +221,7 @@ export class ContractApi extends BaseApi {
     transactionIdOrHash: string,
     params?: PaginationParams & { index?: number },
   ): Promise<ApiResult<{ actions: ContractAction[] }>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -240,7 +240,7 @@ export class ContractApi extends BaseApi {
     transactionIdOrHash: string,
     params?: { stack?: boolean; memory?: boolean; storage?: boolean },
   ): Promise<ApiResult<ContractOpcodesResponse>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       if (params.stack !== undefined) {
@@ -271,7 +271,7 @@ export class ContractApi extends BaseApi {
       "transaction.hash"?: string;
     },
   ): Promise<ApiResult<PaginatedResponse<ContractLog>>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -303,7 +303,7 @@ export class ContractApi extends BaseApi {
   }
 
   private buildContractListParams(params?: ContractListParams): Record<string, string> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);

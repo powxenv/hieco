@@ -1,6 +1,6 @@
 import type { ApiResult, PaginationParams, QueryOperator, Timestamp } from "@hieco/utils";
 import type { AccountBalance, BalancesResponse } from "../network/types";
-import type { CursorPaginator, PaginatedResponse } from "../shared/builders";
+import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface BalancesListParams extends PaginationParams {
@@ -12,7 +12,7 @@ export interface BalancesListParams extends PaginationParams {
 
 export class BalanceApi extends BaseApi {
   private buildBalancesParams(params?: BalancesListParams): Record<string, string> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);

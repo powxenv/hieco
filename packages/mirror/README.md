@@ -48,9 +48,9 @@ If you want the same reads inside React, Preact, or Solid components, use one of
 ## Quick Start
 
 ```ts
-import { createMirrorNodeClient } from "@hieco/mirror";
+import { MirrorNodeClient } from "@hieco/mirror";
 
-const client = createMirrorNodeClient("testnet");
+const client = new MirrorNodeClient({ network: "testnet" });
 
 const account = await client.account.getInfo("0.0.1001");
 const transactions = await client.transaction.listPaginated({
@@ -160,12 +160,11 @@ const messages = await client.topic.getMessages("0.0.3003", {
 
 ### Root Exports
 
-| Export                   | Kind     | Purpose                                         | Usage form                                        |
-| ------------------------ | -------- | ----------------------------------------------- | ------------------------------------------------- |
-| `MirrorNodeClient`       | class    | Construct the typed Mirror Node client.         | `new MirrorNodeClient(config)`                    |
-| `createMirrorNodeClient` | function | Convenience constructor for built-in networks.  | `createMirrorNodeClient(network, mirrorNodeUrl?)` |
-| `CursorPaginator`        | class    | Async iterator for cursor-based endpoints.      | `for await (const item of paginator)`             |
-| `PaginatedResponse`      | type     | One-page response with `data` and `links.next`. | `type PaginatedResponse<T>`                       |
+| Export              | Kind  | Purpose                                         | Usage form                            |
+| ------------------- | ----- | ----------------------------------------------- | ------------------------------------- |
+| `MirrorNodeClient`  | class | Construct the typed Mirror Node client.         | `new MirrorNodeClient(config)`        |
+| `CursorPaginator`   | class | Async iterator for cursor-based endpoints.      | `for await (const item of paginator)` |
+| `PaginatedResponse` | type  | One-page response with `data` and `links.next`. | `type PaginatedResponse<T>`           |
 
 ### Client Domains
 
@@ -230,7 +229,7 @@ const messages = await client.topic.getMessages("0.0.3003", {
 | `ApiResult`           | type  | Shared success or failure wrapper.            | `type ApiResult<T>`             |
 | `ApiError`            | type  | Shared API error shape.                       | `type ApiError`                 |
 | `ApiErrorFactory`     | const | Helpers for constructing API errors.          | `ApiErrorFactory.notFound(...)` |
-| `EntityId`            | type  | Hedera entity identifier type.                | `type EntityId`                 |
+| `EntityId`            | type  | Hedera entity identifier string alias.        | `type EntityId`                 |
 | `Key`                 | type  | Hedera key metadata.                          | `type Key`                      |
 | `MirrorNetworkConfig` | type  | Built-in mirror network configuration.        | `type MirrorNetworkConfig`      |
 | `MirrorNodeConfig`    | type  | Mirror client construction config.            | `type MirrorNodeConfig`         |

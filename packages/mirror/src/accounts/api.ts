@@ -9,7 +9,7 @@ import type {
   TokenAllowance,
   TokenRelationship,
 } from "./types";
-import type { CursorPaginator, PaginatedResponse } from "../shared/builders";
+import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface AccountListParams extends PaginationParams {
@@ -50,7 +50,7 @@ export class AccountApi extends BaseApi {
     accountId: EntityId,
     params?: { readonly timestamp?: Timestamp; readonly transactions?: boolean },
   ): Promise<ApiResult<AccountInfo>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       if (params.timestamp) {
@@ -72,7 +72,7 @@ export class AccountApi extends BaseApi {
     accountId: EntityId,
     params?: PaginationParams & { "token.id"?: EntityId },
   ): Promise<ApiResult<TokenRelationship[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -88,7 +88,7 @@ export class AccountApi extends BaseApi {
     accountId: EntityId,
     params?: AccountNftsParams,
   ): Promise<ApiResult<TokenRelationship[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -110,7 +110,7 @@ export class AccountApi extends BaseApi {
     accountId: EntityId,
     params?: PaginationParams & { timestamp?: Timestamp },
   ): Promise<ApiResult<StakingReward[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -126,7 +126,7 @@ export class AccountApi extends BaseApi {
     accountId: EntityId,
     params?: PaginationParams & { "spender.id"?: EntityId },
   ): Promise<ApiResult<CryptoAllowance[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -145,7 +145,7 @@ export class AccountApi extends BaseApi {
     accountId: EntityId,
     params?: AccountTokenAllowancesParams,
   ): Promise<ApiResult<TokenAllowance[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -164,7 +164,7 @@ export class AccountApi extends BaseApi {
     accountId: EntityId,
     params?: AccountNftAllowancesParams,
   ): Promise<ApiResult<NftAllowance[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -192,7 +192,7 @@ export class AccountApi extends BaseApi {
       "token.id"?: EntityId;
     },
   ): Promise<ApiResult<TokenAirdropsResponse>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -223,7 +223,7 @@ export class AccountApi extends BaseApi {
       "token.id"?: EntityId;
     },
   ): Promise<ApiResult<TokenAirdropsResponse>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -245,7 +245,7 @@ export class AccountApi extends BaseApi {
   }
 
   private buildAccountListParams(params?: AccountListParams): Record<string, string> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);

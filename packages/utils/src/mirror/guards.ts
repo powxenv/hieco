@@ -1,16 +1,4 @@
-import { ApiErrorFactory, type ApiResult, type ApiError } from "../types/api";
-
-export function isSuccess<T>(
-  result: ApiResult<T>,
-): result is { readonly success: true; readonly data: T } {
-  return result.success === true;
-}
-
-export function isApiError<E extends ApiError>(
-  result: ApiResult<unknown, E>,
-): result is { readonly success: false; readonly error: E } {
-  return result.success === false;
-}
+import { ApiErrorFactory, type ApiError } from "../types/api";
 
 export function toApiError(error: unknown): ApiError {
   if (typeof error === "object" && error !== null && "_tag" in error && "message" in error) {

@@ -1,6 +1,5 @@
-import { createMirrorNodeClient } from "@hieco/mirror";
+import { MirrorNodeClient } from "@hieco/mirror";
 import type { NetworkType } from "@hieco/utils";
-import { asEntityId } from "@hieco/utils";
 import {
   formatOutput,
   formatError,
@@ -9,7 +8,7 @@ import {
   type FormatOptions,
 } from "../utils/format";
 
-let client: ReturnType<typeof createMirrorNodeClient> | null = null;
+let client: MirrorNodeClient | null = null;
 
 function parseNetworkType(network?: string): NetworkType {
   if (!network) return "mainnet";
@@ -22,7 +21,7 @@ function parseNetworkType(network?: string): NetworkType {
 export function getClient(network?: string, mirrorUrl?: string) {
   const networkType = parseNetworkType(network);
   if (!client || client.networkType !== networkType) {
-    client = createMirrorNodeClient(networkType, mirrorUrl);
+    client = new MirrorNodeClient({ network: networkType, mirrorNodeUrl: mirrorUrl });
   }
   return client;
 }
@@ -33,7 +32,7 @@ export async function getAccountInfo(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.account.getInfo(asEntityId(accountId), {
+    const result = await mirrorClient.account.getInfo(accountId, {
       timestamp: options.timestamp,
     });
 
@@ -78,7 +77,7 @@ export async function getAccountBalance(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.account.getBalances(asEntityId(accountId));
+    const result = await mirrorClient.account.getBalances(accountId);
 
     if (!result.success) {
       console.error(formatError(new Error(result.error.message)));
@@ -118,8 +117,8 @@ export async function getAccountTokens(
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
     const result = await mirrorClient.account.getTokens(
-      asEntityId(accountId),
-      options.tokenId ? { "token.id": asEntityId(options.tokenId) } : undefined,
+      accountId,
+      options.tokenId ? { "token.id": options.tokenId } : undefined,
     );
 
     if (!result.success) {
@@ -160,9 +159,9 @@ export async function getAccountNfts(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.account.getNfts(asEntityId(accountId), {
-      "spender.id": options.spenderId ? asEntityId(options.spenderId) : undefined,
-      "token.id": options.tokenId ? asEntityId(options.tokenId) : undefined,
+    const result = await mirrorClient.account.getNfts(accountId, {
+      "spender.id": options.spenderId,
+      "token.id": options.tokenId,
       serial_number: options.serialNumber,
     });
 
@@ -199,7 +198,7 @@ export async function getStakingRewards(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.account.getStakingRewards(asEntityId(accountId), {
+    const result = await mirrorClient.account.getStakingRewards(accountId, {
       timestamp: options.timestamp,
     });
 
@@ -235,8 +234,8 @@ export async function getCryptoAllowances(
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
     const result = await mirrorClient.account.getCryptoAllowances(
-      asEntityId(accountId),
-      options.spenderId ? { "spender.id": asEntityId(options.spenderId) } : undefined,
+      accountId,
+      options.spenderId ? { "spender.id": options.spenderId } : undefined,
     );
 
     if (!result.success) {
@@ -273,9 +272,9 @@ export async function getTokenAllowances(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.account.getTokenAllowances(asEntityId(accountId), {
-      "spender.id": options.spenderId ? asEntityId(options.spenderId) : undefined,
-      "token.id": options.tokenId ? asEntityId(options.tokenId) : undefined,
+    const result = await mirrorClient.account.getTokenAllowances(accountId, {
+      "spender.id": options.spenderId,
+      "token.id": options.tokenId,
     });
 
     if (!result.success) {
@@ -314,9 +313,9 @@ export async function getNftAllowances(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.account.getNftAllowances(asEntityId(accountId), {
-      "account.id": options.accountIdFilter ? asEntityId(options.accountIdFilter) : undefined,
-      "token.id": options.tokenId ? asEntityId(options.tokenId) : undefined,
+    const result = await mirrorClient.account.getNftAllowances(accountId, {
+      "account.id": options.accountIdFilter,
+      "token.id": options.tokenId,
       owner: options.owner,
     });
 
@@ -356,10 +355,10 @@ export async function getOutstandingAirdrops(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.account.getOutstandingAirdrops(asEntityId(accountId), {
-      "receiver.id": options.receiverId ? asEntityId(options.receiverId) : undefined,
+    const result = await mirrorClient.account.getOutstandingAirdrops(accountId, {
+      "receiver.id": options.receiverId,
       serial_number: options.serialNumber,
-      "token.id": options.tokenId ? asEntityId(options.tokenId) : undefined,
+      "token.id": options.tokenId,
     });
 
     if (!result.success) {
@@ -398,10 +397,10 @@ export async function getPendingAirdrops(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.account.getPendingAirdrops(asEntityId(accountId), {
-      "sender.id": options.senderId ? asEntityId(options.senderId) : undefined,
+    const result = await mirrorClient.account.getPendingAirdrops(accountId, {
+      "sender.id": options.senderId,
       serial_number: options.serialNumber,
-      "token.id": options.tokenId ? asEntityId(options.tokenId) : undefined,
+      "token.id": options.tokenId,
     });
 
     if (!result.success) {
@@ -451,7 +450,7 @@ export async function listAccounts(
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
     const result = await mirrorClient.account.listPaginated({
-      account: options.account ? asEntityId(options.account) : undefined,
+      account: options.account,
       alias: options.alias,
       balance: options.balance,
       balance_gte: options.balanceGte,
@@ -462,7 +461,7 @@ export async function listAccounts(
       memo: options.memo,
       order: options.order,
       smart_contract: options.smartContract,
-      staked_account_id: options.stakedAccountId ? asEntityId(options.stakedAccountId) : undefined,
+      staked_account_id: options.stakedAccountId,
       staked_node_id: options.stakedNodeId,
     });
 

@@ -51,28 +51,4 @@ export const nodeIdSchema = z
   .max(LIMITS.MAX_NODE_ID, "Node ID too large")
   .optional();
 
-function camelToSnake(str: string): string {
-  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
-}
-
-function isUnsafePropertyKey(key: string): boolean {
-  return key === "__proto__" || key === "constructor" || key === "prototype";
-}
-
-export function toApiParams<T extends Record<string, unknown>>(obj: T): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(obj)) {
-    if (value !== undefined) {
-      const normalizedKey = camelToSnake(key);
-
-      if (isUnsafePropertyKey(normalizedKey)) {
-        continue;
-      }
-
-      result[normalizedKey] = value;
-    }
-  }
-  return result;
-}
-
 export * from "./constants";

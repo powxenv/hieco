@@ -1,6 +1,6 @@
 import type { ApiResult, PaginationParams, Timestamp } from "@hieco/utils";
 import type { ExchangeRate, NetworkFee, NetworkNode, NetworkStake, NetworkSupply } from "./types";
-import type { CursorPaginator, PaginatedResponse } from "../shared/builders";
+import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface NetworkNodesParams extends PaginationParams {
@@ -10,7 +10,7 @@ export interface NetworkNodesParams extends PaginationParams {
 
 export class NetworkApi extends BaseApi {
   async getExchangeRate(params?: { timestamp?: Timestamp }): Promise<ApiResult<ExchangeRate>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params?.timestamp) {
       builder.addTimestamp(params.timestamp);
@@ -22,7 +22,7 @@ export class NetworkApi extends BaseApi {
   async getFees(
     params?: PaginationParams & { timestamp?: Timestamp },
   ): Promise<ApiResult<NetworkFee>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -35,7 +35,7 @@ export class NetworkApi extends BaseApi {
   }
 
   async getNodes(params?: NetworkNodesParams): Promise<ApiResult<NetworkNode[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -73,7 +73,7 @@ export class NetworkApi extends BaseApi {
   }
 
   private buildNetworkNodesParams(params?: NetworkNodesParams): Record<string, string> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
     if (params) {
       builder.addPagination(params);
       if (params["file.id"] !== undefined) builder.add("file.id", params["file.id"]);

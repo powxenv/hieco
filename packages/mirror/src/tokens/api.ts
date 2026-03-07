@@ -1,7 +1,7 @@
 import type { ApiResult, EntityId, PaginationParams, QueryOperator, Timestamp } from "@hieco/utils";
 import type { Nft, TokenBalancesResponse, TokenDistribution, TokenInfo } from "./types";
 import type { Transaction } from "../transactions/types";
-import type { CursorPaginator, PaginatedResponse } from "../shared/builders";
+import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface TokenListParams extends PaginationParams {
@@ -30,7 +30,7 @@ export class TokenApi extends BaseApi {
     tokenId: EntityId,
     params?: { timestamp?: Timestamp },
   ): Promise<ApiResult<TokenInfo>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params?.timestamp) {
       builder.addTimestamp(params.timestamp);
@@ -43,7 +43,7 @@ export class TokenApi extends BaseApi {
     tokenId: EntityId,
     params?: TokenBalancesParams,
   ): Promise<ApiResult<TokenDistribution[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -69,7 +69,7 @@ export class TokenApi extends BaseApi {
     tokenId: EntityId,
     params?: TokenBalancesParams,
   ): Promise<ApiResult<TokenBalancesResponse>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -95,7 +95,7 @@ export class TokenApi extends BaseApi {
     tokenId: EntityId,
     params?: TokenNftsParams,
   ): Promise<ApiResult<PaginatedResponse<Nft>>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -120,7 +120,7 @@ export class TokenApi extends BaseApi {
     serialNumber: number,
     params?: PaginationParams & { timestamp?: Timestamp },
   ): Promise<ApiResult<Transaction[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -136,7 +136,7 @@ export class TokenApi extends BaseApi {
   }
 
   private buildTokenListParams(params?: TokenListParams): Record<string, string> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);

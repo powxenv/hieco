@@ -197,10 +197,6 @@ export function resolveConfig(input: ClientConfig = {}): Result<ClientRuntimeCon
   return ok(resolved);
 }
 
-export function validateConfig(input: ClientConfig = {}): Result<ClientRuntimeConfig> {
-  return resolveConfig(input);
-}
-
 export function loadConfigFromEnv(options?: {
   readonly allowMissingSigner?: boolean;
 }): Result<ClientRuntimeConfig> {

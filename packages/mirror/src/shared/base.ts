@@ -1,16 +1,13 @@
 import type { ApiResult } from "@hieco/utils";
 import { HttpClient } from "./http";
-import { QueryBuilder, CursorPaginator, type PaginatedResponse } from "./builders";
+import { CursorPaginator, type PaginatedResponse } from "./builders";
+import { findPageItems } from "./page";
 
 export class BaseApi {
   protected readonly client: HttpClient;
 
   constructor(client: HttpClient) {
     this.client = client;
-  }
-
-  protected createQueryBuilder(): QueryBuilder {
-    return new QueryBuilder();
   }
 
   protected async getSingle<T>(
@@ -29,18 +26,16 @@ export class BaseApi {
       return { success: false, error: result.error };
     }
 
-    const data = result.data;
+    const items = findPageItems<T>(result.data);
 
-    const arrayKey = Object.keys(data).find((key) => key !== "links" && Array.isArray(data[key]));
-
-    if (!arrayKey) {
+    if (!items) {
       return {
         success: false,
         error: { _tag: "UnknownError", message: "No array found in response" },
       };
     }
 
-    return { success: true, data: data[arrayKey] as T[] };
+    return { success: true, data: [...items] };
   }
 
   protected async getAllPaginated<T>(
@@ -69,17 +64,15 @@ export class BaseApi {
 
       const data = result.data;
       const links = data.links as { next?: string } | undefined;
+      const pageItems = findPageItems<T>(data);
 
-      const arrayKey = Object.keys(data).find((key) => key !== "links" && Array.isArray(data[key]));
-
-      if (!arrayKey) {
+      if (!pageItems) {
         return {
           success: false,
           error: { _tag: "UnknownError", message: "No array found in response" },
         };
       }
 
-      const pageItems = data[arrayKey] as T[];
       items.push(...pageItems);
       nextUrl = links?.next ? `${this.client.baseUrl}/api/v1/${links.next.replace(/^\//, "")}` : "";
 
@@ -102,7 +95,7 @@ export class BaseApi {
       return this.client.get<PaginatedResponse<T>>(relativePath);
     };
 
-    return CursorPaginator.create<T>(url, fetchFn);
+    return new CursorPaginator<T>(url, fetchFn);
   }
 
   protected async getSinglePage<T>(

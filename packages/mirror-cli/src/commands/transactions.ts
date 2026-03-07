@@ -1,4 +1,3 @@
-import { asEntityId } from "@hieco/utils";
 import {
   formatOutput,
   formatError,
@@ -73,7 +72,7 @@ export async function getTransactionsByAccount(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.transaction.listByAccount(asEntityId(accountId), {
+    const result = await mirrorClient.transaction.listByAccount(accountId, {
       result: options.result,
       scheduled: options.scheduled,
       timestamp: options.timestamp,
@@ -131,8 +130,8 @@ export async function listTransactions(
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
     const result = await mirrorClient.transaction.listPaginated({
-      account: options.account ? asEntityId(options.account) : undefined,
-      "account.id": options.accountId ? asEntityId(options.accountId) : undefined,
+      account: options.account,
+      "account.id": options.accountId,
       limit: options.limit,
       order: options.order,
       result: options.result,
@@ -141,9 +140,7 @@ export async function listTransactions(
       transactionhash: options.transactionHash,
       transaction_id: options.transactionId,
       transactiontype: options.transactionType,
-      "transfers.account": options.transfersAccount
-        ? asEntityId(options.transfersAccount)
-        : undefined,
+      "transfers.account": options.transfersAccount,
       type: options.type,
     });
 

@@ -1,4 +1,3 @@
-import { asEntityId } from "@hieco/utils";
 import { formatOutput, formatError, formatYesNo, type FormatOptions } from "../utils/format";
 import { getClient } from "./accounts";
 
@@ -60,7 +59,7 @@ export async function callContract(
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
     const callParams = {
-      contractId: asEntityId(contractId),
+      contractId,
       ...(options.from !== undefined && { from: options.from }),
       ...(options.gas !== undefined && { gas: options.gas }),
       ...(options.gasPrice !== undefined && { gasPrice: options.gasPrice }),
@@ -106,17 +105,14 @@ export async function getContractResults(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.contract.getResults(
-      contractId as `${number}.${number}.${number}`,
-      {
-        "block.hash": options.blockHash,
-        block_number: options.blockNumber,
-        from: options.from,
-        internal: options.internal,
-        timestamp: options.timestamp,
-        transaction_index: options.transactionIndex,
-      },
-    );
+    const result = await mirrorClient.contract.getResults(contractId, {
+      "block.hash": options.blockHash,
+      block_number: options.blockNumber,
+      from: options.from,
+      internal: options.internal,
+      timestamp: options.timestamp,
+      transaction_index: options.transactionIndex,
+    });
 
     if (!result.success) {
       console.error(formatError(new Error(result.error.message)));
@@ -155,10 +151,7 @@ export async function getContractResult(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.contract.getResult(
-      contractId as `${number}.${number}.${number}`,
-      timestamp,
-    );
+    const result = await mirrorClient.contract.getResult(contractId, timestamp);
 
     if (!result.success) {
       console.error(formatError(new Error(result.error.message)));
@@ -196,13 +189,10 @@ export async function getContractState(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.contract.getState(
-      contractId as `${number}.${number}.${number}`,
-      {
-        slot: options.slot,
-        timestamp: options.timestamp,
-      },
-    );
+    const result = await mirrorClient.contract.getState(contractId, {
+      slot: options.slot,
+      timestamp: options.timestamp,
+    });
 
     if (!result.success) {
       console.error(formatError(new Error(result.error.message)));
@@ -245,18 +235,15 @@ export async function getContractLogs(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.contract.getLogs(
-      contractId as `${number}.${number}.${number}`,
-      {
-        index: options.index,
-        timestamp: options.timestamp,
-        topic0: options.topic0,
-        topic1: options.topic1,
-        topic2: options.topic2,
-        topic3: options.topic3,
-        "transaction.hash": options.transactionHash,
-      },
-    );
+    const result = await mirrorClient.contract.getLogs(contractId, {
+      index: options.index,
+      timestamp: options.timestamp,
+      topic0: options.topic0,
+      topic1: options.topic1,
+      topic2: options.topic2,
+      topic3: options.topic3,
+      "transaction.hash": options.transactionHash,
+    });
 
     if (!result.success) {
       console.error(formatError(new Error(result.error.message)));
@@ -477,10 +464,10 @@ export async function listContracts(
     const mirrorClient = getClient(options.network, options.mirrorUrl);
     const result = await mirrorClient.contract.listPaginated({
       address: options.address,
-      "contract.id": options.contractId as `${number}.${number}.${number}`,
+      "contract.id": options.contractId,
       limit: options.limit,
       order: options.order,
-      smart_contract_id: options.smartContractId as `${number}.${number}.${number}`,
+      smart_contract_id: options.smartContractId,
     });
 
     if (!result.success) {

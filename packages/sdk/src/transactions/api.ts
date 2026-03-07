@@ -87,7 +87,6 @@ import {
 } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
 import type { EntityId } from "@hieco/utils";
-import { asEntityId } from "@hieco/utils";
 import type {
   TransactionDescriptor,
   FunctionParamsConfig,
@@ -307,12 +306,12 @@ function toReceiptData(
   return {
     status: receipt.status.toString(),
     transactionId,
-    ...(accountIdStr ? { accountId: asEntityId(accountIdStr) } : {}),
-    ...(receipt.fileId ? { fileId: asEntityId(receipt.fileId.toString()) } : {}),
-    ...(receipt.contractId ? { contractId: asEntityId(receipt.contractId.toString()) } : {}),
-    ...(receipt.topicId ? { topicId: asEntityId(receipt.topicId.toString()) } : {}),
-    ...(receipt.tokenId ? { tokenId: asEntityId(receipt.tokenId.toString()) } : {}),
-    ...(receipt.scheduleId ? { scheduleId: asEntityId(receipt.scheduleId.toString()) } : {}),
+    ...(accountIdStr ? { accountId: accountIdStr } : {}),
+    ...(receipt.fileId ? { fileId: receipt.fileId.toString() } : {}),
+    ...(receipt.contractId ? { contractId: receipt.contractId.toString() } : {}),
+    ...(receipt.topicId ? { topicId: receipt.topicId.toString() } : {}),
+    ...(receipt.tokenId ? { tokenId: receipt.tokenId.toString() } : {}),
+    ...(receipt.scheduleId ? { scheduleId: receipt.scheduleId.toString() } : {}),
     ...(receipt.totalSupply !== undefined && receipt.totalSupply !== null
       ? { totalSupply: receipt.totalSupply.toString() }
       : {}),
@@ -2004,7 +2003,7 @@ export function inferAccountId(
     );
   }
   const accountId = signer.getAccountId();
-  return ok(asEntityId(accountId.toString()));
+  return ok(accountId.toString());
 }
 
 export function mapReceiptField<T extends keyof TransactionReceiptData>(

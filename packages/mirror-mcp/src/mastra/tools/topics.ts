@@ -1,7 +1,6 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 import { getMirrorClient } from "../../client";
-import { asEntityId } from "@hieco/utils";
 import { entityIdSchema, limitSchema, timestampSchema } from "../../schemas";
 import { handleApiResult } from "../../errors";
 
@@ -12,7 +11,7 @@ export const getTopicInfo = createTool({
     topicId: entityIdSchema.describe("Hedera topic ID in format 0.0.123"),
   }),
   execute: async ({ topicId }) => {
-    const result = await getMirrorClient().topic.getInfo(asEntityId(topicId));
+    const result = await getMirrorClient().topic.getInfo(topicId);
     return handleApiResult(result, "getTopicInfo");
   },
 });
@@ -29,7 +28,7 @@ export const getTopicMessages = createTool({
     scheduled: z.boolean().optional().describe("Filter for scheduled transactions"),
   }),
   execute: async ({ topicId, encoding, sequenceNumber, timestamp, transactionId, scheduled }) => {
-    const result = await getMirrorClient().topic.getMessages(asEntityId(topicId), {
+    const result = await getMirrorClient().topic.getMessages(topicId, {
       encoding,
       sequencenumber: sequenceNumber,
       timestamp,
@@ -48,7 +47,7 @@ export const getTopicMessage = createTool({
     sequenceNumber: z.number().describe("Message sequence number"),
   }),
   execute: async ({ topicId, sequenceNumber }) => {
-    const result = await getMirrorClient().topic.getMessage(asEntityId(topicId), sequenceNumber);
+    const result = await getMirrorClient().topic.getMessage(topicId, sequenceNumber);
     return handleApiResult(result, "getTopicMessage");
   },
 });

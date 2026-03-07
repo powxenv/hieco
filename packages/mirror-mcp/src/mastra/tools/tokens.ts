@@ -1,14 +1,7 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 import { getMirrorClient } from "../../client";
-import { asEntityId } from "@hieco/utils";
-import {
-  entityIdSchema,
-  limitSchema,
-  serialNumberSchema,
-  timestampSchema,
-  toApiParams,
-} from "../../schemas";
+import { entityIdSchema, limitSchema, serialNumberSchema, timestampSchema } from "../../schemas";
 import { handleApiResult } from "../../errors";
 
 export const getTokenInfo = createTool({
@@ -20,7 +13,7 @@ export const getTokenInfo = createTool({
     timestamp: timestampSchema.describe("ISO timestamp to query token state at a specific time"),
   }),
   execute: async ({ tokenId, timestamp }) => {
-    const result = await getMirrorClient().token.getInfo(asEntityId(tokenId), { timestamp });
+    const result = await getMirrorClient().token.getInfo(tokenId, { timestamp });
     return handleApiResult(result, "getTokenInfo");
   },
 });
@@ -36,8 +29,8 @@ export const getTokenBalances = createTool({
     timestamp: timestampSchema.describe("ISO timestamp to query balances at a specific time"),
   }),
   execute: async ({ tokenId, accountId, accountBalance, accountPublicKey, timestamp }) => {
-    const result = await getMirrorClient().token.getBalances(asEntityId(tokenId), {
-      account: accountId ? asEntityId(accountId) : undefined,
+    const result = await getMirrorClient().token.getBalances(tokenId, {
+      account: accountId,
       "account.balance": accountBalance,
       "account.publickey": accountPublicKey,
       timestamp,
@@ -55,8 +48,8 @@ export const getTokenNfts = createTool({
     serialNumber: serialNumberSchema.describe("Filter by serial number"),
   }),
   execute: async ({ tokenId, accountId, serialNumber }) => {
-    const result = await getMirrorClient().token.getNfts(asEntityId(tokenId), {
-      "account.id": accountId ? asEntityId(accountId) : undefined,
+    const result = await getMirrorClient().token.getNfts(tokenId, {
+      "account.id": accountId,
       serial_number: serialNumber,
     });
     return handleApiResult(result, "getTokenNfts");
@@ -71,7 +64,7 @@ export const getNftBySerial = createTool({
     serialNumber: z.number().describe("NFT serial number"),
   }),
   execute: async ({ tokenId, serialNumber }) => {
-    const result = await getMirrorClient().token.getNft(asEntityId(tokenId), serialNumber);
+    const result = await getMirrorClient().token.getNft(tokenId, serialNumber);
     return handleApiResult(result, "getNftBySerial");
   },
 });
@@ -85,13 +78,9 @@ export const getNftTransactions = createTool({
     timestamp: timestampSchema.describe("ISO timestamp to query transactions at a specific time"),
   }),
   execute: async ({ tokenId, serialNumber, timestamp }) => {
-    const result = await getMirrorClient().token.getNftTransactions(
-      asEntityId(tokenId),
-      serialNumber,
-      {
-        timestamp,
-      },
-    );
+    const result = await getMirrorClient().token.getNftTransactions(tokenId, serialNumber, {
+      timestamp,
+    });
     return handleApiResult(result, "getNftTransactions");
   },
 });
@@ -112,15 +101,15 @@ export const listTokens = createTool({
       .describe("Filter by token type"),
   }),
   execute: async (params) => {
-    const apiParams = toApiParams({
-      accountId: params.accountId,
-      tokenId: params.tokenId,
+    const apiParams = {
+      "account.id": params.accountId,
+      "token.id": params.tokenId,
       limit: params.limit,
       name: params.name,
       order: params.order,
-      publicKey: params.publicKey,
+      public_key: params.publicKey,
       type: params.type,
-    });
+    };
     const result = await getMirrorClient().token.listPaginated(apiParams);
     return handleApiResult(result, "listTokens");
   },

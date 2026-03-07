@@ -9,9 +9,9 @@ Internal package: this package is private to the workspace and is meant for main
 It centralizes:
 
 - shared API and pagination types
-- entity and network helpers
+- entity validation and network helpers
 - mirror query keys and invalidation helpers
-- mirror provider utilities and type guards
+- mirror provider utilities and error normalization
 
 ## Installation
 
@@ -38,27 +38,21 @@ bun add @hieco/utils --cwd packages/<package-name>
 Use `@hieco/utils` when you are maintaining Hieco packages and need:
 
 - the canonical `ApiResult` and `ApiError` types
-- entity ID parsing or validation
+- entity ID validation
 - network config helpers for mirror providers
 - shared query key generation or invalidation logic
-- shared type guards for Mirror Node responses
+- shared error normalization at framework boundaries
 
 ## Quick Start
 
 ```ts
-import {
-  ApiErrorFactory,
-  NETWORK_CONFIGS,
-  formatEntityId,
-  isSuccess,
-  mirrorNodeKeys,
-} from "@hieco/utils";
+import { ApiErrorFactory, NETWORK_CONFIGS, isValidEntityId, mirrorNodeKeys } from "@hieco/utils";
 
-const tokenId = formatEntityId(0, 0, 2001);
+const tokenId = "0.0.2001";
 const key = mirrorNodeKeys.token.info("testnet", tokenId);
 const error = ApiErrorFactory.notFound("Token not found");
 
-console.log(NETWORK_CONFIGS.testnet.mirrorNode, key, error);
+console.log(isValidEntityId(tokenId), NETWORK_CONFIGS.testnet.mirrorNode, key, error);
 ```
 
 ## Core Concepts
@@ -69,14 +63,7 @@ console.log(NETWORK_CONFIGS.testnet.mirrorNode, key, error);
 
 ### Entity Helpers
 
-Entity helpers keep `0.0.123` handling consistent across packages:
-
-- `isValidEntityId`
-- `parseEntityId`
-- `assertEntityId`
-- `formatEntityId`
-- `parseEntityIdParts`
-- `asEntityId`
+`EntityId` keeps a shared semantic name for Hedera entity IDs, and `isValidEntityId` is the one shared runtime check kept for real string input boundaries.
 
 ### Network Helpers
 
@@ -122,14 +109,12 @@ await invalidateQueries(queryClient, {
 });
 ```
 
-### Result Helpers
+### Result Handling
 
 ```ts
-import { isApiError, isSuccess } from "@hieco/utils";
-
-if (isSuccess(result)) {
+if (result.success) {
   console.log(result.data);
-} else if (isApiError(result) && result.error._tag === "NotFoundError") {
+} else if (result.error._tag === "NotFoundError") {
   console.log("Missing resource");
 } else {
   console.log(result.error.message);
@@ -145,7 +130,7 @@ if (isSuccess(result)) {
 | `ApiResult`           | type  | Shared success or failure wrapper.               | `type ApiResult<T>`                 |
 | `ApiError`            | type  | Shared API error shape.                          | `type ApiError`                     |
 | `ApiErrorFactory`     | const | Helpers for constructing API errors.             | `ApiErrorFactory.notFound(message)` |
-| `EntityId`            | type  | Hedera entity ID template literal type.          | `type EntityId`                     |
+| `EntityId`            | type  | Hedera entity ID string alias.                   | `type EntityId`                     |
 | `Timestamp`           | type  | Shared timestamp string type.                    | `type Timestamp`                    |
 | `Key`                 | type  | Hedera key metadata.                             | `type Key`                          |
 | `NetworkType`         | type  | Built-in network names.                          | `type NetworkType`                  |
@@ -156,20 +141,15 @@ if (isSuccess(result)) {
 
 ### Entity And Network Helpers
 
-| Export                     | Kind     | Purpose                                     | Usage form                          |
-| -------------------------- | -------- | ------------------------------------------- | ----------------------------------- |
-| `isValidEntityId`          | function | Validate an entity ID string.               | `isValidEntityId(value)`            |
-| `parseEntityId`            | function | Parse an entity ID or return `null`.        | `parseEntityId(value)`              |
-| `assertEntityId`           | function | Assert that a string is a valid entity ID.  | `assertEntityId(value)`             |
-| `formatEntityId`           | function | Build an entity ID string from parts.       | `formatEntityId(shard, realm, num)` |
-| `parseEntityIdParts`       | function | Split an entity ID into numeric parts.      | `parseEntityIdParts(id)`            |
-| `asEntityId`               | function | Cast a known-good string to `EntityId`.     | `asEntityId(id)`                    |
-| `NETWORK_CONFIGS`          | const    | Built-in network endpoints.                 | `NETWORK_CONFIGS.testnet`           |
-| `DEFAULT_MIRROR_NODE_URLS` | const    | Default mirror URLs by network.             | `DEFAULT_MIRROR_NODE_URLS.testnet`  |
-| `AnyNetwork`               | type     | Built-in network or custom string.          | `type AnyNetwork`                   |
-| `NetworkConfig`            | type     | Provider config shape for mirror adapters.  | `type NetworkConfig<T, U>`          |
-| `isDefaultNetwork`         | function | Check whether a network is built-in.        | `isDefaultNetwork(value)`           |
-| `getNetworkUrl`            | function | Resolve the mirror URL for a given network. | `getNetworkUrl(network, networks)`  |
+| Export                     | Kind     | Purpose                                     | Usage form                         |
+| -------------------------- | -------- | ------------------------------------------- | ---------------------------------- |
+| `isValidEntityId`          | function | Validate an entity ID string.               | `isValidEntityId(value)`           |
+| `NETWORK_CONFIGS`          | const    | Built-in network endpoints.                 | `NETWORK_CONFIGS.testnet`          |
+| `DEFAULT_MIRROR_NODE_URLS` | const    | Default mirror URLs by network.             | `DEFAULT_MIRROR_NODE_URLS.testnet` |
+| `AnyNetwork`               | type     | Built-in network or custom string.          | `type AnyNetwork`                  |
+| `NetworkConfig`            | type     | Provider config shape for mirror adapters.  | `type NetworkConfig<T, U>`         |
+| `isDefaultNetwork`         | function | Check whether a network is built-in.        | `isDefaultNetwork(value)`          |
+| `getNetworkUrl`            | function | Resolve the mirror URL for a given network. | `getNetworkUrl(network, networks)` |
 
 ### Mirror Query Helpers
 
@@ -184,11 +164,9 @@ if (isSuccess(result)) {
 
 ### Result Helpers
 
-| Export       | Kind     | Purpose                                          | Usage form           |
-| ------------ | -------- | ------------------------------------------------ | -------------------- |
-| `isSuccess`  | function | Narrow `ApiResult<T>` to a success result.       | `isSuccess(result)`  |
-| `isApiError` | function | Narrow `ApiResult<T>` to a failure result.       | `isApiError(result)` |
-| `toApiError` | function | Normalize an unknown thrown value to `ApiError`. | `toApiError(error)`  |
+| Export       | Kind     | Purpose                                          | Usage form          |
+| ------------ | -------- | ------------------------------------------------ | ------------------- |
+| `toApiError` | function | Normalize an unknown thrown value to `ApiError`. | `toApiError(error)` |
 
 ## Related Packages
 

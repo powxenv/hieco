@@ -2,8 +2,7 @@ import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 import type { ContractCallParams } from "@hieco/mirror";
 import { getMirrorClient } from "../../client";
-import { asEntityId } from "@hieco/utils";
-import { entityIdSchema, limitSchema, timestampSchema, toApiParams } from "../../schemas";
+import { entityIdSchema, limitSchema, timestampSchema } from "../../schemas";
 import { handleApiResult } from "../../errors";
 
 export const getContractInfo = createTool({
@@ -73,7 +72,7 @@ export const getContractResults = createTool({
     timestamp,
     transactionIndex,
   }) => {
-    const result = await getMirrorClient().contract.getResults(asEntityId(contractId), {
+    const result = await getMirrorClient().contract.getResults(contractId, {
       "block.hash": blockHash,
       block_number: blockNumber,
       from,
@@ -93,7 +92,7 @@ export const getContractResult = createTool({
     timestamp: z.string().describe("ISO timestamp of the contract result"),
   }),
   execute: async ({ contractId, timestamp }) => {
-    const result = await getMirrorClient().contract.getResult(asEntityId(contractId), timestamp);
+    const result = await getMirrorClient().contract.getResult(contractId, timestamp);
     return handleApiResult(result, "getContractResult");
   },
 });
@@ -107,7 +106,7 @@ export const getContractState = createTool({
     timestamp: timestampSchema.describe("ISO timestamp to query state at a specific time"),
   }),
   execute: async ({ contractId, slot, timestamp }) => {
-    const result = await getMirrorClient().contract.getState(asEntityId(contractId), {
+    const result = await getMirrorClient().contract.getState(contractId, {
       slot,
       timestamp,
     });
@@ -138,7 +137,7 @@ export const getContractLogs = createTool({
     topic3,
     transactionHash,
   }) => {
-    const result = await getMirrorClient().contract.getLogs(asEntityId(contractId), {
+    const result = await getMirrorClient().contract.getLogs(contractId, {
       index,
       timestamp,
       topic0,
@@ -238,13 +237,13 @@ export const listContracts = createTool({
     smartContractId: entityIdSchema.optional().describe("Filter by smart contract ID"),
   }),
   execute: async (params) => {
-    const apiParams = toApiParams({
-      contractId: params.contractId,
+    const apiParams = {
+      "contract.id": params.contractId,
       address: params.address,
       limit: params.limit,
       order: params.order,
-      smartContractId: params.smartContractId,
-    });
+      smart_contract_id: params.smartContractId,
+    };
     const result = await getMirrorClient().contract.listPaginated(apiParams);
     return handleApiResult(result, "listContracts");
   },

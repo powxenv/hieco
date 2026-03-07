@@ -1,12 +1,5 @@
 import type { JsonRpcRequest, JsonRpcResponse } from "../protocol/rpc";
 import type { RelayMessage } from "../subscriptions/subscription";
-import {
-  isJsonRpcResponse,
-  isRelayMessage,
-  isSubscribeResponse,
-  isUnsubscribeResponse,
-  isChainIdResponse,
-} from "../protocol/guards";
 import type { SubscriptionManager } from "../subscriptions/manager";
 import type { StreamState } from "./stream";
 
@@ -28,7 +21,7 @@ export class RequestManager {
     try {
       const parsed = JSON.parse(data);
 
-      if (!isJsonRpcResponse(parsed)) {
+      if (!isJsonRpcEnvelope(parsed)) {
         this.setState({
           _tag: "Error",
           error: {
@@ -39,7 +32,7 @@ export class RequestManager {
         return;
       }
 
-      if (this.isSubscriptionMessage(parsed)) {
+      if (parsed.method === "eth_subscription" && isRelayMessage(parsed.params)) {
         this.handleSubscriptionMessage(parsed.params);
         return;
       }
@@ -59,23 +52,47 @@ export class RequestManager {
   }
 
   private handleRequestResponse(response: JsonRpcResponse): void {
-    if (isSubscribeResponse(response)) {
-      this.handleSubscribeResponse(response);
+    if (
+      typeof response.id === "number" &&
+      this.subscriptionManager.hasPendingSubscribe(response.id) &&
+      typeof response.result === "string"
+    ) {
+      this.handleSubscribeResponse({
+        ...response,
+        id: response.id,
+        result: response.result,
+      });
       return;
     }
 
-    if (isUnsubscribeResponse(response)) {
-      this.handleUnsubscribeResponse(response);
+    if (
+      typeof response.id === "number" &&
+      this.subscriptionManager.hasPendingUnsubscribe(response.id) &&
+      typeof response.result === "boolean"
+    ) {
+      this.handleUnsubscribeResponse({
+        ...response,
+        id: response.id,
+        result: response.result,
+      });
       return;
     }
 
-    if (isChainIdResponse(response)) {
-      this.handleChainIdResponse(response);
+    if (
+      typeof response.id === "number" &&
+      this.subscriptionManager.hasPendingChainId(response.id) &&
+      typeof response.result === "string"
+    ) {
+      this.handleChainIdResponse({
+        ...response,
+        id: response.id,
+        result: response.result,
+      });
       return;
     }
 
     if (response.error && typeof response.id === "number") {
-      this.subscriptionManager.handleError({ ...response, id: response.id });
+      this.subscriptionManager.handleError(response.id, response.error);
     }
   }
 
@@ -103,17 +120,10 @@ export class RequestManager {
     }
   }
 
-  private isSubscriptionMessage(response: JsonRpcResponse): response is JsonRpcResponse & {
-    readonly method: "eth_subscription";
-    readonly params: RelayMessage;
-  } {
-    return response.method === "eth_subscription" && isRelayMessage(response.params);
-  }
-
   private handleSubscribeResponse(
     response: JsonRpcResponse & { id: number; result: string },
   ): void {
-    const pending = this.subscriptionManager.handleSubscribeResponse(response);
+    const pending = this.subscriptionManager.handleSubscribeResponse(response.id);
     if (!pending) {
       return;
     }
@@ -136,7 +146,7 @@ export class RequestManager {
   private handleUnsubscribeResponse(
     response: JsonRpcResponse & { id: number; result: boolean },
   ): void {
-    const pending = this.subscriptionManager.handleUnsubscribeResponse(response);
+    const pending = this.subscriptionManager.handleUnsubscribeResponse(response.id);
     if (!pending) {
       return;
     }
@@ -166,7 +176,7 @@ export class RequestManager {
   }
 
   private handleChainIdResponse(response: JsonRpcResponse & { id: number; result: string }): void {
-    const pending = this.subscriptionManager.handleChainIdResponse(response);
+    const pending = this.subscriptionManager.handleChainIdResponse(response.id);
     if (!pending) {
       return;
     }
@@ -177,4 +187,56 @@ export class RequestManager {
   setWebSocket(ws: WebSocket | null): void {
     this.ws = ws;
   }
+}
+
+function isJsonRpcEnvelope(value: unknown): value is JsonRpcResponse {
+  return isObject(value) && value.jsonrpc === "2.0";
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isLogResult(value: unknown): boolean {
+  return (
+    isObject(value) &&
+    typeof value.address === "string" &&
+    typeof value.blockHash === "string" &&
+    typeof value.blockNumber === "string" &&
+    typeof value.data === "string" &&
+    typeof value.logIndex === "string" &&
+    Array.isArray(value.topics) &&
+    value.topics.every((topic) => typeof topic === "string") &&
+    typeof value.transactionHash === "string" &&
+    typeof value.transactionIndex === "string"
+  );
+}
+
+function isNewHeadsResult(value: unknown): boolean {
+  return (
+    isObject(value) &&
+    typeof value.hash === "string" &&
+    typeof value.parentHash === "string" &&
+    typeof value.sha3Uncles === "string" &&
+    typeof value.logsBloom === "string" &&
+    typeof value.transactionsRoot === "string" &&
+    typeof value.stateRoot === "string" &&
+    typeof value.receiptsRoot === "string" &&
+    typeof value.number === "string" &&
+    typeof value.gasLimit === "string" &&
+    typeof value.gasUsed === "string" &&
+    typeof value.timestamp === "string" &&
+    typeof value.extraData === "string" &&
+    typeof value.difficulty === "string" &&
+    typeof value.miner === "string" &&
+    typeof value.nonce === "string"
+  );
+}
+
+function isRelayMessage(value: unknown): value is RelayMessage {
+  return (
+    isObject(value) &&
+    typeof value.subscription === "string" &&
+    (isLogResult(value.result) || isNewHeadsResult(value.result))
+  );
 }

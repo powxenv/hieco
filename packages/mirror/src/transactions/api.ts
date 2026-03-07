@@ -1,6 +1,6 @@
 import type { ApiResult, EntityId, PaginationParams, QueryOperator, Timestamp } from "@hieco/utils";
 import type { Transaction, TransactionDetails } from "./types";
-import type { CursorPaginator, PaginatedResponse } from "../shared/builders";
+import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface TransactionListParams extends PaginationParams {
@@ -34,7 +34,7 @@ export class TransactionApi extends BaseApi {
     transactionId: string,
     params?: { nonce?: number; scheduled?: boolean },
   ): Promise<ApiResult<TransactionDetails>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       if (params.nonce !== undefined) {
@@ -52,7 +52,7 @@ export class TransactionApi extends BaseApi {
     accountId: EntityId,
     params?: TransactionsByAccountParams,
   ): Promise<ApiResult<Transaction[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -84,7 +84,7 @@ export class TransactionApi extends BaseApi {
   }
 
   private buildTransactionListParams(params?: TransactionListParams): Record<string, string> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);

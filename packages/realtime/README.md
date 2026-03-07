@@ -151,30 +151,22 @@ console.log(pool.getPoolState());
 await pool.disconnect();
 ```
 
-### Low-Level Protocol Helpers
+### Protocol Types
 
-Use the protocol exports when you need to inspect or validate raw Relay messages:
-
-- `isJsonRpcResponse`
-- `isSubscribeResponse`
-- `isUnsubscribeResponse`
-- `isChainIdResponse`
-- `isRelayMessage`
-- `mapJsonRpcErrorCode`
+The package exports the Relay JSON-RPC request and response types for tooling, tests, and integrations that want to model the wire format directly.
 
 ## API Reference
 
 ### Connection Exports
 
-| Export                  | Kind  | Purpose                                              | Usage form                                                            |
-| ----------------------- | ----- | ---------------------------------------------------- | --------------------------------------------------------------------- | -------------- | --------- |
-| `BaseStreamClient`      | class | Abstract base for stream implementations.            | `class BaseStreamClient<TMessage, TSubscription, TUnsubscribeResult>` |
-| `RelayWebSocketClient`  | class | Direct Relay WebSocket client.                       | `new RelayWebSocketClient(config)`                                    |
-| `ConnectionPool`        | class | Multi-connection subscription pool.                  | `new ConnectionPool(config)`                                          |
-| `StreamConfig`          | type  | Config for a single realtime connection.             | `type StreamConfig`                                                   |
-| `StreamState`           | type  | Disconnected, connecting, connected, or error state. | `type StreamState`                                                    |
-| `LoadBalancingStrategy` | type  | Pool routing strategy.                               | `"round-robin"                                                        | "least-loaded" | "random"` |
-| `ConnectionPoolConfig`  | type  | Config for `ConnectionPool`.                         | `type ConnectionPoolConfig`                                           |
+| Export                  | Kind  | Purpose                                              | Usage form                         |
+| ----------------------- | ----- | ---------------------------------------------------- | ---------------------------------- | -------------- | --------- |
+| `RelayWebSocketClient`  | class | Direct Relay WebSocket client.                       | `new RelayWebSocketClient(config)` |
+| `ConnectionPool`        | class | Multi-connection subscription pool.                  | `new ConnectionPool(config)`       |
+| `StreamConfig`          | type  | Config for a single realtime connection.             | `type StreamConfig`                |
+| `StreamState`           | type  | Disconnected, connecting, connected, or error state. | `type StreamState`                 |
+| `LoadBalancingStrategy` | type  | Pool routing strategy.                               | `"round-robin"                     | "least-loaded" | "random"` |
+| `ConnectionPoolConfig`  | type  | Config for `ConnectionPool`.                         | `type ConnectionPoolConfig`        |
 
 ### `RelayWebSocketClient`
 
@@ -212,20 +204,14 @@ Use the protocol exports when you need to inspect or validate raw Relay messages
 
 ### Protocol Exports
 
-| Export                  | Kind     | Purpose                                              | Usage form                     |
-| ----------------------- | -------- | ---------------------------------------------------- | ------------------------------ |
-| `JsonRpcRequest`        | type     | Outgoing JSON-RPC request shape.                     | `type JsonRpcRequest`          |
-| `JsonRpcResponse`       | type     | Incoming JSON-RPC response shape.                    | `type JsonRpcResponse`         |
-| `SubscribeResponse`     | type     | Successful subscribe response.                       | `type SubscribeResponse`       |
-| `UnsubscribeResponse`   | type     | Successful unsubscribe response.                     | `type UnsubscribeResponse`     |
-| `ChainIdResponse`       | type     | Successful chain ID response.                        | `type ChainIdResponse`         |
-| `JsonRpcErrorCode`      | type     | Supported Relay JSON-RPC error codes.                | `type JsonRpcErrorCode`        |
-| `mapJsonRpcErrorCode`   | function | Convert a JSON-RPC error code into an API error tag. | `mapJsonRpcErrorCode(code)`    |
-| `isJsonRpcResponse`     | function | Validate a raw JSON-RPC response.                    | `isJsonRpcResponse(value)`     |
-| `isSubscribeResponse`   | function | Validate a subscribe response.                       | `isSubscribeResponse(value)`   |
-| `isUnsubscribeResponse` | function | Validate an unsubscribe response.                    | `isUnsubscribeResponse(value)` |
-| `isChainIdResponse`     | function | Validate a chain ID response.                        | `isChainIdResponse(value)`     |
-| `isRelayMessage`        | function | Validate a relay subscription payload.               | `isRelayMessage(value)`        |
+| Export                | Kind | Purpose                               | Usage form                 |
+| --------------------- | ---- | ------------------------------------- | -------------------------- |
+| `JsonRpcRequest`      | type | Outgoing JSON-RPC request shape.      | `type JsonRpcRequest`      |
+| `JsonRpcResponse`     | type | Incoming JSON-RPC response shape.     | `type JsonRpcResponse`     |
+| `SubscribeResponse`   | type | Successful subscribe response.        | `type SubscribeResponse`   |
+| `UnsubscribeResponse` | type | Successful unsubscribe response.      | `type UnsubscribeResponse` |
+| `ChainIdResponse`     | type | Successful chain ID response.         | `type ChainIdResponse`     |
+| `JsonRpcErrorCode`    | type | Supported Relay JSON-RPC error codes. | `type JsonRpcErrorCode`    |
 
 ## Related Packages
 

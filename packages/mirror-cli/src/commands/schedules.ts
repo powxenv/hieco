@@ -1,4 +1,3 @@
-import { asEntityId } from "@hieco/utils";
 import { formatOutput, formatError, formatYesNo, type FormatOptions } from "../utils/format";
 import { getClient } from "./accounts";
 
@@ -8,7 +7,7 @@ export async function getScheduleInfo(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.schedule.getInfo(asEntityId(scheduleId));
+    const result = await mirrorClient.schedule.getInfo(scheduleId);
 
     if (!result.success) {
       console.error(formatError(new Error(result.error.message)));
@@ -58,19 +57,17 @@ export async function listSchedules(
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
     const result = await mirrorClient.schedule.listPaginated({
-      "account.id": options.accountId ? asEntityId(options.accountId) : undefined,
+      "account.id": options.accountId,
       admin_key: options.adminKey,
-      "creator.account.id": options.creatorAccountId
-        ? asEntityId(options.creatorAccountId)
-        : undefined,
+      "creator.account.id": options.creatorAccountId,
       deleted: options.deleted,
       executed_timestamp: options.executedTimestamp,
       expiration_timestamp: options.expirationTimestamp,
       limit: options.limit,
       memo: options.memo,
       order: options.order,
-      "payer.account.id": options.payerAccountId ? asEntityId(options.payerAccountId) : undefined,
-      schedule_id: options.scheduleId ? asEntityId(options.scheduleId) : undefined,
+      "payer.account.id": options.payerAccountId,
+      schedule_id: options.scheduleId,
     });
 
     if (!result.success) {

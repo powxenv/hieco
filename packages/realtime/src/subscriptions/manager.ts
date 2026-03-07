@@ -1,6 +1,4 @@
 import type { ApiResult } from "@hieco/utils";
-import type { JsonRpcResponse } from "../protocol/rpc";
-import { mapJsonRpcErrorCode } from "../protocol/errors";
 import type { RelayMessage, RelaySubscription } from "./subscription";
 
 interface PendingSubscribe {
@@ -89,31 +87,27 @@ export class SubscriptionManager {
     this.serverToLocalSubscriptions.delete(serverId);
   }
 
-  handleSubscribeResponse(
-    response: JsonRpcResponse & { id: number },
-  ): PendingSubscribe | undefined {
-    const pending = this.pendingSubscribes.get(response.id);
+  handleSubscribeResponse(requestId: number): PendingSubscribe | undefined {
+    const pending = this.pendingSubscribes.get(requestId);
     if (!pending) return undefined;
 
-    this.pendingSubscribes.delete(response.id);
+    this.pendingSubscribes.delete(requestId);
     return pending;
   }
 
-  handleUnsubscribeResponse(
-    response: JsonRpcResponse & { id: number },
-  ): PendingUnsubscribe | undefined {
-    const pending = this.pendingUnsubscribes.get(response.id);
+  handleUnsubscribeResponse(requestId: number): PendingUnsubscribe | undefined {
+    const pending = this.pendingUnsubscribes.get(requestId);
     if (!pending) return undefined;
 
-    this.pendingUnsubscribes.delete(response.id);
+    this.pendingUnsubscribes.delete(requestId);
     return pending;
   }
 
-  handleChainIdResponse(response: JsonRpcResponse & { id: number }): PendingChainId | undefined {
-    const pending = this.pendingChainIds.get(response.id);
+  handleChainIdResponse(requestId: number): PendingChainId | undefined {
+    const pending = this.pendingChainIds.get(requestId);
     if (!pending) return undefined;
 
-    this.pendingChainIds.delete(response.id);
+    this.pendingChainIds.delete(requestId);
     return pending;
   }
 
@@ -121,33 +115,43 @@ export class SubscriptionManager {
     this.pendingChainIds.set(requestId, pending);
   }
 
-  handleError(response: JsonRpcResponse & { id: number }): void {
-    if (!response.error) return;
+  hasPendingSubscribe(requestId: number): boolean {
+    return this.pendingSubscribes.has(requestId);
+  }
 
-    const errorTag = mapJsonRpcErrorCode(response.error.code);
-    const { message, code } = response.error;
+  hasPendingUnsubscribe(requestId: number): boolean {
+    return this.pendingUnsubscribes.has(requestId);
+  }
 
-    const subscribePending = this.pendingSubscribes.get(response.id);
+  hasPendingChainId(requestId: number): boolean {
+    return this.pendingChainIds.has(requestId);
+  }
+
+  handleError(requestId: number, error: { readonly code: number; readonly message: string }): void {
+    const errorTag = toApiErrorTag(error.code);
+    const { message, code } = error;
+
+    const subscribePending = this.pendingSubscribes.get(requestId);
     if (subscribePending) {
-      this.pendingSubscribes.delete(response.id);
+      this.pendingSubscribes.delete(requestId);
       subscribePending.resolve({
         success: false,
         error: { _tag: errorTag, message, code: code.toString() },
       });
     }
 
-    const unsubscribePending = this.pendingUnsubscribes.get(response.id);
+    const unsubscribePending = this.pendingUnsubscribes.get(requestId);
     if (unsubscribePending) {
-      this.pendingUnsubscribes.delete(response.id);
+      this.pendingUnsubscribes.delete(requestId);
       unsubscribePending.resolve({
         success: false,
         error: { _tag: errorTag, message, code: code.toString() },
       });
     }
 
-    const chainIdPending = this.pendingChainIds.get(response.id);
+    const chainIdPending = this.pendingChainIds.get(requestId);
     if (chainIdPending) {
-      this.pendingChainIds.delete(response.id);
+      this.pendingChainIds.delete(requestId);
       chainIdPending.resolve({
         success: false,
         error: { _tag: errorTag, message, code: code.toString() },
@@ -182,5 +186,18 @@ export class SubscriptionManager {
 
   get tracked(): Map<string, TrackedSubscription> {
     return this.trackedSubscriptions;
+  }
+}
+
+function toApiErrorTag(code: number): "ValidationError" | "RateLimitError" | "UnknownError" {
+  switch (code) {
+    case -32600:
+    case -32601:
+    case -32602:
+      return "ValidationError";
+    case -32608:
+      return "RateLimitError";
+    default:
+      return "UnknownError";
   }
 }

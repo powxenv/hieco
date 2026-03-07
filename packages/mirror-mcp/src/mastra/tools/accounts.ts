@@ -1,7 +1,6 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 import { getMirrorClient } from "../../client";
-import { asEntityId } from "@hieco/utils";
 import { handleApiResult } from "../../errors";
 import {
   entityIdSchema,
@@ -10,7 +9,6 @@ import {
   nodeIdSchema,
   serialNumberSchema,
   timestampSchema,
-  toApiParams,
 } from "../../schemas";
 
 export const getAccountInfo = createTool({
@@ -29,7 +27,7 @@ export const getAccountInfo = createTool({
       .describe("Include recent transaction information (may increase response size)"),
   }),
   execute: async ({ accountId, timestamp, transactions }) => {
-    const result = await getMirrorClient().account.getInfo(asEntityId(accountId), {
+    const result = await getMirrorClient().account.getInfo(accountId, {
       timestamp,
       transactions,
     });
@@ -47,7 +45,7 @@ export const getAccountBalances = createTool({
     accountId: entityIdSchema.describe("Hedera account ID in format 0.0.123"),
   }),
   execute: async ({ accountId }) => {
-    const result = await getMirrorClient().account.getBalances(asEntityId(accountId));
+    const result = await getMirrorClient().account.getBalances(accountId);
     return handleApiResult(result, `getAccountBalances(${accountId})`);
   },
 });
@@ -63,8 +61,8 @@ export const getAccountTokens = createTool({
     tokenId: entityIdSchema.optional().describe("Filter by specific token ID"),
   }),
   execute: async ({ accountId, tokenId }) => {
-    const result = await getMirrorClient().account.getTokens(asEntityId(accountId), {
-      "token.id": tokenId ? asEntityId(tokenId) : undefined,
+    const result = await getMirrorClient().account.getTokens(accountId, {
+      "token.id": tokenId,
     });
     return handleApiResult(result, `getAccountTokens(${accountId})`);
   },
@@ -83,9 +81,9 @@ export const getAccountNfts = createTool({
     serialNumber: serialNumberSchema.describe("Filter by serial number"),
   }),
   execute: async ({ accountId, spenderId, tokenId, serialNumber }) => {
-    const result = await getMirrorClient().account.getNfts(asEntityId(accountId), {
-      "spender.id": spenderId ? asEntityId(spenderId) : undefined,
-      "token.id": tokenId ? asEntityId(tokenId) : undefined,
+    const result = await getMirrorClient().account.getNfts(accountId, {
+      "spender.id": spenderId,
+      "token.id": tokenId,
       serial_number: serialNumber,
     });
     return handleApiResult(result, `getAccountNfts(${accountId})`);
@@ -103,7 +101,7 @@ export const getStakingRewards = createTool({
     timestamp: timestampSchema.describe("ISO timestamp to query rewards at a specific time"),
   }),
   execute: async ({ accountId, timestamp }) => {
-    const result = await getMirrorClient().account.getStakingRewards(asEntityId(accountId), {
+    const result = await getMirrorClient().account.getStakingRewards(accountId, {
       timestamp,
     });
     return handleApiResult(result, `getStakingRewards(${accountId})`);
@@ -121,8 +119,8 @@ export const getCryptoAllowances = createTool({
     spenderId: entityIdSchema.optional().describe("Filter by spender account ID"),
   }),
   execute: async ({ accountId, spenderId }) => {
-    const result = await getMirrorClient().account.getCryptoAllowances(asEntityId(accountId), {
-      "spender.id": spenderId ? asEntityId(spenderId) : undefined,
+    const result = await getMirrorClient().account.getCryptoAllowances(accountId, {
+      "spender.id": spenderId,
     });
     return handleApiResult(result, `getCryptoAllowances(${accountId})`);
   },
@@ -140,9 +138,9 @@ export const getTokenAllowances = createTool({
     tokenId: entityIdSchema.optional().describe("Filter by token ID"),
   }),
   execute: async ({ accountId, spenderId, tokenId }) => {
-    const result = await getMirrorClient().account.getTokenAllowances(asEntityId(accountId), {
-      "spender.id": spenderId ? asEntityId(spenderId) : undefined,
-      "token.id": tokenId ? asEntityId(tokenId) : undefined,
+    const result = await getMirrorClient().account.getTokenAllowances(accountId, {
+      "spender.id": spenderId,
+      "token.id": tokenId,
     });
     return handleApiResult(result, `getTokenAllowances(${accountId})`);
   },
@@ -161,9 +159,9 @@ export const getNftAllowances = createTool({
     owner: z.boolean().optional().describe("Filter by owner status"),
   }),
   execute: async ({ accountId, accountIdFilter, tokenId, owner }) => {
-    const result = await getMirrorClient().account.getNftAllowances(asEntityId(accountId), {
-      "account.id": accountIdFilter ? asEntityId(accountIdFilter) : undefined,
-      "token.id": tokenId ? asEntityId(tokenId) : undefined,
+    const result = await getMirrorClient().account.getNftAllowances(accountId, {
+      "account.id": accountIdFilter,
+      "token.id": tokenId,
       owner,
     });
     return handleApiResult(result, `getNftAllowances(${accountId})`);
@@ -183,10 +181,10 @@ export const getOutstandingAirdrops = createTool({
     tokenId: entityIdSchema.optional().describe("Filter by token ID"),
   }),
   execute: async ({ accountId, receiverId, serialNumber, tokenId }) => {
-    const result = await getMirrorClient().account.getOutstandingAirdrops(asEntityId(accountId), {
-      "receiver.id": receiverId ? asEntityId(receiverId) : undefined,
+    const result = await getMirrorClient().account.getOutstandingAirdrops(accountId, {
+      "receiver.id": receiverId,
       serial_number: serialNumber,
-      "token.id": tokenId ? asEntityId(tokenId) : undefined,
+      "token.id": tokenId,
     });
     return handleApiResult(result, `getOutstandingAirdrops(${accountId})`);
   },
@@ -204,10 +202,10 @@ export const getPendingAirdrops = createTool({
     tokenId: entityIdSchema.optional().describe("Filter by token ID"),
   }),
   execute: async ({ accountId, senderId, serialNumber, tokenId }) => {
-    const result = await getMirrorClient().account.getPendingAirdrops(asEntityId(accountId), {
-      "sender.id": senderId ? asEntityId(senderId) : undefined,
+    const result = await getMirrorClient().account.getPendingAirdrops(accountId, {
+      "sender.id": senderId,
       serial_number: serialNumber,
-      "token.id": tokenId ? asEntityId(tokenId) : undefined,
+      "token.id": tokenId,
     });
     return handleApiResult(result, `getPendingAirdrops(${accountId})`);
   },
@@ -236,22 +234,22 @@ export const listAccounts = createTool({
     stakedNodeId: nodeIdSchema.describe("Filter by staked node ID"),
   }),
   execute: async (params) => {
-    const apiParams = toApiParams({
+    const apiParams = {
       account: params.account,
       alias: params.alias,
       balance: params.balance,
-      balanceGte: params.balanceGte,
-      balanceLte: params.balanceLte,
-      evmAddress: params.evmAddress,
+      balance_gte: params.balanceGte,
+      balance_lte: params.balanceLte,
+      evm_address: params.evmAddress,
       key: params.key,
       limit: params.limit,
       memo: params.memo,
       order: params.order,
-      publicKey: params.publicKey,
-      smartContract: params.smartContract,
-      stakedAccountId: params.stakedAccountId,
-      stakedNodeId: params.stakedNodeId,
-    });
+      public_key: params.publicKey,
+      smart_contract: params.smartContract,
+      staked_account_id: params.stakedAccountId,
+      staked_node_id: params.stakedNodeId,
+    };
     const result = await getMirrorClient().account.listPaginated(apiParams);
     return handleApiResult(result, "listAccounts");
   },

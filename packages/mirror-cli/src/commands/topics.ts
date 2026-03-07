@@ -1,4 +1,3 @@
-import { asEntityId } from "@hieco/utils";
 import { formatOutput, formatError, formatYesNo, type FormatOptions } from "../utils/format";
 import { getClient } from "./accounts";
 
@@ -8,7 +7,7 @@ export async function getTopicInfo(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.topic.getInfo(asEntityId(topicId));
+    const result = await mirrorClient.topic.getInfo(topicId);
 
     if (!result.success) {
       console.error(formatError(new Error(result.error.message)));
@@ -52,16 +51,13 @@ export async function getTopicMessages(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.topic.getMessages(
-      topicId as `${number}.${number}.${number}`,
-      {
-        encoding: options.encoding,
-        sequencenumber: options.sequenceNumber,
-        timestamp: options.timestamp,
-        transaction_id: options.transactionId,
-        scheduled: options.scheduled,
-      },
-    );
+    const result = await mirrorClient.topic.getMessages(topicId, {
+      encoding: options.encoding,
+      sequencenumber: options.sequenceNumber,
+      timestamp: options.timestamp,
+      transaction_id: options.transactionId,
+      scheduled: options.scheduled,
+    });
 
     if (!result.success) {
       console.error(formatError(new Error(result.error.message)));
@@ -97,10 +93,7 @@ export async function getTopicMessage(
 ): Promise<void> {
   try {
     const mirrorClient = getClient(options.network, options.mirrorUrl);
-    const result = await mirrorClient.topic.getMessage(
-      topicId as `${number}.${number}.${number}`,
-      sequenceNumber,
-    );
+    const result = await mirrorClient.topic.getMessage(topicId, sequenceNumber);
 
     if (!result.success) {
       console.error(formatError(new Error(result.error.message)));

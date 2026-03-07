@@ -1,5 +1,4 @@
 import type { EntityId } from "@hieco/utils";
-import { asEntityId } from "@hieco/utils";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type {
   ScheduleInfoData,
@@ -187,7 +186,7 @@ export function createSchedulesNamespace(context: {
       error.message.includes("IDENTICAL_SCHEDULE_ALREADY_CREATED") &&
       typeof error.details?.scheduleId === "string"
     ) {
-      const scheduleId = asEntityId(error.details.scheduleId);
+      const scheduleId = error.details.scheduleId;
       const transactionId = error.transactionId ?? "";
       return ok({
         status: "existing",

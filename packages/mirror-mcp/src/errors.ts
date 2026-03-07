@@ -1,5 +1,4 @@
 import type { ApiResult, ApiError } from "@hieco/utils";
-import { isSuccess } from "@hieco/utils";
 
 export class MirrorMCPError extends Error {
   constructor(
@@ -14,7 +13,7 @@ export class MirrorMCPError extends Error {
 }
 
 export function handleApiResult<T>(result: ApiResult<T>, context?: string): T {
-  if (isSuccess(result)) {
+  if (result.success) {
     return result.data;
   }
 

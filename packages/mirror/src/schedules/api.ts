@@ -1,6 +1,6 @@
 import type { ApiResult, EntityId, PaginationParams, QueryOperator, Timestamp } from "@hieco/utils";
 import type { Schedule } from "./types";
-import type { CursorPaginator, PaginatedResponse } from "../shared/builders";
+import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface ScheduleListParams extends PaginationParams {
@@ -22,7 +22,7 @@ export class ScheduleApi extends BaseApi {
   }
 
   private buildScheduleListParams(params?: ScheduleListParams): Record<string, string> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);

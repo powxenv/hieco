@@ -1,6 +1,6 @@
 import type { ApiResult, EntityId, PaginationParams, Timestamp } from "@hieco/utils";
 import type { Topic, TopicMessage } from "./types";
-import type { CursorPaginator, PaginatedResponse } from "../shared/builders";
+import { QueryBuilder, type CursorPaginator, type PaginatedResponse } from "../shared/builders";
 import { BaseApi } from "../shared/base";
 
 export interface TopicMessagesParams extends PaginationParams {
@@ -20,7 +20,7 @@ export class TopicApi extends BaseApi {
     topicId: EntityId,
     params?: TopicMessagesParams,
   ): Promise<ApiResult<TopicMessage[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -54,7 +54,7 @@ export class TopicApi extends BaseApi {
   }
 
   async listPaginated(params?: PaginationParams): Promise<ApiResult<Topic[]>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -64,7 +64,7 @@ export class TopicApi extends BaseApi {
   }
 
   async listPaginatedPage(params?: PaginationParams): Promise<ApiResult<PaginatedResponse<Topic>>> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);
@@ -78,7 +78,7 @@ export class TopicApi extends BaseApi {
   }
 
   createTopicPaginator(params?: PaginationParams): CursorPaginator<Topic> {
-    const builder = this.createQueryBuilder();
+    const builder = new QueryBuilder();
 
     if (params) {
       builder.addPagination(params);

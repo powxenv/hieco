@@ -4,7 +4,7 @@ import type { UseQueryOptions, UseQueryResult } from "@tanstack/preact-query";
 import type { ApiResult, ApiError, TransactionDetails } from "@hieco/mirror";
 import type { EntityId } from "@hieco/mirror";
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
-import { mirrorNodeKeys, isSuccess, isApiError } from "@hieco/utils";
+import { mirrorNodeKeys } from "@hieco/utils";
 
 export interface UsePollTransactionOptions extends Omit<
   UseQueryOptions<ApiResult<TransactionDetails>, ApiError>,
@@ -45,11 +45,11 @@ export function usePollTransaction(options: UsePollTransactionOptions): UsePollT
       const data = query.state.data;
       if (!data) return intervalMs;
 
-      if (isApiError(data)) {
+      if (!data.success) {
         return false;
       }
 
-      if (stopOnConfirmed && isSuccess(data)) {
+      if (stopOnConfirmed) {
         const result = data.data.result;
         if (result === "SUCCESS") {
           return false;

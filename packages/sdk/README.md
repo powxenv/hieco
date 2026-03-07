@@ -373,17 +373,13 @@ Loaders and actions are a natural place for server-owned credentials. Client com
 
 ### Utility Exports
 
-| Export               | Kind     | Purpose                                                 | Usage form                          |
-| -------------------- | -------- | ------------------------------------------------------- | ----------------------------------- | ---------------------- |
-| `EntityId`           | type     | Hedera entity identifier template literal type.         | `type EntityId`                     |
-| `NetworkType`        | type     | Supported default network names.                        | `type NetworkType`                  |
-| `NETWORK_CONFIGS`    | const    | Default network and mirror endpoint definitions.        | `NETWORK_CONFIGS.testnet`           |
-| `assertEntityId`     | function | Assert that a string is a valid entity ID.              | `assertEntityId(value)`             |
-| `formatEntityId`     | function | Build an entity ID from parts.                          | `formatEntityId(shard, realm, num)` |
-| `isDefaultNetwork`   | function | Check whether a network string is one of the built-ins. | `isDefaultNetwork(value)`           |
-| `isValidEntityId`    | function | Validate an entity ID string.                           | `isValidEntityId(value)`            |
-| `parseEntityId`      | function | Parse a string into `EntityId                           | null`.                              | `parseEntityId(value)` |
-| `parseEntityIdParts` | function | Split an entity ID into tuple parts.                    | `parseEntityIdParts(id)`            |
+| Export             | Kind     | Purpose                                                 | Usage form                |
+| ------------------ | -------- | ------------------------------------------------------- | ------------------------- |
+| `EntityId`         | type     | Hedera entity identifier string alias.                  | `type EntityId`           |
+| `NetworkType`      | type     | Supported default network names.                        | `type NetworkType`        |
+| `NETWORK_CONFIGS`  | const    | Default network and mirror endpoint definitions.        | `NETWORK_CONFIGS.testnet` |
+| `isDefaultNetwork` | function | Check whether a network string is one of the built-ins. | `isDefaultNetwork(value)` |
+| `isValidEntityId`  | function | Validate an entity ID string.                           | `isValidEntityId(value)`  |
 
 ## Related Packages
 

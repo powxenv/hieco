@@ -1,12 +1,12 @@
 import { Client, Hbar } from "@hiero-ledger/sdk";
 import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
 import type { EntityId } from "@hieco/utils";
-import { createMirrorNodeClient, type MirrorNodeClient } from "@hieco/mirror";
+import { MirrorNodeClient } from "@hieco/mirror";
 import type { ClientConfig, TransactionDescriptor } from "../shared/params.ts";
 import type { ClientRuntimeConfig } from "./runtime.ts";
 import type { Result } from "../results/result.ts";
 import { err } from "../results/result.ts";
-import { loadConfigFromEnv, resolveConfig, validateConfig } from "./config.ts";
+import { loadConfigFromEnv, resolveConfig } from "./config.ts";
 import { createAccountsNamespace } from "../accounts/api.ts";
 import { createTokensNamespace } from "../tokens/api.ts";
 import { createTopicsNamespace } from "../topics/api.ts";
@@ -73,7 +73,10 @@ export class HieroClient {
     }
     this.config = resolved.value;
     this.nativeClient = this.createNativeClient(this.config);
-    this.mirror = createMirrorNodeClient(this.config.network, this.config.mirrorUrl);
+    this.mirror = new MirrorNodeClient({
+      network: this.config.network,
+      ...(this.config.mirrorUrl ? { mirrorNodeUrl: this.config.mirrorUrl } : {}),
+    });
 
     const submit = (descriptor: TransactionDescriptor): Promise<Result<TransactionReceiptData>> =>
       this.submit(descriptor);
@@ -209,7 +212,7 @@ export class HieroClient {
   }
 
   static validateConfig(config: ClientConfig = {}): Result<ClientRuntimeConfig> {
-    return validateConfig(config);
+    return resolveConfig(config);
   }
 
   static fromEnv(options?: { readonly allowMissingSigner?: boolean }): HieroClient {

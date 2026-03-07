@@ -1,14 +1,7 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 import { getMirrorClient } from "../../client";
-import { asEntityId } from "@hieco/utils";
-import {
-  entityIdSchema,
-  limitSchema,
-  timestampSchema,
-  hex64Schema,
-  toApiParams,
-} from "../../schemas";
+import { entityIdSchema, limitSchema, timestampSchema, hex64Schema } from "../../schemas";
 import { handleApiResult } from "../../errors";
 
 export const getTransaction = createTool({
@@ -48,7 +41,7 @@ export const getTransactionsByAccount = createTool({
     transactionType,
     type,
   }) => {
-    const resultData = await getMirrorClient().transaction.listByAccount(asEntityId(accountId), {
+    const resultData = await getMirrorClient().transaction.listByAccount(accountId, {
       result,
       scheduled,
       timestamp,
@@ -79,20 +72,20 @@ export const listTransactions = createTool({
     type: z.enum(["credit", "debit"]).optional().describe("Filter by credit/debit type"),
   }),
   execute: async (params) => {
-    const apiParams = toApiParams({
+    const apiParams = {
       account: params.account,
-      accountId: params.accountId,
+      "account.id": params.accountId,
       limit: params.limit,
       order: params.order,
       result: params.result,
       scheduled: params.scheduled,
       timestamp: params.timestamp,
-      transactionId: params.transactionId,
-      transactionHash: params.transactionHash,
-      transactionType: params.transactionType,
-      transfersAccount: params.transfersAccount,
+      transaction_id: params.transactionId,
+      transactionhash: params.transactionHash,
+      transactiontype: params.transactionType,
+      "transfers.account": params.transfersAccount,
       type: params.type,
-    });
+    };
     const result = await getMirrorClient().transaction.listPaginated(apiParams);
     return handleApiResult(result, "listTransactions");
   },

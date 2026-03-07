@@ -1,4 +1,5 @@
 import type { ApiResult, PaginationParams, QueryOperator, Timestamp } from "@hieco/utils";
+import { findPageItems } from "./page";
 
 export class QueryBuilder {
   private params: Map<string, string> = new Map();
@@ -90,15 +91,11 @@ export class CursorPaginator<T> implements AsyncIterable<T> {
       const response = result.data;
       this.nextUrl = response.links.next ?? null;
 
-      const arrayKey = Object.keys(response).find(
-        (key) => key !== "links" && Array.isArray(response[key]),
-      );
+      const items = findPageItems<T>(response);
 
-      if (!arrayKey) {
+      if (!items) {
         throw new Error("No array found in paginated response");
       }
-
-      const items = response[arrayKey] as readonly T[];
       for (const item of items) {
         yield item;
       }
@@ -107,12 +104,5 @@ export class CursorPaginator<T> implements AsyncIterable<T> {
         break;
       }
     }
-  }
-
-  static create<T>(
-    baseUrl: string,
-    fetchFn: (url: string) => Promise<ApiResult<PaginatedResponse<T>>>,
-  ): CursorPaginator<T> {
-    return new CursorPaginator<T>(baseUrl, fetchFn);
   }
 }

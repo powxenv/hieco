@@ -1,19 +1,17 @@
 import type { ApiError, ApiResult } from "@hieco/utils";
-import type { StreamConfig } from "./stream";
+import type { StreamConfig, StreamState } from "./stream";
 import type { JsonRpcRequest } from "../protocol/rpc";
 import type { RelayMessage, RelaySubscription } from "../subscriptions/subscription";
-import { BaseStreamClient } from "./base";
 import { RequestManager } from "./requests";
 import { SubscriptionManager } from "../subscriptions/manager";
 import { createSubscriptionId } from "../subscriptions/ids";
 
 type ConnectSettler = (result: ApiResult<null>) => void;
 
-export class RelayWebSocketClient extends BaseStreamClient<
-  RelayMessage,
-  RelaySubscription,
-  boolean
-> {
+export class RelayWebSocketClient {
+  private readonly config: StreamConfig;
+  private state: StreamState = { _tag: "Disconnected" };
+  private readonly stateListeners = new Set<(state: StreamState) => void>();
   private ws: WebSocket | null = null;
   private requestId = 0;
   private readonly subscriptionManager = new SubscriptionManager();
@@ -26,7 +24,7 @@ export class RelayWebSocketClient extends BaseStreamClient<
   private manualDisconnect = false;
 
   constructor(config: StreamConfig) {
-    super(config);
+    this.config = config;
   }
 
   async connect(): Promise<ApiResult<null>> {
@@ -143,6 +141,17 @@ export class RelayWebSocketClient extends BaseStreamClient<
         },
       });
     });
+  }
+
+  getState(): StreamState {
+    return this.state;
+  }
+
+  onStateChange(listener: (state: StreamState) => void): () => void {
+    this.stateListeners.add(listener);
+    return () => {
+      this.stateListeners.delete(listener);
+    };
   }
 
   private openWebSocket(): Promise<ApiResult<null>> {
@@ -396,5 +405,12 @@ export class RelayWebSocketClient extends BaseStreamClient<
   private nextRequestId(): number {
     this.requestId += 1;
     return this.requestId;
+  }
+
+  private setState(newState: StreamState): void {
+    this.state = newState;
+    for (const listener of this.stateListeners) {
+      listener(newState);
+    }
   }
 }

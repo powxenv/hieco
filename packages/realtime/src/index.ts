@@ -15,11 +15,3 @@ export type {
   RelayMessage,
   RelaySubscription,
 } from "./subscriptions/subscription";
-export { mapJsonRpcErrorCode } from "./protocol/errors";
-export {
-  isJsonRpcResponse,
-  isRelayMessage,
-  isSubscribeResponse,
-  isUnsubscribeResponse,
-  isChainIdResponse,
-} from "./protocol/guards";
