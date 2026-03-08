@@ -26,6 +26,7 @@ export function useFileUpdateLarge<TContext = unknown>(
   return useHiecoMutation({
     operationName: "file.updateLarge",
     createHandle: (variables) => client.file.updateLarge(variables),
+    variables: "required",
     options,
   });
 }

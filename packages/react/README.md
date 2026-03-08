@@ -120,7 +120,7 @@ The hook surface mirrors the SDK namespaces:
 - mutation hooks usually look like `useAccountSend(options?)`
 - read-only Mirror hooks are grouped under `useRead...`
 
-Transaction-capable hooks return mutation objects that preserve SDK behaviors such as `buildTx()` and `queue()`.
+Transaction-capable hooks return `HiecoActionMutationResult`, which preserves SDK behaviors such as `buildTx()` and `queue()`. Read-write hooks without a transaction action return plain `HiecoMutationResult`.
 
 ### Signer-Aware Runtime
 
@@ -287,26 +287,27 @@ If you already own the AppKit session elsewhere, `useHiecoAppKitSigner()` gives 
 
 ### Runtime Hooks And Utilities
 
-| Export                   | Kind     | Purpose                                                          | Usage form                                               |
-| ------------------------ | -------- | ---------------------------------------------------------------- | -------------------------------------------------------- |
-| `useHiecoClient`         | hook     | Access the active `HiecoClient`.                                 | `useHiecoClient()`                                       |
-| `useHiecoConfig`         | hook     | Access the resolved provider config.                             | `useHiecoConfig()`                                       |
-| `useHiecoContext`        | hook     | Access the low-level provider context.                           | `useHiecoContext()`                                      |
-| `useHiecoNetwork`        | hook     | Read the active network and mirror URL context.                  | `useHiecoNetwork()`                                      |
-| `useHiecoSession`        | hook     | Read the current runtime session data.                           | `useHiecoSession()`                                      |
-| `useHiecoSigner`         | hook     | Read the current signer, if any.                                 | `useHiecoSigner()`                                       |
-| `useHiecoAccount`        | hook     | Read the signer-derived account identity, if available.          | `useHiecoAccount()`                                      |
-| `useTopicWatch`          | hook     | Start a live topic watcher tied to the component lifecycle.      | `useTopicWatch(topicId, handler, options?)`              |
-| `useTopicWatchFrom`      | hook     | Start a topic watcher from a specific timestamp or range.        | `useTopicWatchFrom(topicId, handler, options?)`          |
-| `useContractAbi`         | hook     | Resolve or derive a contract ABI helper from the current client. | `useContractAbi(...)`                                    |
-| `useFileJson`            | hook     | Read file contents and parse them as JSON.                       | `useFileJson(fileId, options?)`                          |
-| `useFileContentsJson`    | hook     | Read file contents JSON through the `file.contentsJson` API.     | `useFileContentsJson(fileId, options?)`                  |
-| `createHiecoQueryKey`    | function | Build a stable query key from scope and args.                    | `createHiecoQueryKey(scope, operation, args?)`           |
-| `createHiecoMutationKey` | function | Build a stable mutation key from scope and args.                 | `createHiecoMutationKey(scope, operation, args?)`        |
-| `HiecoQueryOptions`      | type     | Shared TanStack Query options for query hooks.                   | `type HiecoQueryOptions<TQueryFnData, TData>`            |
-| `HiecoQueryResult`       | type     | Shared query result alias.                                       | `type HiecoQueryResult<TData>`                           |
-| `HiecoMutationOptions`   | type     | Shared mutation options for mutation hooks.                      | `type HiecoMutationOptions<TData, TVariables, TContext>` |
-| `HiecoMutationResult`    | type     | Shared mutation result alias.                                    | `type HiecoMutationResult<TData, TVariables, TContext>`  |
+| Export                      | Kind     | Purpose                                                          | Usage form                                                    |
+| --------------------------- | -------- | ---------------------------------------------------------------- | ------------------------------------------------------------- |
+| `useHiecoClient`            | hook     | Access the active `HiecoClient`.                                 | `useHiecoClient()`                                            |
+| `useHiecoConfig`            | hook     | Access the resolved provider config.                             | `useHiecoConfig()`                                            |
+| `useHiecoContext`           | hook     | Access the low-level provider context.                           | `useHiecoContext()`                                           |
+| `useHiecoNetwork`           | hook     | Read the active network and mirror URL context.                  | `useHiecoNetwork()`                                           |
+| `useHiecoSession`           | hook     | Read the current runtime session data.                           | `useHiecoSession()`                                           |
+| `useHiecoSigner`            | hook     | Read the current signer, if any.                                 | `useHiecoSigner()`                                            |
+| `useHiecoAccount`           | hook     | Read the signer-derived account identity, if available.          | `useHiecoAccount()`                                           |
+| `useTopicWatch`             | hook     | Start a live topic watcher tied to the component lifecycle.      | `useTopicWatch(topicId, handler, options?)`                   |
+| `useTopicWatchFrom`         | hook     | Start a topic watcher from a specific timestamp or range.        | `useTopicWatchFrom(topicId, handler, options?)`               |
+| `useContractAbi`            | hook     | Resolve or derive a contract ABI helper from the current client. | `useContractAbi(...)`                                         |
+| `useFileJson`               | hook     | Read file contents and parse them as JSON.                       | `useFileJson(fileId, options?)`                               |
+| `useFileContentsJson`       | hook     | Read file contents JSON through the `file.contentsJson` API.     | `useFileContentsJson(fileId, options?)`                       |
+| `createHiecoQueryKey`       | function | Build a stable query key from scope and args.                    | `createHiecoQueryKey(scope, operation, args?)`                |
+| `createHiecoMutationKey`    | function | Build a stable mutation key from scope and args.                 | `createHiecoMutationKey(scope, operation, args?)`             |
+| `HiecoQueryOptions`         | type     | Shared TanStack Query options for query hooks.                   | `type HiecoQueryOptions<TQueryFnData, TData>`                 |
+| `HiecoQueryResult`          | type     | Shared query result alias.                                       | `type HiecoQueryResult<TData>`                                |
+| `HiecoMutationOptions`      | type     | Shared mutation options for mutation hooks.                      | `type HiecoMutationOptions<TData, TVariables, TContext>`      |
+| `HiecoMutationResult`       | type     | Shared mutation result alias for plain mutations.                | `type HiecoMutationResult<TData, TVariables, TContext>`       |
+| `HiecoActionMutationResult` | type     | Shared mutation result alias for transaction-capable mutations.  | `type HiecoActionMutationResult<TData, TVariables, TContext>` |
 
 ### Hook Families
 

@@ -26,6 +26,7 @@ export function useTokenRejectFlow<TContext = unknown>(
   return useHiecoMutation({
     operationName: "token.rejectFlow",
     createHandle: (variables) => client.token.rejectFlow(variables),
+    variables: "required",
     options,
   });
 }

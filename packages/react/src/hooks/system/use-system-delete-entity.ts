@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseSystemDeleteEntityOptions<TContext = unknown> = HiecoMutationOpti
 
 export function useSystemDeleteEntity<TContext = unknown>(
   options?: UseSystemDeleteEntityOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "system.deleteEntity",
     createHandle: (variables) => client.system.deleteEntity(variables),
     createAction: (variables) => client.system.deleteEntity(variables),
+    variables: "required",
     options,
   });
 }

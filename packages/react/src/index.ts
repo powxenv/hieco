@@ -1,6 +1,7 @@
 export * from "./provider";
 export * from "./hooks";
 export type {
+  HiecoActionMutationResult,
   HiecoMutationOptions,
   HiecoMutationResult,
   HiecoQueryOptions,

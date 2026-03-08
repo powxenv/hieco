@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseContractDeleteOptions<TContext = unknown> = HiecoMutationOptions<
 
 export function useContractDelete<TContext = unknown>(
   options?: UseContractDeleteOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "contract.delete",
     createHandle: (variables) => client.contract.delete(variables),
     createAction: (variables) => client.contract.delete(variables),
+    variables: "required",
     options,
   });
 }

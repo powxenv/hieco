@@ -21,6 +21,7 @@ export function useNetworkUpdate<TContext = unknown>(
   return useHiecoMutation({
     operationName: "net.update",
     createHandle: () => client.net.update(),
+    variables: "none",
     options,
   });
 }

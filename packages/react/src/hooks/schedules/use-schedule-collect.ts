@@ -26,6 +26,7 @@ export function useScheduleCollect<TContext = unknown>(
   return useHiecoMutation({
     operationName: "schedule.collect",
     createHandle: (variables) => client.schedule.collect(variables),
+    variables: "required",
     options,
   });
 }

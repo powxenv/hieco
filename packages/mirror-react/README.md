@@ -85,6 +85,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 - `defaultNetwork`
 - optional `networks`
 
+Built-in networks such as `mainnet`, `testnet`, and `previewnet` work without extra setup. Custom network names must be present in `config.networks`, and the provider now fails immediately if a custom `defaultNetwork` or `switchNetwork(...)` target has no configured URL.
+
 The context also exposes:
 
 - `network`
@@ -134,6 +136,8 @@ export function NetworkSwitcher() {
   );
 }
 ```
+
+`switchNetwork(...)` accepts plain network names, but custom names must exist in `config.networks`.
 
 ### Infinite Queries
 

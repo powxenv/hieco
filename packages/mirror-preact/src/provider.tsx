@@ -1,7 +1,7 @@
 import { createContext, type VNode } from "preact";
 import { useCallback, useMemo, useState } from "preact/hooks";
 import { MirrorNodeClient } from "@hieco/mirror";
-import { type NetworkConfig, isDefaultNetwork, getNetworkUrl } from "@hieco/utils";
+import { type NetworkConfig, getRequiredNetworkUrl, isDefaultNetwork } from "@hieco/utils";
 
 export type { NetworkConfig };
 
@@ -26,23 +26,24 @@ export function MirrorNodeProvider({ children, config }: MirrorNodeProviderProps
   const networks = config.networks ?? EMPTY_NETWORKS;
 
   const [network, setNetwork] = useState<string>(defaultNetwork);
-  const [mirrorNodeUrl, setMirrorNodeUrl] = useState<string | undefined>(
-    getNetworkUrl(defaultNetwork, networks),
+  const mirrorNodeUrl = useMemo(
+    () => getRequiredNetworkUrl(network, networks),
+    [network, networks],
   );
 
   const client = useMemo(
     () =>
       new MirrorNodeClient({
         network: isDefaultNetwork(network) ? network : "mainnet",
-        mirrorNodeUrl: mirrorNodeUrl ?? getNetworkUrl(network, networks),
+        mirrorNodeUrl,
       }),
-    [mirrorNodeUrl, network, networks],
+    [mirrorNodeUrl, network],
   );
 
   const switchNetwork = useCallback(
     (nextNetwork: string) => {
+      getRequiredNetworkUrl(nextNetwork, networks);
       setNetwork(nextNetwork);
-      setMirrorNodeUrl(getNetworkUrl(nextNetwork, networks));
     },
     [networks],
   );

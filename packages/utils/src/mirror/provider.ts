@@ -26,3 +26,18 @@ export function getNetworkUrl(
   }
   return customNetworks[network];
 }
+
+export function getRequiredNetworkUrl(
+  network: string,
+  customNetworks: Record<string, string>,
+): string {
+  const url = getNetworkUrl(network, customNetworks);
+
+  if (url !== undefined) {
+    return url;
+  }
+
+  throw new Error(
+    `Unknown custom network "${network}". Add it to config.networks before using it.`,
+  );
+}

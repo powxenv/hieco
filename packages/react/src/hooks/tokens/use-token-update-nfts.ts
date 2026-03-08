@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseTokenUpdateNftsOptions<TContext = unknown> = HiecoMutationOptions
 
 export function useTokenUpdateNfts<TContext = unknown>(
   options?: UseTokenUpdateNftsOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "token.updateNfts",
     createHandle: (variables) => client.token.updateNfts(variables),
     createAction: (variables) => client.token.updateNfts(variables),
+    variables: "required",
     options,
   });
 }

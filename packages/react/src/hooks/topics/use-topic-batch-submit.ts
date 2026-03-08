@@ -26,6 +26,7 @@ export function useTopicBatchSubmit<TContext = unknown>(
   return useHiecoMutation({
     operationName: "topic.batchSubmit",
     createHandle: (variables) => client.topic.batchSubmit(variables),
+    variables: "required",
     options,
   });
 }

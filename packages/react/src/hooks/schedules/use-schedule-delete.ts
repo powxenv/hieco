@@ -30,6 +30,7 @@ export function useScheduleDelete<TContext = unknown>(
   return useHiecoMutation({
     operationName: "schedule.delete",
     createHandle: (variables) => client.schedule.delete(variables.scheduleId, variables.params),
+    variables: "required",
     options,
   });
 }

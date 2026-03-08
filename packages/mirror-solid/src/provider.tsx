@@ -1,6 +1,6 @@
 import { createContext, createMemo, createSignal, type JSX, type Accessor } from "solid-js";
 import { MirrorNodeClient } from "@hieco/mirror";
-import { type NetworkConfig, isDefaultNetwork, getNetworkUrl } from "@hieco/utils";
+import { type NetworkConfig, getRequiredNetworkUrl, isDefaultNetwork } from "@hieco/utils";
 
 export type { NetworkConfig };
 
@@ -25,22 +25,20 @@ export function MirrorNodeProvider({ children, config }: MirrorNodeProviderProps
   const networks = config.networks ?? EMPTY_NETWORKS;
 
   const [network, setNetwork] = createSignal<string>(defaultNetwork);
-  const [mirrorNodeUrl, setMirrorNodeUrl] = createSignal<string | undefined>(
-    getNetworkUrl(defaultNetwork, networks),
-  );
+  const mirrorNodeUrl = createMemo(() => getRequiredNetworkUrl(network(), networks));
 
   const client = createMemo(() => {
     const currentNetwork = network();
 
     return new MirrorNodeClient({
       network: isDefaultNetwork(currentNetwork) ? currentNetwork : "mainnet",
-      mirrorNodeUrl: mirrorNodeUrl() ?? getNetworkUrl(currentNetwork, networks),
+      mirrorNodeUrl: mirrorNodeUrl(),
     });
   });
 
   const switchNetwork = (nextNetwork: string): void => {
+    getRequiredNetworkUrl(nextNetwork, networks);
     setNetwork(nextNetwork);
-    setMirrorNodeUrl(getNetworkUrl(nextNetwork, networks));
   };
 
   const value: MirrorNodeContextValue = {

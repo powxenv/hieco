@@ -30,6 +30,7 @@ export function useScheduleSign<TContext = unknown>(
   return useHiecoMutation({
     operationName: "schedule.sign",
     createHandle: (variables) => client.schedule.sign(variables.scheduleId, variables.params),
+    variables: "required",
     options,
   });
 }

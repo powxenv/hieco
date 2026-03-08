@@ -26,6 +26,7 @@ export function useContractDeployArtifact<TContext = unknown>(
   return useHiecoMutation({
     operationName: "contract.deployArtifact",
     createHandle: (variables) => client.contract.deployArtifact(variables),
+    variables: "required",
     options,
   });
 }

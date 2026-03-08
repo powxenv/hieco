@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseTokenUnpauseOptions<TContext = unknown> = HiecoMutationOptions<
 
 export function useTokenUnpause<TContext = unknown>(
   options?: UseTokenUnpauseOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "token.unpause",
     createHandle: (variables) => client.token.unpause(variables),
     createAction: (variables) => client.token.unpause(variables),
+    variables: "required",
     options,
   });
 }

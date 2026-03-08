@@ -26,6 +26,7 @@ export function useAccountEnsureAllowances<TContext = unknown>(
   return useHiecoMutation({
     operationName: "account.ensureAllowances",
     createHandle: (variables) => client.account.ensureAllowances(variables),
+    variables: "required",
     options,
   });
 }

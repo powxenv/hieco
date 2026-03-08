@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseLegacyLiveHashDeleteOptions<TContext = unknown> = HiecoMutationOp
 
 export function useLegacyLiveHashDelete<TContext = unknown>(
   options?: UseLegacyLiveHashDeleteOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "legacy.liveHash.delete",
     createHandle: (variables) => client.legacy.liveHash.delete(variables),
     createAction: (variables) => client.legacy.liveHash.delete(variables),
+    variables: "required",
     options,
   });
 }

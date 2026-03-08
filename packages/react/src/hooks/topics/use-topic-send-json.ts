@@ -26,6 +26,7 @@ export function useTopicSendJson<TContext = unknown>(
   return useHiecoMutation({
     operationName: "topic.sendJson",
     createHandle: (variables) => client.topic.sendJson(variables),
+    variables: "required",
     options,
   });
 }

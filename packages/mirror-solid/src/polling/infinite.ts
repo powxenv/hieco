@@ -3,7 +3,7 @@ import type { UseInfiniteQueryResult } from "@tanstack/solid-query";
 import type { ApiResult, ApiError, PaginatedResponse } from "@hieco/mirror";
 import type { Accessor } from "solid-js";
 
-type MirrorNodeListQueryKey = readonly ["mirror-node", string, string, "list"];
+type MirrorNodeListQueryKey = readonly ["mirror-node", string, ...ReadonlyArray<string | number>];
 
 export function createMirrorNodeInfiniteQuery<T, TOptions>(
   queryKey: MirrorNodeListQueryKey,

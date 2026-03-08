@@ -2,6 +2,7 @@ import { describe, test, expect } from "bun:test";
 import {
   isDefaultNetwork,
   getNetworkUrl,
+  getRequiredNetworkUrl,
   DEFAULT_MIRROR_NODE_URLS,
   type NetworkType,
 } from "../src/mirror/provider";
@@ -103,5 +104,25 @@ describe("getNetworkUrl", () => {
     expect(getNetworkUrl("custom-1", customNetworks)).toBe("https://custom-1.com");
     expect(getNetworkUrl("custom-2", customNetworks)).toBe("https://custom-2.com");
     expect(getNetworkUrl("mainnet", customNetworks)).toBe("https://custom-mainnet.com");
+  });
+});
+
+describe("getRequiredNetworkUrl", () => {
+  test("returns the built-in URL for default networks", () => {
+    expect(getRequiredNetworkUrl("testnet", {})).toBe(DEFAULT_MIRROR_NODE_URLS.testnet);
+  });
+
+  test("returns the configured URL for custom networks", () => {
+    expect(
+      getRequiredNetworkUrl("localnet", {
+        localnet: "https://mirror.localnet.example",
+      }),
+    ).toBe("https://mirror.localnet.example");
+  });
+
+  test("throws for unresolved custom networks", () => {
+    expect(() => getRequiredNetworkUrl("localnet", {})).toThrow(
+      'Unknown custom network "localnet". Add it to config.networks before using it.',
+    );
   });
 });

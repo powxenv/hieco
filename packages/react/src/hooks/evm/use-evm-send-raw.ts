@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseEvmSendRawOptions<TContext = unknown> = HiecoMutationOptions<
 
 export function useEvmSendRaw<TContext = unknown>(
   options?: UseEvmSendRawOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "evm.sendRaw",
     createHandle: (variables) => client.evm.sendRaw(variables),
     createAction: (variables) => client.evm.sendRaw(variables),
+    variables: "required",
     options,
   });
 }

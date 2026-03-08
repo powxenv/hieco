@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseTokenFreezeOptions<TContext = unknown> = HiecoMutationOptions<
 
 export function useTokenFreeze<TContext = unknown>(
   options?: UseTokenFreezeOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "token.freeze",
     createHandle: (variables) => client.token.freeze(variables),
     createAction: (variables) => client.token.freeze(variables),
+    variables: "required",
     options,
   });
 }

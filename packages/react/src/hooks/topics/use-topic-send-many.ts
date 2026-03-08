@@ -26,6 +26,7 @@ export function useTopicSendMany<TContext = unknown>(
   return useHiecoMutation({
     operationName: "topic.sendMany",
     createHandle: (variables) => client.topic.sendMany(variables),
+    variables: "required",
     options,
   });
 }

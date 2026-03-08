@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseLegacyLiveHashAddOptions<TContext = unknown> = HiecoMutationOptio
 
 export function useLegacyLiveHashAdd<TContext = unknown>(
   options?: UseLegacyLiveHashAddOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "legacy.liveHash.add",
     createHandle: (variables) => client.legacy.liveHash.add(variables),
     createAction: (variables) => client.legacy.liveHash.add(variables),
+    variables: "required",
     options,
   });
 }

@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseBatchAtomicOptions<TContext = unknown> = HiecoMutationOptions<
 
 export function useBatchAtomic<TContext = unknown>(
   options?: UseBatchAtomicOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "batch.atomic",
     createHandle: (variables) => client.batch.atomic(variables),
     createAction: (variables) => client.batch.atomic(variables),
+    variables: "required",
     options,
   });
 }

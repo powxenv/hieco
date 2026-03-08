@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseAccountAdjustAllowancesOptions<TContext = unknown> = HiecoMutatio
 
 export function useAccountAdjustAllowances<TContext = unknown>(
   options?: UseAccountAdjustAllowancesOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "account.adjustAllowances",
     createHandle: (variables) => client.account.adjustAllowances(variables),
     createAction: (variables) => client.account.adjustAllowances(variables),
+    variables: "required",
     options,
   });
 }

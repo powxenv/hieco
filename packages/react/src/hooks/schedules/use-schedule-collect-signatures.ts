@@ -26,6 +26,7 @@ export function useScheduleCollectSignatures<TContext = unknown>(
   return useHiecoMutation({
     operationName: "schedule.collectSignatures",
     createHandle: (variables) => client.schedule.collectSignatures(variables),
+    variables: "required",
     options,
   });
 }

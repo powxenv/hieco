@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseTokenGrantKycOptions<TContext = unknown> = HiecoMutationOptions<
 
 export function useTokenGrantKyc<TContext = unknown>(
   options?: UseTokenGrantKycOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "token.grantKyc",
     createHandle: (variables) => client.token.grantKyc(variables),
     createAction: (variables) => client.token.grantKyc(variables),
+    variables: "required",
     options,
   });
 }

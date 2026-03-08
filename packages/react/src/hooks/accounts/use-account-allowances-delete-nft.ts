@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseAccountAllowancesDeleteNftOptions<TContext = unknown> = HiecoMuta
 
 export function useAccountAllowancesDeleteNft<TContext = unknown>(
   options?: UseAccountAllowancesDeleteNftOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "account.allowancesDeleteNft",
     createHandle: (variables) => client.account.allowancesDeleteNft(variables),
     createAction: (variables) => client.account.allowancesDeleteNft(variables),
+    variables: "required",
     options,
   });
 }

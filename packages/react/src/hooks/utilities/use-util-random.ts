@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseUtilRandomOptions<TContext = unknown> = HiecoMutationOptions<
 
 export function useUtilRandom<TContext = unknown>(
   options?: UseUtilRandomOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "util.random",
     createHandle: (variables) => client.util.random(variables),
     createAction: (variables) => client.util.random(variables),
+    variables: "required",
     options,
   });
 }

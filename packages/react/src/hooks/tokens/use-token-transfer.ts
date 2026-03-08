@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseTokenTransferOptions<TContext = unknown> = HiecoMutationOptions<
 
 export function useTokenTransfer<TContext = unknown>(
   options?: UseTokenTransferOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "token.transfer",
     createHandle: (variables) => client.token.transfer(variables),
     createAction: (variables) => client.token.transfer(variables),
+    variables: "required",
     options,
   });
 }

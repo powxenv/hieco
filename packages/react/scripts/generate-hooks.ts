@@ -254,7 +254,8 @@ function createMutationHookFile(definition: MutationHook): string {
   const depth = definition.filePath.split("/").length - 1;
   const hooksPrefix = "../".repeat(depth);
   const internalPrefix = "../".repeat(depth + 1);
-  const imports = ["HiecoMutationOptions", "HiecoMutationResult", "OperationData"];
+  const resultType = definition.usesAction ? "HiecoActionMutationResult" : "HiecoMutationResult";
+  const imports = ["HiecoMutationOptions", resultType, "OperationData"];
   const lines: string[] = [];
 
   if (definition.mode === "single") {
@@ -311,12 +312,13 @@ export type ${optionsType}<TContext = unknown> = HiecoMutationOptions<
 
 export function ${definition.hookName}<TContext = unknown>(
   options?: ${optionsType}<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): ${resultType}<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "${definition.methodPath.join(".")}",
     createHandle: ${handleExpression}${actionBlock},
+    variables: "${definition.mode === "none" ? "none" : "required"}",
     options,
   });
 }

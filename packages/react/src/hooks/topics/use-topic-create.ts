@@ -3,7 +3,7 @@ import { useHiecoClient } from "../use-hieco-client";
 import { useHiecoMutation } from "../../shared/use-hieco-mutation";
 import type {
   HiecoMutationOptions,
-  HiecoMutationResult,
+  HiecoActionMutationResult,
   OperationData,
   SingleOperationInput,
 } from "../../shared/types";
@@ -20,13 +20,14 @@ export type UseTopicCreateOptions<TContext = unknown> = HiecoMutationOptions<
 
 export function useTopicCreate<TContext = unknown>(
   options?: UseTopicCreateOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoActionMutationResult<MutationData, Variables, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({
     operationName: "topic.create",
     createHandle: (variables) => client.topic.create(variables),
     createAction: (variables) => client.topic.create(variables),
+    variables: "required",
     options,
   });
 }

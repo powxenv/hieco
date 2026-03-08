@@ -26,6 +26,7 @@ export function useTransactionSubmit<TContext = unknown>(
   return useHiecoMutation({
     operationName: "tx.submit",
     createHandle: (variables) => client.tx.submit(variables),
+    variables: "required",
     options,
   });
 }

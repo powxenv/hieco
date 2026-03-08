@@ -26,6 +26,7 @@ export function useScheduleCreateIdempotent<TContext = unknown>(
   return useHiecoMutation({
     operationName: "schedule.createIdempotent",
     createHandle: (variables) => client.schedule.createIdempotent(variables),
+    variables: "required",
     options,
   });
 }

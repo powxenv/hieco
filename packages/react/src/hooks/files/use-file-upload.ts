@@ -26,6 +26,7 @@ export function useFileUpload<TContext = unknown>(
   return useHiecoMutation({
     operationName: "file.upload",
     createHandle: (variables) => client.file.upload(variables),
+    variables: "required",
     options,
   });
 }

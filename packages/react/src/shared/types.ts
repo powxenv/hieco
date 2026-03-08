@@ -27,10 +27,23 @@ export type HiecoMutationResult<TData, TVariables = void, TContext = unknown> = 
   HieroError,
   TVariables,
   TContext
-> & {
-  readonly buildTx: (variables?: TVariables) => Result<TransactionDescriptor>;
-  readonly queue: (variables?: TVariables, params?: QueueParams) => Promise<ScheduleReceipt>;
-};
+>;
+
+type HiecoMutationActions<TVariables> = TVariables extends void
+  ? {
+      readonly buildTx: () => Result<TransactionDescriptor>;
+      readonly queue: (params?: QueueParams) => Promise<ScheduleReceipt>;
+    }
+  : {
+      readonly buildTx: (variables: TVariables) => Result<TransactionDescriptor>;
+      readonly queue: (variables: TVariables, params?: QueueParams) => Promise<ScheduleReceipt>;
+    };
+
+export type HiecoActionMutationResult<
+  TData,
+  TVariables = void,
+  TContext = unknown,
+> = HiecoMutationResult<TData, TVariables, TContext> & HiecoMutationActions<TVariables>;
 
 export type HiecoQueryResult<TData> = UseQueryResult<TData, HieroError>;
 
