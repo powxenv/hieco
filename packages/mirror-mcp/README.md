@@ -271,4 +271,3 @@ You can also provide `mirrorNodeUrl` when switching if you want to route the cur
 
 - [`@hieco/mirror`](../mirror/README.md) for the underlying Mirror Node client
 - [`@hieco/mirror-cli`](../mirror-cli/README.md) for terminal-first access to the same data surface
-- [`@hieco/utils`](../utils/README.md) for shared validation and network helpers
