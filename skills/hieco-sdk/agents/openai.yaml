@@ -1,0 +1,7 @@
+interface:
+  display_name: "Hieco SDK"
+  short_description: "Use the core Hieco SDK and React layer"
+  default_prompt: "Use $hieco-sdk to build or explain integrations with @hieco/sdk or @hieco/react."
+
+policy:
+  allow_implicit_invocation: true
