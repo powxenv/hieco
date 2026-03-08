@@ -7,11 +7,8 @@ import { mirrorNodeKeys } from "@hieco/utils";
 
 export type { BalancesListParams } from "@hieco/mirror";
 
-type BalanceQueryFnData<T> = ApiResult<T>;
-type BalanceQueryError = ApiError;
-
 export interface UseBalancesOptions extends Omit<
-  UseQueryOptions<BalanceQueryFnData<BalancesResponse>, BalanceQueryError>,
+  UseQueryOptions<ApiResult<BalancesResponse>, ApiError>,
   "queryKey" | "queryFn"
 > {
   params?: {
@@ -24,10 +21,7 @@ export interface UseBalancesOptions extends Omit<
   };
 }
 
-export type UseBalancesResult = UseQueryResult<
-  BalanceQueryFnData<BalancesResponse>,
-  BalanceQueryError
->;
+export type UseBalancesResult = UseQueryResult<ApiResult<BalancesResponse>, ApiError>;
 
 export function useBalances(options: UseBalancesOptions = {}): UseBalancesResult {
   const client = useMirrorNodeClient();

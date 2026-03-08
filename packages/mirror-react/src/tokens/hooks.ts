@@ -14,20 +14,17 @@ import { mirrorNodeKeys } from "@hieco/utils";
 
 export type { TokenListParams, TokenBalancesParams, TokenNftsParams } from "@hieco/mirror";
 
-type TokenQueryFnData<T> = ApiResult<T>;
-type TokenQueryError = ApiError;
-
 export interface UseTokenInfoOptions extends Omit<
-  UseQueryOptions<TokenQueryFnData<TokenInfo>, TokenQueryError>,
+  UseQueryOptions<ApiResult<TokenInfo>, ApiError>,
   "queryKey" | "queryFn"
 > {
   tokenId: string;
 }
 
-export type UseTokenInfoResult = UseQueryResult<TokenQueryFnData<TokenInfo>, TokenQueryError>;
+export type UseTokenInfoResult = UseQueryResult<ApiResult<TokenInfo>, ApiError>;
 
 export interface UseTokenBalancesOptions extends Omit<
-  UseQueryOptions<TokenQueryFnData<TokenDistribution[]>, TokenQueryError>,
+  UseQueryOptions<ApiResult<TokenDistribution[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   tokenId: string;
@@ -39,13 +36,10 @@ export interface UseTokenBalancesOptions extends Omit<
   };
 }
 
-export type UseTokenBalancesResult = UseQueryResult<
-  TokenQueryFnData<TokenDistribution[]>,
-  TokenQueryError
->;
+export type UseTokenBalancesResult = UseQueryResult<ApiResult<TokenDistribution[]>, ApiError>;
 
 export interface UseTokenBalancesSnapshotOptions extends Omit<
-  UseQueryOptions<TokenQueryFnData<TokenBalancesResponse>, TokenQueryError>,
+  UseQueryOptions<ApiResult<TokenBalancesResponse>, ApiError>,
   "queryKey" | "queryFn"
 > {
   tokenId: string;
@@ -58,35 +52,32 @@ export interface UseTokenBalancesSnapshotOptions extends Omit<
 }
 
 export type UseTokenBalancesSnapshotResult = UseQueryResult<
-  TokenQueryFnData<TokenBalancesResponse>,
-  TokenQueryError
+  ApiResult<TokenBalancesResponse>,
+  ApiError
 >;
 
 export interface UseTokenNftsOptions extends Omit<
-  UseQueryOptions<TokenQueryFnData<PaginatedResponse<Nft>>, TokenQueryError>,
+  UseQueryOptions<ApiResult<PaginatedResponse<Nft>>, ApiError>,
   "queryKey" | "queryFn"
 > {
   tokenId: string;
   params?: { limit?: number; order?: "asc" | "desc"; serial_number?: number };
 }
 
-export type UseTokenNftsResult = UseQueryResult<
-  TokenQueryFnData<PaginatedResponse<Nft>>,
-  TokenQueryError
->;
+export type UseTokenNftsResult = UseQueryResult<ApiResult<PaginatedResponse<Nft>>, ApiError>;
 
 export interface UseTokenNftOptions extends Omit<
-  UseQueryOptions<TokenQueryFnData<Nft>, TokenQueryError>,
+  UseQueryOptions<ApiResult<Nft>, ApiError>,
   "queryKey" | "queryFn"
 > {
   tokenId: string;
   serialNumber: number;
 }
 
-export type UseTokenNftResult = UseQueryResult<TokenQueryFnData<Nft>, TokenQueryError>;
+export type UseTokenNftResult = UseQueryResult<ApiResult<Nft>, ApiError>;
 
 export interface UseTokenNftTransactionsOptions extends Omit<
-  UseQueryOptions<TokenQueryFnData<Transaction[]>, TokenQueryError>,
+  UseQueryOptions<ApiResult<Transaction[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   tokenId: string;
@@ -94,13 +85,10 @@ export interface UseTokenNftTransactionsOptions extends Omit<
   params?: PaginationParams;
 }
 
-export type UseTokenNftTransactionsResult = UseQueryResult<
-  TokenQueryFnData<Transaction[]>,
-  TokenQueryError
->;
+export type UseTokenNftTransactionsResult = UseQueryResult<ApiResult<Transaction[]>, ApiError>;
 
 export interface UseTokensOptions extends Omit<
-  UseQueryOptions<TokenQueryFnData<TokenInfo[]>, TokenQueryError>,
+  UseQueryOptions<ApiResult<TokenInfo[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   params?: {
@@ -111,18 +99,18 @@ export interface UseTokensOptions extends Omit<
   };
 }
 
-export type UseTokensResult = UseQueryResult<TokenQueryFnData<TokenInfo[]>, TokenQueryError>;
+export type UseTokensResult = UseQueryResult<ApiResult<TokenInfo[]>, ApiError>;
 
 export interface UseTokensInfiniteOptions extends Omit<
-  UseInfiniteQueryOptions<TokenQueryFnData<PaginatedResponse<TokenInfo>>, TokenQueryError>,
+  UseInfiniteQueryOptions<ApiResult<PaginatedResponse<TokenInfo>>, ApiError>,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
   params?: { limit?: number; order?: "asc" | "desc" };
 }
 
 export type UseTokensInfiniteResult = UseInfiniteQueryResult<
-  TokenQueryFnData<PaginatedResponse<TokenInfo>>,
-  TokenQueryError
+  ApiResult<PaginatedResponse<TokenInfo>>,
+  ApiError
 >;
 
 export function useTokenInfo(options: UseTokenInfoOptions): UseTokenInfoResult {

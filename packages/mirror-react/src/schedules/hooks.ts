@@ -13,23 +13,17 @@ import { mirrorNodeKeys } from "@hieco/utils";
 
 export type { ScheduleListParams } from "@hieco/mirror";
 
-type ScheduleQueryFnData<T> = ApiResult<T>;
-type ScheduleQueryError = ApiError;
-
 export interface UseScheduleInfoOptions extends Omit<
-  UseQueryOptions<ScheduleQueryFnData<Schedule>, ScheduleQueryError>,
+  UseQueryOptions<ApiResult<Schedule>, ApiError>,
   "queryKey" | "queryFn"
 > {
   scheduleId: string;
 }
 
-export type UseScheduleInfoResult = UseQueryResult<
-  ScheduleQueryFnData<Schedule>,
-  ScheduleQueryError
->;
+export type UseScheduleInfoResult = UseQueryResult<ApiResult<Schedule>, ApiError>;
 
 export interface UseSchedulesOptions extends Omit<
-  UseQueryOptions<ScheduleQueryFnData<Schedule[]>, ScheduleQueryError>,
+  UseQueryOptions<ApiResult<Schedule[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   params?: {
@@ -42,21 +36,18 @@ export interface UseSchedulesOptions extends Omit<
   };
 }
 
-export type UseSchedulesResult = UseQueryResult<
-  ScheduleQueryFnData<Schedule[]>,
-  ScheduleQueryError
->;
+export type UseSchedulesResult = UseQueryResult<ApiResult<Schedule[]>, ApiError>;
 
 export interface UseSchedulesInfiniteOptions extends Omit<
-  UseInfiniteQueryOptions<ScheduleQueryFnData<PaginatedResponse<Schedule>>, ScheduleQueryError>,
+  UseInfiniteQueryOptions<ApiResult<PaginatedResponse<Schedule>>, ApiError>,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
   params?: { limit?: number; order?: "asc" | "desc" };
 }
 
 export type UseSchedulesInfiniteResult = UseInfiniteQueryResult<
-  ScheduleQueryFnData<PaginatedResponse<Schedule>>,
-  ScheduleQueryError
+  ApiResult<PaginatedResponse<Schedule>>,
+  ApiError
 >;
 
 export function useScheduleInfo(options: UseScheduleInfoOptions): UseScheduleInfoResult {

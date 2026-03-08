@@ -257,6 +257,7 @@ function createMutationHookFile(definition: MutationHook): string {
   const resultType = definition.usesAction ? "HiecoActionMutationResult" : "HiecoMutationResult";
   const imports = ["HiecoMutationOptions", resultType, "OperationData"];
   const lines: string[] = [];
+  const variablesType = definition.mode === "none" ? "void" : "Variables";
 
   if (definition.mode === "single") {
     imports.push("SingleOperationInput");
@@ -276,7 +277,6 @@ function createMutationHookFile(definition: MutationHook): string {
   }
 
   if (definition.mode === "none") {
-    lines.push("type Variables = void;");
   }
 
   const handleExpression =
@@ -306,13 +306,13 @@ ${lines.join("\n")}
 
 export type ${optionsType}<TContext = unknown> = HiecoMutationOptions<
   MutationData,
-  Variables,
+  ${variablesType},
   TContext
 >;
 
 export function ${definition.hookName}<TContext = unknown>(
   options?: ${optionsType}<TContext>,
-): ${resultType}<MutationData, Variables, TContext> {
+): ${resultType}<MutationData, ${variablesType}, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({

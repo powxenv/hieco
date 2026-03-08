@@ -7,11 +7,8 @@ import { mirrorNodeKeys } from "@hieco/utils";
 
 export type { BlocksListParams } from "@hieco/mirror";
 
-type BlockQueryFnData<T> = ApiResult<T>;
-type BlockQueryError = ApiError;
-
 export interface UseBlocksOptions extends Omit<
-  UseQueryOptions<BlockQueryFnData<BlocksResponse>, BlockQueryError>,
+  UseQueryOptions<ApiResult<BlocksResponse>, ApiError>,
   "queryKey" | "queryFn"
 > {
   params?: {
@@ -22,16 +19,16 @@ export interface UseBlocksOptions extends Omit<
   };
 }
 
-export type UseBlocksResult = UseQueryResult<BlockQueryFnData<BlocksResponse>, BlockQueryError>;
+export type UseBlocksResult = UseQueryResult<ApiResult<BlocksResponse>, ApiError>;
 
 export interface UseBlockOptions extends Omit<
-  UseQueryOptions<BlockQueryFnData<Block>, BlockQueryError>,
+  UseQueryOptions<ApiResult<Block>, ApiError>,
   "queryKey" | "queryFn"
 > {
   hashOrNumber: string;
 }
 
-export type UseBlockResult = UseQueryResult<BlockQueryFnData<Block>, BlockQueryError>;
+export type UseBlockResult = UseQueryResult<ApiResult<Block>, ApiError>;
 
 export function useBlocks(options: UseBlocksOptions = {}): UseBlocksResult {
   const client = useMirrorNodeClient();

@@ -13,20 +13,17 @@ import { mirrorNodeKeys } from "@hieco/utils";
 
 export type { TopicMessagesParams } from "@hieco/mirror";
 
-type TopicQueryFnData<T> = ApiResult<T>;
-type TopicQueryError = ApiError;
-
 export interface UseTopicInfoOptions extends Omit<
-  UseQueryOptions<TopicQueryFnData<Topic>, TopicQueryError>,
+  UseQueryOptions<ApiResult<Topic>, ApiError>,
   "queryKey" | "queryFn"
 > {
   topicId: string;
 }
 
-export type UseTopicInfoResult = UseQueryResult<TopicQueryFnData<Topic>, TopicQueryError>;
+export type UseTopicInfoResult = UseQueryResult<ApiResult<Topic>, ApiError>;
 
 export interface UseTopicMessagesOptions extends Omit<
-  UseQueryOptions<TopicQueryFnData<TopicMessage[]>, TopicQueryError>,
+  UseQueryOptions<ApiResult<TopicMessage[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   topicId: string;
@@ -38,40 +35,37 @@ export interface UseTopicMessagesOptions extends Omit<
   };
 }
 
-export type UseTopicMessagesResult = UseQueryResult<
-  TopicQueryFnData<TopicMessage[]>,
-  TopicQueryError
->;
+export type UseTopicMessagesResult = UseQueryResult<ApiResult<TopicMessage[]>, ApiError>;
 
 export interface UseTopicMessageOptions extends Omit<
-  UseQueryOptions<TopicQueryFnData<TopicMessage>, TopicQueryError>,
+  UseQueryOptions<ApiResult<TopicMessage>, ApiError>,
   "queryKey" | "queryFn"
 > {
   topicId: string;
   sequenceNumber: number;
 }
 
-export type UseTopicMessageResult = UseQueryResult<TopicQueryFnData<TopicMessage>, TopicQueryError>;
+export type UseTopicMessageResult = UseQueryResult<ApiResult<TopicMessage>, ApiError>;
 
 export interface UseTopicsOptions extends Omit<
-  UseQueryOptions<TopicQueryFnData<Topic[]>, TopicQueryError>,
+  UseQueryOptions<ApiResult<Topic[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   params?: PaginationParams;
 }
 
-export type UseTopicsResult = UseQueryResult<TopicQueryFnData<Topic[]>, TopicQueryError>;
+export type UseTopicsResult = UseQueryResult<ApiResult<Topic[]>, ApiError>;
 
 export interface UseTopicsInfiniteOptions extends Omit<
-  UseInfiniteQueryOptions<TopicQueryFnData<PaginatedResponse<Topic>>, TopicQueryError>,
+  UseInfiniteQueryOptions<ApiResult<PaginatedResponse<Topic>>, ApiError>,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
   params?: { limit?: number; order?: "asc" | "desc" };
 }
 
 export type UseTopicsInfiniteResult = UseInfiniteQueryResult<
-  TopicQueryFnData<PaginatedResponse<Topic>>,
-  TopicQueryError
+  ApiResult<PaginatedResponse<Topic>>,
+  ApiError
 >;
 
 export function useTopicInfo(options: UseTopicInfoOptions): UseTopicInfoResult {
@@ -151,16 +145,13 @@ export function useTopicsInfinite(options: UseTopicsInfiniteOptions): UseTopicsI
 }
 
 export interface UseTopicMessageByTimestampOptions extends Omit<
-  UseQueryOptions<TopicQueryFnData<TopicMessage>, TopicQueryError>,
+  UseQueryOptions<ApiResult<TopicMessage>, ApiError>,
   "queryKey" | "queryFn"
 > {
   timestamp: string;
 }
 
-export type UseTopicMessageByTimestampResult = UseQueryResult<
-  TopicQueryFnData<TopicMessage>,
-  TopicQueryError
->;
+export type UseTopicMessageByTimestampResult = UseQueryResult<ApiResult<TopicMessage>, ApiError>;
 
 export function useTopicMessageByTimestamp(
   options: UseTopicMessageByTimestampOptions,

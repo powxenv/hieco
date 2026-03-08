@@ -11,58 +11,40 @@ import type {
 import { useMirrorNodeClient, useNetwork } from "../context-hooks";
 import { mirrorNodeKeys } from "@hieco/utils";
 
-type NetworkQueryFnData<T> = ApiResult<T>;
-type NetworkQueryError = ApiError;
-
 export interface UseNetworkExchangeRateOptions extends Omit<
-  UseQueryOptions<NetworkQueryFnData<ExchangeRate>, NetworkQueryError>,
+  UseQueryOptions<ApiResult<ExchangeRate>, ApiError>,
   "queryKey" | "queryFn"
 > {}
 
-export type UseNetworkExchangeRateResult = UseQueryResult<
-  NetworkQueryFnData<ExchangeRate>,
-  NetworkQueryError
->;
+export type UseNetworkExchangeRateResult = UseQueryResult<ApiResult<ExchangeRate>, ApiError>;
 
 export interface UseNetworkFeesOptions extends Omit<
-  UseQueryOptions<NetworkQueryFnData<NetworkFee>, NetworkQueryError>,
+  UseQueryOptions<ApiResult<NetworkFee>, ApiError>,
   "queryKey" | "queryFn"
 > {}
 
-export type UseNetworkFeesResult = UseQueryResult<
-  NetworkQueryFnData<NetworkFee>,
-  NetworkQueryError
->;
+export type UseNetworkFeesResult = UseQueryResult<ApiResult<NetworkFee>, ApiError>;
 
 export interface UseNetworkNodesOptions extends Omit<
-  UseQueryOptions<NetworkQueryFnData<NetworkNode[]>, NetworkQueryError>,
+  UseQueryOptions<ApiResult<NetworkNode[]>, ApiError>,
   "queryKey" | "queryFn"
 > {}
 
-export type UseNetworkNodesResult = UseQueryResult<
-  NetworkQueryFnData<NetworkNode[]>,
-  NetworkQueryError
->;
+export type UseNetworkNodesResult = UseQueryResult<ApiResult<NetworkNode[]>, ApiError>;
 
 export interface UseNetworkStakeOptions extends Omit<
-  UseQueryOptions<NetworkQueryFnData<NetworkStake>, NetworkQueryError>,
+  UseQueryOptions<ApiResult<NetworkStake>, ApiError>,
   "queryKey" | "queryFn"
 > {}
 
-export type UseNetworkStakeResult = UseQueryResult<
-  NetworkQueryFnData<NetworkStake>,
-  NetworkQueryError
->;
+export type UseNetworkStakeResult = UseQueryResult<ApiResult<NetworkStake>, ApiError>;
 
 export interface UseNetworkSupplyOptions extends Omit<
-  UseQueryOptions<NetworkQueryFnData<NetworkSupply>, NetworkQueryError>,
+  UseQueryOptions<ApiResult<NetworkSupply>, ApiError>,
   "queryKey" | "queryFn"
 > {}
 
-export type UseNetworkSupplyResult = UseQueryResult<
-  NetworkQueryFnData<NetworkSupply>,
-  NetworkQueryError
->;
+export type UseNetworkSupplyResult = UseQueryResult<ApiResult<NetworkSupply>, ApiError>;
 
 export function useNetworkExchangeRate(
   options: UseNetworkExchangeRateOptions = {},

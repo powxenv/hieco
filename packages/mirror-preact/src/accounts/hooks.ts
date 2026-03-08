@@ -27,48 +27,36 @@ export interface AccountTokenAllowancesParams {
   readonly "token.id"?: string;
 }
 
-type AccountQueryFnData<T> = ApiResult<T>;
-type AccountQueryError = ApiError;
-
 export interface UseAccountInfoOptions extends Omit<
-  UseQueryOptions<AccountQueryFnData<AccountInfo>, AccountQueryError>,
+  UseQueryOptions<ApiResult<AccountInfo>, ApiError>,
   "queryKey" | "queryFn"
 > {
   readonly accountId: string;
 }
 
-export type UseAccountInfoResult = UseQueryResult<
-  AccountQueryFnData<AccountInfo>,
-  AccountQueryError
->;
+export type UseAccountInfoResult = UseQueryResult<ApiResult<AccountInfo>, ApiError>;
 
 export interface UseAccountBalancesOptions extends Omit<
-  UseQueryOptions<AccountQueryFnData<Balance>, AccountQueryError>,
+  UseQueryOptions<ApiResult<Balance>, ApiError>,
   "queryKey" | "queryFn"
 > {
   readonly accountId: string;
 }
 
-export type UseAccountBalancesResult = UseQueryResult<
-  AccountQueryFnData<Balance>,
-  AccountQueryError
->;
+export type UseAccountBalancesResult = UseQueryResult<ApiResult<Balance>, ApiError>;
 
 export interface UseAccountTokensOptions extends Omit<
-  UseQueryOptions<AccountQueryFnData<TokenRelationship[]>, AccountQueryError>,
+  UseQueryOptions<ApiResult<TokenRelationship[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   readonly accountId: string;
   readonly params?: PaginationParams & { readonly "token.id"?: string };
 }
 
-export type UseAccountTokensResult = UseQueryResult<
-  AccountQueryFnData<TokenRelationship[]>,
-  AccountQueryError
->;
+export type UseAccountTokensResult = UseQueryResult<ApiResult<TokenRelationship[]>, ApiError>;
 
 export interface UseAccountNftsOptions extends Omit<
-  UseQueryOptions<AccountQueryFnData<TokenRelationship[]>, AccountQueryError>,
+  UseQueryOptions<ApiResult<TokenRelationship[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   readonly accountId: string;
@@ -80,64 +68,52 @@ export interface UseAccountNftsOptions extends Omit<
   };
 }
 
-export type UseAccountNftsResult = UseQueryResult<
-  AccountQueryFnData<TokenRelationship[]>,
-  AccountQueryError
->;
+export type UseAccountNftsResult = UseQueryResult<ApiResult<TokenRelationship[]>, ApiError>;
 
 export interface UseAccountStakingRewardsOptions extends Omit<
-  UseQueryOptions<AccountQueryFnData<StakingReward[]>, AccountQueryError>,
+  UseQueryOptions<ApiResult<StakingReward[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   readonly accountId: string;
   readonly params?: PaginationParams & { readonly timestamp?: string };
 }
 
-export type UseAccountStakingRewardsResult = UseQueryResult<
-  AccountQueryFnData<StakingReward[]>,
-  AccountQueryError
->;
+export type UseAccountStakingRewardsResult = UseQueryResult<ApiResult<StakingReward[]>, ApiError>;
 
 export interface UseAccountCryptoAllowancesOptions extends Omit<
-  UseQueryOptions<AccountQueryFnData<CryptoAllowance[]>, AccountQueryError>,
+  UseQueryOptions<ApiResult<CryptoAllowance[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   readonly accountId: string;
 }
 
 export type UseAccountCryptoAllowancesResult = UseQueryResult<
-  AccountQueryFnData<CryptoAllowance[]>,
-  AccountQueryError
+  ApiResult<CryptoAllowance[]>,
+  ApiError
 >;
 
 export interface UseAccountTokenAllowancesOptions extends Omit<
-  UseQueryOptions<AccountQueryFnData<TokenAllowance[]>, AccountQueryError>,
+  UseQueryOptions<ApiResult<TokenAllowance[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   readonly accountId: string;
   readonly params?: AccountTokenAllowancesParams;
 }
 
-export type UseAccountTokenAllowancesResult = UseQueryResult<
-  AccountQueryFnData<TokenAllowance[]>,
-  AccountQueryError
->;
+export type UseAccountTokenAllowancesResult = UseQueryResult<ApiResult<TokenAllowance[]>, ApiError>;
 
 export interface UseAccountNftAllowancesOptions extends Omit<
-  UseQueryOptions<AccountQueryFnData<NftAllowance[]>, AccountQueryError>,
+  UseQueryOptions<ApiResult<NftAllowance[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   readonly accountId: string;
   readonly params?: { readonly "token.id"?: string };
 }
 
-export type UseAccountNftAllowancesResult = UseQueryResult<
-  AccountQueryFnData<NftAllowance[]>,
-  AccountQueryError
->;
+export type UseAccountNftAllowancesResult = UseQueryResult<ApiResult<NftAllowance[]>, ApiError>;
 
 export interface UseAccountsOptions extends Omit<
-  UseQueryOptions<AccountQueryFnData<AccountInfo[]>, AccountQueryError>,
+  UseQueryOptions<ApiResult<AccountInfo[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   readonly params?: {
@@ -148,21 +124,18 @@ export interface UseAccountsOptions extends Omit<
   };
 }
 
-export type UseAccountsResult = UseQueryResult<
-  AccountQueryFnData<AccountInfo[]>,
-  AccountQueryError
->;
+export type UseAccountsResult = UseQueryResult<ApiResult<AccountInfo[]>, ApiError>;
 
 export interface UseAccountsInfiniteOptions extends Omit<
-  UseInfiniteQueryOptions<AccountQueryFnData<PaginatedResponse<AccountInfo>>, AccountQueryError>,
+  UseInfiniteQueryOptions<ApiResult<PaginatedResponse<AccountInfo>>, ApiError>,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
   readonly params?: { readonly limit?: number; readonly order?: "asc" | "desc" };
 }
 
 export type UseAccountsInfiniteResult = UseInfiniteQueryResult<
-  AccountQueryFnData<PaginatedResponse<AccountInfo>>,
-  AccountQueryError
+  ApiResult<PaginatedResponse<AccountInfo>>,
+  ApiError
 >;
 
 export function useAccountInfo(options: UseAccountInfoOptions): UseAccountInfoResult {
@@ -318,7 +291,7 @@ export function useAccountsInfinite(
 }
 
 export interface UseAccountOutstandingAirdropsOptions extends Omit<
-  UseQueryOptions<AccountQueryFnData<TokenAirdropsResponse>, AccountQueryError>,
+  UseQueryOptions<ApiResult<TokenAirdropsResponse>, ApiError>,
   "queryKey" | "queryFn"
 > {
   readonly accountId: string;
@@ -332,12 +305,12 @@ export interface UseAccountOutstandingAirdropsOptions extends Omit<
 }
 
 export type UseAccountOutstandingAirdropsResult = UseQueryResult<
-  AccountQueryFnData<TokenAirdropsResponse>,
-  AccountQueryError
+  ApiResult<TokenAirdropsResponse>,
+  ApiError
 >;
 
 export interface UseAccountPendingAirdropsOptions extends Omit<
-  UseQueryOptions<AccountQueryFnData<TokenAirdropsResponse>, AccountQueryError>,
+  UseQueryOptions<ApiResult<TokenAirdropsResponse>, ApiError>,
   "queryKey" | "queryFn"
 > {
   readonly accountId: string;
@@ -351,8 +324,8 @@ export interface UseAccountPendingAirdropsOptions extends Omit<
 }
 
 export type UseAccountPendingAirdropsResult = UseQueryResult<
-  AccountQueryFnData<TokenAirdropsResponse>,
-  AccountQueryError
+  ApiResult<TokenAirdropsResponse>,
+  ApiError
 >;
 
 export function useAccountOutstandingAirdrops(

@@ -29,87 +29,66 @@ export type {
   ContractLogsParams,
 } from "@hieco/mirror";
 
-type ContractQueryFnData<T> = ApiResult<T>;
-type ContractQueryError = ApiError;
-
 export interface UseContractInfoOptions extends Omit<
-  UseQueryOptions<ContractQueryFnData<ContractInfo>, ContractQueryError>,
+  UseQueryOptions<ApiResult<ContractInfo>, ApiError>,
   "queryKey" | "queryFn"
 > {
   contractIdOrAddress: string;
 }
 
-export type UseContractInfoResult = UseQueryResult<
-  ContractQueryFnData<ContractInfo>,
-  ContractQueryError
->;
+export type UseContractInfoResult = UseQueryResult<ApiResult<ContractInfo>, ApiError>;
 
 export interface UseContractCallOptions extends Omit<
-  UseQueryOptions<ContractQueryFnData<ContractCallResult>, ContractQueryError>,
+  UseQueryOptions<ApiResult<ContractCallResult>, ApiError>,
   "queryKey" | "queryFn"
 > {
   params: ContractCallParams;
 }
 
-export type UseContractCallResult = UseQueryResult<
-  ContractQueryFnData<ContractCallResult>,
-  ContractQueryError
->;
+export type UseContractCallResult = UseQueryResult<ApiResult<ContractCallResult>, ApiError>;
 
 export interface UseContractResultsOptions extends Omit<
-  UseQueryOptions<ContractQueryFnData<ContractResult[]>, ContractQueryError>,
+  UseQueryOptions<ApiResult<ContractResult[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   contractId: string;
   params?: { limit?: number; order?: "asc" | "desc"; timestamp?: string };
 }
 
-export type UseContractResultsResult = UseQueryResult<
-  ContractQueryFnData<ContractResult[]>,
-  ContractQueryError
->;
+export type UseContractResultsResult = UseQueryResult<ApiResult<ContractResult[]>, ApiError>;
 
 export interface UseContractResultOptions extends Omit<
-  UseQueryOptions<ContractQueryFnData<ContractResult>, ContractQueryError>,
+  UseQueryOptions<ApiResult<ContractResult>, ApiError>,
   "queryKey" | "queryFn"
 > {
   contractId: string;
   timestamp: string;
 }
 
-export type UseContractResultResult = UseQueryResult<
-  ContractQueryFnData<ContractResult>,
-  ContractQueryError
->;
+export type UseContractResultResult = UseQueryResult<ApiResult<ContractResult>, ApiError>;
 
 export interface UseContractStateOptions extends Omit<
-  UseQueryOptions<ContractQueryFnData<ContractState[]>, ContractQueryError>,
+  UseQueryOptions<ApiResult<ContractState[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   contractId: string;
   params?: { limit?: number; order?: "asc" | "desc"; slot?: string };
 }
 
-export type UseContractStateResult = UseQueryResult<
-  ContractQueryFnData<ContractState[]>,
-  ContractQueryError
->;
+export type UseContractStateResult = UseQueryResult<ApiResult<ContractState[]>, ApiError>;
 
 export interface UseContractLogsOptions extends Omit<
-  UseQueryOptions<ContractQueryFnData<ContractLog[]>, ContractQueryError>,
+  UseQueryOptions<ApiResult<ContractLog[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   contractId: string;
   params?: { limit?: number; order?: "asc" | "desc"; timestamp?: string; index?: number };
 }
 
-export type UseContractLogsResult = UseQueryResult<
-  ContractQueryFnData<ContractLog[]>,
-  ContractQueryError
->;
+export type UseContractLogsResult = UseQueryResult<ApiResult<ContractLog[]>, ApiError>;
 
 export interface UseContractsOptions extends Omit<
-  UseQueryOptions<ContractQueryFnData<ContractInfo[]>, ContractQueryError>,
+  UseQueryOptions<ApiResult<ContractInfo[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   params?: {
@@ -120,21 +99,18 @@ export interface UseContractsOptions extends Omit<
   };
 }
 
-export type UseContractsResult = UseQueryResult<
-  ContractQueryFnData<ContractInfo[]>,
-  ContractQueryError
->;
+export type UseContractsResult = UseQueryResult<ApiResult<ContractInfo[]>, ApiError>;
 
 export interface UseContractsInfiniteOptions extends Omit<
-  UseInfiniteQueryOptions<ContractQueryFnData<PaginatedResponse<ContractInfo>>, ContractQueryError>,
+  UseInfiniteQueryOptions<ApiResult<PaginatedResponse<ContractInfo>>, ApiError>,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
   params?: { limit?: number; order?: "asc" | "desc" };
 }
 
 export type UseContractsInfiniteResult = UseInfiniteQueryResult<
-  ContractQueryFnData<PaginatedResponse<ContractInfo>>,
-  ContractQueryError
+  ApiResult<PaginatedResponse<ContractInfo>>,
+  ApiError
 >;
 
 export function useContractInfo(options: UseContractInfoOptions): UseContractInfoResult {
@@ -255,7 +231,7 @@ export function useContractsInfinite(
 }
 
 export interface UseContractAllResultsOptions extends Omit<
-  UseQueryOptions<ContractQueryFnData<ContractResultsResponse>, ContractQueryError>,
+  UseQueryOptions<ApiResult<ContractResultsResponse>, ApiError>,
   "queryKey" | "queryFn"
 > {
   params?: {
@@ -271,12 +247,12 @@ export interface UseContractAllResultsOptions extends Omit<
 }
 
 export type UseContractAllResultsResult = UseQueryResult<
-  ContractQueryFnData<ContractResultsResponse>,
-  ContractQueryError
+  ApiResult<ContractResultsResponse>,
+  ApiError
 >;
 
 export interface UseContractResultByTransactionIdOrHashOptions extends Omit<
-  UseQueryOptions<ContractQueryFnData<ContractResultDetails>, ContractQueryError>,
+  UseQueryOptions<ApiResult<ContractResultDetails>, ApiError>,
   "queryKey" | "queryFn"
 > {
   transactionIdOrHash: string;
@@ -284,36 +260,36 @@ export interface UseContractResultByTransactionIdOrHashOptions extends Omit<
 }
 
 export type UseContractResultByTransactionIdOrHashResult = UseQueryResult<
-  ContractQueryFnData<ContractResultDetails>,
-  ContractQueryError
+  ApiResult<ContractResultDetails>,
+  ApiError
 >;
 
 export interface UseContractResultActionsOptions extends Omit<
-  UseQueryOptions<ContractQueryFnData<{ actions: ContractAction[] }>, ContractQueryError>,
+  UseQueryOptions<ApiResult<{ actions: ContractAction[] }>, ApiError>,
   "queryKey" | "queryFn"
 > {
   transactionIdOrHash: string;
 }
 
 export type UseContractResultActionsResult = UseQueryResult<
-  ContractQueryFnData<{ actions: ContractAction[] }>,
-  ContractQueryError
+  ApiResult<{ actions: ContractAction[] }>,
+  ApiError
 >;
 
 export interface UseContractResultOpcodesOptions extends Omit<
-  UseQueryOptions<ContractQueryFnData<ContractOpcodesResponse>, ContractQueryError>,
+  UseQueryOptions<ApiResult<ContractOpcodesResponse>, ApiError>,
   "queryKey" | "queryFn"
 > {
   transactionIdOrHash: string;
 }
 
 export type UseContractResultOpcodesResult = UseQueryResult<
-  ContractQueryFnData<ContractOpcodesResponse>,
-  ContractQueryError
+  ApiResult<ContractOpcodesResponse>,
+  ApiError
 >;
 
 export interface UseContractAllLogsOptions extends Omit<
-  UseQueryOptions<ContractQueryFnData<PaginatedResponse<ContractLog>>, ContractQueryError>,
+  UseQueryOptions<ApiResult<PaginatedResponse<ContractLog>>, ApiError>,
   "queryKey" | "queryFn"
 > {
   params?: {
@@ -325,8 +301,8 @@ export interface UseContractAllLogsOptions extends Omit<
 }
 
 export type UseContractAllLogsResult = UseQueryResult<
-  ContractQueryFnData<PaginatedResponse<ContractLog>>,
-  ContractQueryError
+  ApiResult<PaginatedResponse<ContractLog>>,
+  ApiError
 >;
 
 export function useContractAllResults(

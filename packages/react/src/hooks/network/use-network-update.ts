@@ -5,17 +5,16 @@ import type { HiecoMutationOptions, HiecoMutationResult, OperationData } from ".
 
 type Operation = HiecoClient["net"]["update"];
 type MutationData = OperationData<Operation>;
-type Variables = void;
 
 export type UseNetworkUpdateOptions<TContext = unknown> = HiecoMutationOptions<
   MutationData,
-  Variables,
+  void,
   TContext
 >;
 
 export function useNetworkUpdate<TContext = unknown>(
   options?: UseNetworkUpdateOptions<TContext>,
-): HiecoMutationResult<MutationData, Variables, TContext> {
+): HiecoMutationResult<MutationData, void, TContext> {
   const client = useHiecoClient();
 
   return useHiecoMutation({

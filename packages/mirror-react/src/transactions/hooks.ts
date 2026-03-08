@@ -13,23 +13,17 @@ import { mirrorNodeKeys } from "@hieco/utils";
 
 export type { TransactionListParams, TransactionsByAccountParams } from "@hieco/mirror";
 
-type TransactionQueryFnData<T> = ApiResult<T>;
-type TransactionQueryError = ApiError;
-
 export interface UseTransactionOptions extends Omit<
-  UseQueryOptions<TransactionQueryFnData<TransactionDetails>, TransactionQueryError>,
+  UseQueryOptions<ApiResult<TransactionDetails>, ApiError>,
   "queryKey" | "queryFn"
 > {
   transactionId: string;
 }
 
-export type UseTransactionResult = UseQueryResult<
-  TransactionQueryFnData<TransactionDetails>,
-  TransactionQueryError
->;
+export type UseTransactionResult = UseQueryResult<ApiResult<TransactionDetails>, ApiError>;
 
 export interface UseTransactionsByAccountOptions extends Omit<
-  UseQueryOptions<TransactionQueryFnData<Transaction[]>, TransactionQueryError>,
+  UseQueryOptions<ApiResult<Transaction[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   accountId: string;
@@ -42,13 +36,10 @@ export interface UseTransactionsByAccountOptions extends Omit<
   };
 }
 
-export type UseTransactionsByAccountResult = UseQueryResult<
-  TransactionQueryFnData<Transaction[]>,
-  TransactionQueryError
->;
+export type UseTransactionsByAccountResult = UseQueryResult<ApiResult<Transaction[]>, ApiError>;
 
 export interface UseTransactionsOptions extends Omit<
-  UseQueryOptions<TransactionQueryFnData<Transaction[]>, TransactionQueryError>,
+  UseQueryOptions<ApiResult<Transaction[]>, ApiError>,
   "queryKey" | "queryFn"
 > {
   params?: {
@@ -61,24 +52,18 @@ export interface UseTransactionsOptions extends Omit<
   };
 }
 
-export type UseTransactionsResult = UseQueryResult<
-  TransactionQueryFnData<Transaction[]>,
-  TransactionQueryError
->;
+export type UseTransactionsResult = UseQueryResult<ApiResult<Transaction[]>, ApiError>;
 
 export interface UseTransactionsInfiniteOptions extends Omit<
-  UseInfiniteQueryOptions<
-    TransactionQueryFnData<PaginatedResponse<Transaction>>,
-    TransactionQueryError
-  >,
+  UseInfiniteQueryOptions<ApiResult<PaginatedResponse<Transaction>>, ApiError>,
   "queryKey" | "queryFn" | "getNextPageParam"
 > {
   params?: { limit?: number; order?: "asc" | "desc" };
 }
 
 export type UseTransactionsInfiniteResult = UseInfiniteQueryResult<
-  TransactionQueryFnData<PaginatedResponse<Transaction>>,
-  TransactionQueryError
+  ApiResult<PaginatedResponse<Transaction>>,
+  ApiError
 >;
 
 export function useTransaction(options: UseTransactionOptions): UseTransactionResult {
