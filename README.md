@@ -24,6 +24,11 @@ Hieco sits on top of the main developer surfaces around Hedera:
 
 Some Hieco packages are built directly on top of the [Hiero SDK](https://www.npmjs.com/package/@hiero-ledger/sdk), especially the transaction-focused packages such as [`@hieco/sdk`](./packages/sdk/README.md) and [`@hieco/react`](./packages/react/README.md).
 
+The Hieco wallet family lives in that same layer and provides the standard signer bridge for browser apps:
+
+- [`@hieco/wallet`](./packages/wallet/README.md) for the headless Hedera wallet runtime
+- [`@hieco/wallet-react`](./packages/wallet-react/README.md) for the React provider, hooks, and optional UI
+
 Other Hieco packages talk directly to network-facing services instead of going through the Hiero SDK:
 
 - [`@hieco/mirror`](./packages/mirror/README.md) and its framework wrappers use the Mirror Node REST API
@@ -65,7 +70,10 @@ flowchart TD
   A --> C["Mirror Node APIs"]
   A --> D["Relay / JSON-RPC streams"]
   B --> E["@hieco/sdk"]
+  B --> P["@hieco/wallet"]
+  P --> Q["@hieco/wallet-react"]
   E --> F["@hieco/react"]
+  Q --> F
   C --> G["@hieco/mirror"]
   G --> H["@hieco/mirror-react"]
   G --> I["@hieco/mirror-preact"]
@@ -88,6 +96,13 @@ flowchart TD
 | -------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------- |
 | [`@hieco/sdk`](./packages/sdk/README.md)     | Core Hedera application SDK with typed query and transaction APIs. | Server code, signer-driven browser flows, and general Hedera app logic. |
 | [`@hieco/react`](./packages/react/README.md) | React wrapper for the core SDK with TanStack Query.                | React apps that need Hedera reads, writes, and wallet-aware hooks.      |
+
+### Wallet SDK Family
+
+| Package                                                    | Purpose                                                             | Best for                                                          |
+| ---------------------------------------------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| [`@hieco/wallet`](./packages/wallet/README.md)             | Headless Hedera wallet connection runtime with typed session state. | Hedera wallet connection, signer resolution, and custom UI flows. |
+| [`@hieco/wallet-react`](./packages/wallet-react/README.md) | React provider, hooks, and optional wallet UI.                      | React apps that want the default Hieco wallet connection flow.    |
 
 ### Mirror SDK Family
 
@@ -117,6 +132,7 @@ flowchart TD
 
 If you are building:
 
+- a React app that needs wallet connection first, start with [`@hieco/wallet-react`](./packages/wallet-react/README.md)
 - a general Hedera app with transactions or wallet flows, start with [`@hieco/sdk`](./packages/sdk/README.md)
 - a React app that needs Hedera reads and writes, start with [`@hieco/react`](./packages/react/README.md)
 - a read-only app against Mirror Node APIs, start with [`@hieco/mirror`](./packages/mirror/README.md) or one of its framework wrappers
@@ -147,7 +163,8 @@ If you want AI tooling to query Hedera Mirror data without writing your own wrap
 
 Hieco also ships a set of agent skills that cover the public package families:
 
-- Hieco SDK + React
+- Hieco SDK family
+- Hieco Wallet SDK family
 - Hieco Mirror SDK family
 - Hieco Realtime SDK family
 - Hieco Mirror CLI
@@ -173,9 +190,29 @@ Useful links:
 
 ## Documentation
 
+Recommended reading order for new React apps:
+
+1. [`@hieco/wallet-react`](./packages/wallet-react/README.md)
+2. [`@hieco/react`](./packages/react/README.md)
+3. [`@hieco/sdk`](./packages/sdk/README.md)
+
+That gives you:
+
+- wallet connection and signer state
+- React query and mutation hooks
+- lower-level fluent SDK access when you need it
+
+For wallet setup, Hieco recommends:
+
+- zero-config or managed setup in local development
+- explicit `projectId` in production
+- `useWalletSigner()` as the signer source passed into `HiecoProvider`
+
 Each package README is written as the canonical package guide:
 
 - [`@hieco/sdk`](./packages/sdk/README.md)
+- [`@hieco/wallet`](./packages/wallet/README.md)
+- [`@hieco/wallet-react`](./packages/wallet-react/README.md)
 - [`@hieco/react`](./packages/react/README.md)
 - [`@hieco/mirror`](./packages/mirror/README.md)
 - [`@hieco/mirror-react`](./packages/mirror-react/README.md)
