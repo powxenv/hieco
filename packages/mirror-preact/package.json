@@ -40,9 +40,9 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external preact --external @tanstack/preact-query --external @hieco/mirror && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external preact --external @tanstack/preact-query --external @hieco/mirror && bunx tsc -p tsconfig.build.json",
     "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external preact --external @tanstack/preact-query --external @hieco/mirror",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
     "fmt": "oxfmt",

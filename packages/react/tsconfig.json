@@ -1,13 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "noEmit": false,
     "lib": ["ESNext", "DOM"],
     "types": ["bun-types"]
   },
-  "include": ["src/**/*", "scripts/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

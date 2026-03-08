@@ -42,9 +42,9 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external react --external react-dom --external @hieco/mirror --external @hieco/realtime && bunx tsc --emitDeclarationOnly --declaration --outDir dist",
+    "build": "bun build ./src/index.ts --outdir ./dist --target node --format esm --sourcemap --external react --external react-dom --external @hieco/mirror --external @hieco/realtime && bunx tsc -p tsconfig.build.json",
     "dev": "bun build ./src/index.ts --outdir ./dist --target node --format esm --watch --external react --external react-dom --external @hieco/mirror --external @hieco/realtime",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
     "fmt": "oxfmt",

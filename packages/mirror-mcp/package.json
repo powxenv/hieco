@@ -17,7 +17,7 @@
   "scripts": {
     "build": "bun build ./src/mastra/index.ts --outdir ./dist --target node --format esm --sourcemap && { printf '%s\\n' '#!/usr/bin/env node' | cat - dist/index.js > dist/index.tmp && mv dist/index.tmp dist/index.js; } && chmod +x dist/index.js",
     "dev": "bun build ./src/mastra/index.ts --outdir ./dist --target node --format esm --watch",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",
     "fmt": "oxfmt",
     "inspect": "bunx @modelcontextprotocol/inspector node dist/index.js"
