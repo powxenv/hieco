@@ -2,22 +2,14 @@
 
 ## Overview
 
-`@hieco/wallet-react` brings the Hieco Hedera wallet runtime into React.
+`@hieco/wallet-react` brings the Hieco wallet runtime into React.
 
-It gives you:
+It is the easiest way to add Hedera wallet connection to a React app. You get:
 
 - `WalletProvider`
-- a small headless hook surface
-- optional first-party UI through `@hieco/wallet-react/ui`
-- direct signer compatibility with `@hieco/react` and `@hieco/sdk`
-
-The intended experience is simple:
-
-- mount one provider
-- render one button and one dialog
-- use `useWalletSigner()` anywhere you need a Hedera signer
-
-Wallet connection is client-side. The provider is SSR-safe, but `connect()` and `restore()` remain browser-only runtime actions.
+- a small hook surface for wallet state and actions
+- optional built-in UI from `@hieco/wallet-react/ui`
+- a signer that works directly with `@hieco/react` and `@hieco/sdk`
 
 ## Installation
 
@@ -42,39 +34,22 @@ Host app peer dependencies:
 - `react >= 18`
 - `react-dom >= 18`
 
+You also need a WalletConnect `projectId` before you can connect a real wallet.
+
 ## When To Use This Package
 
 Use `@hieco/wallet-react` when you want:
 
-- the easiest Hedera wallet setup in React
-- first-party wallet UI out of the box
+- the fastest wallet setup for a React app
+- built-in wallet UI that you can use immediately
 - the option to replace the UI later without changing the runtime
-- a signer for `@hieco/react` and `@hieco/sdk`
+- a signer source for `@hieco/react` or `@hieco/sdk`
+
+If you want full UI control without React helpers, use [`@hieco/wallet`](../wallet/README.md) directly.
 
 ## Quick Start
 
-### Zero-Config Provider
-
-```tsx
-"use client";
-
-import { WalletProvider } from "@hieco/wallet-react";
-import { WalletButton, WalletDialog } from "@hieco/wallet-react/ui";
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <WalletProvider>
-      <WalletButton />
-      <WalletDialog />
-      {children}
-    </WalletProvider>
-  );
-}
-```
-
-This path works when your app exposes a managed Hieco project ID in the browser.
-
-### Explicit Project ID
+### Basic Setup
 
 ```tsx
 "use client";
@@ -98,11 +73,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
 ```tsx
 "use client";
 
-import { HiecoProvider } from "@hieco/react";
+import type { ReactNode } from "react";
 import { WalletProvider, useWalletSigner } from "@hieco/wallet-react";
 import { WalletButton, WalletDialog } from "@hieco/wallet-react/ui";
+import { HiecoProvider, useAccountInfo } from "@hieco/react";
 
-function HiecoRuntime({ children }: { children: React.ReactNode }) {
+function HiecoRuntime({ children }: { children: ReactNode }) {
   const signer = useWalletSigner();
 
   return (
@@ -112,12 +88,23 @@ function HiecoRuntime({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+function AccountCard() {
+  const account = useAccountInfo({ accountId: "0.0.1001" });
+
+  if (account.isPending) return <div>Loading...</div>;
+  if (account.isError) return <div>{account.error.message}</div>;
+
+  return <pre>{JSON.stringify(account.data, null, 2)}</pre>;
+}
+
+export function App() {
   return (
     <WalletProvider projectId="YOUR_WALLETCONNECT_PROJECT_ID">
       <WalletButton />
       <WalletDialog />
-      <HiecoRuntime>{children}</HiecoRuntime>
+      <HiecoRuntime>
+        <AccountCard />
+      </HiecoRuntime>
     </WalletProvider>
   );
 }
@@ -127,103 +114,178 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 ### One Provider
 
-`WalletProvider` supports two modes:
+`WalletProvider` can work in two ways:
 
+- pass normal wallet options such as `projectId`, `wallets`, or `chains`
 - pass `wallet={wallet}` when you already created a runtime yourself
-- pass normal wallet options such as `projectId`, `wallets`, or `chains` and let the provider create the runtime
+
+That means you can start with the simple provider form and only drop down to a custom runtime when you really need to.
 
 ### One Main Hook
 
-`useWallet()` returns the runtime state plus the main actions:
+`useWallet()` returns the current wallet state and the main runtime actions together:
 
 - `connect(options?)`
+- `cancel()`
 - `disconnect()`
 - `restore()`
 - `switchChain(chainId)`
 - modal helpers for the built-in UI
 
-### Prompt-Driven UI
-
-The React UI reads the runtime prompt model.
-
-`prompt.kind === "qr"`
-
-- render a QR code
-
-`prompt.kind === "deeplink"`
-
-- open the wallet app when the wallet definition provides mobile links
-- keep a manual retry action visible
-
-`prompt.kind === "return"`
-
-- show return-to-app guidance
+This makes it the main hook for custom UI.
 
 ### Built-In UI
 
-Import from `@hieco/wallet-react/ui`.
+The UI lives in `@hieco/wallet-react/ui`.
+
+It exports:
 
 - `WalletButton`
 - `WalletDialog`
 - `WalletAccountButton`
 - `WalletList`
 
-The built-in UI is optional. The hooks are the primary API.
+The built-in UI is optional, but it is the fastest way to get started.
 
-## Advanced
+### Bring Your Own UI
 
-### Pass An Explicit Runtime
+You do not need to use `WalletButton` or `WalletDialog`.
+
+The intended custom-UI path is:
+
+- use `WalletProvider` for the runtime
+- use `useWallet()` for the main state and actions
+- use `useWallets()` when you only need the wallet list
+- render your own modal, drawer, popover, or inline wallet picker
+
+The runtime owns wallet logic. Your components own the presentation.
+
+### Current Default Flow
+
+The current React wallet flow is:
+
+- click `WalletButton`
+- choose a wallet in `WalletDialog`
+- use an installed extension when available
+- choose `Show QR code` when you intentionally want a paired-device flow
+
+The dialog keeps the UI explicit:
+
+- extension actions stay visible
+- QR is an explicit action
+- mobile handoff uses prompt state from the runtime
+
+## Common Patterns
+
+### Read Wallet State
 
 ```tsx
 "use client";
 
-import { createWallet, hashpack } from "@hieco/wallet";
-import { WalletProvider } from "@hieco/wallet-react";
+import { useWallet } from "@hieco/wallet-react";
 
-const wallet = createWallet({
-  projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
-  wallets: [hashpack()],
-});
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return <WalletProvider wallet={wallet}>{children}</WalletProvider>;
-}
-```
-
-### Build Custom React UI
-
-```tsx
-"use client";
-
-import { useWallet, useWalletError, useWallets } from "@hieco/wallet-react";
-
-export function CustomWalletPicker() {
+export function WalletStateCard() {
   const wallet = useWallet();
-  const wallets = useWallets();
-  const error = useWalletError();
 
   return (
     <div>
-      {wallets.map((item) => (
-        <button
-          key={item.id}
-          onClick={() => {
-            void wallet.connect({ wallet: item.id });
-          }}
-          type="button"
-        >
-          {item.name}
-        </button>
-      ))}
-
-      {wallet.prompt?.kind === "qr" ? <p>Render a QR code from {wallet.prompt.uri}</p> : null}
-      {error ? <p>{error.message}</p> : null}
+      <p>Status: {wallet.status}</p>
+      <p>Wallet: {wallet.wallet?.name ?? "Not connected"}</p>
+      <p>Account: {wallet.account?.accountId ?? "No account yet"}</p>
+      <p>Chain: {wallet.chain.id}</p>
     </div>
   );
 }
 ```
 
-### Restore A Session Manually
+### Build Custom UI
+
+```tsx
+"use client";
+
+import { useWallet, useWallets } from "@hieco/wallet-react";
+
+export function CustomWalletPicker() {
+  const wallet = useWallet();
+  const wallets = useWallets();
+
+  return (
+    <div>
+      {wallets.map((item) => (
+        <div key={item.id}>
+          <p>{item.name}</p>
+          <p>{item.readyState}</p>
+
+          {(item.readyState === "installed" || item.readyState === "loadable") && (
+            <button
+              onClick={() => {
+                void wallet.connect({
+                  wallet: item.id,
+                  transport: item.defaultTransport ?? undefined,
+                });
+              }}
+              type="button"
+            >
+              Connect
+            </button>
+          )}
+
+          {item.readyState === "cross-device" && (
+            <button
+              onClick={() => {
+                void wallet.connect({
+                  wallet: item.id,
+                  transport: "walletconnect",
+                  presentation: "qr",
+                });
+              }}
+              type="button"
+            >
+              Show QR code
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+This is the main bring-your-own-UI pattern in React:
+
+- `useWallets()` gives you the wallet catalog
+- `useWallet()` gives you state, actions, and prompt state
+- your UI decides how to render QR, deep links, retries, and errors
+
+### Render Prompt State Yourself
+
+```tsx
+"use client";
+
+import { useWallet } from "@hieco/wallet-react";
+
+export function WalletPromptState() {
+  const wallet = useWallet();
+
+  if (wallet.prompt?.kind === "qr") {
+    return <div>Render a QR code from {wallet.prompt.uri}</div>;
+  }
+
+  if (wallet.prompt?.kind === "deeplink") {
+    return <a href={wallet.prompt.href}>Open wallet</a>;
+  }
+
+  if (wallet.prompt?.kind === "return") {
+    return <div>Finish in the wallet, then return to the app.</div>;
+  }
+
+  return null;
+}
+```
+
+This is the key idea behind bring-your-own UI with Hieco Wallet: the runtime owns the connection flow, while your components decide how to present each step.
+
+### Restore A Session
 
 ```tsx
 "use client";
@@ -246,57 +308,59 @@ export function RestoreWalletButton() {
 }
 ```
 
-### Force Presentation Mode
+### Pass A Prebuilt Runtime
 
 ```tsx
-void wallet.connect({
-  wallet: "hashpack",
-  presentation: "qr",
+"use client";
+
+import type { ReactNode } from "react";
+import { createWallet, hashpack } from "@hieco/wallet";
+import { WalletProvider } from "@hieco/wallet-react";
+
+const wallet = createWallet({
+  projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  wallets: [hashpack()],
 });
+
+export function Providers({ children }: { children: ReactNode }) {
+  return <WalletProvider wallet={wallet}>{children}</WalletProvider>;
+}
 ```
 
-## API Reference
+## Hook Reference
 
-### Provider
+### Main Hooks
 
-| Export           | Kind      | What it does                                        | Parameters            | Returns     |
-| ---------------- | --------- | --------------------------------------------------- | --------------------- | ----------- |
-| `WalletProvider` | component | Provide a Hieco wallet runtime to React components. | `WalletProviderProps` | `ReactNode` |
+| Hook                    | What it does                                               |
+| ----------------------- | ---------------------------------------------------------- |
+| `useWallet()`           | Read the full wallet state and the main runtime actions.   |
+| `useWallets()`          | Read the available wallet catalog for the current runtime. |
+| `useWalletAccount()`    | Read the active wallet account.                            |
+| `useWalletSigner()`     | Read the current Hiero-compatible signer.                  |
+| `useConnect()`          | Read only the connect action.                              |
+| `useDisconnect()`       | Read only the disconnect action.                           |
+| `useSwitchChain()`      | Read only the chain-switch action.                         |
+| `useConnectionStatus()` | Read only the wallet status.                               |
+| `useWalletError()`      | Read only the current wallet error.                        |
+| `useWalletModal()`      | Read and control the built-in modal state.                 |
 
-```ts
-type WalletProviderProps = CreateWalletOptions & {
-  readonly children: ReactNode;
-  readonly wallet?: Wallet;
-};
-```
-
-### Hooks
-
-| Hook                  | What it does                                             | Parameters | Returns                                                   |
-| --------------------- | -------------------------------------------------------- | ---------- | --------------------------------------------------------- |
-| `useWallet`           | Read the full wallet state and the main runtime actions. | none       | `UseWalletResult`                                         |
-| `useWallets`          | Read the available wallet catalog.                       | none       | `readonly WalletOption[]`                                 |
-| `useWalletAccount`    | Read the active wallet account.                          | none       | `WalletAccount \| null`                                   |
-| `useWalletSigner`     | Read the active Hiero-compatible signer.                 | none       | `Signer \| undefined`                                     |
-| `useConnect`          | Read the connect action.                                 | none       | `(options?: ConnectOptions) => Promise<WalletConnection>` |
-| `useDisconnect`       | Read the disconnect action.                              | none       | `() => Promise<void>`                                     |
-| `useSwitchChain`      | Read the chain switch action.                            | none       | `(chainId: string) => Promise<void>`                      |
-| `useConnectionStatus` | Read only the wallet status.                             | none       | `WalletStatus`                                            |
-| `useWalletError`      | Read only the current wallet error.                      | none       | `WalletError \| null`                                     |
-| `useWalletModal`      | Read modal state and modal actions for the built-in UI.  | none       | `WalletModalState`                                        |
+### `useWallet()` Return Shape
 
 ```ts
-type WalletModalState = {
-  readonly isOpen: boolean;
-  readonly openModal: () => void;
-  readonly closeModal: () => void;
-  readonly toggleModal: () => void;
-};
-```
-
-```ts
-type UseWalletResult = WalletState & {
+type UseWalletResult = {
+  readonly status: WalletStatus;
+  readonly wallets: readonly WalletOption[];
+  readonly wallet: WalletOption | null;
+  readonly account: WalletAccount | null;
+  readonly accounts: readonly WalletAccount[];
+  readonly chain: WalletChain;
+  readonly chains: readonly WalletChain[];
+  readonly signer: Signer | undefined;
+  readonly transport: WalletTransportId | null;
+  readonly error: WalletError | null;
+  readonly prompt: WalletPrompt | null;
   readonly connect: (options?: ConnectOptions) => Promise<WalletConnection>;
+  readonly cancel: () => void;
   readonly disconnect: () => Promise<void>;
   readonly restore: () => Promise<WalletConnection | null>;
   readonly switchChain: (chainId: string) => Promise<void>;
@@ -307,19 +371,35 @@ type UseWalletResult = WalletState & {
 };
 ```
 
-### UI Subpath
+### Modal State
 
-Import from `@hieco/wallet-react/ui`.
+```ts
+type WalletModalState = {
+  readonly isOpen: boolean;
+  readonly openModal: () => void;
+  readonly closeModal: () => void;
+  readonly toggleModal: () => void;
+};
+```
 
-| Export                | Kind      | What it does                                                   | Parameters | Returns     |
-| --------------------- | --------- | -------------------------------------------------------------- | ---------- | ----------- |
-| `WalletButton`        | component | Render the default connect button or connected account button. | none       | `ReactNode` |
-| `WalletDialog`        | component | Render the default wallet connection dialog.                   | none       | `ReactNode` |
-| `WalletAccountButton` | component | Render the connected account button directly.                  | none       | `ReactNode` |
-| `WalletList`          | component | Render the built-in wallet picker list.                        | none       | `ReactNode` |
+## UI Component Reference
+
+| Export                | What it does                                                           |
+| --------------------- | ---------------------------------------------------------------------- |
+| `WalletButton`        | Default connect button. Shows the account button when connected.       |
+| `WalletDialog`        | Built-in dialog for wallet selection, QR, deep link, and error states. |
+| `WalletAccountButton` | Compact connected-wallet button.                                       |
+| `WalletList`          | Wallet picker list used by the built-in dialog and custom UIs.         |
+
+## Important Notes
+
+- `WalletProvider` is SSR-safe, but real wallet actions are browser-only
+- you need a real `projectId` before connecting
+- `useWalletSigner()` is the main bridge into `@hieco/react` and `@hieco/sdk`
+- the built-in UI is optional, but it is the recommended starting point
 
 ## Related Packages
 
-- [`@hieco/wallet`](../wallet/README.md)
-- [`@hieco/react`](../react/README.md)
-- [`@hieco/sdk`](../sdk/README.md)
+- [`@hieco/wallet`](../wallet/README.md) for the headless wallet runtime
+- [`@hieco/react`](../react/README.md) for React Hedera queries and mutations
+- [`@hieco/sdk`](../sdk/README.md) for the core Hedera SDK

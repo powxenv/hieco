@@ -1,5 +1,5 @@
-import { isBrowser } from "./platform";
-import type { WalletAppInput, WalletAppMetadata } from "./types";
+import { isBrowser } from "./platform.ts";
+import type { WalletAppInput, WalletAppMetadata } from "./types.ts";
 
 function readDescription(): string {
   if (!isBrowser()) {

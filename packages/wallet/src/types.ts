@@ -1,7 +1,7 @@
 import type { Signer } from "@hiero-ledger/sdk";
 import type { ReadableAtom } from "nanostores";
 
-export type WalletTransportId = "walletconnect";
+export type WalletTransportId = "extension" | "walletconnect";
 
 export type WalletStatus =
   | "idle"
@@ -11,7 +11,12 @@ export type WalletStatus =
   | "disconnecting"
   | "error";
 
-export type WalletReadyState = "loadable" | "unsupported";
+export type WalletReadyState =
+  | "installed"
+  | "loadable"
+  | "install-required"
+  | "cross-device"
+  | "unsupported";
 
 export type WalletNetwork = "mainnet" | "testnet" | "previewnet" | "devnet" | "custom";
 
@@ -46,13 +51,27 @@ export interface WalletDefinition {
     readonly universal?: string;
   };
   readonly desktop?: {
-    readonly extensionUrl?: string;
+    readonly extension?: {
+      readonly ids?: readonly string[];
+      readonly names?: readonly string[];
+      readonly extensionUrl?: string;
+    };
   };
   readonly transports: readonly WalletTransportId[];
 }
 
+export interface WalletExtension {
+  readonly id: string;
+  readonly name?: string;
+  readonly icon?: string;
+  readonly url?: string;
+  readonly availableInIframe: boolean;
+}
+
 export interface WalletOption extends WalletDefinition {
   readonly readyState: WalletReadyState;
+  readonly defaultTransport: WalletTransportId | null;
+  readonly extension: WalletExtension | null;
 }
 
 export interface WalletAccount {
@@ -68,6 +87,8 @@ export interface WalletConnection {
   readonly accounts: readonly WalletAccount[];
   readonly chain: WalletChain;
   readonly signer: Signer;
+  readonly transport: WalletTransportId;
+  readonly extensionId?: string;
   readonly topic: string;
 }
 
@@ -75,6 +96,7 @@ export interface ConnectOptions {
   readonly wallet?: string;
   readonly chain?: string;
   readonly presentation?: WalletPresentation;
+  readonly transport?: WalletTransportId;
 }
 
 export interface WalletStorage {
@@ -115,6 +137,7 @@ export type WalletPrompt =
       readonly kind: "return";
       readonly wallet: WalletOption;
       readonly href?: string;
+      readonly uri?: string;
     };
 
 export interface WalletState {
@@ -126,7 +149,8 @@ export interface WalletState {
   readonly chain: WalletChain;
   readonly chains: readonly WalletChain[];
   readonly signer: Signer | undefined;
-  readonly error: import("./errors").WalletError | null;
+  readonly transport: WalletTransportId | null;
+  readonly error: import("./errors.ts").WalletError | null;
   readonly prompt: WalletPrompt | null;
 }
 
@@ -135,6 +159,7 @@ export interface Wallet {
   readonly snapshot: () => WalletState;
   readonly onChange: (listener: () => void) => () => void;
   readonly connect: (options?: ConnectOptions) => Promise<WalletConnection>;
+  readonly cancel: () => void;
   readonly disconnect: () => Promise<void>;
   readonly restore: () => Promise<WalletConnection | null>;
   readonly switchChain: (chainId: string) => Promise<void>;

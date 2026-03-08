@@ -2,21 +2,55 @@ import type { ReactNode } from "react";
 import { useWallet } from "../use-wallet";
 import { useWalletModal } from "../use-wallet-modal";
 
+function walletButtonLabel(wallet: ReturnType<typeof useWallet>): string {
+  if (wallet.isModalOpen) {
+    if (wallet.prompt?.kind === "qr") {
+      return "Scan QR code";
+    }
+
+    if (wallet.prompt?.kind === "deeplink") {
+      return `Open ${wallet.prompt.wallet.name}`;
+    }
+
+    if (wallet.prompt?.kind === "return") {
+      return "Finish in wallet";
+    }
+
+    return "Choose wallet";
+  }
+
+  if (wallet.status === "restoring") {
+    return "Restoring wallet...";
+  }
+
+  if (wallet.status === "connecting" && wallet.transport === "extension" && !wallet.prompt) {
+    return wallet.wallet ? `Approve in ${wallet.wallet.name}` : "Approve in wallet";
+  }
+
+  if (wallet.status === "disconnecting") {
+    return "Disconnecting...";
+  }
+
+  return "Connect wallet";
+}
+
 export function WalletButton(): ReactNode {
-  const { openModal } = useWalletModal();
   const wallet = useWallet();
+  const { openModal } = useWalletModal();
+  const label = walletButtonLabel(wallet);
 
   if (wallet.wallet && wallet.account) {
     return <WalletAccountButton />;
   }
 
   return (
-    <button onClick={openModal} type="button">
-      {wallet.status === "connecting"
-        ? "Connecting wallet..."
-        : wallet.status === "restoring"
-          ? "Restoring wallet..."
-          : "Connect wallet"}
+    <button
+      onClick={() => {
+        openModal();
+      }}
+      type="button"
+    >
+      {label}
     </button>
   );
 }

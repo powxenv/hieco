@@ -28,6 +28,14 @@ export interface WalletContextValue extends WalletModalState {
 
 const WalletContext = createContext<WalletContextValue | null>(null);
 
+function shouldCancelPendingRequest(wallet: Wallet): boolean {
+  const state = wallet.snapshot();
+
+  return (
+    !state.account && (state.status === "connecting" || state.status === "error" || !!state.prompt)
+  );
+}
+
 export interface WalletProviderProps extends CreateWalletOptions {
   readonly children: ReactNode;
   readonly wallet?: Wallet;
@@ -65,10 +73,20 @@ export function WalletProvider({ children, wallet, ...options }: WalletProviderP
         setIsOpen(true);
       },
       closeModal: () => {
+        if (shouldCancelPendingRequest(activeWallet)) {
+          activeWallet.cancel();
+        }
+
         setIsOpen(false);
       },
       toggleModal: () => {
-        setIsOpen((current) => !current);
+        setIsOpen((currentOpen) => {
+          if (currentOpen && shouldCancelPendingRequest(activeWallet)) {
+            activeWallet.cancel();
+          }
+
+          return !currentOpen;
+        });
       },
     }),
     [activeWallet, isOpen],

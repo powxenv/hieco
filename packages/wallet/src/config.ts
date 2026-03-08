@@ -1,16 +1,14 @@
-import { AccountId } from "@hiero-ledger/sdk";
-import { createInternalLogger } from "@hieco/utils";
+import { isValidEntityId } from "@hieco/utils";
 import { atom } from "nanostores";
 import SignClient from "@walletconnect/sign-client";
 import type { SessionTypes } from "@walletconnect/types";
-import { hederaTestnet } from "./chains";
-import { asWalletError, createWalletError, type WalletError } from "./errors";
-import { resolveManagedProjectId } from "./managed";
-import { inferAppMetadata } from "./metadata";
-import { isBrowser } from "./platform";
-import { createWalletPrompt } from "./prompt";
-import { WalletConnectHederaSigner } from "./signer";
-import { createStorage } from "./storage";
+import { hederaTestnet } from "./chains.ts";
+import { asWalletError, createWalletError, type WalletError } from "./errors.ts";
+import { discoverExtensions, pairExtension } from "./extensions.ts";
+import { inferAppMetadata } from "./metadata.ts";
+import { isBrowser } from "./platform.ts";
+import { createWalletPrompt, planConnection, resolveWalletOptions } from "./planner.ts";
+import { createStorage } from "./storage.ts";
 import type {
   ConnectOptions,
   CreateWalletOptions,
@@ -18,13 +16,14 @@ import type {
   WalletAccount,
   WalletChain,
   WalletConnection,
-  WalletDefinition,
   WalletOption,
   WalletState,
-} from "./types";
-import { getDefaultWallets } from "./wallets";
+  WalletTransportId,
+} from "./types.ts";
+import { getDefaultWallets } from "./wallets.ts";
 
 const DEFAULT_STORAGE_KEY = "hieco.wallet.v1";
+const EXTENSION_APPROVAL_TIMEOUT_MS = 20000;
 const HEDERA_EVENTS = ["accountsChanged", "chainChanged"] as const;
 const HEDERA_METHODS = [
   "hedera_getNodeAddresses",
@@ -39,7 +38,9 @@ interface PersistedSession {
   readonly walletId: string;
   readonly chainId: string;
   readonly topic: string;
+  readonly transport: WalletTransportId;
   readonly pairingTopic?: string;
+  readonly extensionId?: string;
 }
 
 function assertBrowserRuntime(): void {
@@ -48,15 +49,8 @@ function assertBrowserRuntime(): void {
   }
 
   throw createWalletError("WALLET_NOT_READY", "Hieco wallet connections run in the browser only.", {
-    hint: "Create the runtime anywhere you like, but call connect() and restore() from client-side code.",
+    hint: "Create the runtime anywhere you like, but call connect(), restore(), and disconnect() from client-side code.",
   });
-}
-
-function toWalletOptions(wallets: readonly WalletDefinition[]): readonly WalletOption[] {
-  return wallets.map((wallet) => ({
-    ...wallet,
-    readyState: isBrowser() ? "loadable" : "unsupported",
-  }));
 }
 
 function createInitialState(
@@ -85,6 +79,7 @@ function createInitialState(
     chain,
     chains,
     signer: undefined,
+    transport: null,
     error,
     prompt: null,
   };
@@ -93,7 +88,7 @@ function createInitialState(
 function parseCaipAccount(value: string): WalletAccount {
   const [namespace, network, accountId] = value.split(":");
 
-  if (namespace !== "hedera" || !network || !accountId) {
+  if (namespace !== "hedera" || !network || !accountId || !isValidEntityId(accountId)) {
     throw createWalletError(
       "CONNECT_FAILED",
       "The wallet returned an account in a format this SDK does not understand.",
@@ -102,8 +97,6 @@ function parseCaipAccount(value: string): WalletAccount {
       },
     );
   }
-
-  AccountId.fromString(accountId);
 
   return {
     accountId,
@@ -129,28 +122,9 @@ function findChain(chains: readonly WalletChain[], chainId: string): WalletChain
   return chain;
 }
 
-function isPersistedSession(value: unknown): value is PersistedSession {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const walletId = Reflect.get(value, "walletId");
-  const chainId = Reflect.get(value, "chainId");
-  const topic = Reflect.get(value, "topic");
-  const pairingTopic = Reflect.get(value, "pairingTopic");
-
-  return (
-    typeof walletId === "string" &&
-    typeof chainId === "string" &&
-    typeof topic === "string" &&
-    (pairingTopic === undefined || typeof pairingTopic === "string")
-  );
-}
-
 async function readPersistedSession(
   storage: ReturnType<typeof createStorage>,
   storageKey: string,
-  onReadError: (error: unknown) => void,
 ): Promise<PersistedSession | null> {
   try {
     const value = await storage.getItem(storageKey);
@@ -159,15 +133,39 @@ async function readPersistedSession(
       return null;
     }
 
-    const parsed = JSON.parse(value) as unknown;
+    const parsed = JSON.parse(value);
 
-    if (!isPersistedSession(parsed)) {
+    if (typeof parsed !== "object" || !parsed) {
       return null;
     }
 
-    return parsed;
-  } catch (error) {
-    onReadError(error);
+    const walletId = Reflect.get(parsed, "walletId");
+    const chainId = Reflect.get(parsed, "chainId");
+    const topic = Reflect.get(parsed, "topic");
+    const transport = Reflect.get(parsed, "transport");
+    const pairingTopic = Reflect.get(parsed, "pairingTopic");
+    const extensionId = Reflect.get(parsed, "extensionId");
+
+    if (
+      typeof walletId !== "string" ||
+      typeof chainId !== "string" ||
+      typeof topic !== "string" ||
+      (transport !== "extension" && transport !== "walletconnect") ||
+      (pairingTopic !== undefined && typeof pairingTopic !== "string") ||
+      (extensionId !== undefined && typeof extensionId !== "string")
+    ) {
+      return null;
+    }
+
+    return {
+      walletId,
+      chainId,
+      topic,
+      transport,
+      pairingTopic,
+      extensionId,
+    };
+  } catch {
     return null;
   }
 }
@@ -184,6 +182,18 @@ function getRequiredNamespaces(chains: readonly WalletChain[]) {
 
 function findSession(signClient: SignClient, topic: string): SessionTypes.Struct | null {
   return signClient.session.getAll().find((session) => session.topic === topic) ?? null;
+}
+
+function disconnectQuietly(client: SignClient, topic: string): void {
+  void client
+    .disconnect({
+      topic,
+      reason: {
+        code: 6000,
+        message: "Connection canceled.",
+      },
+    })
+    .catch(() => {});
 }
 
 function pickWallet(wallets: readonly WalletOption[], walletId?: string): WalletOption {
@@ -214,36 +224,33 @@ function pickWallet(wallets: readonly WalletOption[], walletId?: string): Wallet
   return wallet;
 }
 
-function isAccountEvent(data: unknown): data is string[] {
-  return Array.isArray(data) && data.every((value) => typeof value === "string");
-}
-
-function isChainEvent(data: unknown): data is string {
-  return typeof data === "string";
-}
-
 export function createWallet(options: CreateWalletOptions = {}): Wallet {
   const app = inferAppMetadata(options.app);
   const chains = options.chains ?? [hederaTestnet()];
-  const wallets = toWalletOptions(options.wallets ?? getDefaultWallets());
+  const walletDefinitions = options.wallets ?? getDefaultWallets();
   const storage = options.storage ?? createStorage();
   const storageKey = options.storageKey ?? DEFAULT_STORAGE_KEY;
   const autoConnect = options.autoConnect ?? true;
-  const logger = createInternalLogger("@hieco/wallet");
-  const storageLogger = logger.child({ scope: "storage" });
-  const sessionLogger = logger.child({ scope: "session" });
-  const transportLogger = logger.child({ scope: "walletconnect" });
-  const managedLogger = logger.child({ scope: "managed" });
-  const $state = atom<WalletState>(createInitialState(chains, wallets));
+
+  let discoveredExtensions: readonly import("./types.ts").WalletExtension[] = [];
+  let walletOptions = resolveWalletOptions(walletDefinitions, discoveredExtensions);
+
+  const $state = atom<WalletState>(createInitialState(chains, walletOptions));
 
   let signClientPromise: Promise<SignClient> | null = null;
-  let managedProjectIdPromise: Promise<string | null> | null = null;
+  let walletSignerModulePromise: Promise<typeof import("./signer.ts")> | null = null;
+  let extensionDiscoveryPromise: Promise<readonly WalletOption[]> | null = null;
   let boundClient: SignClient | null = null;
   let activeSession: SessionTypes.Struct | null = null;
   let activeWalletId: string | undefined;
+  let activeTransport: WalletTransportId | null = null;
+  let activeExtensionId: string | undefined;
+  let activeConnectAttempt = 0;
   let destroyed = false;
 
   const snapshot = (): WalletState => $state.get();
+
+  const currentWallets = (): readonly WalletOption[] => walletOptions;
 
   const setState = (next: WalletState): void => {
     $state.set(next);
@@ -253,12 +260,99 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
     setState(recipe(snapshot()));
   };
 
+  const syncWalletOptions = (
+    nextExtensions: readonly import("./types.ts").WalletExtension[],
+  ): void => {
+    discoveredExtensions = nextExtensions;
+    walletOptions = resolveWalletOptions(walletDefinitions, discoveredExtensions);
+
+    updateState((current) => {
+      const wallet = current.wallet
+        ? (walletOptions.find((item) => item.id === current.wallet?.id) ?? current.wallet)
+        : null;
+      const currentPrompt = current.prompt;
+      const prompt = currentPrompt
+        ? {
+            ...currentPrompt,
+            wallet:
+              walletOptions.find((item) => item.id === currentPrompt.wallet.id) ??
+              currentPrompt.wallet,
+          }
+        : null;
+
+      return {
+        ...current,
+        wallets: walletOptions,
+        wallet,
+        prompt,
+      };
+    });
+  };
+
+  const refreshWalletOptions = async (): Promise<readonly WalletOption[]> => {
+    if (!isBrowser()) {
+      return currentWallets();
+    }
+
+    if (extensionDiscoveryPromise) {
+      return extensionDiscoveryPromise;
+    }
+
+    extensionDiscoveryPromise = discoverExtensions()
+      .then((extensions) => {
+        syncWalletOptions(extensions);
+        return currentWallets();
+      })
+      .finally(() => {
+        extensionDiscoveryPromise = null;
+      });
+
+    return extensionDiscoveryPromise;
+  };
+
+  const createSigner = async (input: {
+    readonly accountId: string;
+    readonly chain: WalletChain;
+    readonly client: SignClient;
+    readonly topic: string;
+    readonly extensionId?: string;
+  }): Promise<WalletConnection["signer"]> => {
+    if (!walletSignerModulePromise) {
+      walletSignerModulePromise = import("./signer.ts");
+    }
+
+    const { WalletConnectHederaSigner } = await walletSignerModulePromise;
+
+    return new WalletConnectHederaSigner(input);
+  };
+
   const clearSession = (error: WalletError | null = null): void => {
     const current = snapshot();
     activeSession = null;
     activeWalletId = undefined;
+    activeTransport = null;
+    activeExtensionId = undefined;
     setState({
-      ...createInitialState(chains, wallets, error),
+      ...createInitialState(chains, currentWallets(), error),
+      chain: current.chain,
+    });
+  };
+
+  const cancel = (): void => {
+    const current = snapshot();
+
+    if (current.status === "connected" || current.status === "disconnecting") {
+      return;
+    }
+
+    activeConnectAttempt += 1;
+    activeSession = null;
+    activeWalletId = undefined;
+    activeTransport = null;
+    activeExtensionId = undefined;
+
+    setState({
+      ...createInitialState(chains, currentWallets(), null),
       chain: current.chain,
     });
   };
@@ -271,16 +365,18 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
       }
 
       await storage.setItem(storageKey, JSON.stringify(session));
-    } catch (error) {
-      storageLogger.warn({ error }, "Couldn't update the saved wallet session.");
-    }
+    } catch {}
   };
 
-  const applySession = (
+  const applySession = async (
     session: SessionTypes.Struct,
-    walletId: string,
-    preferredChainId?: string,
-  ): WalletConnection => {
+    input: {
+      readonly walletId: string;
+      readonly preferredChainId?: string;
+      readonly transport: WalletTransportId;
+      readonly extensionId?: string;
+    },
+  ): Promise<WalletConnection> => {
     const namespace = session.namespaces.hedera;
 
     if (!namespace) {
@@ -294,7 +390,7 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
     }
 
     const accounts = namespace.accounts.map(parseCaipAccount);
-    const account = accounts.find((item) => item.chainId === preferredChainId) ?? accounts[0];
+    const account = accounts.find((item) => item.chainId === input.preferredChainId) ?? accounts[0];
 
     if (!account) {
       throw createWalletError(
@@ -307,7 +403,7 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
     }
 
     const chain = findChain(chains, account.chainId);
-    const wallet = pickWallet(wallets, walletId);
+    const wallet = pickWallet(currentWallets(), input.walletId);
     const client = boundClient;
 
     if (!client) {
@@ -320,24 +416,29 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
       );
     }
 
-    const signer = new WalletConnectHederaSigner({
+    const signer = await createSigner({
       accountId: account.accountId,
       chain,
       client,
       topic: session.topic,
+      extensionId: input.extensionId,
     });
 
     activeSession = session;
     activeWalletId = wallet.id;
+    activeTransport = input.transport;
+    activeExtensionId = input.extensionId;
+
     setState({
       status: "connected",
-      wallets,
+      wallets: currentWallets(),
       wallet,
       account,
       accounts,
       chain,
       chains,
       signer,
+      transport: input.transport,
       error: null,
       prompt: null,
     });
@@ -348,6 +449,8 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
       accounts,
       chain,
       signer,
+      transport: input.transport,
+      extensionId: input.extensionId,
       topic: session.topic,
     };
   };
@@ -364,87 +467,104 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
 
       if (
         event.params.event.name === "accountsChanged" &&
-        isAccountEvent(event.params.event.data)
+        Array.isArray(event.params.event.data) &&
+        event.params.event.data.every((value) => typeof value === "string")
       ) {
-        try {
-          const accounts = event.params.event.data.map(parseCaipAccount);
-          const current = snapshot();
-          const account =
-            accounts.find((item) => item.accountId === current.account?.accountId) ??
-            accounts[0] ??
-            null;
+        const nextAccountIds = event.params.event.data;
 
-          if (!account || !current.wallet) {
-            clearSession();
-            return;
-          }
+        void (async () => {
+          try {
+            const accounts: readonly WalletAccount[] = nextAccountIds.map(parseCaipAccount);
+            const current = snapshot();
+            const account =
+              accounts.find((item) => item.accountId === current.account?.accountId) ??
+              accounts[0] ??
+              null;
 
-          const chain = findChain(chains, account.chainId);
-          setState({
-            ...current,
-            accounts,
-            account,
-            chain,
-            signer: new WalletConnectHederaSigner({
-              accountId: account.accountId,
+            if (!account || !current.wallet || !activeTransport) {
+              clearSession();
+              return;
+            }
+
+            const chain = findChain(chains, account.chainId);
+            setState({
+              ...current,
+              wallets: currentWallets(),
+              accounts,
+              account,
               chain,
-              client,
-              topic: activeSession.topic,
-            }),
-          });
-          sessionLogger.info(
-            { accountId: account.accountId, chainId: chain.id },
-            "Wallet accounts changed.",
-          );
-        } catch (error) {
-          clearSession(asWalletError(error, "CONNECT_FAILED"));
-        }
+              signer: await createSigner({
+                accountId: account.accountId,
+                chain,
+                client,
+                topic: activeSession.topic,
+                extensionId: activeExtensionId,
+              }),
+            });
+          } catch (error) {
+            clearSession(asWalletError(error, "CONNECT_FAILED"));
+          }
+        })();
       }
 
-      if (event.params.event.name === "chainChanged" && isChainEvent(event.params.event.data)) {
-        try {
-          const chain = findChain(chains, event.params.event.data);
-          const current = snapshot();
-          const account =
-            current.accounts.find((item) => item.chainId === chain.id) ??
-            current.accounts[0] ??
-            null;
+      if (
+        event.params.event.name === "chainChanged" &&
+        typeof event.params.event.data === "string"
+      ) {
+        const nextChainId = event.params.event.data;
 
-          if (!account) {
-            throw createWalletError(
-              "CHAIN_UNSUPPORTED",
-              `This wallet session doesn't include ${chain.id}.`,
-              {
-                hint: "Reconnect with an account on that Hedera network.",
-              },
-            );
-          }
+        void (async () => {
+          try {
+            const chain = findChain(chains, nextChainId);
+            const current = snapshot();
+            const account =
+              current.accounts.find((item) => item.chainId === chain.id) ??
+              current.accounts[0] ??
+              null;
 
-          setState({
-            ...current,
-            chain,
-            account,
-            signer: new WalletConnectHederaSigner({
-              accountId: account.accountId,
+            if (!account) {
+              throw createWalletError(
+                "CHAIN_UNSUPPORTED",
+                `This wallet session doesn't include ${chain.id}.`,
+                {
+                  hint: "Reconnect with an account on that Hedera network.",
+                },
+              );
+            }
+
+            setState({
+              ...current,
+              wallets: currentWallets(),
               chain,
-              client,
-              topic: activeSession.topic,
-            }),
-          });
-          sessionLogger.info({ chainId: chain.id }, "Wallet chain changed.");
-        } catch (error) {
-          updateState((current) => ({
-            ...current,
-            status: "error",
-            error: asWalletError(error, "CHAIN_UNSUPPORTED"),
-            prompt: null,
-          }));
-        }
+              account,
+              signer: await createSigner({
+                accountId: account.accountId,
+                chain,
+                client,
+                topic: activeSession.topic,
+                extensionId: activeExtensionId,
+              }),
+            });
+          } catch (error) {
+            updateState((current) => ({
+              ...current,
+              wallets: currentWallets(),
+              status: "error",
+              error: asWalletError(error, "CHAIN_UNSUPPORTED"),
+              prompt: null,
+            }));
+          }
+        })();
       }
     });
 
     client.on("session_update", (event) => {
-      if (!activeSession || event.topic !== activeSession.topic || !activeWalletId) {
+      if (
+        !activeSession ||
+        event.topic !== activeSession.topic ||
+        !activeWalletId ||
+        !activeTransport
+      ) {
         return;
       }
 
@@ -455,11 +575,14 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
         return;
       }
 
-      try {
-        applySession(session, activeWalletId, snapshot().chain.id);
-      } catch (error) {
+      void applySession(session, {
+        walletId: activeWalletId,
+        preferredChainId: snapshot().chain.id,
+        transport: activeTransport,
+        extensionId: activeExtensionId,
+      }).catch((error) => {
         clearSession(asWalletError(error, "RESTORE_FAILED"));
-      }
+      });
     });
 
     client.on("session_delete", (event) => {
@@ -469,7 +592,6 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
 
       void persistSession(null);
       clearSession();
-      sessionLogger.info("Wallet session ended.");
     });
 
     boundClient = client;
@@ -480,22 +602,11 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
       return options.projectId;
     }
 
-    if (!managedProjectIdPromise) {
-      managedProjectIdPromise = resolveManagedProjectId();
-    }
-
-    const managedProjectId = await managedProjectIdPromise;
-
-    if (managedProjectId) {
-      managedLogger.debug("Managed wallet project ID resolved.");
-      return managedProjectId;
-    }
-
     throw createWalletError(
-      "MANAGED_MODE_UNAVAILABLE",
-      "Hieco could not prepare wallet connectivity automatically for this app.",
+      "WALLET_NOT_READY",
+      "WalletConnect needs a projectId before this wallet can connect.",
       {
-        hint: "Pass projectId explicitly, or expose a managed project ID through __HIECO_WALLET_PROJECT_ID__, a meta tag, or /.well-known/hieco/wallet/project-id.",
+        hint: 'Create the wallet with projectId: "..." before calling connect().',
       },
     );
   };
@@ -529,32 +640,42 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
       )
       .then((client) => {
         bindEvents(client);
-        transportLogger.debug("WalletConnect client ready.");
         return client;
       });
 
     return signClientPromise;
   };
 
-  const connect = async (options: ConnectOptions = {}): Promise<WalletConnection> => {
+  const connect = async (connectOptions: ConnectOptions = {}): Promise<WalletConnection> => {
+    assertBrowserRuntime();
+    await refreshWalletOptions();
+
     const current = snapshot();
-    const wallet = pickWallet(wallets, options.wallet);
-    const chain = findChain(chains, options.chain ?? current.chain.id);
+    const attempt = activeConnectAttempt + 1;
+    activeConnectAttempt = attempt;
+    const wallet = pickWallet(currentWallets(), connectOptions.wallet);
+    const chain = findChain(chains, connectOptions.chain ?? current.chain.id);
+    const plan = planConnection({
+      wallet,
+      chain,
+      options: connectOptions,
+    });
 
     setState({
       ...current,
+      wallets: currentWallets(),
       status: "connecting",
       wallet,
       chain,
+      signer: undefined,
+      transport: plan.transport,
       error: null,
       prompt: null,
     });
 
     try {
       const client = await ensureClient();
-      const persisted = await readPersistedSession(storage, storageKey, (error) => {
-        storageLogger.warn({ error }, "Couldn't read the saved wallet session.");
-      });
+      const persisted = await readPersistedSession(storage, storageKey);
       const pairingTopic =
         persisted?.walletId === wallet.id ? (persisted.pairingTopic ?? persisted.topic) : undefined;
       const { uri, approval } = await client.connect({
@@ -562,60 +683,129 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
         requiredNamespaces: getRequiredNamespaces(chains),
       });
 
-      if (uri) {
-        updateState((currentState) => ({
-          ...currentState,
-          status: "connecting",
-          wallet,
-          chain,
-          error: null,
-          prompt: createWalletPrompt(uri, wallet, options.presentation),
-        }));
+      if (attempt !== activeConnectAttempt) {
+        throw createWalletError("CONNECT_FAILED", "This wallet request was canceled.", {
+          hint: "Start a new connection when you are ready to continue.",
+        });
       }
 
-      const session = await approval();
-      const connection = applySession(session, wallet.id, chain.id);
+      if (uri) {
+        if (plan.transport === "extension" && plan.extension) {
+          pairExtension(plan.extension, uri);
+        }
+
+        const promptMode = plan.promptMode;
+
+        if (promptMode) {
+          updateState((currentState) => ({
+            ...currentState,
+            wallets: currentWallets(),
+            status: "connecting",
+            wallet,
+            chain,
+            transport: plan.transport,
+            error: null,
+            prompt: createWalletPrompt({
+              uri,
+              wallet,
+              mode: promptMode,
+              returnHref: app.redirect?.universal ?? app.redirect?.native,
+            }),
+          }));
+        }
+      }
+
+      const session =
+        plan.transport === "extension"
+          ? await new Promise<SessionTypes.Struct>((resolve, reject) => {
+              let settled = false;
+              const timeout = window.setTimeout(() => {
+                if (settled) {
+                  return;
+                }
+
+                settled = true;
+                reject(
+                  createWalletError("CONNECT_FAILED", `${wallet.name} did not respond in time.`, {
+                    hint: "Close the wallet window and try again.",
+                  }),
+                );
+              }, EXTENSION_APPROVAL_TIMEOUT_MS);
+
+              void approval()
+                .then((nextSession) => {
+                  if (settled) {
+                    disconnectQuietly(client, nextSession.topic);
+                    return;
+                  }
+
+                  settled = true;
+                  window.clearTimeout(timeout);
+                  resolve(nextSession);
+                })
+                .catch((error) => {
+                  if (settled) {
+                    return;
+                  }
+
+                  settled = true;
+                  window.clearTimeout(timeout);
+                  reject(error);
+                });
+            })
+          : await approval();
+
+      if (attempt !== activeConnectAttempt) {
+        disconnectQuietly(client, session.topic);
+
+        throw createWalletError("CONNECT_FAILED", "This wallet request was canceled.", {
+          hint: "Start a new connection when you are ready to continue.",
+        });
+      }
+
+      const connection = await applySession(session, {
+        walletId: wallet.id,
+        preferredChainId: chain.id,
+        transport: plan.transport,
+        extensionId: plan.extension?.id,
+      });
 
       await persistSession({
         walletId: wallet.id,
         chainId: connection.chain.id,
         topic: session.topic,
+        transport: connection.transport,
         pairingTopic: session.pairingTopic,
+        extensionId: connection.extensionId,
       });
-
-      sessionLogger.info(
-        {
-          walletId: wallet.id,
-          accountId: connection.account.accountId,
-          chainId: connection.chain.id,
-        },
-        "Wallet connected.",
-      );
 
       return connection;
     } catch (error) {
       const walletError = asWalletError(error, "CONNECT_FAILED");
 
+      if (attempt !== activeConnectAttempt) {
+        return Promise.reject(walletError);
+      }
+
       updateState((currentState) => ({
         ...currentState,
+        wallets: currentWallets(),
         status: "error",
         wallet,
         chain,
+        transport: null,
         error: walletError,
         prompt: null,
       }));
-
-      logger.warn({ error: walletError, walletId: wallet.id }, walletError.message);
       throw walletError;
     }
   };
 
   const restore = async (): Promise<WalletConnection | null> => {
     assertBrowserRuntime();
+    await refreshWalletOptions();
 
-    const persisted = await readPersistedSession(storage, storageKey, (error) => {
-      storageLogger.warn({ error }, "Couldn't read the saved wallet session.");
-    });
+    const persisted = await readPersistedSession(storage, storageKey);
 
     if (!persisted) {
       return null;
@@ -623,7 +813,9 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
 
     updateState((current) => ({
       ...current,
+      wallets: currentWallets(),
       status: "restoring",
+      transport: persisted.transport,
       error: null,
       prompt: null,
     }));
@@ -638,23 +830,21 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
         return null;
       }
 
-      const connection = applySession(session, persisted.walletId, persisted.chainId);
+      const connection = await applySession(session, {
+        walletId: persisted.walletId,
+        preferredChainId: persisted.chainId,
+        transport: persisted.transport,
+        extensionId: persisted.extensionId,
+      });
 
       await persistSession({
         walletId: persisted.walletId,
         chainId: connection.chain.id,
         topic: session.topic,
+        transport: connection.transport,
         pairingTopic: session.pairingTopic,
+        extensionId: connection.extensionId,
       });
-
-      sessionLogger.info(
-        {
-          walletId: persisted.walletId,
-          accountId: connection.account.accountId,
-          chainId: connection.chain.id,
-        },
-        "Wallet session restored.",
-      );
 
       return connection;
     } catch (error) {
@@ -662,16 +852,18 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
 
       await persistSession(null);
       clearSession(walletError);
-      logger.warn({ error: walletError }, walletError.message);
       return null;
     }
   };
 
   const disconnect = async (): Promise<void> => {
+    assertBrowserRuntime();
+
     const current = snapshot();
 
     setState({
       ...current,
+      wallets: currentWallets(),
       status: "disconnecting",
       error: null,
       prompt: null,
@@ -690,18 +882,16 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
 
       await persistSession(null);
       clearSession();
-      sessionLogger.info("Wallet disconnected.");
     } catch (error) {
       const walletError = asWalletError(error, "DISCONNECT_FAILED");
 
       updateState((currentState) => ({
         ...currentState,
+        wallets: currentWallets(),
         status: "error",
         error: walletError,
         prompt: null,
       }));
-
-      logger.warn({ error: walletError }, walletError.message);
       throw walletError;
     }
   };
@@ -713,6 +903,7 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
     if (!current.wallet || !current.account || !activeSession || !boundClient) {
       setState({
         ...current,
+        wallets: currentWallets(),
         chain,
       });
       return;
@@ -730,36 +921,41 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
       );
     }
 
+    const signer = await createSigner({
+      accountId: account.accountId,
+      chain,
+      client: boundClient,
+      topic: activeSession.topic,
+      extensionId: activeExtensionId,
+    });
+
     setState({
       ...current,
+      wallets: currentWallets(),
       chain,
       account,
-      signer: new WalletConnectHederaSigner({
-        accountId: account.accountId,
-        chain,
-        client: boundClient,
-        topic: activeSession.topic,
-      }),
+      signer,
     });
 
     await persistSession({
       walletId: current.wallet.id,
       chainId: chain.id,
       topic: activeSession.topic,
+      transport: current.transport ?? activeTransport ?? "walletconnect",
       pairingTopic: activeSession.pairingTopic,
+      extensionId: activeExtensionId,
     });
-
-    sessionLogger.info({ chainId: chain.id }, "Wallet chain switched.");
   };
 
   const destroy = async (): Promise<void> => {
     destroyed = true;
     activeSession = null;
     activeWalletId = undefined;
+    activeTransport = null;
+    activeExtensionId = undefined;
     boundClient = null;
     signClientPromise = null;
-    managedProjectIdPromise = null;
-    logger.debug("Wallet runtime destroyed.");
+    extensionDiscoveryPromise = null;
   };
 
   const wallet: Wallet = {
@@ -770,6 +966,7 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
         listener();
       }),
     connect,
+    cancel,
     disconnect,
     restore,
     switchChain,
@@ -777,21 +974,15 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
     destroy,
   };
 
-  if (autoConnect && isBrowser()) {
+  if (isBrowser()) {
     queueMicrotask(() => {
-      void restore().catch(() => undefined);
+      void refreshWalletOptions();
+
+      if (autoConnect) {
+        void restore().catch(() => undefined);
+      }
     });
   }
-
-  logger.debug(
-    {
-      chains: chains.map((chain) => chain.id),
-      wallets: wallets.map((walletOption) => walletOption.id),
-      autoConnect,
-      mode: options.projectId ? "project" : "managed",
-    },
-    "Wallet runtime ready.",
-  );
 
   return wallet;
 }

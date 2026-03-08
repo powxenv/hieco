@@ -1,4 +1,4 @@
-import type { WalletChain } from "./types";
+import type { WalletChain } from "./types.ts";
 
 export const HEDERA_MAINNET_CHAIN_ID = "hedera:mainnet";
 export const HEDERA_TESTNET_CHAIN_ID = "hedera:testnet";

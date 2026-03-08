@@ -3,7 +3,10 @@ export const walletErrorCodes = [
   "USER_REJECTED",
   "SESSION_EXPIRED",
   "PAIRING_FAILED",
+  "PAIRING_REQUIRED",
   "WALLET_NOT_READY",
+  "WALLET_NOT_INSTALLED",
+  "WALLET_NOT_SUPPORTED_ON_DESKTOP",
   "CHAIN_UNSUPPORTED",
   "STORAGE_UNAVAILABLE",
   "RESTORE_FAILED",
@@ -11,7 +14,6 @@ export const walletErrorCodes = [
   "SIGNER_UNAVAILABLE",
   "DEEPLINK_UNAVAILABLE",
   "RETURN_TO_APP_UNAVAILABLE",
-  "MANAGED_MODE_UNAVAILABLE",
 ] as const;
 
 export type WalletErrorCode = (typeof walletErrorCodes)[number];
@@ -22,12 +24,25 @@ export interface WalletError extends Error {
   readonly cause?: unknown;
 }
 
-function isWalletErrorCode(value: unknown): value is WalletErrorCode {
-  return typeof value === "string" && walletErrorCodes.some((code) => code === value);
-}
+class HiecoWalletError extends Error implements WalletError {
+  readonly code: WalletErrorCode;
+  readonly hint?: string;
+  override readonly cause?: unknown;
 
-function isWalletError(value: unknown): value is WalletError {
-  return value instanceof Error && isWalletErrorCode(Reflect.get(value, "code"));
+  constructor(
+    code: WalletErrorCode,
+    message: string,
+    options: {
+      readonly hint?: string;
+      readonly cause?: unknown;
+    } = {},
+  ) {
+    super(message, options.cause === undefined ? undefined : { cause: options.cause });
+    this.name = "WalletError";
+    this.code = code;
+    this.hint = options.hint;
+    this.cause = options.cause;
+  }
 }
 
 function defaultMessage(code: WalletErrorCode): string {
@@ -40,8 +55,14 @@ function defaultMessage(code: WalletErrorCode): string {
       return "Your wallet session expired.";
     case "PAIRING_FAILED":
       return "We couldn't pair with the wallet.";
+    case "PAIRING_REQUIRED":
+      return "This wallet needs an explicit pairing step.";
     case "WALLET_NOT_READY":
       return "The wallet isn't ready yet.";
+    case "WALLET_NOT_INSTALLED":
+      return "This wallet is not installed in your browser.";
+    case "WALLET_NOT_SUPPORTED_ON_DESKTOP":
+      return "This wallet does not support the current desktop flow.";
     case "CHAIN_UNSUPPORTED":
       return "This wallet session doesn't support that Hedera network.";
     case "STORAGE_UNAVAILABLE":
@@ -56,8 +77,6 @@ function defaultMessage(code: WalletErrorCode): string {
       return "This wallet can't be opened from the current device.";
     case "RETURN_TO_APP_UNAVAILABLE":
       return "This wallet can't send you back to the app automatically.";
-    case "MANAGED_MODE_UNAVAILABLE":
-      return "Hieco couldn't prepare wallet connectivity automatically.";
   }
 }
 
@@ -71,8 +90,14 @@ function defaultHint(code: WalletErrorCode): string | undefined {
       return "Reconnect the wallet to start a fresh session.";
     case "PAIRING_FAILED":
       return "Open the wallet again and approve the pairing request.";
+    case "PAIRING_REQUIRED":
+      return "Choose an explicit QR pairing flow when you want to connect from another device.";
     case "WALLET_NOT_READY":
       return "Check the wallet setup and try again.";
+    case "WALLET_NOT_INSTALLED":
+      return "Install the wallet extension or app, then try again.";
+    case "WALLET_NOT_SUPPORTED_ON_DESKTOP":
+      return "Choose an installed desktop extension, or switch to a supported mobile or QR flow.";
     case "CHAIN_UNSUPPORTED":
       return "Switch to a supported Hedera network and try again.";
     case "STORAGE_UNAVAILABLE":
@@ -87,8 +112,6 @@ function defaultHint(code: WalletErrorCode): string | undefined {
       return "Use the QR flow instead, or pick a wallet that supports mobile links.";
     case "RETURN_TO_APP_UNAVAILABLE":
       return "Approve in the wallet, then return to your browser manually.";
-    case "MANAGED_MODE_UNAVAILABLE":
-      return "Pass projectId explicitly, or expose a managed project ID through Hieco's browser hooks.";
   }
 }
 
@@ -100,32 +123,7 @@ export function createWalletError(
     readonly cause?: unknown;
   } = {},
 ): WalletError {
-  const error = new Error(message) as WalletError;
-  Object.defineProperty(error, "name", {
-    value: "WalletError",
-    enumerable: false,
-    configurable: true,
-  });
-  Object.defineProperty(error, "code", {
-    value: code,
-    enumerable: true,
-    configurable: true,
-  });
-  if (options.hint !== undefined) {
-    Object.defineProperty(error, "hint", {
-      value: options.hint,
-      enumerable: true,
-      configurable: true,
-    });
-  }
-  if (options.cause !== undefined) {
-    Object.defineProperty(error, "cause", {
-      value: options.cause,
-      enumerable: true,
-      configurable: true,
-    });
-  }
-  return error;
+  return new HiecoWalletError(code, message, options);
 }
 
 export function formatWalletError(error: WalletError): string {
@@ -137,7 +135,7 @@ export function formatWalletError(error: WalletError): string {
 }
 
 export function asWalletError(error: unknown, fallback: WalletErrorCode): WalletError {
-  if (isWalletError(error)) {
+  if (error instanceof HiecoWalletError) {
     return error;
   }
 

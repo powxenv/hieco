@@ -1,14 +1,11 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { createWallet } from "../src/config";
-import { createWalletPrompt } from "../src/prompt";
-import { resolveManagedProjectId } from "../src/managed";
-import { genericWalletConnectWallet, hashpack } from "../src/wallets";
+import { createWalletPrompt, planConnection, resolveWalletOptions } from "../src/planner";
+import { genericWalletConnectWallet, hashpack, kabila } from "../src/wallets";
 
 const originalWindow = Reflect.get(globalThis, "window");
 const originalDocument = Reflect.get(globalThis, "document");
 const originalNavigator = Reflect.get(globalThis, "navigator");
-const originalFetch = Reflect.get(globalThis, "fetch");
-const originalManagedProjectId = Reflect.get(globalThis, "__HIECO_WALLET_PROJECT_ID__");
 
 function restoreGlobals(): void {
   if (originalWindow === undefined) {
@@ -28,34 +25,14 @@ function restoreGlobals(): void {
   } else {
     Reflect.set(globalThis, "navigator", originalNavigator);
   }
-
-  if (originalFetch === undefined) {
-    Reflect.deleteProperty(globalThis, "fetch");
-  } else {
-    Reflect.set(globalThis, "fetch", originalFetch);
-  }
-
-  if (originalManagedProjectId === undefined) {
-    Reflect.deleteProperty(globalThis, "__HIECO_WALLET_PROJECT_ID__");
-  } else {
-    Reflect.set(globalThis, "__HIECO_WALLET_PROJECT_ID__", originalManagedProjectId);
-  }
 }
 
 function setBrowserEnvironment(
   input: {
-    readonly metaProjectId?: string;
-    readonly fetchProjectId?: string;
     readonly userAgent?: string;
   } = {},
 ): void {
   const querySelector = (selector: string) => {
-    if (selector === 'meta[name="hieco-wallet-project-id"]' && input.metaProjectId) {
-      return {
-        getAttribute: (name: string) => (name === "content" ? input.metaProjectId : null),
-      };
-    }
-
     if (selector === 'meta[name="description"]') {
       return {
         getAttribute: (name: string) => (name === "content" ? "Wallet test app" : null),
@@ -71,10 +48,18 @@ function setBrowserEnvironment(
         origin: "https://example.com",
         href: "https://example.com/wallet",
       },
+      parent: undefined,
+      postMessage: () => undefined,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      setTimeout,
+      clearTimeout,
     },
     configurable: true,
     writable: true,
   });
+
+  Reflect.set(globalThis.window, "parent", globalThis.window);
 
   Object.defineProperty(globalThis, "document", {
     value: {
@@ -89,24 +74,11 @@ function setBrowserEnvironment(
 
   Object.defineProperty(globalThis, "navigator", {
     value: {
-      userAgent: input.userAgent ?? "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)",
+      userAgent: input.userAgent ?? "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
       clipboard: {
         writeText: async () => undefined,
       },
     },
-    configurable: true,
-    writable: true,
-  });
-
-  Object.defineProperty(globalThis, "fetch", {
-    value: async () => ({
-      ok: Boolean(input.fetchProjectId),
-      headers: {
-        get: () => "application/json",
-      },
-      json: async () => ({ projectId: input.fetchProjectId }),
-      text: async () => input.fetchProjectId ?? "",
-    }),
     configurable: true,
     writable: true,
   });
@@ -116,8 +88,15 @@ afterEach(() => {
   restoreGlobals();
 });
 
+function clearBrowserEnvironment(): void {
+  Reflect.deleteProperty(globalThis, "window");
+  Reflect.deleteProperty(globalThis, "document");
+  Reflect.deleteProperty(globalThis, "navigator");
+}
+
 describe("createWallet", () => {
   test("keeps browser-only connect guarded on the server", async () => {
+    clearBrowserEnvironment();
     const wallet = createWallet();
 
     expect(wallet.connect()).rejects.toMatchObject({
@@ -127,6 +106,7 @@ describe("createWallet", () => {
   });
 
   test("keeps browser-only restore guarded on the server", async () => {
+    clearBrowserEnvironment();
     const wallet = createWallet();
 
     expect(wallet.restore()).rejects.toMatchObject({
@@ -144,40 +124,159 @@ describe("createWallet", () => {
   });
 });
 
-describe("resolveManagedProjectId", () => {
-  test("uses the browser global first", async () => {
+describe("resolveWalletOptions", () => {
+  test("prioritizes installed desktop extensions", () => {
     setBrowserEnvironment();
-    Reflect.set(globalThis, "__HIECO_WALLET_PROJECT_ID__", "managed-global");
 
-    expect(resolveManagedProjectId()).resolves.toBe("managed-global");
+    const wallets = resolveWalletOptions(
+      [hashpack(), kabila(), genericWalletConnectWallet()],
+      [
+        {
+          id: "hashpack",
+          name: "HashPack",
+          availableInIframe: false,
+        },
+      ],
+    );
+
+    expect(wallets[0]).toMatchObject({
+      id: "hashpack",
+      readyState: "installed",
+      defaultTransport: "extension",
+      extension: {
+        id: "hashpack",
+      },
+    });
+    expect(wallets[1]).toMatchObject({
+      id: "kabila",
+      readyState: "install-required",
+    });
+    expect(wallets[2]).toMatchObject({
+      id: "hedera-wallet",
+      readyState: "cross-device",
+    });
   });
 
-  test("falls back to the meta tag", async () => {
+  test("marks mobile wallets as directly loadable on mobile browsers", () => {
     setBrowserEnvironment({
-      metaProjectId: "managed-meta",
+      userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)",
     });
 
-    expect(resolveManagedProjectId()).resolves.toBe("managed-meta");
+    const wallets = resolveWalletOptions([hashpack(), genericWalletConnectWallet()], []);
+
+    expect(wallets[0]).toMatchObject({
+      id: "hashpack",
+      readyState: "loadable",
+      defaultTransport: "walletconnect",
+    });
+    expect(wallets[1]).toMatchObject({
+      id: "hedera-wallet",
+      readyState: "loadable",
+      defaultTransport: "walletconnect",
+    });
+  });
+});
+
+describe("planConnection", () => {
+  test("uses the installed extension on desktop by default", () => {
+    setBrowserEnvironment();
+
+    const wallet = resolveWalletOptions(
+      [hashpack()],
+      [
+        {
+          id: "hashpack",
+          name: "HashPack",
+          availableInIframe: false,
+        },
+      ],
+    );
+    const installedWallet = wallet[0];
+
+    if (!installedWallet) {
+      throw new Error("Expected an installed wallet option.");
+    }
+
+    const plan = planConnection({
+      wallet: installedWallet,
+      chain: {
+        id: "hedera:testnet",
+        network: "testnet",
+        ledgerId: "testnet",
+      },
+    });
+
+    expect(plan).toMatchObject({
+      transport: "extension",
+      promptMode: null,
+      extension: {
+        id: "hashpack",
+      },
+    });
   });
 
-  test("falls back to the well-known endpoint", async () => {
-    setBrowserEnvironment({
-      fetchProjectId: "managed-endpoint",
+  test("requires explicit QR pairing for desktop cross-device wallets", () => {
+    setBrowserEnvironment();
+
+    const wallets = resolveWalletOptions([genericWalletConnectWallet()], []);
+    const wallet = wallets[0];
+
+    if (!wallet) {
+      throw new Error("Expected a wallet option.");
+    }
+
+    expect(() =>
+      planConnection({
+        wallet,
+        chain: {
+          id: "hedera:testnet",
+          network: "testnet",
+          ledgerId: "testnet",
+        },
+      }),
+    ).toThrow("needs an explicit cross-device WalletConnect flow");
+  });
+
+  test("allows explicit QR pairing on desktop", () => {
+    setBrowserEnvironment();
+
+    const wallets = resolveWalletOptions([genericWalletConnectWallet()], []);
+    const wallet = wallets[0];
+
+    if (!wallet) {
+      throw new Error("Expected a wallet option.");
+    }
+
+    const plan = planConnection({
+      wallet,
+      chain: {
+        id: "hedera:testnet",
+        network: "testnet",
+        ledgerId: "testnet",
+      },
+      options: {
+        presentation: "qr",
+      },
     });
 
-    expect(resolveManagedProjectId()).resolves.toBe("managed-endpoint");
+    expect(plan).toMatchObject({
+      transport: "walletconnect",
+      promptMode: "qr",
+    });
   });
 });
 
 describe("createWalletPrompt", () => {
-  test("uses QR on mobile when the wallet has no deep link metadata", () => {
+  test("creates a QR prompt for explicit cross-device pairing", () => {
     setBrowserEnvironment();
     const wallet = {
-      ...hashpack(),
-      readyState: "loadable" as const,
+      ...genericWalletConnectWallet(),
+      readyState: "cross-device" as const,
+      defaultTransport: null,
+      extension: null,
     };
 
-    expect(createWalletPrompt("wc:test", wallet)).toEqual({
+    expect(createWalletPrompt({ uri: "wc:test", wallet, mode: "qr" })).toEqual({
       kind: "qr",
       uri: "wc:test",
       wallet,
@@ -185,20 +284,24 @@ describe("createWalletPrompt", () => {
   });
 
   test("creates a deeplink prompt when the wallet provides a deep link", () => {
-    setBrowserEnvironment();
+    setBrowserEnvironment({
+      userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)",
+    });
 
     expect(
-      createWalletPrompt(
-        "wc:test",
-        {
+      createWalletPrompt({
+        uri: "wc:test",
+        wallet: {
           ...hashpack(),
           readyState: "loadable",
+          defaultTransport: "walletconnect",
+          extension: null,
           mobile: {
             native: "hashpack://wc?uri={uri}",
           },
         },
-        "deeplink",
-      ),
+        mode: "deeplink",
+      }),
     ).toEqual({
       kind: "deeplink",
       uri: "wc:test",
@@ -206,6 +309,8 @@ describe("createWalletPrompt", () => {
       wallet: {
         ...hashpack(),
         readyState: "loadable",
+        defaultTransport: "walletconnect",
+        extension: null,
         mobile: {
           native: "hashpack://wc?uri={uri}",
         },
@@ -213,18 +318,30 @@ describe("createWalletPrompt", () => {
     });
   });
 
-  test("throws a dedicated error when deeplink presentation is forced but unavailable", () => {
-    setBrowserEnvironment();
+  test("falls back to a return prompt when mobile flow has no deep link", () => {
+    setBrowserEnvironment({
+      userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)",
+    });
 
-    expect(() =>
-      createWalletPrompt(
-        "wc:test",
-        {
-          ...hashpack(),
-          readyState: "loadable",
-        },
-        "deeplink",
-      ),
-    ).toThrow("does not expose a mobile deep link");
+    const wallet = {
+      ...genericWalletConnectWallet(),
+      readyState: "loadable" as const,
+      defaultTransport: "walletconnect" as const,
+      extension: null,
+    };
+
+    expect(
+      createWalletPrompt({
+        uri: "wc:test",
+        wallet,
+        mode: "return",
+        returnHref: "https://example.com/return",
+      }),
+    ).toEqual({
+      kind: "return",
+      wallet,
+      href: "https://example.com/return",
+      uri: "wc:test",
+    });
   });
 });

@@ -7,6 +7,7 @@ import type {
   WalletOption,
   WalletPrompt,
   WalletStatus,
+  WalletTransportId,
 } from "@hieco/wallet";
 import type { Signer } from "@hiero-ledger/sdk";
 import { useWalletContext, useWalletState } from "./context";
@@ -20,9 +21,11 @@ export interface UseWalletResult {
   readonly chain: WalletChain;
   readonly chains: readonly WalletChain[];
   readonly signer: Signer | undefined;
+  readonly transport: WalletTransportId | null;
   readonly error: WalletError | null;
   readonly prompt: WalletPrompt | null;
   readonly connect: (options?: ConnectOptions) => Promise<WalletConnection>;
+  readonly cancel: () => void;
   readonly disconnect: () => Promise<void>;
   readonly restore: () => Promise<WalletConnection | null>;
   readonly switchChain: (chainId: string) => Promise<void>;
@@ -39,6 +42,7 @@ export function useWallet(): UseWalletResult {
   return {
     ...state,
     connect: wallet.connect,
+    cancel: wallet.cancel,
     disconnect: wallet.disconnect,
     restore: wallet.restore,
     switchChain: wallet.switchChain,

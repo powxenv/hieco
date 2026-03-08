@@ -31,6 +31,17 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "ui": [
+        "./dist/ui/index.d.ts"
+      ],
+      "*": [
+        "./dist/*"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -45,8 +56,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun --filter '@hieco/wallet' build && bun build ./src/index.ts ./src/ui/index.ts --outdir ./dist --target browser --format esm --sourcemap --external react --external react-dom --external @hieco/wallet --external @nanostores/react && bunx tsc -p tsconfig.build.json",
-    "dev": "bun build ./src/index.ts ./src/ui/index.ts --outdir ./dist --target browser --format esm --watch --external react --external react-dom --external @hieco/wallet --external @nanostores/react",
+    "build": "bun --filter '@hieco/wallet' build && mkdir -p ./dist/ui && find ./dist -mindepth 1 -delete && bun build ./src/index.ts ./src/ui/index.ts --outdir ./dist --target browser --format esm --sourcemap --splitting --external react --external react-dom --external @hieco/wallet --external @nanostores/react && bunx tsc -p tsconfig.build.json",
+    "dev": "mkdir -p ./dist/ui && find ./dist -mindepth 1 -delete && bun build ./src/index.ts ./src/ui/index.ts --outdir ./dist --target browser --format esm --watch --splitting --external react --external react-dom --external @hieco/wallet --external @nanostores/react",
     "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",

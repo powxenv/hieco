@@ -30,6 +30,14 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -40,8 +48,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target browser --format esm --sourcemap --external @hiero-ledger/sdk --external @walletconnect/sign-client --external @walletconnect/types --external @walletconnect/utils --external nanostores && bunx tsc -p tsconfig.build.json",
-    "dev": "bun build ./src/index.ts --outdir ./dist --target browser --format esm --watch --external @hiero-ledger/sdk --external @walletconnect/sign-client --external @walletconnect/types --external @walletconnect/utils --external nanostores",
+    "build": "mkdir -p ./dist && find ./dist -mindepth 1 -delete && bun build ./src/index.ts --outdir ./dist --target browser --format esm --sourcemap --splitting --external @walletconnect/sign-client --external @walletconnect/types --external @walletconnect/utils --external nanostores && bunx tsc -p tsconfig.build.json",
+    "dev": "mkdir -p ./dist && find ./dist -mindepth 1 -delete && bun build ./src/index.ts --outdir ./dist --target browser --format esm --watch --splitting --external @walletconnect/sign-client --external @walletconnect/types --external @walletconnect/utils --external nanostores",
     "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",

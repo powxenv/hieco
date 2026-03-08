@@ -25,8 +25,9 @@ import {
 import { proto } from "@hiero-ledger/proto";
 import type SignClient from "@walletconnect/sign-client";
 import type { SessionTypes } from "@walletconnect/types";
-import { createWalletError } from "./errors";
-import type { WalletChain } from "./types";
+import { createWalletError } from "./errors.ts";
+import { openExtension } from "./extensions.ts";
+import type { WalletChain } from "./types.ts";
 
 const HEDERA_SIGN_MESSAGE = "hedera_signMessage";
 const HEDERA_SIGN_QUERY = "hedera_signAndExecuteQuery";
@@ -207,21 +208,28 @@ export class WalletConnectHederaSigner implements Signer {
   readonly #client: SignClient;
   readonly #topic: string;
   readonly #networkClient: Client;
+  readonly #extensionId?: string;
 
   constructor(input: {
     readonly accountId: string;
     readonly chain: WalletChain;
     readonly client: SignClient;
     readonly topic: string;
+    readonly extensionId?: string;
   }) {
     this.#accountId = AccountId.fromString(input.accountId);
     this.#chain = input.chain;
     this.#client = input.client;
     this.#topic = input.topic;
     this.#networkClient = createNetworkClient(input.chain);
+    this.#extensionId = input.extensionId;
   }
 
   async #request<T>(method: string, params: Record<string, unknown>): Promise<T> {
+    if (this.#extensionId) {
+      openExtension(this.#extensionId);
+    }
+
     return this.#client.request<T>({
       topic: this.#topic,
       chainId: this.#chain.id,

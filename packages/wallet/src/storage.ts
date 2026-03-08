@@ -1,8 +1,5 @@
-import type { WalletStorage } from "./types";
-
-function isBrowser(): boolean {
-  return typeof window !== "undefined" && typeof localStorage !== "undefined";
-}
+import { isBrowser } from "./platform.ts";
+import type { WalletStorage } from "./types.ts";
 
 export function createStorage(): WalletStorage {
   if (!isBrowser()) {
