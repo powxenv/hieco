@@ -1,0 +1,83 @@
+{
+  "name": "@hieco/wallet-react",
+  "version": "0.0.1",
+  "description": "React bindings and optional UI for @hieco/wallet",
+  "keywords": [
+    "hedera",
+    "hiero",
+    "react",
+    "wallet",
+    "walletconnect",
+    "web3"
+  ],
+  "homepage": "https://github.com/powxenv/hieco/tree/main/packages/wallet-react",
+  "bugs": {
+    "url": "https://github.com/powxenv/hieco/issues"
+  },
+  "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hieco",
+    "directory": "packages/wallet-react"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./ui": {
+      "types": "./dist/ui/index.d.ts",
+      "import": "./dist/ui/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "bun --filter '@hieco/wallet' build && bun build ./src/index.ts ./src/ui/index.ts --outdir ./dist --target browser --format esm --sourcemap --external react --external react-dom --external @hieco/wallet --external @nanostores/react && bunx tsc -p tsconfig.build.json",
+    "dev": "bun build ./src/index.ts ./src/ui/index.ts --outdir ./dist --target browser --format esm --watch --external react --external react-dom --external @hieco/wallet --external @nanostores/react",
+    "typecheck": "tsgo --noEmit --project tsconfig.test.json",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --fix --type-aware",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@hieco/wallet": "workspace:*",
+    "@nanostores/react": "^1.0.0",
+    "qrcode": "1.5.3"
+  },
+  "devDependencies": {
+    "@hiero-ledger/sdk": "^2.80.0",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@typescript/native-preview": "catalog:",
+    "bun-types": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "react": "catalog:react",
+    "react-dom": "catalog:react"
+  },
+  "peerDependencies": {
+    "@hieco/wallet": "workspace:*",
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

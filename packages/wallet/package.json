@@ -1,0 +1,71 @@
+{
+  "name": "@hieco/wallet",
+  "version": "0.0.1",
+  "description": "Headless Hedera wallet connection SDK for Hieco",
+  "keywords": [
+    "hedera",
+    "hiero",
+    "wallet",
+    "walletconnect",
+    "web3"
+  ],
+  "homepage": "https://github.com/powxenv/hieco/tree/main/packages/wallet",
+  "bugs": {
+    "url": "https://github.com/powxenv/hieco/issues"
+  },
+  "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hieco",
+    "directory": "packages/wallet"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target browser --format esm --sourcemap --external @hiero-ledger/sdk --external @walletconnect/sign-client --external @walletconnect/types --external @walletconnect/utils --external nanostores && bunx tsc -p tsconfig.build.json",
+    "dev": "bun build ./src/index.ts --outdir ./dist --target browser --format esm --watch --external @hiero-ledger/sdk --external @walletconnect/sign-client --external @walletconnect/types --external @walletconnect/utils --external nanostores",
+    "typecheck": "tsgo --noEmit --project tsconfig.test.json",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --fix --type-aware",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@hieco/utils": "workspace:*",
+    "@hiero-ledger/proto": "^2.26.0-beta.3",
+    "@hiero-ledger/sdk": "^2.80.0",
+    "@walletconnect/sign-client": "^2.23.7",
+    "@walletconnect/types": "^2.23.7",
+    "@walletconnect/utils": "^2.23.7",
+    "nanostores": "^1.1.1"
+  },
+  "devDependencies": {
+    "@typescript/native-preview": "catalog:",
+    "bun-types": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
