@@ -9,7 +9,8 @@ Use it when you want:
 - typed Hedera query hooks and mutation hooks
 - one provider for browser apps, signer-aware apps, and hydrated apps
 - React-first access to the same namespaces exposed by `@hieco/sdk`
-- optional first-party integration for Reown AppKit through `@hieco/react/appkit`
+- direct compatibility with `@hieco/wallet-react` signers
+- a legacy bridge for apps that already use Reown AppKit through `@hieco/react/appkit`
 
 ## Installation
 
@@ -29,7 +30,25 @@ yarn add @hieco/react @hieco/sdk @tanstack/react-query
 bun add @hieco/react @hieco/sdk @tanstack/react-query
 ```
 
-Optional AppKit bridge dependencies:
+Recommended wallet layer for new apps:
+
+```bash
+npm install @hieco/wallet @hieco/wallet-react
+```
+
+```bash
+pnpm add @hieco/wallet @hieco/wallet-react
+```
+
+```bash
+yarn add @hieco/wallet @hieco/wallet-react
+```
+
+```bash
+bun add @hieco/wallet @hieco/wallet-react
+```
+
+Legacy AppKit bridge dependencies:
 
 ```bash
 npm install @reown/appkit @hashgraph/hedera-wallet-connect
@@ -59,7 +78,10 @@ Use `@hieco/react` when you are building:
 - a React app that reads or writes Hedera data
 - a wallet-connected UI where the current `Signer` should drive mutations
 - a hydrated app that already owns a `QueryClient`
-- a Reown AppKit integration that should feed the active wallet into Hieco automatically
+- a React app that should consume a signer from `@hieco/wallet-react`
+- a legacy Reown AppKit integration that should feed the active wallet into Hieco automatically
+
+For new wallet-connected React apps, pair this package with [`@hieco/wallet-react`](../wallet-react/README.md). That is the default Hieco wallet path.
 
 For server-only logic, scripts, or framework loaders, use [`@hieco/sdk`](../sdk/README.md) directly.
 
@@ -134,6 +156,8 @@ Pass a wallet `Signer` to scope the client to the active wallet session:
 
 The signer is late-bound runtime state. The provider can render once with `undefined` and re-render with a signer after the user connects a wallet.
 
+For local development, `WalletProvider` can run with no props and attempt managed setup automatically. For production apps, pass `projectId` explicitly.
+
 ## Advanced
 
 ### Use An Existing QueryClient
@@ -191,7 +215,9 @@ Use `@hieco/sdk` in server code to prefetch data, then hydrate the React tree th
 ```tsx
 "use client";
 
-import { HiecoProvider, useAccountSend, type Signer } from "@hieco/react";
+import { HiecoProvider, useAccountSend } from "@hieco/react";
+import { WalletProvider, useWalletSigner } from "@hieco/wallet-react";
+import { WalletButton, WalletDialog } from "@hieco/wallet-react/ui";
 
 function SendButton() {
   const send = useAccountSend();
@@ -211,13 +237,9 @@ function SendButton() {
   );
 }
 
-export function Providers({
-  children,
-  signer,
-}: {
-  children: React.ReactNode;
-  signer: Signer | undefined;
-}) {
+function HiecoRuntime({ children }: { children: React.ReactNode }) {
+  const signer = useWalletSigner();
+
   return (
     <HiecoProvider config={{ network: "testnet" }} signer={signer}>
       {children}
@@ -225,6 +247,26 @@ export function Providers({
     </HiecoProvider>
   );
 }
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <WalletProvider>
+      <WalletButton />
+      <WalletDialog />
+      <HiecoRuntime>{children}</HiecoRuntime>
+    </WalletProvider>
+  );
+}
+```
+
+For self-hosted production apps, pass `projectId` explicitly:
+
+```tsx
+<WalletProvider projectId="YOUR_WALLETCONNECT_PROJECT_ID">
+  <WalletButton />
+  <WalletDialog />
+  <HiecoRuntime>{children}</HiecoRuntime>
+</WalletProvider>
 ```
 
 ### Topic Watchers
@@ -243,7 +285,9 @@ export function TopicFeed() {
 }
 ```
 
-### `@hieco/react/appkit`
+### `@hieco/react/appkit` (Legacy)
+
+Use this only when the app already depends on Reown AppKit and cannot move to `@hieco/wallet-react` yet.
 
 Bootstrap AppKit once, then use the AppKit-aware provider:
 
