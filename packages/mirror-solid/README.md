@@ -198,7 +198,7 @@ export function Screen(props: { children: JSX.Element }): JSX.Element {
 | `useMirrorNodeContext`    | function  | Access the full mirror context.                                        | `useMirrorNodeContext()`            |
 | `useMirrorNodeClient`     | function  | Access the underlying `MirrorNodeClient` accessor.                     | `useMirrorNodeClient()`             |
 | `useNetwork`              | function  | Access the active network accessor, URL accessor, and `switchNetwork`. | `useNetwork()`                      |
-| `NetworkConfig`           | type      | Provider network config type re-exported from `@hieco/utils`.          | `type NetworkConfig`                |
+| `NetworkConfig`           | type      | Provider network config type exported by this package.                 | `type NetworkConfig`                |
 
 ### Query Families
 
@@ -219,7 +219,7 @@ Each `create*` export also has matching `Create*Options` and `Create*Result` typ
 
 ### Utility Re-Exports
 
-`@hieco/mirror-solid` re-exports the public utilities from [`@hieco/utils`](../utils/README.md), including `ApiResult`, `ApiError`, `NetworkConfig`, `NETWORK_CONFIGS`, `mirrorNodeKeys`, and the mirror type guards.
+`@hieco/mirror-solid` also exports shared result and network utilities, including `ApiResult`, `ApiError`, `NetworkConfig`, `NETWORK_CONFIGS`, `mirrorNodeKeys`, and the mirror type guards.
 
 ## Related Packages
 
