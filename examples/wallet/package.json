@@ -1,0 +1,35 @@
+{
+  "name": "@examples/hieco-wallet",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "oxlint --type-aware",
+    "fmt": "oxfmt",
+    "preview": "vite preview",
+    "typecheck": "tsgo --noEmit --project tsconfig.app.json"
+  },
+  "dependencies": {
+    "@hieco/wallet": "workspace:*",
+    "@hieco/wallet-react": "workspace:*",
+    "react": "catalog:react",
+    "react-dom": "catalog:react"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "@typescript/native-preview": "catalog:",
+    "@vitejs/plugin-react": "^5.1.1",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "typescript": "~5.9.3",
+    "vite": "^8.0.0-beta.13"
+  },
+  "overrides": {
+    "vite": "^8.0.0-beta.13"
+  }
+}
