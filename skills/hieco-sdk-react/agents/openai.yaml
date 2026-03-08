@@ -1,7 +1,0 @@
-interface:
-  display_name: "Hieco SDK + React"
-  short_description: "Use the core Hieco SDK and React wrapper"
-  default_prompt: "Use $hieco-sdk-react to build or explain integrations with @hieco/sdk, @hieco/react, or @hieco/react/appkit."
-
-policy:
-  allow_implicit_invocation: true
