@@ -57,7 +57,7 @@ Solid exports `create*` query factories instead of React-style hooks.
 Pattern:
 
 ```ts
-createX(args?, options?) => CreateResourceResult<TData>
+createX(args?, options?) => UseQueryResult<TData, ApiError>
 ```
 
 ### Infinite query factory
@@ -71,6 +71,9 @@ createXInfinite(params?, options?) => infinite-query style result
 ### Polling helpers
 
 - `createPollTransaction` polls a transaction until it resolves or the polling contract stops
+
+### Error boundary helpers
+
 - `ApiErrorBoundary` and related props are Solid error-boundary helpers for mirror failures
 
 ## Query Families
@@ -82,22 +85,16 @@ createXInfinite(params?, options?) => infinite-query style result
 | Blocks       | Block list and single block queries.                                                               | `createBlocks`, `createBlock`                                                                                                                                                                                                                                                                                                                                   |
 | Contracts    | Contract info, call, results, state, logs, all-results, and trace queries.                         | `createContractInfo`, `createContractCall`, `createContractResults`, `createContractResult`, `createContractState`, `createContractLogs`, `createContracts`, `createContractsInfinite`, `createContractAllResults`, `createContractResultByTransactionIdOrHash`, `createContractResultActions`, `createContractResultOpcodes`, `createContractAllLogs`          |
 | Network      | Exchange rate, fees, nodes, stake, and supply queries.                                             | `createNetworkExchangeRate`, `createNetworkFees`, `createNetworkNodes`, `createNetworkStake`, `createNetworkSupply`                                                                                                                                                                                                                                             |
-| Polling      | Transaction polling and error-boundary helpers.                                                    | `createPollTransaction`, `ApiErrorBoundary`, `ApiErrorBoundaryProps`, `ApiErrorFallbackProps`                                                                                                                                                                                                                                                                   |
+| Polling      | Transaction polling helpers.                                                                       | `createPollTransaction`                                                                                                                                                                                                                                                                                                   |
+| Error Handling | API error boundaries for mirror-driven UI sections.                                              | `ApiErrorBoundary`, `ApiErrorBoundaryProps`, `ApiErrorFallbackProps`                                                                                                                                                                                                                                                       |
 | Schedules    | Schedule info and paginated schedule lists.                                                        | `createScheduleInfo`, `createSchedules`, `createSchedulesInfinite`                                                                                                                                                                                                                                                                                              |
 | Tokens       | Token info, balances, NFTs, NFT transactions, and token lists.                                     | `createTokenInfo`, `createTokenBalances`, `createTokenBalancesSnapshot`, `createTokenNfts`, `createTokenNft`, `createTokenNftTransactions`, `createTokens`, `createTokensInfinite`                                                                                                                                                                              |
 | Topics       | Topic info, topic messages, message lookup, and topic lists.                                       | `createTopicInfo`, `createTopicMessages`, `createTopicMessage`, `createTopics`, `createTopicsInfinite`, `createTopicMessageByTimestamp`                                                                                                                                                                                                                         |
 | Transactions | Single transaction reads, account transaction lists, and paginated transaction queries.            | `createTransaction`, `createTransactionsByAccount`, `createTransactions`, `createTransactionsInfinite`                                                                                                                                                                                                                                                          |
 
-## Shared Re-Exports
+## Shared Types
 
-`@hieco/mirror-solid` also re-exports the shared public mirror utilities.
-
-| Export group        | Examples                                                          |
-| ------------------- | ----------------------------------------------------------------- |
-| Result helpers      | `ApiResult`, `ApiError`, `ApiErrorFactory`                        |
-| Network helpers     | `NetworkConfig`, `NETWORK_CONFIGS`                                |
-| Query keys          | `mirrorNodeKeys`                                                  |
-| Public mirror types | entity types and parameter types re-exported from `@hieco/mirror` |
+Use `@hieco/mirror` for shared entity types, query parameter types, result helpers, and query keys. `@hieco/mirror-solid` is the Solid wrapper layer.
 
 ## Exact Type Definition Entry Points
 

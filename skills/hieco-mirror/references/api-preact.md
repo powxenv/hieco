@@ -65,22 +65,16 @@ The Preact wrapper mirrors the React wrapper closely.
 | Blocks       | Block list and single block queries.                                                               | `useBlocks`, `useBlock`                                                                                                                                                                                                                                                                                                  |
 | Contracts    | Contract info, call, results, state, logs, all-results, and trace queries.                         | `useContractInfo`, `useContractCall`, `useContractResults`, `useContractResult`, `useContractState`, `useContractLogs`, `useContracts`, `useContractsInfinite`, `useContractAllResults`, `useContractResultByTransactionIdOrHash`, `useContractResultActions`, `useContractResultOpcodes`, `useContractAllLogs`          |
 | Network      | Exchange rate, fees, nodes, stake, and supply queries.                                             | `useNetworkExchangeRate`, `useNetworkFees`, `useNetworkNodes`, `useNetworkStake`, `useNetworkSupply`                                                                                                                                                                                                                     |
-| Polling      | Transaction polling and error-boundary helpers.                                                    | `usePollTransaction`, `ApiErrorFallback`, `ApiErrorBoundary`, `withApiErrorBoundary`                                                                                                                                                                                                                                     |
+| Polling      | Transaction polling helpers.                                                                       | `usePollTransaction`                                                                                                                                                                                                                                                                                                      |
+| Error Handling | API error boundaries for mirror-driven UI sections.                                              | `ApiErrorFallback`, `ApiErrorBoundary`, `withApiErrorBoundary`                                                                                                                                                                                                                                                             |
 | Schedules    | Schedule info and paginated schedule lists.                                                        | `useScheduleInfo`, `useSchedules`, `useSchedulesInfinite`                                                                                                                                                                                                                                                                |
 | Tokens       | Token info, balances, NFTs, NFT transactions, and token lists.                                     | `useTokenInfo`, `useTokenBalances`, `useTokenBalancesSnapshot`, `useTokenNfts`, `useTokenNft`, `useTokenNftTransactions`, `useTokens`, `useTokensInfinite`                                                                                                                                                               |
 | Topics       | Topic info, topic messages, message lookup, and topic lists.                                       | `useTopicInfo`, `useTopicMessages`, `useTopicMessage`, `useTopics`, `useTopicsInfinite`, `useTopicMessageByTimestamp`                                                                                                                                                                                                    |
 | Transactions | Single transaction reads, account transaction lists, and paginated transaction queries.            | `useTransaction`, `useTransactionsByAccount`, `useTransactions`, `useTransactionsInfinite`                                                                                                                                                                                                                               |
 
-## Shared Re-Exports
+## Shared Types
 
-`@hieco/mirror-preact` also re-exports the shared public mirror utilities.
-
-| Export group        | Examples                                                          |
-| ------------------- | ----------------------------------------------------------------- |
-| Result helpers      | `ApiResult`, `ApiError`, `ApiErrorFactory`                        |
-| Network helpers     | `NetworkConfig`, `NETWORK_CONFIGS`                                |
-| Query keys          | `mirrorNodeKeys`                                                  |
-| Public mirror types | entity types and parameter types re-exported from `@hieco/mirror` |
+Use `@hieco/mirror` for shared entity types, query parameter types, result helpers, and query keys. `@hieco/mirror-preact` is the Preact wrapper layer.
 
 ## Exact Type Definition Entry Points
 
