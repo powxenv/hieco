@@ -1,0 +1,7 @@
+interface:
+  display_name: "Hieco Mirror"
+  short_description: "Use the mirror SDK and its wrappers"
+  default_prompt: "Use $hieco-mirror to build or explain integrations with @hieco/mirror, @hieco/mirror-react, @hieco/mirror-preact, or @hieco/mirror-solid."
+
+policy:
+  allow_implicit_invocation: true

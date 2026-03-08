@@ -1,0 +1,7 @@
+interface:
+  display_name: "Hieco Mirror CLI"
+  short_description: "Use the hieco command line client"
+  default_prompt: "Use $hieco-mirror-cli to build, explain, or script commands with the hieco binary or @hieco/mirror-cli."
+
+policy:
+  allow_implicit_invocation: true

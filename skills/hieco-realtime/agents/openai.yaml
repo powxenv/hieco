@@ -1,0 +1,7 @@
+interface:
+  display_name: "Hieco Realtime"
+  short_description: "Use the realtime SDK and React wrapper"
+  default_prompt: "Use $hieco-realtime to build or explain integrations with @hieco/realtime or @hieco/realtime-react."
+
+policy:
+  allow_implicit_invocation: true
