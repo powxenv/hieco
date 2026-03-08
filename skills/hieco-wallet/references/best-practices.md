@@ -20,14 +20,24 @@ Canonical docs:
 ## Connection UX
 
 - Prefer the default flow: `WalletProvider`, `WalletButton`, and `WalletDialog`.
-- Use QR as the default desktop pairing experience.
-- Use deeplinks when a wallet definition provides mobile routes.
+- Prefer installed wallet extensions on desktop web.
+- Show install or help states on desktop when no supported extension is available.
+- Use wallet handoff on mobile when a wallet definition provides mobile routes.
+- Use QR only for explicit paired-device or cross-device flows.
 - Keep a manual retry or fallback action visible when opening the wallet app can fail.
+
+## Bring Your Own UI
+
+- Prefer `@hieco/wallet` when the app wants full control over layout and presentation.
+- In React, prefer `useWallet()` for the main state and actions and `useWallets()` when only the wallet list is needed.
+- Render from `wallet.prompt` instead of reimplementing connection logic yourself.
+- Treat `wallet.status`, `wallet.error`, and `wallet.prompt` as the primary UI control surface.
+- Keep the runtime logic in Hieco and the presentation logic in your own components.
 
 ## Configuration Strategy
 
-- Use managed mode or zero-config setup for local development.
-- Pass `projectId` explicitly in production.
+- Pass `projectId` explicitly before trying a real wallet connection.
+- Use the default wallet catalog and default testnet chain unless the app has a clear reason to narrow them.
 - Persist only reconnect-safe session metadata. Do not persist secrets or signer material.
 
 ## Signer Integration

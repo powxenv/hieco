@@ -31,17 +31,18 @@ Use `dist/index.d.ts` as the authoritative source for exact exported signatures 
 
 ## Runtime Contract
 
-| Member               | What it does                                      | Parameters               | Returns                     |
-| -------------------- | ------------------------------------------------- | ------------------------ | --------------------------- | ---------- |
-| `wallet.snapshot`    | Read the current wallet state snapshot.           | none                     | `WalletState`               |
-| `wallet.onChange`    | Subscribe to future wallet state changes.         | `(listener: () => void)` | `() => void`                |
-| `wallet.connect`     | Start a wallet connection flow.                   | `ConnectOptions?`        | `Promise<WalletConnection>` |
-| `wallet.disconnect`  | Disconnect the active wallet session.             | none                     | `Promise<void>`             |
-| `wallet.restore`     | Restore the previous wallet session if it exists. | none                     | `Promise<WalletConnection   | null>`     |
-| `wallet.switchChain` | Switch the active Hedera chain in the runtime.    | `chainId: string`        | `Promise<void>`             |
-| `wallet.signer`      | Read the active Hiero-compatible signer.          | none                     | `Signer                     | undefined` |
-| `wallet.destroy`     | Tear down the runtime.                            | none                     | `Promise<void>`             |
-| `wallet.$state`      | Read the underlying Nanostore directly.           | none                     | `ReadableAtom<WalletState>` |
+| Member               | What it does                                      | Parameters               | Returns                             |
+| -------------------- | ------------------------------------------------- | ------------------------ | ----------------------------------- |
+| `wallet.snapshot`    | Read the current wallet state snapshot.           | none                     | `WalletState`                       |
+| `wallet.onChange`    | Subscribe to future wallet state changes.         | `(listener: () => void)` | `() => void`                        |
+| `wallet.connect`     | Start a wallet connection flow.                   | `ConnectOptions?`        | `Promise<WalletConnection>`         |
+| `wallet.cancel`      | Cancel the current in-progress wallet request.    | none                     | `void`                              |
+| `wallet.disconnect`  | Disconnect the active wallet session.             | none                     | `Promise<void>`                     |
+| `wallet.restore`     | Restore the previous wallet session if it exists. | none                     | `Promise<WalletConnection \| null>` |
+| `wallet.switchChain` | Switch the active Hedera chain in the runtime.    | `chainId: string`        | `Promise<void>`                     |
+| `wallet.signer`      | Read the active Hiero-compatible signer.          | none                     | `Signer \| undefined`               |
+| `wallet.destroy`     | Tear down the runtime.                            | none                     | `Promise<void>`                     |
+| `wallet.$state`      | Read the underlying Nanostore directly.           | none                     | `ReadableAtom<WalletState>`         |
 
 ## Key Type Definitions
 
@@ -71,6 +72,7 @@ type ConnectOptions = {
   readonly wallet?: string;
   readonly chain?: string;
   readonly presentation?: "auto" | "qr" | "deeplink";
+  readonly transport?: "extension" | "walletconnect";
 };
 ```
 
@@ -93,6 +95,7 @@ type WalletPrompt =
       readonly kind: "return";
       readonly wallet: WalletOption;
       readonly href?: string;
+      readonly uri?: string;
     };
 ```
 
@@ -108,18 +111,37 @@ type WalletState = {
   readonly chain: WalletChain;
   readonly chains: readonly WalletChain[];
   readonly signer: Signer | undefined;
+  readonly transport: "extension" | "walletconnect" | null;
   readonly error: WalletError | null;
   readonly prompt: WalletPrompt | null;
+};
+```
+
+### `WalletOption`
+
+```ts
+type WalletOption = WalletDefinition & {
+  readonly readyState:
+    | "installed"
+    | "loadable"
+    | "install-required"
+    | "cross-device"
+    | "unsupported";
+  readonly defaultTransport: "extension" | "walletconnect" | null;
+  readonly extension: WalletExtension | null;
 };
 ```
 
 ## Behavioral Notes
 
 - Creating a runtime is SSR-safe.
-- `connect()` and `restore()` are browser-only runtime actions.
-- Managed mode is used when `projectId` is omitted.
-- Production apps should pass `projectId` explicitly.
+- `connect()`, `restore()`, and `disconnect()` are browser-only runtime actions.
+- Pass `projectId` explicitly before attempting a real wallet connection.
+- Desktop browsers prefer installed extensions.
+- Mobile browsers prefer wallet handoff.
+- QR is reserved for explicit paired-device flows.
 - The signer is the main integration boundary with `@hieco/sdk` and `@hieco/react`.
+- The package is headless by design, so bring-your-own UI is a primary workflow.
 
 ## Exact Type Definition Entry Points
 

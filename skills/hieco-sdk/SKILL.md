@@ -20,7 +20,7 @@ Use this skill when the task involves `@hieco/sdk` or `@hieco/react`.
    - React provider and hooks: [references/api-react.md](references/api-react.md)
    - legacy AppKit bridge: [references/api-appkit.md](references/api-appkit.md)
 
-If the task is primarily about wallet connection, wallet UI, managed mode, QR, deeplinks, or `@hieco/wallet-react`, use the wallet skill instead.
+If the task is primarily about wallet connection, wallet UI, QR, deeplinks, or `@hieco/wallet-react`, use the wallet skill instead.
 
 ## References
 

@@ -35,4 +35,4 @@ Use this file first. It answers which main SDK surface should drive the solution
 
 - If the user says "React app" and only needs Hedera queries or mutations, start from `@hieco/react`.
 - If the user says "server", "script", "worker", or "CLI", start from `@hieco/sdk`.
-- If the user needs wallet connection, managed mode, QR, deeplinks, or wallet UI, switch to the wallet skill.
+- If the user needs wallet connection, QR, deeplinks, or wallet UI, switch to the wallet skill.

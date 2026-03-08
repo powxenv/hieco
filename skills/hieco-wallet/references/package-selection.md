@@ -29,7 +29,7 @@ Use this file first. It answers which wallet surface should drive the solution.
 
 ## Rule Of Thumb
 
-- If the user says "wallet connection", "connect button", "QR", or "deeplink", start from `@hieco/wallet-react`.
+- If the user says "wallet connection", "connect button", "installed extension", "mobile wallet handoff", or "paired-device QR", start from `@hieco/wallet-react`.
 - If the user wants full control over wallet UX, start from `@hieco/wallet`.
 - If the user says "AppKit", switch to the main SDK skill.
 - If the user mainly needs queries, transactions, or framework data hooks, switch to the main SDK skill.

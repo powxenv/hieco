@@ -31,16 +31,16 @@ type WalletProviderProps = CreateWalletOptions & {
 ## Hooks
 
 | Hook                  | What it does                                             | Parameters | Returns                                                   |
-| --------------------- | -------------------------------------------------------- | ---------- | --------------------------------------------------------- | ---------- |
+| --------------------- | -------------------------------------------------------- | ---------- | --------------------------------------------------------- |
 | `useWallet`           | Read the full wallet state and the main runtime actions. | none       | `UseWalletResult`                                         |
 | `useWallets`          | Read the available wallet catalog.                       | none       | `readonly WalletOption[]`                                 |
-| `useWalletAccount`    | Read the active wallet account.                          | none       | `WalletAccount                                            | null`      |
-| `useWalletSigner`     | Read the active Hiero-compatible signer.                 | none       | `Signer                                                   | undefined` |
+| `useWalletAccount`    | Read the active wallet account.                          | none       | `WalletAccount \| null`                                   |
+| `useWalletSigner`     | Read the active Hiero-compatible signer.                 | none       | `Signer \| undefined`                                     |
 | `useConnect`          | Read the connect action.                                 | none       | `(options?: ConnectOptions) => Promise<WalletConnection>` |
 | `useDisconnect`       | Read the disconnect action.                              | none       | `() => Promise<void>`                                     |
 | `useSwitchChain`      | Read the chain switch action.                            | none       | `(chainId: string) => Promise<void>`                      |
 | `useConnectionStatus` | Read only the wallet status.                             | none       | `WalletStatus`                                            |
-| `useWalletError`      | Read only the current wallet error.                      | none       | `WalletError                                              | null`      |
+| `useWalletError`      | Read only the current wallet error.                      | none       | `WalletError \| null`                                     |
 | `useWalletModal`      | Read modal state and modal actions for the built-in UI.  | none       | `WalletModalState`                                        |
 
 ### `WalletModalState`
@@ -59,6 +59,7 @@ type WalletModalState = {
 ```ts
 type UseWalletResult = WalletState & {
   readonly connect: (options?: ConnectOptions) => Promise<WalletConnection>;
+  readonly cancel: () => void;
   readonly disconnect: () => Promise<void>;
   readonly restore: () => Promise<WalletConnection | null>;
   readonly switchChain: (chainId: string) => Promise<void>;
@@ -66,6 +67,17 @@ type UseWalletResult = WalletState & {
   readonly closeModal: () => void;
   readonly toggleModal: () => void;
   readonly isModalOpen: boolean;
+};
+```
+
+### `ConnectOptions`
+
+```ts
+type ConnectOptions = {
+  readonly wallet?: string;
+  readonly chain?: string;
+  readonly presentation?: "auto" | "qr" | "deeplink";
+  readonly transport?: "extension" | "walletconnect";
 };
 ```
 
@@ -80,11 +92,25 @@ Import from `@hieco/wallet-react/ui`.
 | `WalletAccountButton` | Render the connected account button directly.                  | none       | `ReactNode` |
 | `WalletList`          | Render the built-in wallet picker list.                        | none       | `ReactNode` |
 
+## Bring Your Own UI
+
+For custom React UI, the main pattern is:
+
+- use `WalletProvider` for runtime ownership
+- use `useWallet()` for state and actions
+- use `useWallets()` for wallet catalog rendering
+- render from `wallet.prompt` for QR, deep link, and return states
+
+The built-in UI is optional and the hook surface is stable enough to drive your own modal, drawer, inline picker, or command palette.
+
 ## Behavioral Notes
 
 - `WalletProvider` can be used with no props.
 - Pass `wallet={wallet}` when the app already created a runtime with `createWallet()`.
 - The built-in UI is optional. The hooks remain the primary API.
+- `WalletButton` prefers installed desktop extensions when they are available.
+- `WalletDialog` shows install or help states on desktop instead of QR by default.
+- QR appears only for explicit paired-device flows.
 - `useWalletSigner()` is the normal signer source for `@hieco/react`.
 
 ## Exact Type Definition Entry Points
