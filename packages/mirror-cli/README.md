@@ -14,26 +14,14 @@ It provides:
 ## Installation
 
 ```bash
-npm install --global @hieco/mirror-cli
-```
-
-```bash
-pnpm add --global @hieco/mirror-cli
-```
-
-```bash
-yarn global add @hieco/mirror-cli
-```
-
-```bash
-bun add --global @hieco/mirror-cli
-```
-
-You can also run the CLI without installing it:
-
-```bash
 bunx @hieco/mirror-cli --help
 ```
+
+```bash
+npx @hieco/mirror-cli --help
+```
+
+This is the recommended way to run the CLI.
 
 ## When To Use This Package
 
@@ -48,16 +36,16 @@ If you need a programmatic client, use [`@hieco/mirror`](../mirror/README.md).
 
 ## Quick Start
 
-After installation, use the `hieco` binary. If you prefer not to install it, replace `hieco` with `bunx @hieco/mirror-cli`.
-
 ```bash
-hieco account 0.0.1001
-hieco balance 0.0.1001
-hieco token 0.0.2001
-hieco transactions:list --account 0.0.1001 --limit 10
-hieco contract:call 0.0.3001 --data 0x70a082310000000000000000000000000000000000000000000000000000000000000001
-hieco network:exchange-rate
+bunx @hieco/mirror-cli account 0.0.1001
+bunx @hieco/mirror-cli balance 0.0.1001
+bunx @hieco/mirror-cli token 0.0.2001
+bunx @hieco/mirror-cli transactions:list --account 0.0.1001 --limit 10
+bunx @hieco/mirror-cli contract:call 0.0.3001 --data 0x70a082310000000000000000000000000000000000000000000000000000000000000001
+bunx @hieco/mirror-cli network:exchange-rate
 ```
+
+You can replace `bunx` with `npx` if needed.
 
 ## Core Concepts
 
@@ -85,30 +73,30 @@ Most commands accept `-j, --json` for machine-friendly output. Without it, the C
 ### JSON Output
 
 ```bash
-hieco account 0.0.1001 --json
-hieco contract:logs 0.0.3001 --topic0 0xddf252ad --json
+bunx @hieco/mirror-cli account 0.0.1001 --json
+bunx @hieco/mirror-cli contract:logs 0.0.3001 --topic0 0xddf252ad --json
 ```
 
 ### Custom Networks And Endpoints
 
 ```bash
-hieco accounts:list --network testnet --limit 5
-hieco tokens:list --mirror-url https://testnet.mirrornode.hedera.com --limit 5
+bunx @hieco/mirror-cli accounts:list --network testnet --limit 5
+bunx @hieco/mirror-cli tokens:list --mirror-url https://testnet.mirrornode.hedera.com --limit 5
 ```
 
 ### Shell Scripting
 
 ```bash
-hieco transactions:list --account 0.0.1001 --limit 25 --json > transactions.json
-hieco topic:messages 0.0.5005 --encoding utf-8 --json > topic-messages.json
+bunx @hieco/mirror-cli transactions:list --account 0.0.1001 --limit 25 --json > transactions.json
+bunx @hieco/mirror-cli topic:messages 0.0.5005 --encoding utf-8 --json > topic-messages.json
 ```
 
 ### Command Composition
 
 ```bash
-hieco accounts:list --memo treasury --limit 10
-hieco contract:result 0.0.3001 1700000000.123456789 --json
-hieco network:nodes --order asc --limit 20
+bunx @hieco/mirror-cli accounts:list --memo treasury --limit 10
+bunx @hieco/mirror-cli contract:result 0.0.3001 1700000000.123456789 --json
+bunx @hieco/mirror-cli network:nodes --order asc --limit 20
 ```
 
 ## API Reference
