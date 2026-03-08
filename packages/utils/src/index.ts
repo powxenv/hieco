@@ -2,7 +2,6 @@ export * from "./types/api";
 export * from "./types/entity";
 export * from "./types/network";
 export * from "./types/pagination";
-export * from "./logger";
 export * from "./mirror/entity";
 export * from "./mirror/provider";
 export * from "./mirror/helpers";
