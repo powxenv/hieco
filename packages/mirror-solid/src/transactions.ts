@@ -1,0 +1,147 @@
+import { useQuery } from "@tanstack/solid-query";
+import type { UseQueryResult, UseInfiniteQueryResult } from "@tanstack/solid-query";
+import type {
+  ApiResult,
+  ApiError,
+  QueryOperator,
+  TimestampFilter,
+  TransactionDetails,
+  Transaction,
+} from "@hieco/mirror";
+import type { PaginatedResponse } from "@hieco/mirror";
+import type { Accessor } from "solid-js";
+import { useMirrorNodeClient, useNetwork } from "./context-hooks";
+import { mirrorNodeKeys } from "@hieco/utils";
+import { createMirrorNodeInfiniteQuery } from "./shared/infinite";
+
+export type { TransactionListParams, TransactionsByAccountParams } from "@hieco/mirror";
+
+export interface CreateTransactionOptions {
+  readonly transactionId: string;
+  readonly enabled?: boolean;
+}
+
+type CreateTransactionResult = UseQueryResult<ApiResult<TransactionDetails>, ApiError>;
+
+export interface CreateTransactionsByAccountOptions {
+  readonly accountId: string;
+  readonly params?: {
+    readonly limit?: number;
+    readonly order?: "asc" | "desc";
+    readonly timestamp?: TimestampFilter;
+    readonly transaction_id?: string;
+    readonly result?: string;
+  };
+  readonly enabled?: boolean;
+}
+
+type CreateTransactionsByAccountResult = UseQueryResult<ApiResult<Transaction[]>, ApiError>;
+
+export interface CreateTransactionsOptions {
+  readonly params?: {
+    readonly limit?: number;
+    readonly order?: "asc" | "desc";
+    readonly account?: string;
+    readonly "account.id"?: string | QueryOperator<string>;
+    readonly transaction_id?: string;
+    readonly result?: string;
+  };
+  readonly enabled?: boolean;
+}
+
+type CreateTransactionsResult = UseQueryResult<ApiResult<Transaction[]>, ApiError>;
+
+export interface CreateTransactionsInfiniteOptions {
+  readonly params?: { readonly limit?: number; readonly order?: "asc" | "desc" };
+  readonly enabled?: boolean;
+}
+
+type CreateTransactionsInfiniteResult = UseInfiniteQueryResult<
+  ApiResult<PaginatedResponse<Transaction>>,
+  ApiError
+>;
+
+export function createTransaction(
+  options: Accessor<CreateTransactionOptions>,
+): CreateTransactionResult {
+  const client = useMirrorNodeClient();
+  const { network } = useNetwork();
+
+  return useQuery(() => {
+    const opts = options();
+    return {
+      queryKey: mirrorNodeKeys.transaction.info(network(), opts.transactionId),
+      queryFn: async () => {
+        return client().transaction.getById(opts.transactionId);
+      },
+      get enabled() {
+        return opts.enabled ?? true;
+      },
+    };
+  });
+}
+
+export function createTransactionsByAccount(
+  options: Accessor<CreateTransactionsByAccountOptions>,
+): CreateTransactionsByAccountResult {
+  const client = useMirrorNodeClient();
+  const { network } = useNetwork();
+
+  return useQuery(() => {
+    const opts = options();
+    return {
+      queryKey: mirrorNodeKeys.transaction.byAccount(network(), opts.accountId),
+      queryFn: async () => {
+        return client().transaction.listByAccount(opts.accountId, opts.params);
+      },
+      get enabled() {
+        return opts.enabled ?? true;
+      },
+    };
+  });
+}
+
+export function createTransactions(
+  options: Accessor<CreateTransactionsOptions> = () => ({}),
+): CreateTransactionsResult {
+  const client = useMirrorNodeClient();
+  const { network } = useNetwork();
+
+  return useQuery(() => {
+    const opts = options();
+    return {
+      queryKey: mirrorNodeKeys.transaction.list(network()),
+      queryFn: async () => {
+        return client().transaction.listPaginated(opts.params);
+      },
+      get enabled() {
+        return opts.enabled ?? true;
+      },
+    };
+  });
+}
+
+export function createTransactionsInfinite(
+  options: Accessor<CreateTransactionsInfiniteOptions>,
+): CreateTransactionsInfiniteResult {
+  const client = useMirrorNodeClient();
+  const { network } = useNetwork();
+
+  return createMirrorNodeInfiniteQuery(
+    mirrorNodeKeys.transaction.list(network()),
+    options,
+    (pageParam, opts) => {
+      if (pageParam) {
+        return client().transaction.listPaginatedPageByUrl(pageParam);
+      }
+      return client().transaction.listPaginatedPage({
+        ...opts.params,
+        limit: opts.params?.limit ?? 25,
+      });
+    },
+    (lastPage) => {
+      if (!lastPage.success) return undefined;
+      return lastPage.data.links.next ?? undefined;
+    },
+  );
+}

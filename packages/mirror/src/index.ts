@@ -1,7 +1,7 @@
 export { MirrorNodeClient } from "./client";
 export type { CursorPaginator, PaginatedResponse } from "./shared/builders";
 
-export { AccountApi, type AccountListParams, type AccountNftsParams } from "./accounts/api";
+export { AccountApi, type AccountListParams, type AccountNftsParams } from "./accounts";
 export type {
   AccountInfo,
   Balance,
@@ -11,10 +11,10 @@ export type {
   TokenAllowance,
   TokenAirdropsResponse,
   TokenRelationship,
-} from "./accounts/types";
+} from "./accounts";
 
-export { BalanceApi, type BalancesListParams } from "./balances/api";
-export { BlockApi, type BlocksListParams } from "./blocks/api";
+export { BalanceApi, type BalancesListParams } from "./balances";
+export { BlockApi, type BlocksListParams } from "./blocks";
 
 export {
   ContractApi,
@@ -22,7 +22,7 @@ export {
   type ContractLogsParams,
   type ContractResultsParams,
   type ContractStateParams,
-} from "./contracts/api";
+} from "./contracts";
 export type {
   ContractAction,
   ContractCallParams,
@@ -34,9 +34,9 @@ export type {
   ContractResultDetails,
   ContractResultsResponse,
   ContractState,
-} from "./contracts/types";
+} from "./contracts";
 
-export { NetworkApi } from "./network/api";
+export { NetworkApi } from "./network";
 export type {
   AccountBalance,
   BalancesResponse,
@@ -50,17 +50,17 @@ export type {
   ServiceEndpoint,
   TimestampRange,
   TimestampRangeNullable,
-} from "./network/types";
+} from "./network";
 
-export { ScheduleApi, type ScheduleListParams } from "./schedules/api";
-export type { Schedule, ScheduleSignature } from "./schedules/types";
+export { ScheduleApi, type ScheduleListParams } from "./schedules";
+export type { Schedule, ScheduleSignature } from "./schedules";
 
 export {
   TokenApi,
   type TokenBalancesParams,
   type TokenListParams,
   type TokenNftsParams,
-} from "./tokens/api";
+} from "./tokens";
 export type {
   CustomFees,
   FixedFee,
@@ -70,22 +70,16 @@ export type {
   TokenBalancesResponse,
   TokenDistribution,
   TokenInfo,
-} from "./tokens/types";
+} from "./tokens";
 
-export { TopicApi, type TopicMessagesParams } from "./topics/api";
-export type {
-  ChunkInfo,
-  ConsensusCustomFees,
-  FixedCustomFee,
-  Topic,
-  TopicMessage,
-} from "./topics/types";
+export { TopicApi, type TopicMessagesParams } from "./topics";
+export type { ChunkInfo, ConsensusCustomFees, FixedCustomFee, Topic, TopicMessage } from "./topics";
 
 export {
   TransactionApi,
   type TransactionListParams,
   type TransactionsByAccountParams,
-} from "./transactions/api";
+} from "./transactions";
 export type {
   AssessedCustomFee,
   NftTransfer,
@@ -95,7 +89,7 @@ export type {
   TransactionDetails,
   TransactionType,
   Transfer,
-} from "./transactions/types";
+} from "./transactions";
 
 export type {
   ApiError,

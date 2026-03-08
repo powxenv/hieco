@@ -1,14 +1,14 @@
 import type { MirrorNodeConfig, NetworkType } from "@hieco/utils";
 import { HttpClient } from "./shared/http";
-import { AccountApi } from "./accounts/api";
-import { TokenApi } from "./tokens/api";
-import { ContractApi } from "./contracts/api";
-import { TransactionApi } from "./transactions/api";
-import { TopicApi } from "./topics/api";
-import { ScheduleApi } from "./schedules/api";
-import { NetworkApi } from "./network/api";
-import { BalanceApi } from "./balances/api";
-import { BlockApi } from "./blocks/api";
+import { AccountApi } from "./accounts";
+import { TokenApi } from "./tokens";
+import { ContractApi } from "./contracts";
+import { TransactionApi } from "./transactions";
+import { TopicApi } from "./topics";
+import { ScheduleApi } from "./schedules";
+import { NetworkApi } from "./network";
+import { BalanceApi } from "./balances";
+import { BlockApi } from "./blocks";
 
 export class MirrorNodeClient {
   readonly account: AccountApi;
