@@ -1,41 +1,11 @@
+import * as stylex from "@stylexjs/stylex";
 import { useEffect, useState, type ReactNode } from "react";
-import { formatWalletError, type ConnectOptions, type WalletOption } from "@hieco/wallet";
+import { type ConnectOptions, type WalletOption } from "@hieco/wallet";
 import { useDisconnect } from "../use-disconnect";
 import { useWallet } from "../use-wallet";
 import { useWalletModal } from "../use-wallet-modal";
 import { WalletQr } from "./qr";
-
-const overlayStyle = {
-  position: "fixed",
-  inset: 0,
-  background: "rgba(5, 16, 28, 0.56)",
-  display: "grid",
-  placeItems: "center",
-  padding: "1rem",
-  zIndex: 1000,
-} as const;
-
-const dialogStyle = {
-  width: "100%",
-  maxWidth: "34rem",
-  background: "#ffffff",
-  borderRadius: "1.25rem",
-  padding: "1.25rem",
-  boxShadow: "0 28px 80px rgba(15, 23, 42, 0.28)",
-  display: "grid",
-  gap: "1rem",
-} as const;
-
-const sectionStyle = {
-  display: "grid",
-  gap: "0.75rem",
-} as const;
-
-const subtleStyle = {
-  color: "#475569",
-  fontSize: "0.95rem",
-  lineHeight: 1.5,
-} as const;
+import { walletUiStyles } from "./styles.stylex";
 
 const walletStateLabels: Record<WalletOption["readyState"], string> = {
   installed: "Installed in this browser",
@@ -48,9 +18,8 @@ const walletStateLabels: Record<WalletOption["readyState"], string> = {
 const walletStateDescriptions: Record<WalletOption["readyState"], string> = {
   installed: "Connect with the browser extension already installed.",
   loadable: "Open the wallet app and approve the connection.",
-  "install-required":
-    "Install the browser extension, or show a QR code to connect from another device.",
-  "cross-device": "Show a QR code and scan it from another phone or device.",
+  "install-required": "Install the browser extension to connect in this browser.",
+  "cross-device": "Connect with WalletConnect from another phone or device.",
   unsupported: "This wallet does not support the current platform.",
 };
 
@@ -72,11 +41,11 @@ async function copyText(value: string): Promise<boolean> {
 }
 
 function walletStateLabel(wallet: WalletOption): string {
-  return walletStateLabels[wallet.readyState];
+  return walletStateLabels[wallet.readyState] ?? "Unavailable";
 }
 
 function walletStateDescription(wallet: WalletOption): string {
-  return walletStateDescriptions[wallet.readyState];
+  return walletStateDescriptions[wallet.readyState] ?? "This wallet is not currently available.";
 }
 
 function isConnectDisabled(status: ReturnType<typeof useWallet>["status"]): boolean {
@@ -107,13 +76,65 @@ function connectButtonLabel(wallet: ReturnType<typeof useWallet>, item: WalletOp
   return "Connect";
 }
 
-function pairButtonLabel(wallet: ReturnType<typeof useWallet>, item: WalletOption): string {
-  return isQrPromptActive(wallet, item) ? "QR code ready" : "Show QR code";
+function walletConnectButtonLabel(
+  wallet: ReturnType<typeof useWallet>,
+  item: WalletOption,
+): string {
+  return isQrPromptActive(wallet, item) ? "WalletConnect QR ready" : "Connect with WalletConnect";
 }
 
 function startConnection(wallet: ReturnType<typeof useWallet>, options: ConnectOptions): void {
   void wallet.connect(options).catch(() => {});
 }
+
+const primaryButtonProps = stylex.props(
+  walletUiStyles.interactive,
+  walletUiStyles.focusRing,
+  walletUiStyles.button,
+);
+
+const secondaryButtonProps = stylex.props(
+  walletUiStyles.interactive,
+  walletUiStyles.focusRing,
+  walletUiStyles.button,
+  walletUiStyles.buttonSecondary,
+);
+
+const linkProps = stylex.props(
+  walletUiStyles.interactive,
+  walletUiStyles.focusRing,
+  walletUiStyles.link,
+);
+
+const overlayProps = stylex.props(walletUiStyles.overlay);
+
+const dialogProps = stylex.props(walletUiStyles.dialog);
+
+const headerProps = stylex.props(walletUiStyles.header);
+
+const stackProps = stylex.props(walletUiStyles.stackSm);
+
+const centeredStackProps = stylex.props(walletUiStyles.stackSm, walletUiStyles.centeredStack);
+
+const titleProps = stylex.props(walletUiStyles.title);
+
+const copyProps = stylex.props(walletUiStyles.copy);
+
+const actionsProps = stylex.props(walletUiStyles.actions);
+
+const cardProps = stylex.props(walletUiStyles.stackSm, walletUiStyles.card);
+
+const errorProps = stylex.props(walletUiStyles.stackSm, walletUiStyles.error);
+
+const walletListProps = stylex.props(walletUiStyles.walletList);
+
+const walletProps = stylex.props(walletUiStyles.wallet);
+
+const walletHeaderProps = stylex.props(walletUiStyles.walletHeader);
+
+const walletCopyProps = stylex.props(walletUiStyles.walletCopy);
+
+const walletMetaProps = stylex.props(walletUiStyles.walletMeta);
 
 export function WalletDialog(): ReactNode {
   const { isOpen, closeModal } = useWalletModal();
@@ -169,17 +190,17 @@ export function WalletDialog(): ReactNode {
   }
 
   return (
-    <div aria-modal="true" role="dialog" style={overlayStyle}>
-      <div style={dialogStyle}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ display: "grid", gap: "0.25rem" }}>
-            <strong>Wallet</strong>
-            <span style={subtleStyle}>
+    <div aria-modal="true" role="dialog" {...overlayProps}>
+      <div {...dialogProps}>
+        <div {...headerProps}>
+          <div {...stackProps}>
+            <strong {...titleProps}>Wallet</strong>
+            <span {...copyProps}>
               Choose a wallet below. Use the installed browser extension when available, or open a
-              QR code when you want to connect from another device.
+              WalletConnect QR code when you want to connect from another device.
             </span>
           </div>
-          <button onClick={closeModal} type="button">
+          <button onClick={closeModal} type="button" {...secondaryButtonProps}>
             Close
           </button>
         </div>
@@ -236,23 +257,23 @@ export function WalletDialog(): ReactNode {
             wallet={wallet}
           />
         ) : wallet.status === "connecting" || wallet.status === "restoring" ? (
-          <div style={sectionStyle}>
-            <strong>
+          <div {...stackProps}>
+            <strong {...titleProps}>
               {wallet.status === "restoring"
                 ? "Restoring session"
                 : wallet.transport === "walletconnect"
-                  ? "Preparing QR code"
+                  ? "Preparing WalletConnect"
                   : "Open your wallet to continue"}
             </strong>
-            <span style={subtleStyle}>
+            <span {...copyProps}>
               {wallet.status === "restoring"
                 ? "Checking whether a previous wallet session is still available."
                 : wallet.transport === "extension"
                   ? `Approve the request in ${wallet.wallet?.name ?? "your wallet extension"}. If the wallet window was closed or nothing happened, open it again or cancel this request.`
-                  : "Getting the QR code ready now."}
+                  : "Getting the WalletConnect QR code ready now."}
             </span>
             {wallet.status === "connecting" ? (
-              <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+              <div {...actionsProps}>
                 {wallet.transport === "extension" && activeWallet ? (
                   <button
                     onClick={() => {
@@ -262,6 +283,7 @@ export function WalletDialog(): ReactNode {
                       });
                     }}
                     type="button"
+                    {...primaryButtonProps}
                   >
                     Open {activeWallet.name} again
                   </button>
@@ -271,6 +293,7 @@ export function WalletDialog(): ReactNode {
                     wallet.cancel();
                   }}
                   type="button"
+                  {...secondaryButtonProps}
                 >
                   Cancel request
                 </button>
@@ -280,17 +303,9 @@ export function WalletDialog(): ReactNode {
         ) : null}
 
         {wallet.error ? (
-          <div
-            style={{
-              ...sectionStyle,
-              color: "#b42318",
-              background: "#fff1f3",
-              borderRadius: "0.9rem",
-              padding: "0.9rem 1rem",
-            }}
-          >
-            <strong>Wallet request failed</strong>
-            <span>{formatWalletError(wallet.error)}</span>
+          <div {...errorProps}>
+            <strong {...titleProps}>Wallet request failed</strong>
+            <span {...copyProps}>{wallet.error.message}</span>
           </div>
         ) : null}
       </div>
@@ -314,16 +329,16 @@ function ConnectedWalletCard({
   onDisconnect,
 }: ConnectedWalletCardProps): ReactNode {
   return (
-    <div style={sectionStyle}>
-      <strong>{walletName}</strong>
-      <span style={subtleStyle}>{accountId}</span>
-      <span style={subtleStyle}>{chainId}</span>
-      <span style={subtleStyle}>
+    <div {...cardProps}>
+      <strong {...titleProps}>{walletName}</strong>
+      <span {...copyProps}>{accountId}</span>
+      <span {...copyProps}>{chainId}</span>
+      <span {...copyProps}>
         {transport === "extension"
           ? "Connected through desktop extension"
           : "Connected through WalletConnect"}
       </span>
-      <button onClick={onDisconnect} type="button">
+      <button onClick={onDisconnect} type="button" {...secondaryButtonProps}>
         Disconnect
       </button>
     </div>
@@ -353,13 +368,14 @@ function WalletPromptCard({
 
   if (prompt.kind === "qr") {
     return (
-      <div style={{ ...sectionStyle, justifyItems: "center", textAlign: "center" }}>
-        <strong>Pair with {prompt.wallet.name}</strong>
-        <span style={subtleStyle}>
-          Open the wallet on another device and scan this QR code to approve the connection.
+      <div {...centeredStackProps}>
+        <strong {...titleProps}>Connect with WalletConnect</strong>
+        <span {...copyProps}>
+          Open a Hedera wallet on another device and scan this WalletConnect QR code to approve the
+          connection.
         </span>
         <WalletQr value={prompt.uri} />
-        <button onClick={onCopy} type="button">
+        <button onClick={onCopy} type="button" {...primaryButtonProps}>
           {copied ? "Pairing link copied" : "Copy pairing link"}
         </button>
       </div>
@@ -368,21 +384,21 @@ function WalletPromptCard({
 
   if (prompt.kind === "deeplink") {
     return (
-      <div style={sectionStyle}>
-        <strong>Open {prompt.wallet.name}</strong>
-        <span style={subtleStyle}>
+      <div {...stackProps}>
+        <strong {...titleProps}>Open {prompt.wallet.name}</strong>
+        <span {...copyProps}>
           Approve the request in your wallet, then return here. If nothing happened, open the wallet
           again.
         </span>
-        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-          <button onClick={onOpenWallet} type="button">
+        <div {...actionsProps}>
+          <button onClick={onOpenWallet} type="button" {...primaryButtonProps}>
             {deepLinkNeedsManualRetry ? "Open wallet again" : `Open ${prompt.wallet.name}`}
           </button>
-          <button onClick={onCopy} type="button">
+          <button onClick={onCopy} type="button" {...secondaryButtonProps}>
             {copied ? "Pairing link copied" : "Copy pairing link"}
           </button>
           {prompt.wallet.installUrl ? (
-            <a href={prompt.wallet.installUrl} rel="noreferrer" target="_blank">
+            <a href={prompt.wallet.installUrl} rel="noreferrer" target="_blank" {...linkProps}>
               Install wallet
             </a>
           ) : null}
@@ -394,22 +410,23 @@ function WalletPromptCard({
   const returnHref = prompt.href;
 
   return (
-    <div style={sectionStyle}>
-      <strong>Finish in your wallet</strong>
-      <span style={subtleStyle}>Open the wallet, approve the request, then return to the app.</span>
-      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+    <div {...stackProps}>
+      <strong {...titleProps}>Finish in your wallet</strong>
+      <span {...copyProps}>Open the wallet, approve the request, then return to the app.</span>
+      <div {...actionsProps}>
         {returnHref ? (
           <button
             onClick={() => {
               launchWallet(returnHref);
             }}
             type="button"
+            {...primaryButtonProps}
           >
             Open app
           </button>
         ) : null}
         {prompt.uri ? (
-          <button onClick={onCopy} type="button">
+          <button onClick={onCopy} type="button" {...secondaryButtonProps}>
             {copied ? "Pairing link copied" : "Copy pairing link"}
           </button>
         ) : null}
@@ -423,28 +440,25 @@ export function WalletList(): ReactNode {
   const disabled = isConnectDisabled(wallet.status);
 
   return (
-    <div style={sectionStyle}>
+    <div {...walletListProps}>
       {wallet.wallets.map((item) => (
-        <div
-          key={item.id}
-          style={{
-            display: "grid",
-            gap: "0.75rem",
-            padding: "0.95rem 1rem",
-            borderRadius: "1rem",
-            border: "1px solid #e2e8f0",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            <img alt="" height={28} src={item.icon} width={28} />
-            <div style={{ display: "grid", gap: "0.2rem" }}>
-              <strong>{item.name}</strong>
-              <span style={subtleStyle}>{walletStateLabel(item)}</span>
-              <span style={subtleStyle}>{walletStateDescription(item)}</span>
+        <div key={item.id} {...walletProps}>
+          <div {...walletHeaderProps}>
+            <img
+              alt=""
+              height={28}
+              src={item.icon}
+              width={28}
+              {...stylex.props(walletUiStyles.walletIcon)}
+            />
+            <div {...walletCopyProps}>
+              <strong {...titleProps}>{item.name}</strong>
+              <span {...walletMetaProps}>{walletStateLabel(item)}</span>
+              <span {...walletMetaProps}>{walletStateDescription(item)}</span>
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+          <div {...actionsProps}>
             {item.readyState === "installed" || item.readyState === "loadable" ? (
               <button
                 disabled={disabled}
@@ -455,6 +469,7 @@ export function WalletList(): ReactNode {
                   });
                 }}
                 type="button"
+                {...primaryButtonProps}
               >
                 {connectButtonLabel(wallet, item)}
               </button>
@@ -463,24 +478,9 @@ export function WalletList(): ReactNode {
             {item.readyState === "install-required" ? (
               <>
                 {item.installUrl ? (
-                  <a href={item.installUrl} rel="noreferrer" target="_blank">
+                  <a href={item.installUrl} rel="noreferrer" target="_blank" {...linkProps}>
                     Install
                   </a>
-                ) : null}
-                {item.transports.includes("walletconnect") ? (
-                  <button
-                    disabled={disabled || isQrPromptActive(wallet, item)}
-                    onClick={() => {
-                      startConnection(wallet, {
-                        wallet: item.id,
-                        presentation: "qr",
-                        transport: "walletconnect",
-                      });
-                    }}
-                    type="button"
-                  >
-                    {pairButtonLabel(wallet, item)}
-                  </button>
                 ) : null}
               </>
             ) : null}
@@ -496,13 +496,14 @@ export function WalletList(): ReactNode {
                   });
                 }}
                 type="button"
+                {...secondaryButtonProps}
               >
-                {pairButtonLabel(wallet, item)}
+                {walletConnectButtonLabel(wallet, item)}
               </button>
             ) : null}
 
             {item.readyState === "unsupported" && item.installUrl ? (
-              <a href={item.installUrl} rel="noreferrer" target="_blank">
+              <a href={item.installUrl} rel="noreferrer" target="_blank" {...linkProps}>
                 Learn more
               </a>
             ) : null}

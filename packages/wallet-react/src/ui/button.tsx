@@ -1,6 +1,14 @@
+import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { useWallet } from "../use-wallet";
 import { useWalletModal } from "../use-wallet-modal";
+import { walletUiStyles } from "./styles.stylex";
+
+const primaryButtonProps = stylex.props(
+  walletUiStyles.interactive,
+  walletUiStyles.focusRing,
+  walletUiStyles.button,
+);
 
 function walletButtonLabel(wallet: ReturnType<typeof useWallet>): string {
   if (wallet.isModalOpen) {
@@ -49,6 +57,7 @@ export function WalletButton(): ReactNode {
         openModal();
       }}
       type="button"
+      {...primaryButtonProps}
     >
       {label}
     </button>
@@ -65,7 +74,7 @@ export function WalletAccountButton(): ReactNode {
       : (accountId ?? wallet.wallet?.name ?? "Wallet");
 
   return (
-    <button onClick={openModal} type="button">
+    <button onClick={openModal} type="button" {...primaryButtonProps}>
       {label}
     </button>
   );

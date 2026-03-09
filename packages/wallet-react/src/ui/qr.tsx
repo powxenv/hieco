@@ -1,5 +1,9 @@
+import * as stylex from "@stylexjs/stylex";
 import { toDataURL } from "qrcode";
 import { useEffect, useState, type ReactNode } from "react";
+import { walletUiStyles } from "./styles.stylex";
+
+const qrProps = stylex.props(walletUiStyles.qr);
 
 interface WalletQrProps {
   readonly value: string;
@@ -33,5 +37,5 @@ export function WalletQr({ value }: WalletQrProps): ReactNode {
     return null;
   }
 
-  return <img alt="Wallet connection QR code" height={256} src={src} width={256} />;
+  return <img alt="Wallet connection QR code" height={256} src={src} width={256} {...qrProps} />;
 }
