@@ -107,17 +107,13 @@ export interface WalletStorage {
 
 export interface CreateWalletOptions {
   readonly projectId?: string;
-  readonly app?: WalletAppInput;
+  readonly app: WalletAppMetadata;
   readonly chains?: readonly WalletChain[];
   readonly wallets?: readonly WalletDefinition[];
   readonly autoConnect?: boolean;
   readonly storage?: WalletStorage;
   readonly storageKey?: string;
 }
-
-export type WalletAppInput = Partial<Omit<WalletAppMetadata, "redirect">> & {
-  readonly redirect?: Partial<WalletAppRedirect>;
-};
 
 export type WalletPresentation = "auto" | "qr" | "deeplink";
 

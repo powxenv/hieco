@@ -6,6 +6,12 @@ import { genericWalletConnectWallet, hashpack, kabila } from "../src/wallets";
 const originalWindow = Reflect.get(globalThis, "window");
 const originalDocument = Reflect.get(globalThis, "document");
 const originalNavigator = Reflect.get(globalThis, "navigator");
+const TEST_APP = {
+  name: "Wallet Test App",
+  description: "Wallet test app",
+  url: "https://example.com",
+  icons: ["https://example.com/icon.png"],
+} as const;
 
 function restoreGlobals(): void {
   if (originalWindow === undefined) {
@@ -97,7 +103,9 @@ function clearBrowserEnvironment(): void {
 describe("createWallet", () => {
   test("keeps browser-only connect guarded on the server", async () => {
     clearBrowserEnvironment();
-    const wallet = createWallet();
+    const wallet = createWallet({
+      app: TEST_APP,
+    });
 
     expect(wallet.connect()).rejects.toMatchObject({
       code: "WALLET_NOT_READY",
@@ -107,7 +115,9 @@ describe("createWallet", () => {
 
   test("keeps browser-only restore guarded on the server", async () => {
     clearBrowserEnvironment();
-    const wallet = createWallet();
+    const wallet = createWallet({
+      app: TEST_APP,
+    });
 
     expect(wallet.restore()).rejects.toMatchObject({
       code: "WALLET_NOT_READY",
@@ -115,11 +125,11 @@ describe("createWallet", () => {
     });
   });
 
-  test("uses the new neutral generic wallet fallback", () => {
+  test("uses the generic WalletConnect fallback", () => {
     const wallet = genericWalletConnectWallet();
 
     expect(wallet.id).toBe("hedera-wallet");
-    expect(wallet.name).toBe("Other Hedera wallet");
+    expect(wallet.name).toBe("WalletConnect");
     expect(wallet.installUrl).toBeUndefined();
   });
 });

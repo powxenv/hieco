@@ -3,9 +3,8 @@ import { atom } from "nanostores";
 import SignClient from "@walletconnect/sign-client";
 import type { SessionTypes } from "@walletconnect/types";
 import { hederaTestnet } from "./chains.ts";
-import { asWalletError, createWalletError, type WalletError } from "./errors.ts";
+import { asWalletError, WalletError } from "./errors.ts";
 import { discoverExtensions, pairExtension } from "./extensions.ts";
-import { inferAppMetadata } from "./metadata.ts";
 import { isBrowser } from "./platform.ts";
 import { createWalletPrompt, planConnection, resolveWalletOptions } from "./planner.ts";
 import { createStorage } from "./storage.ts";
@@ -48,9 +47,7 @@ function assertBrowserRuntime(): void {
     return;
   }
 
-  throw createWalletError("WALLET_NOT_READY", "Hieco wallet connections run in the browser only.", {
-    hint: "Create the runtime anywhere you like, but call connect(), restore(), and disconnect() from client-side code.",
-  });
+  throw new WalletError("WALLET_NOT_READY", "Hieco wallet connections run in the browser only.");
 }
 
 function createInitialState(
@@ -61,12 +58,9 @@ function createInitialState(
   const chain = chains[0];
 
   if (!chain) {
-    throw createWalletError(
+    throw new WalletError(
       "CHAIN_UNSUPPORTED",
       "Add at least one Hedera network before creating a wallet runtime.",
-      {
-        hint: "Use the default network, or pass chains: [hederaTestnet()] or another Hedera chain.",
-      },
     );
   }
 
@@ -89,12 +83,9 @@ function parseCaipAccount(value: string): WalletAccount {
   const [namespace, network, accountId] = value.split(":");
 
   if (namespace !== "hedera" || !network || !accountId || !isValidEntityId(accountId)) {
-    throw createWalletError(
+    throw new WalletError(
       "CONNECT_FAILED",
       "The wallet returned an account in a format this SDK does not understand.",
-      {
-        hint: "Reconnect the wallet and make sure it exposes a Hedera account.",
-      },
     );
   }
 
@@ -110,12 +101,9 @@ function findChain(chains: readonly WalletChain[], chainId: string): WalletChain
   const chain = chains.find((item) => item.id === chainId);
 
   if (!chain) {
-    throw createWalletError(
+    throw new WalletError(
       "CHAIN_UNSUPPORTED",
       `The wallet asked for ${chainId}, but this app does not support it.`,
-      {
-        hint: "Choose one of the configured Hedera chains for this app.",
-      },
     );
   }
 
@@ -204,28 +192,23 @@ function pickWallet(wallets: readonly WalletOption[], walletId?: string): Wallet
       return wallet;
     }
 
-    throw createWalletError(
+    throw new WalletError(
       "WALLET_NOT_READY",
       `The wallet "${walletId}" is not available in this runtime.`,
-      {
-        hint: "Choose one of the wallets returned by useWallets(), or remove the explicit wallet selection.",
-      },
     );
   }
 
   const wallet = wallets[0];
 
   if (!wallet) {
-    throw createWalletError("WALLET_NOT_READY", "No wallet is available to connect right now.", {
-      hint: "Use the built-in wallets, or pass wallets when you create the wallet runtime.",
-    });
+    throw new WalletError("WALLET_NOT_READY", "No wallet is available to connect right now.");
   }
 
   return wallet;
 }
 
-export function createWallet(options: CreateWalletOptions = {}): Wallet {
-  const app = inferAppMetadata(options.app);
+export function createWallet(options: CreateWalletOptions): Wallet {
+  const app = options.app;
   const chains = options.chains ?? [hederaTestnet()];
   const walletDefinitions = options.wallets ?? getDefaultWallets();
   const storage = options.storage ?? createStorage();
@@ -380,12 +363,9 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
     const namespace = session.namespaces.hedera;
 
     if (!namespace) {
-      throw createWalletError(
+      throw new WalletError(
         "CONNECT_FAILED",
         "The wallet connected, but it did not grant Hedera access.",
-        {
-          hint: "Open the wallet again and approve Hedera access for this app.",
-        },
       );
     }
 
@@ -393,12 +373,9 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
     const account = accounts.find((item) => item.chainId === input.preferredChainId) ?? accounts[0];
 
     if (!account) {
-      throw createWalletError(
+      throw new WalletError(
         "CONNECT_FAILED",
         "The wallet connected, but it did not return a Hedera account.",
-        {
-          hint: "Choose a Hedera account in the wallet, then try again.",
-        },
       );
     }
 
@@ -407,12 +384,9 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
     const client = boundClient;
 
     if (!client) {
-      throw createWalletError(
+      throw new WalletError(
         "SIGNER_UNAVAILABLE",
         "The wallet connected, but signing is not ready yet.",
-        {
-          hint: "Try again in a moment.",
-        },
       );
     }
 
@@ -523,12 +497,9 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
               null;
 
             if (!account) {
-              throw createWalletError(
+              throw new WalletError(
                 "CHAIN_UNSUPPORTED",
                 `This wallet session doesn't include ${chain.id}.`,
-                {
-                  hint: "Reconnect with an account on that Hedera network.",
-                },
               );
             }
 
@@ -602,24 +573,15 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
       return options.projectId;
     }
 
-    throw createWalletError(
+    throw new WalletError(
       "WALLET_NOT_READY",
       "WalletConnect needs a projectId before this wallet can connect.",
-      {
-        hint: 'Create the wallet with projectId: "..." before calling connect().',
-      },
     );
   };
 
   const ensureClient = async (): Promise<SignClient> => {
     if (destroyed) {
-      throw createWalletError(
-        "WALLET_NOT_READY",
-        "This wallet runtime has already been destroyed.",
-        {
-          hint: "Create a new wallet runtime before connecting again.",
-        },
-      );
+      throw new WalletError("WALLET_NOT_READY", "This wallet runtime has already been destroyed.");
     }
 
     assertBrowserRuntime();
@@ -684,9 +646,7 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
       });
 
       if (attempt !== activeConnectAttempt) {
-        throw createWalletError("CONNECT_FAILED", "This wallet request was canceled.", {
-          hint: "Start a new connection when you are ready to continue.",
-        });
+        throw new WalletError("CONNECT_FAILED", "This wallet request was canceled.");
       }
 
       if (uri) {
@@ -726,9 +686,7 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
 
                 settled = true;
                 reject(
-                  createWalletError("CONNECT_FAILED", `${wallet.name} did not respond in time.`, {
-                    hint: "Close the wallet window and try again.",
-                  }),
+                  new WalletError("CONNECT_FAILED", `${wallet.name} did not respond in time.`),
                 );
               }, EXTENSION_APPROVAL_TIMEOUT_MS);
 
@@ -758,9 +716,7 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
       if (attempt !== activeConnectAttempt) {
         disconnectQuietly(client, session.topic);
 
-        throw createWalletError("CONNECT_FAILED", "This wallet request was canceled.", {
-          hint: "Start a new connection when you are ready to continue.",
-        });
+        throw new WalletError("CONNECT_FAILED", "This wallet request was canceled.");
       }
 
       const connection = await applySession(session, {
@@ -912,12 +868,9 @@ export function createWallet(options: CreateWalletOptions = {}): Wallet {
     const account = current.accounts.find((item) => item.chainId === chain.id);
 
     if (!account) {
-      throw createWalletError(
+      throw new WalletError(
         "CHAIN_UNSUPPORTED",
         `This wallet session doesn't include ${chain.id}.`,
-        {
-          hint: "Reconnect with an account on the target Hedera network.",
-        },
       );
     }
 

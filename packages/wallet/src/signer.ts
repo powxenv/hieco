@@ -25,7 +25,7 @@ import {
 import { proto } from "@hiero-ledger/proto";
 import type SignClient from "@walletconnect/sign-client";
 import type { SessionTypes } from "@walletconnect/types";
-import { createWalletError } from "./errors.ts";
+import { WalletError } from "./errors.ts";
 import { openExtension } from "./extensions.ts";
 import type { WalletChain } from "./types.ts";
 
@@ -86,7 +86,7 @@ function transactionToBody(
   const first = list.transactionList[0];
 
   if (!first) {
-    throw createWalletError(
+    throw new WalletError(
       "SIGNER_UNAVAILABLE",
       "Transaction bytes did not include a transaction body.",
     );
@@ -107,7 +107,7 @@ function transactionToBody(
   }
 
   if (!first.bodyBytes) {
-    throw createWalletError("SIGNER_UNAVAILABLE", "Transaction bytes did not include body bytes.");
+    throw new WalletError("SIGNER_UNAVAILABLE", "Transaction bytes did not include body bytes.");
   }
 
   const body = proto.TransactionBody.decode(first.bodyBytes);
@@ -170,7 +170,7 @@ function createNetworkClient(chain: WalletChain): Client {
       return Client.forNetwork({ "127.0.0.1:50211": new AccountId(3) });
     case "custom":
       if (!chain.rpcUrl) {
-        throw createWalletError("CHAIN_UNSUPPORTED", `Chain ${chain.id} requires an rpcUrl.`);
+        throw new WalletError("CHAIN_UNSUPPORTED", `Chain ${chain.id} requires an rpcUrl.`);
       }
       return Client.forNetwork({ [chain.rpcUrl]: new AccountId(3) });
   }
@@ -199,7 +199,7 @@ function parseQueryResponse(query: Query<unknown>, response: string): unknown {
     return TransactionRecord.fromBytes(bytes);
   }
 
-  throw createWalletError("SIGNER_UNAVAILABLE", "Unsupported Hedera query response.");
+  throw new WalletError("SIGNER_UNAVAILABLE", "Unsupported Hedera query response.");
 }
 
 export class WalletConnectHederaSigner implements Signer {
@@ -245,7 +245,7 @@ export class WalletConnectHederaSigner implements Signer {
   }
 
   getAccountKey(): Key {
-    throw createWalletError("SIGNER_UNAVAILABLE", "Wallet signers do not expose the account key.");
+    throw new WalletError("SIGNER_UNAVAILABLE", "Wallet signers do not expose the account key.");
   }
 
   getLedgerId(): LedgerId {
@@ -275,12 +275,12 @@ export class WalletConnectHederaSigner implements Signer {
     const first = signatureMap.sigPair[0];
 
     if (!first) {
-      throw createWalletError("SIGNER_UNAVAILABLE", "Wallet returned an empty signature map.");
+      throw new WalletError("SIGNER_UNAVAILABLE", "Wallet returned an empty signature map.");
     }
 
     const publicKeyPrefix = first.pubKeyPrefix;
     if (!publicKeyPrefix) {
-      throw createWalletError(
+      throw new WalletError(
         "SIGNER_UNAVAILABLE",
         "Wallet returned a signature pair without a public key prefix.",
       );
@@ -288,7 +288,7 @@ export class WalletConnectHederaSigner implements Signer {
 
     const signature = first.ed25519 ?? first.ECDSASecp256k1;
     if (!signature) {
-      throw createWalletError(
+      throw new WalletError(
         "SIGNER_UNAVAILABLE",
         "Wallet returned a signature pair without signature bytes.",
       );

@@ -7,7 +7,7 @@ export function hashpack(): WalletDefinition {
   return {
     id: "hashpack",
     name: "HashPack",
-    icon: "https://www.hashpack.app/favicon.ico",
+    icon: "https://cdn.prod.website-files.com/61ce2e4bcaa2660da2bb419e/61d8218fb5715da56783a1d5_Group%20425.png",
     installUrl: "https://www.hashpack.app/download",
     desktop: {
       extension: {
@@ -40,7 +40,7 @@ export function kabila(): WalletDefinition {
 export function genericWalletConnectWallet(): WalletDefinition {
   return {
     id: "hedera-wallet",
-    name: "Other Hedera wallet",
+    name: "WalletConnect",
     icon: "https://hedera.com/favicon.ico",
     transports: WALLETCONNECT_TRANSPORT,
   };
