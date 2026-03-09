@@ -15,19 +15,17 @@ Use `dist/index.d.ts` as the authoritative source for exact exported signatures 
 
 ## Factory And Helper Exports
 
-| Export                       | What it does                                             | Parameters                    | Returns            |
-| ---------------------------- | -------------------------------------------------------- | ----------------------------- | ------------------ |
-| `createWallet`               | Create the headless wallet runtime.                      | `CreateWalletOptions?`        | `Wallet`           |
-| `hederaMainnet`              | Create the built-in Hedera mainnet chain definition.     | none                          | `WalletChain`      |
-| `hederaTestnet`              | Create the built-in Hedera testnet chain definition.     | none                          | `WalletChain`      |
-| `hederaPreviewnet`           | Create the built-in Hedera previewnet chain definition.  | none                          | `WalletChain`      |
-| `hederaDevnet`               | Create a devnet chain definition.                        | config object                 | `WalletChain`      |
-| `hashpack`                   | Create the curated HashPack wallet definition.           | none                          | `WalletDefinition` |
-| `kabila`                     | Create the curated Kabila wallet definition.             | none                          | `WalletDefinition` |
-| `genericWalletConnectWallet` | Create the neutral Hedera WalletConnect fallback wallet. | none                          | `WalletDefinition` |
-| `createWalletError`          | Construct a typed wallet error.                          | `code`, `message`, `options?` | `WalletError`      |
-| `formatWalletError`          | Convert a typed wallet error into readable text.         | `error`                       | `string`           |
-| `asWalletError`              | Normalize an unknown value into a typed wallet error.    | `error`, `fallback`           | `WalletError`      |
+| Export                       | What it does                                             | Parameters             | Returns            |
+| ---------------------------- | -------------------------------------------------------- | ---------------------- | ------------------ |
+| `createWallet`               | Create the headless wallet runtime.                      | `CreateWalletOptions?` | `Wallet`           |
+| `hederaMainnet`              | Create the built-in Hedera mainnet chain definition.     | none                   | `WalletChain`      |
+| `hederaTestnet`              | Create the built-in Hedera testnet chain definition.     | none                   | `WalletChain`      |
+| `hederaPreviewnet`           | Create the built-in Hedera previewnet chain definition.  | none                   | `WalletChain`      |
+| `hederaDevnet`               | Create a devnet chain definition.                        | config object          | `WalletChain`      |
+| `hashpack`                   | Create the curated HashPack wallet definition.           | none                   | `WalletDefinition` |
+| `kabila`                     | Create the curated Kabila wallet definition.             | none                   | `WalletDefinition` |
+| `genericWalletConnectWallet` | Create the neutral Hedera WalletConnect fallback wallet. | none                   | `WalletDefinition` |
+| `asWalletError`              | Normalize an unknown value into a typed wallet error.    | `error`, `fallback`    | `WalletError`      |
 
 ## Runtime Contract
 
