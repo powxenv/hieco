@@ -36,20 +36,33 @@ function shouldCancelPendingRequest(wallet: Wallet): boolean {
   );
 }
 
-export interface WalletProviderProps extends CreateWalletOptions {
+export interface WalletProviderCreateRuntimeProps extends CreateWalletOptions {
   readonly children: ReactNode;
-  readonly wallet?: Wallet;
 }
 
-export function WalletProvider({ children, wallet, ...options }: WalletProviderProps): ReactNode {
+export interface WalletProviderWithRuntimeProps {
+  readonly children: ReactNode;
+  readonly wallet: Wallet;
+}
+
+export type WalletProviderProps = WalletProviderWithRuntimeProps | WalletProviderCreateRuntimeProps;
+
+function createsWalletRuntime(
+  props: WalletProviderProps,
+): props is WalletProviderCreateRuntimeProps {
+  return !("wallet" in props);
+}
+
+export function WalletProvider(props: WalletProviderProps): ReactNode {
+  const { children } = props;
   const createdWalletRef = useRef<Wallet | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  if (!wallet && !createdWalletRef.current) {
-    createdWalletRef.current = createWallet(options);
+  if (createsWalletRuntime(props) && !createdWalletRef.current) {
+    createdWalletRef.current = createWallet(props);
   }
 
-  const activeWallet = wallet ?? createdWalletRef.current;
+  const activeWallet = createsWalletRuntime(props) ? createdWalletRef.current : props.wallet;
 
   if (!activeWallet) {
     throw new Error("WalletProvider could not create a wallet runtime.");

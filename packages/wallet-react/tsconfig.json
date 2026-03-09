@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "lib": ["ESNext", "DOM"],
-    "types": ["bun-types"]
+    "types": ["bun-types", "vite/client"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

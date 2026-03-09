@@ -28,7 +28,7 @@
   ],
   "type": "module",
   "sideEffects": false,
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "typings": "./dist/index.d.ts",
@@ -45,19 +45,21 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./ui": {
       "types": "./dist/ui/index.d.ts",
-      "import": "./dist/ui/index.js"
+      "import": "./dist/ui/index.js",
+      "require": "./dist/ui/index.cjs"
     }
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "bun --filter '@hieco/wallet' build && mkdir -p ./dist/ui && find ./dist -mindepth 1 -delete && bun build ./src/index.ts ./src/ui/index.ts --outdir ./dist --target browser --format esm --sourcemap --splitting --external react --external react-dom --external @hieco/wallet --external @nanostores/react && bunx tsc -p tsconfig.build.json",
-    "dev": "mkdir -p ./dist/ui && find ./dist -mindepth 1 -delete && bun build ./src/index.ts ./src/ui/index.ts --outdir ./dist --target browser --format esm --watch --splitting --external react --external react-dom --external @hieco/wallet --external @nanostores/react",
+    "build": "vite build && bunx tsc -p tsconfig.build.json",
+    "dev": "vite build --watch",
     "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
@@ -68,25 +70,32 @@
   "dependencies": {
     "@hieco/wallet": "workspace:*",
     "@nanostores/react": "^1.0.0",
+    "@stylexjs/stylex": "0.18.1",
     "qrcode": "1.5.3"
   },
   "devDependencies": {
     "@hiero-ledger/sdk": "^2.80.0",
+    "@stylexjs/unplugin": "0.18.1",
     "@types/qrcode": "^1.5.6",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "@typescript/native-preview": "catalog:",
+    "@vitejs/plugin-react": "^5.1.1",
     "bun-types": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "react": "catalog:react",
-    "react-dom": "catalog:react"
+    "react-dom": "catalog:react",
+    "vite": "^8.0.0-beta.13"
   },
   "peerDependencies": {
     "@hieco/wallet": "workspace:*",
     "react": ">=18",
     "react-dom": ">=18"
+  },
+  "overrides": {
+    "vite": "^8.0.0-beta.13"
   },
   "engines": {
     "node": ">=18.0.0"
