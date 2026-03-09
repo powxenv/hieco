@@ -21,12 +21,7 @@ Install the workspace dependencies:
 bun install
 ```
 
-Build the wallet packages once so the example resolves their published entrypoints:
-
-```bash
-bun run build:wallet
-bun run build:wallet-react
-```
+The example resolves `@hieco/wallet` and `@hieco/wallet-react` through Bun workspaces.
 
 Start the example:
 
@@ -40,6 +35,7 @@ Create `examples/wallet/.env.local`:
 
 ```bash
 VITE_WALLETCONNECT_PROJECT_ID=your_project_id_here
+VITE_APP_URL=http://localhost:5173
 ```
 
 Then restart the dev server.

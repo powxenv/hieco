@@ -40,7 +40,7 @@ function formatPromptLabel(prompt: WalletPrompt | null): string {
 
   switch (prompt.kind) {
     case "qr":
-      return "QR pairing";
+      return "WalletConnect QR";
     case "deeplink":
       return "Mobile deeplink";
     case "return":
@@ -67,7 +67,7 @@ function formatWalletAvailability(wallet: ReturnType<typeof useWallets>[number])
     case "install-required":
       return "Install required";
     case "cross-device":
-      return "Pair from another device";
+      return "Connect with WalletConnect";
     case "unsupported":
       return "Unsupported on this device";
   }
@@ -188,21 +188,6 @@ function WalletShowcase(): ReactNode {
                           Install
                         </a>
                       ) : null}
-                      {item.transports.includes("walletconnect") ? (
-                        <button
-                          disabled={wallet.status === "connecting" || wallet.status === "restoring"}
-                          onClick={() => {
-                            startConnection(wallet, {
-                              wallet: item.id,
-                              presentation: "qr",
-                              transport: "walletconnect",
-                            });
-                          }}
-                          type="button"
-                        >
-                          Pair from another device
-                        </button>
-                      ) : null}
                     </>
                   ) : null}
 
@@ -218,7 +203,7 @@ function WalletShowcase(): ReactNode {
                       }}
                       type="button"
                     >
-                      Pair from another device
+                      Connect with WalletConnect
                     </button>
                   ) : null}
                 </div>
@@ -290,8 +275,8 @@ function WalletShowcase(): ReactNode {
               trying a real wallet connection.
             </li>
             <li>
-              Desktop browsers prefer installed wallet extensions. QR is only used for explicit
-              cross-device pairing.
+              Desktop browsers prefer installed wallet extensions. Use the WalletConnect option for
+              explicit cross-device pairing.
             </li>
             <li>
               Pair <code>useWalletSigner()</code> with <code>@hieco/react</code> when you want query
