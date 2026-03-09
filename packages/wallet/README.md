@@ -53,6 +53,12 @@ import { createWallet } from "@hieco/wallet";
 
 const wallet = createWallet({
   projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  app: {
+    name: "My Hieco App",
+    description: "Wallet connection for My Hieco App",
+    url: "https://example.com",
+    icons: ["https://example.com/icon.png"],
+  },
 });
 ```
 
@@ -60,7 +66,7 @@ This gives you the default Hieco wallet setup:
 
 - `hedera:testnet`
 - the built-in wallet catalog
-- inferred app metadata from the browser
+- your explicit app metadata
 - local session persistence
 
 ### Connect A Wallet
@@ -79,6 +85,12 @@ import { hieco } from "@hieco/sdk";
 
 const wallet = createWallet({
   projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  app: {
+    name: "My Hieco App",
+    description: "Wallet connection for My Hieco App",
+    url: "https://example.com",
+    icons: ["https://example.com/icon.png"],
+  },
 });
 
 await wallet.connect({ wallet: "hashpack" });
@@ -120,7 +132,7 @@ The actual wallet actions are client-side only:
 - `restore()`
 - `disconnect()`
 
-If they are called outside the browser, the runtime throws a typed wallet error with a clear hint.
+If they are called outside the browser, the runtime throws a typed wallet error.
 
 ### Default Wallet Flow
 
@@ -163,7 +175,7 @@ The default wallet catalog currently includes:
 - `kabila()`
 - `genericWalletConnectWallet()`
 
-The generic wallet is a neutral Hedera WalletConnect fallback. It is useful when you want a paired-device or custom wallet flow without hardcoding one specific wallet.
+The generic wallet is a neutral WalletConnect fallback for Hedera. It is useful when you want one explicit WalletConnect option without hardcoding a specific wallet brand.
 
 ## Common Patterns
 
@@ -184,6 +196,12 @@ import { createWallet } from "@hieco/wallet";
 
 const wallet = createWallet({
   projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  app: {
+    name: "My Hieco App",
+    description: "Wallet connection for My Hieco App",
+    url: "https://example.com",
+    icons: ["https://example.com/icon.png"],
+  },
 });
 
 function render() {
@@ -207,7 +225,7 @@ async function connectHashPack() {
 
 async function showQrCode() {
   await wallet.connect({
-    wallet: "generic-hedera-walletconnect",
+    wallet: "hedera-wallet",
     transport: "walletconnect",
     presentation: "qr",
   });
@@ -257,7 +275,7 @@ if (restored) {
 
 ```ts
 await wallet.connect({
-  wallet: "generic-hedera-walletconnect",
+  wallet: "hedera-wallet",
   transport: "walletconnect",
   presentation: "qr",
 });
@@ -272,6 +290,12 @@ import { createWallet, hashpack } from "@hieco/wallet";
 
 const wallet = createWallet({
   projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  app: {
+    name: "My Hieco App",
+    description: "Wallet connection for My Hieco App",
+    url: "https://example.com",
+    icons: ["https://example.com/icon.png"],
+  },
   wallets: [hashpack()],
 });
 ```
@@ -283,6 +307,12 @@ import { createWallet, hederaMainnet } from "@hieco/wallet";
 
 const wallet = createWallet({
   projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  app: {
+    name: "My Hieco App",
+    description: "Wallet connection for My Hieco App",
+    url: "https://example.com",
+    icons: ["https://example.com/icon.png"],
+  },
   chains: [hederaMainnet()],
 });
 ```
@@ -294,7 +324,7 @@ const wallet = createWallet({
 ```ts
 type CreateWalletOptions = {
   readonly projectId?: string;
-  readonly app?: WalletAppInput;
+  readonly app: WalletAppMetadata;
   readonly chains?: readonly WalletChain[];
   readonly wallets?: readonly WalletDefinition[];
   readonly autoConnect?: boolean;
@@ -336,9 +366,9 @@ type WalletState = {
 
 ### Main Entry
 
-| Export                   | What it does               |
-| ------------------------ | -------------------------- |
-| `createWallet(options?)` | Create the wallet runtime. |
+| Export                  | What it does               |
+| ----------------------- | -------------------------- |
+| `createWallet(options)` | Create the wallet runtime. |
 
 ### Chain Helpers
 
@@ -351,20 +381,18 @@ type WalletState = {
 
 ### Wallet Definitions
 
-| Export                         | What it does                                      |
-| ------------------------------ | ------------------------------------------------- |
-| `hashpack()`                   | Built-in HashPack wallet definition.              |
-| `kabila()`                     | Built-in Kabila wallet definition.                |
-| `genericWalletConnectWallet()` | Generic Hedera WalletConnect fallback definition. |
+| Export                         | What it does                         |
+| ------------------------------ | ------------------------------------ |
+| `hashpack()`                   | Built-in HashPack wallet definition. |
+| `kabila()`                     | Built-in Kabila wallet definition.   |
+| `genericWalletConnectWallet()` | Generic Hedera WalletConnect option. |
 
 ### Errors
 
-| Export                                       | What it does                                          |
-| -------------------------------------------- | ----------------------------------------------------- |
-| `createWalletError(code, message, options?)` | Create a typed wallet error.                          |
-| `formatWalletError(error)`                   | Turn a wallet error into readable UI copy.            |
-| `asWalletError(error, fallback)`             | Normalize unknown runtime errors into a wallet error. |
-| `walletErrorCodes`                           | List of supported wallet error codes.                 |
+| Export                           | What it does                                          |
+| -------------------------------- | ----------------------------------------------------- |
+| `asWalletError(error, fallback)` | Normalize unknown runtime errors into a wallet error. |
+| `walletErrorCodes`               | List of supported wallet error codes.                 |
 
 ## Standards And Architecture
 
