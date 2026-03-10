@@ -1,6 +1,6 @@
 import type { WalletOption } from "@hieco/wallet";
-import { useWalletState } from "./context";
+import { useWallet } from "./use-wallet";
 
 export function useWallets(): readonly WalletOption[] {
-  return useWalletState().wallets;
+  return useWallet().wallets;
 }

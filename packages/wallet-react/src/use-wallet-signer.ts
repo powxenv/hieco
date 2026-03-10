@@ -1,6 +1,6 @@
 import type { Signer } from "@hiero-ledger/sdk";
-import { useWalletState } from "./context";
+import { useWallet } from "./use-wallet";
 
 export function useWalletSigner(): Signer | undefined {
-  return useWalletState().signer;
+  return useWallet().signer;
 }

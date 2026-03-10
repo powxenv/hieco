@@ -1,5 +1,5 @@
-import { useWalletContext } from "./context";
+import { useWallet } from "./use-wallet";
 
 export function useDisconnect(): () => Promise<void> {
-  return useWalletContext().wallet.disconnect;
+  return useWallet().disconnect;
 }

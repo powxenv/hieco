@@ -113,7 +113,6 @@ const client = hieco({ network: "testnet" }).as(signer);
 - `snapshot()`
 - `onChange(listener)`
 - `connect(options?)`
-- `cancel()`
 - `disconnect()`
 - `restore()`
 - `switchChain(chainId)`
@@ -136,18 +135,10 @@ If they are called outside the browser, the runtime throws a typed wallet error.
 
 ### Default Wallet Flow
 
-The runtime plans the connection flow based on:
+The runtime does two simple things:
 
-- the current platform
-- the selected wallet
-- installed extension availability
-- any explicit overrides passed to `connect()`
-
-In practice:
-
-- desktop browsers prefer installed extensions
-- mobile browsers prefer wallet handoff
-- QR is used only for explicit paired-device or cross-device flows
+- connect through an installed browser extension when one is available
+- otherwise connect through WalletConnect QR when the wallet supports it
 
 ### Prompts
 
@@ -157,15 +148,6 @@ When a connection flow needs user handoff, the runtime exposes it in `state.prom
 
 - render a QR code from `prompt.uri`
 - use this for explicit paired-device flows
-
-`prompt.kind === "deeplink"`
-
-- open `prompt.href`
-- keep `prompt.uri` available for fallback handling
-
-`prompt.kind === "return"`
-
-- show return-to-app guidance after wallet handoff
 
 ### Built-In Wallets
 
@@ -189,7 +171,7 @@ The usual pattern is:
 2. read the current state with `snapshot()`
 3. subscribe with `onChange()`
 4. render from `wallets`, `status`, `account`, `prompt`, and `error`
-5. call `connect()`, `cancel()`, `disconnect()`, and `restore()` from your own UI
+5. call `connect()`, `disconnect()`, and `restore()` from your own UI
 
 ```ts
 import { createWallet } from "@hieco/wallet";
@@ -208,7 +190,9 @@ function render() {
   const state = wallet.snapshot();
 
   console.log(state.status);
-  console.log(state.wallets.map((item) => `${item.name}: ${item.readyState}`));
+  console.log(
+    state.wallets.map((item) => `${item.name}: ${item.extension ? "installed" : "not installed"}`),
+  );
   console.log(state.account?.accountId ?? "No account connected");
   console.log(state.prompt?.kind ?? "No prompt");
 }
@@ -227,12 +211,7 @@ async function showQrCode() {
   await wallet.connect({
     wallet: "hedera-wallet",
     transport: "walletconnect",
-    presentation: "qr",
   });
-}
-
-function cancelCurrentRequest() {
-  wallet.cancel();
 }
 
 stop();
@@ -244,10 +223,10 @@ The runtime already handles wallet discovery, session restore, prompt state, and
 
 These fields are the main UI surface:
 
-- `state.wallets` for the available wallet list and ready state
+- `state.wallets` for the available wallet list and installed extension info
 - `state.status` for loading, idle, and connected states
 - `state.account` and `state.wallet` for the connected view
-- `state.prompt` for QR, deep link, and return guidance
+- `state.prompt` for WalletConnect QR guidance
 - `state.error` for readable failure messages
 
 ### Subscribe To Wallet State
@@ -277,7 +256,6 @@ if (restored) {
 await wallet.connect({
   wallet: "hedera-wallet",
   transport: "walletconnect",
-  presentation: "qr",
 });
 ```
 
@@ -339,7 +317,6 @@ type CreateWalletOptions = {
 type ConnectOptions = {
   readonly wallet?: string;
   readonly chain?: string;
-  readonly presentation?: "auto" | "qr" | "deeplink";
   readonly transport?: "extension" | "walletconnect";
 };
 ```

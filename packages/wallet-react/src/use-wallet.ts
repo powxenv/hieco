@@ -24,8 +24,8 @@ export interface UseWalletResult {
   readonly transport: WalletTransportId | null;
   readonly error: WalletError | null;
   readonly prompt: WalletPrompt | null;
+  readonly prepareQr: (options?: ConnectOptions) => Promise<void>;
   readonly connect: (options?: ConnectOptions) => Promise<WalletConnection>;
-  readonly cancel: () => void;
   readonly disconnect: () => Promise<void>;
   readonly restore: () => Promise<WalletConnection | null>;
   readonly switchChain: (chainId: string) => Promise<void>;
@@ -41,8 +41,8 @@ export function useWallet(): UseWalletResult {
 
   return {
     ...state,
+    prepareQr: wallet.prepareQr,
     connect: wallet.connect,
-    cancel: wallet.cancel,
     disconnect: wallet.disconnect,
     restore: wallet.restore,
     switchChain: wallet.switchChain,

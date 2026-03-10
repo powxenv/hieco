@@ -1,7 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import type { ReactNode } from "react";
 import { useWallet } from "../use-wallet";
-import { useWalletModal } from "../use-wallet-modal";
 import { walletUiStyles } from "./styles.stylex";
 
 const primaryButtonProps = stylex.props(
@@ -12,16 +11,8 @@ const primaryButtonProps = stylex.props(
 
 function walletButtonLabel(wallet: ReturnType<typeof useWallet>): string {
   if (wallet.isModalOpen) {
-    if (wallet.prompt?.kind === "qr") {
+    if (wallet.prompt) {
       return "Scan QR code";
-    }
-
-    if (wallet.prompt?.kind === "deeplink") {
-      return `Open ${wallet.prompt.wallet.name}`;
-    }
-
-    if (wallet.prompt?.kind === "return") {
-      return "Finish in wallet";
     }
 
     return "Choose wallet";
@@ -44,7 +35,6 @@ function walletButtonLabel(wallet: ReturnType<typeof useWallet>): string {
 
 export function WalletButton(): ReactNode {
   const wallet = useWallet();
-  const { openModal } = useWalletModal();
   const label = walletButtonLabel(wallet);
 
   if (wallet.wallet && wallet.account) {
@@ -54,7 +44,7 @@ export function WalletButton(): ReactNode {
   return (
     <button
       onClick={() => {
-        openModal();
+        wallet.openModal();
       }}
       type="button"
       {...primaryButtonProps}
@@ -65,7 +55,6 @@ export function WalletButton(): ReactNode {
 }
 
 export function WalletAccountButton(): ReactNode {
-  const { openModal } = useWalletModal();
   const wallet = useWallet();
   const accountId = wallet.account?.accountId;
   const label =
@@ -74,7 +63,7 @@ export function WalletAccountButton(): ReactNode {
       : (accountId ?? wallet.wallet?.name ?? "Wallet");
 
   return (
-    <button onClick={openModal} type="button" {...primaryButtonProps}>
+    <button onClick={wallet.openModal} type="button" {...primaryButtonProps}>
       {label}
     </button>
   );

@@ -1,6 +1,6 @@
 import type { WalletStatus } from "@hieco/wallet";
-import { useWalletState } from "./context";
+import { useWallet } from "./use-wallet";
 
 export function useConnectionStatus(): WalletStatus {
-  return useWalletState().status;
+  return useWallet().status;
 }

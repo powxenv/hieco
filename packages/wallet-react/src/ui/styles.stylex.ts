@@ -89,6 +89,15 @@ export const walletUiStyles = stylex.create({
     justifyItems: "center",
     textAlign: "center",
   },
+  desktopSection: {
+    borderTopColor: tokens.surfaceBorder,
+    borderTopStyle: "solid",
+    borderTopWidth: "1px",
+    boxSizing: "border-box",
+    display: "grid",
+    gap: "0.75rem",
+    paddingTop: "1rem",
+  },
   copy: {
     boxSizing: "border-box",
     color: tokens.textSecondary,
@@ -204,6 +213,23 @@ export const walletUiStyles = stylex.create({
     height: "auto",
     maxWidth: "100%",
     width: "16rem",
+  },
+  qrSection: {
+    background:
+      "linear-gradient(180deg, rgba(248, 250, 252, 0.98) 0%, rgba(241, 245, 249, 0.92) 100%)",
+    borderColor: "rgba(14, 116, 144, 0.16)",
+    borderRadius: tokens.radiusCard,
+    borderStyle: "solid",
+    borderWidth: "1px",
+    boxSizing: "border-box",
+    display: "grid",
+    gap: "0.75rem",
+    justifyItems: "center",
+    padding: {
+      default: "1.25rem",
+      [mobileViewport]: "1rem",
+    },
+    textAlign: "center",
   },
   stackSm: {
     boxSizing: "border-box",

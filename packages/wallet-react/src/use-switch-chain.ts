@@ -1,5 +1,5 @@
-import { useWalletContext } from "./context";
+import { useWallet } from "./use-wallet";
 
 export function useSwitchChain(): (chainId: string) => Promise<void> {
-  return useWalletContext().wallet.switchChain;
+  return useWallet().switchChain;
 }

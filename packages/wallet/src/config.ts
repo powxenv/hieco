@@ -6,7 +6,6 @@ import { hederaTestnet } from "./chains.ts";
 import { asWalletError, WalletError } from "./errors.ts";
 import { discoverExtensions, pairExtension } from "./extensions.ts";
 import { isBrowser } from "./platform.ts";
-import { createWalletPrompt, planConnection, resolveWalletOptions } from "./planner.ts";
 import { createStorage } from "./storage.ts";
 import type {
   ConnectOptions,
@@ -15,6 +14,8 @@ import type {
   WalletAccount,
   WalletChain,
   WalletConnection,
+  WalletDefinition,
+  WalletExtension,
   WalletOption,
   WalletState,
   WalletTransportId,
@@ -22,8 +23,6 @@ import type {
 import { getDefaultWallets } from "./wallets.ts";
 
 const DEFAULT_STORAGE_KEY = "hieco.wallet.v1";
-const EXTENSION_APPROVAL_TIMEOUT_MS = 20000;
-const HEDERA_EVENTS = ["accountsChanged", "chainChanged"] as const;
 const HEDERA_METHODS = [
   "hedera_getNodeAddresses",
   "hedera_executeTransaction",
@@ -32,6 +31,7 @@ const HEDERA_METHODS = [
   "hedera_signAndExecuteTransaction",
   "hedera_signTransaction",
 ] as const;
+const HEDERA_EVENTS = ["accountsChanged", "chainChanged"] as const;
 
 interface PersistedSession {
   readonly walletId: string;
@@ -42,12 +42,44 @@ interface PersistedSession {
   readonly extensionId?: string;
 }
 
-function assertBrowserRuntime(): void {
-  if (isBrowser()) {
-    return;
+interface ActiveSession {
+  readonly walletId: string;
+  readonly transport: WalletTransportId;
+  readonly extensionId?: string;
+  readonly session: SessionTypes.Struct;
+}
+
+interface PendingQrConnection {
+  readonly walletId: string;
+  readonly chainId: string;
+  readonly uri: string;
+  readonly connection: Promise<WalletConnection>;
+}
+
+function normalize(value: string | undefined): string {
+  return value?.trim().toLowerCase() ?? "";
+}
+
+function findExtension(
+  wallet: WalletDefinition,
+  extensions: readonly WalletExtension[],
+): WalletExtension | null {
+  const extension = wallet.desktop?.extension;
+
+  if (!extension) {
+    return null;
   }
 
-  throw new WalletError("WALLET_NOT_READY", "Hieco wallet connections run in the browser only.");
+  const ids = (extension.ids ?? []).map(normalize);
+  const names = [wallet.name, ...(extension.names ?? [])].map(normalize);
+
+  for (const candidate of extensions) {
+    if (ids.includes(normalize(candidate.id)) || names.includes(normalize(candidate.name))) {
+      return candidate;
+    }
+  }
+
+  return null;
 }
 
 function createInitialState(
@@ -58,10 +90,7 @@ function createInitialState(
   const chain = chains[0];
 
   if (!chain) {
-    throw new WalletError(
-      "CHAIN_UNSUPPORTED",
-      "Add at least one Hedera network before creating a wallet runtime.",
-    );
+    throw new WalletError("CHAIN_UNSUPPORTED");
   }
 
   return {
@@ -83,10 +112,7 @@ function parseCaipAccount(value: string): WalletAccount {
   const [namespace, network, accountId] = value.split(":");
 
   if (namespace !== "hedera" || !network || !accountId || !isValidEntityId(accountId)) {
-    throw new WalletError(
-      "CONNECT_FAILED",
-      "The wallet returned an account in a format this SDK does not understand.",
-    );
+    throw new WalletError("CONNECT_FAILED");
   }
 
   return {
@@ -101,57 +127,70 @@ function findChain(chains: readonly WalletChain[], chainId: string): WalletChain
   const chain = chains.find((item) => item.id === chainId);
 
   if (!chain) {
-    throw new WalletError(
-      "CHAIN_UNSUPPORTED",
-      `The wallet asked for ${chainId}, but this app does not support it.`,
-    );
+    throw new WalletError("CHAIN_UNSUPPORTED");
   }
 
   return chain;
 }
 
-async function readPersistedSession(
-  storage: ReturnType<typeof createStorage>,
-  storageKey: string,
-): Promise<PersistedSession | null> {
+function pickWallet(wallets: readonly WalletOption[], walletId?: string): WalletOption {
+  if (!walletId) {
+    const wallet = wallets[0];
+
+    if (!wallet) {
+      throw new WalletError("WALLET_NOT_READY");
+    }
+
+    return wallet;
+  }
+
+  const wallet = wallets.find((item) => item.id === walletId);
+
+  if (!wallet) {
+    throw new WalletError("WALLET_NOT_READY");
+  }
+
+  return wallet;
+}
+
+function parsePersistedSession(value: string | null): PersistedSession | null {
+  if (!value) {
+    return null;
+  }
+
   try {
-    const value = await storage.getItem(storageKey);
+    const parsed: unknown = JSON.parse(value);
 
-    if (!value) {
+    if (typeof parsed !== "object" || parsed === null) {
       return null;
     }
 
-    const parsed = JSON.parse(value);
-
-    if (typeof parsed !== "object" || !parsed) {
-      return null;
-    }
-
-    const walletId = Reflect.get(parsed, "walletId");
-    const chainId = Reflect.get(parsed, "chainId");
-    const topic = Reflect.get(parsed, "topic");
-    const transport = Reflect.get(parsed, "transport");
-    const pairingTopic = Reflect.get(parsed, "pairingTopic");
-    const extensionId = Reflect.get(parsed, "extensionId");
+    const record = parsed as Record<string, unknown>;
 
     if (
-      typeof walletId !== "string" ||
-      typeof chainId !== "string" ||
-      typeof topic !== "string" ||
-      (transport !== "extension" && transport !== "walletconnect") ||
-      (pairingTopic !== undefined && typeof pairingTopic !== "string") ||
-      (extensionId !== undefined && typeof extensionId !== "string")
+      typeof record.walletId !== "string" ||
+      typeof record.chainId !== "string" ||
+      typeof record.topic !== "string" ||
+      (record.transport !== "extension" && record.transport !== "walletconnect")
     ) {
       return null;
     }
 
+    if (record.pairingTopic !== undefined && typeof record.pairingTopic !== "string") {
+      return null;
+    }
+
+    if (record.extensionId !== undefined && typeof record.extensionId !== "string") {
+      return null;
+    }
+
     return {
-      walletId,
-      chainId,
-      topic,
-      transport,
-      pairingTopic,
-      extensionId,
+      walletId: record.walletId,
+      chainId: record.chainId,
+      topic: record.topic,
+      transport: record.transport,
+      pairingTopic: record.pairingTopic,
+      extensionId: record.extensionId,
     };
   } catch {
     return null;
@@ -168,251 +207,159 @@ function getRequiredNamespaces(chains: readonly WalletChain[]) {
   };
 }
 
-function findSession(signClient: SignClient, topic: string): SessionTypes.Struct | null {
-  return signClient.session.getAll().find((session) => session.topic === topic) ?? null;
-}
-
-function disconnectQuietly(client: SignClient, topic: string): void {
-  void client
-    .disconnect({
-      topic,
-      reason: {
-        code: 6000,
-        message: "Connection canceled.",
-      },
-    })
-    .catch(() => {});
-}
-
-function pickWallet(wallets: readonly WalletOption[], walletId?: string): WalletOption {
-  if (walletId) {
-    const wallet = wallets.find((item) => item.id === walletId);
-
-    if (wallet) {
-      return wallet;
-    }
-
-    throw new WalletError(
-      "WALLET_NOT_READY",
-      `The wallet "${walletId}" is not available in this runtime.`,
-    );
-  }
-
-  const wallet = wallets[0];
-
-  if (!wallet) {
-    throw new WalletError("WALLET_NOT_READY", "No wallet is available to connect right now.");
-  }
-
-  return wallet;
+function findSession(client: SignClient, topic: string): SessionTypes.Struct | null {
+  return client.session.getAll().find((session) => session.topic === topic) ?? null;
 }
 
 export function createWallet(options: CreateWalletOptions): Wallet {
   const app = options.app;
   const chains = options.chains ?? [hederaTestnet()];
-  const walletDefinitions = options.wallets ?? getDefaultWallets();
+  const definitions = options.wallets ?? getDefaultWallets();
   const storage = options.storage ?? createStorage();
   const storageKey = options.storageKey ?? DEFAULT_STORAGE_KEY;
   const autoConnect = options.autoConnect ?? true;
 
-  let discoveredExtensions: readonly import("./types.ts").WalletExtension[] = [];
-  let walletOptions = resolveWalletOptions(walletDefinitions, discoveredExtensions);
-
-  const $state = atom<WalletState>(createInitialState(chains, walletOptions));
-
-  let signClientPromise: Promise<SignClient> | null = null;
-  let walletSignerModulePromise: Promise<typeof import("./signer.ts")> | null = null;
-  let extensionDiscoveryPromise: Promise<readonly WalletOption[]> | null = null;
-  let boundClient: SignClient | null = null;
-  let activeSession: SessionTypes.Struct | null = null;
-  let activeWalletId: string | undefined;
-  let activeTransport: WalletTransportId | null = null;
-  let activeExtensionId: string | undefined;
-  let activeConnectAttempt = 0;
+  let extensions: readonly WalletExtension[] = [];
+  const readWallets = (): readonly WalletOption[] =>
+    definitions.map((wallet) => ({
+      ...wallet,
+      extension: findExtension(wallet, extensions),
+    }));
+  let wallets = readWallets();
+  let clientPromise: Promise<SignClient> | null = null;
+  let signerModulePromise: Promise<typeof import("./signer.ts")> | null = null;
+  let client: SignClient | null = null;
+  let activeSession: ActiveSession | null = null;
+  let pendingQr: PendingQrConnection | null = null;
+  let pendingQrPromise: Promise<PendingQrConnection> | null = null;
+  let pendingQrKey: string | null = null;
+  let connectAttempt = 0;
   let destroyed = false;
+
+  const $state = atom<WalletState>(createInitialState(chains, wallets));
 
   const snapshot = (): WalletState => $state.get();
 
-  const currentWallets = (): readonly WalletOption[] => walletOptions;
-
-  const setState = (next: WalletState): void => {
-    $state.set(next);
-  };
-
-  const updateState = (recipe: (current: WalletState) => WalletState): void => {
-    setState(recipe(snapshot()));
-  };
-
-  const syncWalletOptions = (
-    nextExtensions: readonly import("./types.ts").WalletExtension[],
-  ): void => {
-    discoveredExtensions = nextExtensions;
-    walletOptions = resolveWalletOptions(walletDefinitions, discoveredExtensions);
-
-    updateState((current) => {
-      const wallet = current.wallet
-        ? (walletOptions.find((item) => item.id === current.wallet?.id) ?? current.wallet)
-        : null;
-      const currentPrompt = current.prompt;
-      const prompt = currentPrompt
-        ? {
-            ...currentPrompt,
-            wallet:
-              walletOptions.find((item) => item.id === currentPrompt.wallet.id) ??
-              currentPrompt.wallet,
-          }
-        : null;
-
-      return {
-        ...current,
-        wallets: walletOptions,
-        wallet,
-        prompt,
-      };
+  const resetState = (error: WalletError | null = null): void => {
+    const current = snapshot();
+    activeSession = null;
+    $state.set({
+      ...createInitialState(chains, wallets, error),
+      chain: current.chain,
     });
   };
 
-  const refreshWalletOptions = async (): Promise<readonly WalletOption[]> => {
+  const refreshWallets = async (): Promise<void> => {
     if (!isBrowser()) {
-      return currentWallets();
+      return;
     }
 
-    if (extensionDiscoveryPromise) {
-      return extensionDiscoveryPromise;
-    }
+    extensions = await discoverExtensions();
+    wallets = readWallets();
 
-    extensionDiscoveryPromise = discoverExtensions()
-      .then((extensions) => {
-        syncWalletOptions(extensions);
-        return currentWallets();
-      })
-      .finally(() => {
-        extensionDiscoveryPromise = null;
-      });
+    const current = snapshot();
+    const currentWallet = current.wallet;
+    const currentPrompt = current.prompt;
+    $state.set({
+      ...current,
+      wallets,
+      wallet: currentWallet ? (wallets.find((item) => item.id === currentWallet.id) ?? null) : null,
+      prompt: currentPrompt
+        ? {
+            ...currentPrompt,
+            wallet:
+              wallets.find((item) => item.id === currentPrompt.wallet.id) ?? currentPrompt.wallet,
+          }
+        : null,
+    });
+  };
 
-    return extensionDiscoveryPromise;
+  const readPersistedSession = async (): Promise<PersistedSession | null> => {
+    return parsePersistedSession(await storage.getItem(storageKey));
+  };
+
+  const writePersistedSession = async (session: PersistedSession | null): Promise<void> => {
+    try {
+      if (session) {
+        await storage.setItem(storageKey, JSON.stringify(session));
+        return;
+      }
+
+      await storage.removeItem(storageKey);
+    } catch {}
   };
 
   const createSigner = async (input: {
     readonly accountId: string;
     readonly chain: WalletChain;
-    readonly client: SignClient;
     readonly topic: string;
     readonly extensionId?: string;
   }): Promise<WalletConnection["signer"]> => {
-    if (!walletSignerModulePromise) {
-      walletSignerModulePromise = import("./signer.ts");
+    if (!client) {
+      throw new WalletError("SIGNER_UNAVAILABLE");
     }
 
-    const { WalletConnectHederaSigner } = await walletSignerModulePromise;
-
-    return new WalletConnectHederaSigner(input);
-  };
-
-  const clearSession = (error: WalletError | null = null): void => {
-    const current = snapshot();
-    activeSession = null;
-    activeWalletId = undefined;
-    activeTransport = null;
-    activeExtensionId = undefined;
-    setState({
-      ...createInitialState(chains, currentWallets(), error),
-      chain: current.chain,
-    });
-  };
-
-  const cancel = (): void => {
-    const current = snapshot();
-
-    if (current.status === "connected" || current.status === "disconnecting") {
-      return;
+    if (!signerModulePromise) {
+      signerModulePromise = import("./signer.ts");
     }
 
-    activeConnectAttempt += 1;
-    activeSession = null;
-    activeWalletId = undefined;
-    activeTransport = null;
-    activeExtensionId = undefined;
+    const { WalletConnectHederaSigner } = await signerModulePromise;
 
-    setState({
-      ...createInitialState(chains, currentWallets(), null),
-      chain: current.chain,
+    return new WalletConnectHederaSigner({
+      accountId: input.accountId,
+      chain: input.chain,
+      client,
+      topic: input.topic,
+      extensionId: input.extensionId,
     });
-  };
-
-  const persistSession = async (session: PersistedSession | null): Promise<void> => {
-    try {
-      if (!session) {
-        await storage.removeItem(storageKey);
-        return;
-      }
-
-      await storage.setItem(storageKey, JSON.stringify(session));
-    } catch {}
   };
 
   const applySession = async (
     session: SessionTypes.Struct,
-    input: {
-      readonly walletId: string;
-      readonly preferredChainId?: string;
-      readonly transport: WalletTransportId;
-      readonly extensionId?: string;
-    },
+    walletId: string,
+    transport: WalletTransportId,
+    preferredChainId?: string,
+    extensionId?: string,
   ): Promise<WalletConnection> => {
     const namespace = session.namespaces.hedera;
 
     if (!namespace) {
-      throw new WalletError(
-        "CONNECT_FAILED",
-        "The wallet connected, but it did not grant Hedera access.",
-      );
+      throw new WalletError("CONNECT_FAILED");
     }
 
     const accounts = namespace.accounts.map(parseCaipAccount);
-    const account = accounts.find((item) => item.chainId === input.preferredChainId) ?? accounts[0];
+    const account = accounts.find((item) => item.chainId === preferredChainId) ?? accounts[0];
 
     if (!account) {
-      throw new WalletError(
-        "CONNECT_FAILED",
-        "The wallet connected, but it did not return a Hedera account.",
-      );
+      throw new WalletError("CONNECT_FAILED");
     }
 
     const chain = findChain(chains, account.chainId);
-    const wallet = pickWallet(currentWallets(), input.walletId);
-    const client = boundClient;
-
-    if (!client) {
-      throw new WalletError(
-        "SIGNER_UNAVAILABLE",
-        "The wallet connected, but signing is not ready yet.",
-      );
-    }
-
+    const wallet = pickWallet(wallets, walletId);
     const signer = await createSigner({
       accountId: account.accountId,
       chain,
-      client,
       topic: session.topic,
-      extensionId: input.extensionId,
+      extensionId,
     });
 
-    activeSession = session;
-    activeWalletId = wallet.id;
-    activeTransport = input.transport;
-    activeExtensionId = input.extensionId;
+    activeSession = {
+      walletId,
+      transport,
+      extensionId,
+      session,
+    };
 
-    setState({
+    $state.set({
       status: "connected",
-      wallets: currentWallets(),
+      wallets,
       wallet,
       account,
       accounts,
       chain,
       chains,
       signer,
-      transport: input.transport,
+      transport,
       error: null,
       prompt: null,
     });
@@ -423,19 +370,19 @@ export function createWallet(options: CreateWalletOptions): Wallet {
       accounts,
       chain,
       signer,
-      transport: input.transport,
-      extensionId: input.extensionId,
+      transport,
+      extensionId,
       topic: session.topic,
     };
   };
 
-  const bindEvents = (client: SignClient): void => {
-    if (boundClient === client) {
+  const bindClient = (nextClient: SignClient): void => {
+    if (client === nextClient) {
       return;
     }
 
-    client.on("session_event", (event) => {
-      if (!activeSession || event.topic !== activeSession.topic) {
+    nextClient.on("session_event", (event) => {
+      if (!activeSession || event.topic !== activeSession.session.topic) {
         return;
       }
 
@@ -444,391 +391,482 @@ export function createWallet(options: CreateWalletOptions): Wallet {
         Array.isArray(event.params.event.data) &&
         event.params.event.data.every((value) => typeof value === "string")
       ) {
-        const nextAccountIds = event.params.event.data;
-
         void (async () => {
-          try {
-            const accounts: readonly WalletAccount[] = nextAccountIds.map(parseCaipAccount);
-            const current = snapshot();
-            const account =
-              accounts.find((item) => item.accountId === current.account?.accountId) ??
-              accounts[0] ??
-              null;
+          const current = snapshot();
+          const accounts = event.params.event.data.map(parseCaipAccount);
+          const account =
+            accounts.find((item: WalletAccount) => item.accountId === current.account?.accountId) ??
+            accounts[0] ??
+            null;
 
-            if (!account || !current.wallet || !activeTransport) {
-              clearSession();
-              return;
-            }
-
-            const chain = findChain(chains, account.chainId);
-            setState({
-              ...current,
-              wallets: currentWallets(),
-              accounts,
-              account,
-              chain,
-              signer: await createSigner({
-                accountId: account.accountId,
-                chain,
-                client,
-                topic: activeSession.topic,
-                extensionId: activeExtensionId,
-              }),
-            });
-          } catch (error) {
-            clearSession(asWalletError(error, "CONNECT_FAILED"));
+          if (!account || !activeSession) {
+            resetState();
+            return;
           }
-        })();
+
+          const chain = findChain(chains, account.chainId);
+          const signer = await createSigner({
+            accountId: account.accountId,
+            chain,
+            topic: activeSession.session.topic,
+            extensionId: activeSession.extensionId,
+          });
+
+          $state.set({
+            ...current,
+            wallets,
+            accounts,
+            account,
+            chain,
+            signer,
+          });
+        })().catch((error) => {
+          resetState(asWalletError(error, "CONNECT_FAILED"));
+        });
       }
 
       if (
         event.params.event.name === "chainChanged" &&
         typeof event.params.event.data === "string"
       ) {
-        const nextChainId = event.params.event.data;
-
         void (async () => {
-          try {
-            const chain = findChain(chains, nextChainId);
-            const current = snapshot();
-            const account =
-              current.accounts.find((item) => item.chainId === chain.id) ??
-              current.accounts[0] ??
-              null;
+          const current = snapshot();
+          const chain = findChain(chains, event.params.event.data);
+          const account = current.accounts.find((item) => item.chainId === chain.id) ?? null;
 
-            if (!account) {
-              throw new WalletError(
-                "CHAIN_UNSUPPORTED",
-                `This wallet session doesn't include ${chain.id}.`,
-              );
-            }
-
-            setState({
-              ...current,
-              wallets: currentWallets(),
-              chain,
-              account,
-              signer: await createSigner({
-                accountId: account.accountId,
-                chain,
-                client,
-                topic: activeSession.topic,
-                extensionId: activeExtensionId,
-              }),
-            });
-          } catch (error) {
-            updateState((current) => ({
-              ...current,
-              wallets: currentWallets(),
-              status: "error",
-              error: asWalletError(error, "CHAIN_UNSUPPORTED"),
-              prompt: null,
-            }));
+          if (!account || !activeSession) {
+            throw new WalletError("CHAIN_UNSUPPORTED");
           }
-        })();
+
+          const signer = await createSigner({
+            accountId: account.accountId,
+            chain,
+            topic: activeSession.session.topic,
+            extensionId: activeSession.extensionId,
+          });
+
+          $state.set({
+            ...current,
+            wallets,
+            chain,
+            account,
+            signer,
+          });
+        })().catch((error) => {
+          const current = snapshot();
+          $state.set({
+            ...current,
+            wallets,
+            status: "error",
+            error: asWalletError(error, "CHAIN_UNSUPPORTED"),
+            prompt: null,
+          });
+        });
       }
     });
 
-    client.on("session_update", (event) => {
-      if (
-        !activeSession ||
-        event.topic !== activeSession.topic ||
-        !activeWalletId ||
-        !activeTransport
-      ) {
+    nextClient.on("session_update", (event) => {
+      if (!activeSession || event.topic !== activeSession.session.topic) {
         return;
       }
 
-      const session = findSession(client, event.topic);
+      const session = findSession(nextClient, event.topic);
 
       if (!session) {
-        clearSession();
+        resetState();
         return;
       }
 
-      void applySession(session, {
-        walletId: activeWalletId,
-        preferredChainId: snapshot().chain.id,
-        transport: activeTransport,
-        extensionId: activeExtensionId,
-      }).catch((error) => {
-        clearSession(asWalletError(error, "RESTORE_FAILED"));
+      void applySession(
+        session,
+        activeSession.walletId,
+        activeSession.transport,
+        snapshot().chain.id,
+        activeSession.extensionId,
+      ).catch((error) => {
+        resetState(asWalletError(error, "RESTORE_FAILED"));
       });
     });
 
-    client.on("session_delete", (event) => {
-      if (!activeSession || event.topic !== activeSession.topic) {
+    nextClient.on("session_delete", (event) => {
+      if (!activeSession || event.topic !== activeSession.session.topic) {
         return;
       }
 
-      void persistSession(null);
-      clearSession();
+      void writePersistedSession(null);
+      resetState();
     });
 
-    boundClient = client;
-  };
-
-  const resolveProjectId = async (): Promise<string> => {
-    if (options.projectId && options.projectId.length > 0) {
-      return options.projectId;
-    }
-
-    throw new WalletError(
-      "WALLET_NOT_READY",
-      "WalletConnect needs a projectId before this wallet can connect.",
-    );
+    client = nextClient;
   };
 
   const ensureClient = async (): Promise<SignClient> => {
-    if (destroyed) {
-      throw new WalletError("WALLET_NOT_READY", "This wallet runtime has already been destroyed.");
+    if (destroyed || !isBrowser() || !options.projectId) {
+      throw new WalletError("WALLET_NOT_READY");
     }
 
-    assertBrowserRuntime();
-
-    if (signClientPromise) {
-      return signClientPromise;
+    if (clientPromise) {
+      return clientPromise;
     }
 
-    signClientPromise = resolveProjectId()
-      .then((projectId) =>
-        SignClient.init({
-          projectId,
-          metadata: {
-            ...app,
-            icons: [...app.icons],
-          },
-        }),
-      )
-      .then((client) => {
-        bindEvents(client);
-        return client;
+    clientPromise = SignClient.init({
+      projectId: options.projectId,
+      metadata: {
+        ...app,
+        icons: [...app.icons],
+      },
+    }).then((nextClient) => {
+      bindClient(nextClient);
+      return nextClient;
+    });
+
+    return clientPromise;
+  };
+
+  const pickQrWallet = (walletId?: string): WalletOption => {
+    if (walletId) {
+      const wallet = pickWallet(wallets, walletId);
+
+      if (!wallet.transports.includes("walletconnect")) {
+        throw new WalletError("CONNECT_FAILED");
+      }
+
+      return wallet;
+    }
+
+    const wallet =
+      wallets.find(
+        (item) => item.id === "hedera-wallet" && item.transports.includes("walletconnect"),
+      ) ?? wallets.find((item) => item.transports.includes("walletconnect"));
+
+    if (!wallet) {
+      throw new WalletError("CONNECT_FAILED");
+    }
+
+    return wallet;
+  };
+
+  const clearPendingQr = (): void => {
+    pendingQr = null;
+    pendingQrPromise = null;
+    pendingQrKey = null;
+  };
+
+  const prepareQr = async (connectOptions: ConnectOptions = {}): Promise<void> => {
+    if (!isBrowser()) {
+      throw new WalletError("WALLET_NOT_READY");
+    }
+
+    await refreshWallets();
+
+    const current = snapshot();
+    const wallet = pickQrWallet(connectOptions.wallet);
+    const chain = findChain(chains, connectOptions.chain ?? current.chain.id);
+    const key = `${wallet.id}:${chain.id}`;
+
+    if (pendingQr && pendingQrKey === key && current.prompt?.uri === pendingQr.uri) {
+      return;
+    }
+
+    if (pendingQrPromise && pendingQrKey === key) {
+      await pendingQrPromise;
+      return;
+    }
+
+    pendingQrKey = key;
+    pendingQrPromise = (async (): Promise<PendingQrConnection> => {
+      const nextClient = await ensureClient();
+      const { uri, approval } = await nextClient.connect({
+        requiredNamespaces: getRequiredNamespaces(chains),
       });
 
-    return signClientPromise;
+      if (!uri) {
+        throw new WalletError("CONNECT_FAILED");
+      }
+
+      const connection = approval().then(async (session) => {
+        if (!pendingQr || pendingQr.uri !== uri) {
+          throw new WalletError("CONNECT_FAILED");
+        }
+
+        const nextConnection = await applySession(
+          session,
+          wallet.id,
+          "walletconnect",
+          chain.id,
+          wallet.extension?.id,
+        );
+
+        await writePersistedSession({
+          walletId: wallet.id,
+          chainId: nextConnection.chain.id,
+          topic: session.topic,
+          transport: "walletconnect",
+          pairingTopic: session.pairingTopic,
+          extensionId: wallet.extension?.id,
+        });
+
+        clearPendingQr();
+        return nextConnection;
+      });
+
+      const prepared = {
+        walletId: wallet.id,
+        chainId: chain.id,
+        uri,
+        connection,
+      } satisfies PendingQrConnection;
+
+      pendingQr = prepared;
+      const latest = snapshot();
+      $state.set({
+        ...latest,
+        wallets,
+        status: latest.account ? latest.status : "idle",
+        transport: latest.account ? latest.transport : null,
+        error: null,
+        prompt: {
+          kind: "qr",
+          uri,
+          wallet,
+        },
+      });
+
+      void connection.catch((error) => {
+        if (!pendingQr || pendingQr.uri !== uri) {
+          return;
+        }
+
+        clearPendingQr();
+
+        const walletError = asWalletError(error, "CONNECT_FAILED");
+        const latest = snapshot();
+        $state.set({
+          ...latest,
+          wallets,
+          status: latest.account ? latest.status : "error",
+          transport: latest.account ? latest.transport : null,
+          error: walletError,
+          prompt: null,
+        });
+      });
+
+      return prepared;
+    })();
+
+    try {
+      await pendingQrPromise;
+    } catch (error) {
+      clearPendingQr();
+      throw asWalletError(error, "CONNECT_FAILED");
+    }
   };
 
   const connect = async (connectOptions: ConnectOptions = {}): Promise<WalletConnection> => {
-    assertBrowserRuntime();
-    await refreshWalletOptions();
+    if (!isBrowser()) {
+      throw new WalletError("WALLET_NOT_READY");
+    }
+
+    await refreshWallets();
 
     const current = snapshot();
-    const attempt = activeConnectAttempt + 1;
-    activeConnectAttempt = attempt;
-    const wallet = pickWallet(currentWallets(), connectOptions.wallet);
+    const wallet = pickWallet(wallets, connectOptions.wallet);
     const chain = findChain(chains, connectOptions.chain ?? current.chain.id);
-    const plan = planConnection({
-      wallet,
-      chain,
-      options: connectOptions,
-    });
+    const canUseExtension = wallet.transports.includes("extension") && Boolean(wallet.extension);
+    const canUseWalletConnect = wallet.transports.includes("walletconnect");
+    const transport =
+      connectOptions.transport ??
+      (canUseExtension ? "extension" : canUseWalletConnect ? "walletconnect" : null);
 
-    setState({
+    if (!transport) {
+      throw new WalletError(wallet.desktop?.extension ? "WALLET_NOT_INSTALLED" : "CONNECT_FAILED");
+    }
+
+    if (transport === "extension" && !canUseExtension) {
+      throw new WalletError(wallet.desktop?.extension ? "WALLET_NOT_INSTALLED" : "CONNECT_FAILED");
+    }
+
+    if (transport === "walletconnect" && !canUseWalletConnect) {
+      throw new WalletError("CONNECT_FAILED");
+    }
+
+    if (transport === "walletconnect") {
+      await prepareQr({
+        wallet: wallet.id,
+        chain: chain.id,
+      });
+
+      if (!pendingQr || pendingQr.walletId !== wallet.id || pendingQr.chainId !== chain.id) {
+        throw new WalletError("CONNECT_FAILED");
+      }
+
+      return pendingQr.connection;
+    }
+
+    connectAttempt += 1;
+    const attempt = connectAttempt;
+    const prompt = current.prompt;
+
+    $state.set({
       ...current,
-      wallets: currentWallets(),
+      wallets,
       status: "connecting",
       wallet,
       chain,
       signer: undefined,
-      transport: plan.transport,
+      transport,
       error: null,
-      prompt: null,
+      prompt,
     });
 
     try {
-      const client = await ensureClient();
-      const persisted = await readPersistedSession(storage, storageKey);
-      const pairingTopic =
-        persisted?.walletId === wallet.id ? (persisted.pairingTopic ?? persisted.topic) : undefined;
-      const { uri, approval } = await client.connect({
-        pairingTopic,
+      const nextClient = await ensureClient();
+      const { uri, approval } = await nextClient.connect({
         requiredNamespaces: getRequiredNamespaces(chains),
       });
 
-      if (attempt !== activeConnectAttempt) {
-        throw new WalletError("CONNECT_FAILED", "This wallet request was canceled.");
+      if (attempt !== connectAttempt) {
+        throw new WalletError("CONNECT_FAILED");
       }
 
       if (uri) {
-        if (plan.transport === "extension" && plan.extension) {
-          pairExtension(plan.extension, uri);
-        }
-
-        const promptMode = plan.promptMode;
-
-        if (promptMode) {
-          updateState((currentState) => ({
-            ...currentState,
-            wallets: currentWallets(),
-            status: "connecting",
-            wallet,
-            chain,
-            transport: plan.transport,
-            error: null,
-            prompt: createWalletPrompt({
-              uri,
-              wallet,
-              mode: promptMode,
-              returnHref: app.redirect?.universal ?? app.redirect?.native,
-            }),
-          }));
+        if (transport === "extension" && wallet.extension) {
+          pairExtension(wallet.extension, uri);
         }
       }
 
-      const session =
-        plan.transport === "extension"
-          ? await new Promise<SessionTypes.Struct>((resolve, reject) => {
-              let settled = false;
-              const timeout = window.setTimeout(() => {
-                if (settled) {
-                  return;
-                }
+      const session = await approval();
 
-                settled = true;
-                reject(
-                  new WalletError("CONNECT_FAILED", `${wallet.name} did not respond in time.`),
-                );
-              }, EXTENSION_APPROVAL_TIMEOUT_MS);
-
-              void approval()
-                .then((nextSession) => {
-                  if (settled) {
-                    disconnectQuietly(client, nextSession.topic);
-                    return;
-                  }
-
-                  settled = true;
-                  window.clearTimeout(timeout);
-                  resolve(nextSession);
-                })
-                .catch((error) => {
-                  if (settled) {
-                    return;
-                  }
-
-                  settled = true;
-                  window.clearTimeout(timeout);
-                  reject(error);
-                });
-            })
-          : await approval();
-
-      if (attempt !== activeConnectAttempt) {
-        disconnectQuietly(client, session.topic);
-
-        throw new WalletError("CONNECT_FAILED", "This wallet request was canceled.");
+      if (attempt !== connectAttempt) {
+        void nextClient
+          .disconnect({
+            topic: session.topic,
+            reason: {
+              code: 6000,
+              message: "Connection canceled.",
+            },
+          })
+          .catch(() => {});
+        throw new WalletError("CONNECT_FAILED");
       }
 
-      const connection = await applySession(session, {
-        walletId: wallet.id,
-        preferredChainId: chain.id,
-        transport: plan.transport,
-        extensionId: plan.extension?.id,
-      });
+      const connection = await applySession(
+        session,
+        wallet.id,
+        transport,
+        chain.id,
+        wallet.extension?.id,
+      );
 
-      await persistSession({
+      await writePersistedSession({
         walletId: wallet.id,
         chainId: connection.chain.id,
         topic: session.topic,
-        transport: connection.transport,
+        transport,
         pairingTopic: session.pairingTopic,
-        extensionId: connection.extensionId,
+        extensionId: wallet.extension?.id,
       });
+
+      clearPendingQr();
 
       return connection;
     } catch (error) {
       const walletError = asWalletError(error, "CONNECT_FAILED");
 
-      if (attempt !== activeConnectAttempt) {
-        return Promise.reject(walletError);
+      if (attempt !== connectAttempt) {
+        throw walletError;
       }
 
-      updateState((currentState) => ({
-        ...currentState,
-        wallets: currentWallets(),
+      $state.set({
+        ...snapshot(),
+        wallets,
         status: "error",
         wallet,
         chain,
+        signer: undefined,
         transport: null,
         error: walletError,
-        prompt: null,
-      }));
+        prompt,
+      });
+
       throw walletError;
     }
   };
 
   const restore = async (): Promise<WalletConnection | null> => {
-    assertBrowserRuntime();
-    await refreshWalletOptions();
+    if (!isBrowser()) {
+      throw new WalletError("WALLET_NOT_READY");
+    }
 
-    const persisted = await readPersistedSession(storage, storageKey);
+    await refreshWallets();
+
+    const persisted = await readPersistedSession();
 
     if (!persisted) {
       return null;
     }
 
-    updateState((current) => ({
-      ...current,
-      wallets: currentWallets(),
+    $state.set({
+      ...snapshot(),
+      wallets,
       status: "restoring",
       transport: persisted.transport,
       error: null,
       prompt: null,
-    }));
+    });
 
     try {
-      const client = await ensureClient();
-      const session = findSession(client, persisted.topic);
+      const nextClient = await ensureClient();
+      const session = findSession(nextClient, persisted.topic);
 
       if (!session) {
-        await persistSession(null);
-        clearSession();
+        await writePersistedSession(null);
+        resetState();
         return null;
       }
 
-      const connection = await applySession(session, {
-        walletId: persisted.walletId,
-        preferredChainId: persisted.chainId,
-        transport: persisted.transport,
-        extensionId: persisted.extensionId,
-      });
+      const connection = await applySession(
+        session,
+        persisted.walletId,
+        persisted.transport,
+        persisted.chainId,
+        persisted.extensionId,
+      );
 
-      await persistSession({
+      await writePersistedSession({
         walletId: persisted.walletId,
         chainId: connection.chain.id,
         topic: session.topic,
-        transport: connection.transport,
+        transport: persisted.transport,
         pairingTopic: session.pairingTopic,
-        extensionId: connection.extensionId,
+        extensionId: persisted.extensionId,
       });
 
       return connection;
     } catch (error) {
-      const walletError = asWalletError(error, "RESTORE_FAILED");
-
-      await persistSession(null);
-      clearSession(walletError);
+      await writePersistedSession(null);
+      resetState(asWalletError(error, "RESTORE_FAILED"));
       return null;
     }
   };
 
   const disconnect = async (): Promise<void> => {
-    assertBrowserRuntime();
+    if (!isBrowser()) {
+      throw new WalletError("WALLET_NOT_READY");
+    }
 
-    const current = snapshot();
-
-    setState({
-      ...current,
-      wallets: currentWallets(),
+    $state.set({
+      ...snapshot(),
+      wallets,
       status: "disconnecting",
       error: null,
       prompt: null,
     });
 
     try {
-      if (activeSession && boundClient) {
-        await boundClient.disconnect({
-          topic: activeSession.topic,
+      if (activeSession && client) {
+        await client.disconnect({
+          topic: activeSession.session.topic,
           reason: {
             code: 6000,
             message: "User disconnected.",
@@ -836,18 +874,17 @@ export function createWallet(options: CreateWalletOptions): Wallet {
         });
       }
 
-      await persistSession(null);
-      clearSession();
+      await writePersistedSession(null);
+      resetState();
     } catch (error) {
       const walletError = asWalletError(error, "DISCONNECT_FAILED");
-
-      updateState((currentState) => ({
-        ...currentState,
-        wallets: currentWallets(),
+      $state.set({
+        ...snapshot(),
+        wallets,
         status: "error",
         error: walletError,
         prompt: null,
-      }));
+      });
       throw walletError;
     }
   };
@@ -856,10 +893,10 @@ export function createWallet(options: CreateWalletOptions): Wallet {
     const chain = findChain(chains, chainId);
     const current = snapshot();
 
-    if (!current.wallet || !current.account || !activeSession || !boundClient) {
-      setState({
+    if (!current.wallet || !current.account || !activeSession) {
+      $state.set({
         ...current,
-        wallets: currentWallets(),
+        wallets,
         chain,
       });
       return;
@@ -868,47 +905,40 @@ export function createWallet(options: CreateWalletOptions): Wallet {
     const account = current.accounts.find((item) => item.chainId === chain.id);
 
     if (!account) {
-      throw new WalletError(
-        "CHAIN_UNSUPPORTED",
-        `This wallet session doesn't include ${chain.id}.`,
-      );
+      throw new WalletError("CHAIN_UNSUPPORTED");
     }
 
     const signer = await createSigner({
       accountId: account.accountId,
       chain,
-      client: boundClient,
-      topic: activeSession.topic,
-      extensionId: activeExtensionId,
+      topic: activeSession.session.topic,
+      extensionId: activeSession.extensionId,
     });
 
-    setState({
+    $state.set({
       ...current,
-      wallets: currentWallets(),
+      wallets,
       chain,
       account,
       signer,
     });
 
-    await persistSession({
+    await writePersistedSession({
       walletId: current.wallet.id,
       chainId: chain.id,
-      topic: activeSession.topic,
-      transport: current.transport ?? activeTransport ?? "walletconnect",
-      pairingTopic: activeSession.pairingTopic,
-      extensionId: activeExtensionId,
+      topic: activeSession.session.topic,
+      transport: activeSession.transport,
+      pairingTopic: activeSession.session.pairingTopic,
+      extensionId: activeSession.extensionId,
     });
   };
 
   const destroy = async (): Promise<void> => {
     destroyed = true;
     activeSession = null;
-    activeWalletId = undefined;
-    activeTransport = null;
-    activeExtensionId = undefined;
-    boundClient = null;
-    signClientPromise = null;
-    extensionDiscoveryPromise = null;
+    clearPendingQr();
+    client = null;
+    clientPromise = null;
   };
 
   const wallet: Wallet = {
@@ -918,8 +948,8 @@ export function createWallet(options: CreateWalletOptions): Wallet {
       $state.listen(() => {
         listener();
       }),
+    prepareQr,
     connect,
-    cancel,
     disconnect,
     restore,
     switchChain,
@@ -929,7 +959,7 @@ export function createWallet(options: CreateWalletOptions): Wallet {
 
   if (isBrowser()) {
     queueMicrotask(() => {
-      void refreshWalletOptions();
+      void refreshWallets();
 
       if (autoConnect) {
         void restore().catch(() => undefined);

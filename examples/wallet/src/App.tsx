@@ -1,5 +1,11 @@
 import type { ReactNode } from "react";
-import type { ConnectOptions, WalletOption, WalletPrompt, WalletStatus } from "@hieco/wallet";
+import type {
+  ConnectOptions,
+  WalletError,
+  WalletOption,
+  WalletPrompt,
+  WalletStatus,
+} from "@hieco/wallet";
 import {
   useConnectionStatus,
   useDisconnect,
@@ -34,20 +40,7 @@ function formatStatusLabel(status: WalletStatus): string {
 }
 
 function formatPromptLabel(prompt: WalletPrompt | null): string {
-  if (!prompt) {
-    return "None";
-  }
-
-  switch (prompt.kind) {
-    case "qr":
-      return "WalletConnect QR";
-    case "deeplink":
-      return "Mobile deeplink";
-    case "return":
-      return "Return to app";
-  }
-
-  throw new Error("Unsupported wallet prompt.");
+  return prompt ? "WalletConnect QR" : "None";
 }
 
 function formatTransportLabel(transport: ReturnType<typeof useWallet>["transport"]): string {
@@ -59,20 +52,19 @@ function formatTransportLabel(transport: ReturnType<typeof useWallet>["transport
 }
 
 function formatWalletAvailability(wallet: ReturnType<typeof useWallets>[number]): string {
-  switch (wallet.readyState) {
-    case "installed":
-      return "Installed in this browser";
-    case "loadable":
-      return "Ready on this device";
-    case "install-required":
-      return "Install required";
-    case "cross-device":
-      return "Connect with WalletConnect";
-    case "unsupported":
-      return "Unsupported on this device";
+  if (wallet.extension) {
+    return "Installed in this browser";
   }
 
-  throw new Error(`Unsupported wallet ready state: ${wallet.readyState}`);
+  if (wallet.transports.includes("extension") && wallet.desktop?.extension) {
+    return "Install required";
+  }
+
+  if (wallet.transports.includes("walletconnect")) {
+    return "Connect with WalletConnect";
+  }
+
+  return "Unavailable";
 }
 
 function shortenValue(value: string | undefined): string {
@@ -89,6 +81,37 @@ function shortenValue(value: string | undefined): string {
 
 function startConnection(wallet: ReturnType<typeof useWallet>, options: ConnectOptions): void {
   void wallet.connect(options).catch(() => {});
+}
+
+function walletErrorSummary(error: WalletError): {
+  readonly title: string;
+  readonly message: string;
+} {
+  if (error.code === "USER_REJECTED") {
+    return {
+      title: "Connection canceled",
+      message: "You canceled the wallet request. Try again whenever you're ready.",
+    };
+  }
+
+  if (error.code === "WALLET_NOT_INSTALLED") {
+    return {
+      title: "Wallet not installed",
+      message: "Install the wallet extension first, then try connecting again.",
+    };
+  }
+
+  if (error.code === "CONNECT_FAILED") {
+    return {
+      title: "Couldn’t connect",
+      message: "We couldn’t connect to the wallet. Try again from the wallet dialog.",
+    };
+  }
+
+  return {
+    title: error.message,
+    message: "Try the request again from the wallet dialog.",
+  };
 }
 
 function App(): ReactNode {
@@ -109,6 +132,7 @@ function WalletShowcase(): ReactNode {
   const status = useConnectionStatus();
   const disconnect = useDisconnect();
   const modal = useWalletModal();
+  const errorSummary = error ? walletErrorSummary(error) : null;
 
   return (
     <main className="shell">
@@ -164,13 +188,13 @@ function WalletShowcase(): ReactNode {
                   <span className="wallet-meta">{formatWalletAvailability(item)}</span>
                 </div>
                 <div className="hero-actions">
-                  {item.readyState === "installed" || item.readyState === "loadable" ? (
+                  {item.extension ? (
                     <button
                       disabled={wallet.status === "connecting" || wallet.status === "restoring"}
                       onClick={() => {
                         startConnection(wallet, {
                           wallet: item.id,
-                          transport: item.defaultTransport ?? undefined,
+                          transport: "extension",
                         });
                       }}
                       type="button"
@@ -181,23 +205,18 @@ function WalletShowcase(): ReactNode {
                     </button>
                   ) : null}
 
-                  {item.readyState === "install-required" ? (
-                    <>
-                      {item.installUrl ? (
-                        <a href={item.installUrl} rel="noreferrer" target="_blank">
-                          Install
-                        </a>
-                      ) : null}
-                    </>
+                  {!item.extension && item.transports.includes("extension") && item.installUrl ? (
+                    <a href={item.installUrl} rel="noreferrer" target="_blank">
+                      Install
+                    </a>
                   ) : null}
 
-                  {item.readyState === "cross-device" ? (
+                  {item.transports.includes("walletconnect") ? (
                     <button
                       disabled={wallet.status === "connecting" || wallet.status === "restoring"}
                       onClick={() => {
                         startConnection(wallet, {
                           wallet: item.id,
-                          presentation: "qr",
                           transport: "walletconnect",
                         });
                       }}
@@ -286,10 +305,10 @@ function WalletShowcase(): ReactNode {
         </Panel>
       </section>
 
-      {error ? (
+      {errorSummary ? (
         <section className="error-panel">
-          <strong>{error.message}</strong>
-          <span>{error.hint ?? "Try the request again from the wallet dialog."}</span>
+          <strong>{errorSummary.title}</strong>
+          <span>{errorSummary.message}</span>
         </section>
       ) : null}
     </main>
@@ -299,12 +318,6 @@ function WalletShowcase(): ReactNode {
 function readPromptDetails(prompt: WalletPrompt | null): string {
   if (!prompt) {
     return "No pairing prompt is active.";
-  }
-
-  if (prompt.kind === "return") {
-    return prompt.href
-      ? `Return link: ${shortenValue(prompt.href)}`
-      : "Waiting for the wallet app.";
   }
 
   return shortenValue(prompt.uri);

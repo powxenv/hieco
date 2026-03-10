@@ -1,6 +1,6 @@
 import type { WalletError } from "@hieco/wallet";
-import { useWalletState } from "./context";
+import { useWallet } from "./use-wallet";
 
 export function useWalletError(): WalletError | null {
-  return useWalletState().error;
+  return useWallet().error;
 }

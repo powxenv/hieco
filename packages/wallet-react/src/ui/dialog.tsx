@@ -1,31 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
-import { useEffect, useState, type ReactNode } from "react";
-import { type ConnectOptions, type WalletOption } from "@hieco/wallet";
-import { useDisconnect } from "../use-disconnect";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { type ConnectOptions, type WalletError, type WalletOption } from "@hieco/wallet";
 import { useWallet } from "../use-wallet";
-import { useWalletModal } from "../use-wallet-modal";
 import { WalletQr } from "./qr";
 import { walletUiStyles } from "./styles.stylex";
-
-const walletStateLabels: Record<WalletOption["readyState"], string> = {
-  installed: "Installed in this browser",
-  loadable: "Ready on this device",
-  "install-required": "Install required",
-  "cross-device": "Available on another device",
-  unsupported: "Not supported on this device",
-};
-
-const walletStateDescriptions: Record<WalletOption["readyState"], string> = {
-  installed: "Connect with the browser extension already installed.",
-  loadable: "Open the wallet app and approve the connection.",
-  "install-required": "Install the browser extension to connect in this browser.",
-  "cross-device": "Connect with WalletConnect from another phone or device.",
-  unsupported: "This wallet does not support the current platform.",
-};
-
-function launchWallet(href: string): void {
-  window.location.assign(href);
-}
 
 async function copyText(value: string): Promise<boolean> {
   if (!navigator.clipboard) {
@@ -40,20 +18,36 @@ async function copyText(value: string): Promise<boolean> {
   }
 }
 
+function hasExtension(wallet: WalletOption): boolean {
+  return wallet.transports.includes("extension") && Boolean(wallet.desktop?.extension);
+}
+
+function isInstalled(wallet: WalletOption): boolean {
+  return Boolean(wallet.extension);
+}
+
+function canUseWalletConnect(wallet: WalletOption): boolean {
+  return wallet.transports.includes("walletconnect");
+}
+
 function walletStateLabel(wallet: WalletOption): string {
-  return walletStateLabels[wallet.readyState] ?? "Unavailable";
+  if (isInstalled(wallet)) {
+    return "Installed in this browser";
+  }
+
+  return "Install required";
 }
 
 function walletStateDescription(wallet: WalletOption): string {
-  return walletStateDescriptions[wallet.readyState] ?? "This wallet is not currently available.";
+  if (isInstalled(wallet)) {
+    return "Connect with the browser extension already installed.";
+  }
+
+  return "Install the browser extension to connect in this browser.";
 }
 
 function isConnectDisabled(status: ReturnType<typeof useWallet>["status"]): boolean {
   return status === "restoring" || status === "disconnecting";
-}
-
-function isQrPromptActive(wallet: ReturnType<typeof useWallet>, item: WalletOption): boolean {
-  return wallet.prompt?.kind === "qr" && wallet.prompt.wallet.id === item.id;
 }
 
 function isExtensionApprovalPending(
@@ -63,28 +57,47 @@ function isExtensionApprovalPending(
   return (
     wallet.status === "connecting" &&
     wallet.transport === "extension" &&
-    !wallet.prompt &&
     wallet.wallet?.id === item.id
   );
 }
 
 function connectButtonLabel(wallet: ReturnType<typeof useWallet>, item: WalletOption): string {
-  if (isExtensionApprovalPending(wallet, item)) {
-    return `Open ${item.name} again`;
-  }
-
-  return "Connect";
-}
-
-function walletConnectButtonLabel(
-  wallet: ReturnType<typeof useWallet>,
-  item: WalletOption,
-): string {
-  return isQrPromptActive(wallet, item) ? "WalletConnect QR ready" : "Connect with WalletConnect";
+  return isExtensionApprovalPending(wallet, item) ? `Open ${item.name} again` : "Connect";
 }
 
 function startConnection(wallet: ReturnType<typeof useWallet>, options: ConnectOptions): void {
   void wallet.connect(options).catch(() => {});
+}
+
+function walletErrorCopy(error: WalletError): {
+  readonly title: string;
+  readonly message: string;
+} {
+  if (error.code === "USER_REJECTED") {
+    return {
+      title: "Connection canceled",
+      message: "You canceled the wallet request. Try again whenever you're ready.",
+    };
+  }
+
+  if (error.code === "WALLET_NOT_INSTALLED") {
+    return {
+      title: "Wallet not installed",
+      message: "Install the wallet extension first, then try connecting again.",
+    };
+  }
+
+  if (error.code === "CONNECT_FAILED") {
+    return {
+      title: "Couldn’t connect",
+      message: "We couldn’t connect to the wallet. Try again from the dialog.",
+    };
+  }
+
+  return {
+    title: "Wallet request failed",
+    message: error.message,
+  };
 }
 
 const primaryButtonProps = stylex.props(
@@ -107,43 +120,36 @@ const linkProps = stylex.props(
 );
 
 const overlayProps = stylex.props(walletUiStyles.overlay);
-
 const dialogProps = stylex.props(walletUiStyles.dialog);
-
 const headerProps = stylex.props(walletUiStyles.header);
-
 const stackProps = stylex.props(walletUiStyles.stackSm);
-
-const centeredStackProps = stylex.props(walletUiStyles.stackSm, walletUiStyles.centeredStack);
-
 const titleProps = stylex.props(walletUiStyles.title);
-
 const copyProps = stylex.props(walletUiStyles.copy);
-
 const actionsProps = stylex.props(walletUiStyles.actions);
-
 const cardProps = stylex.props(walletUiStyles.stackSm, walletUiStyles.card);
-
 const errorProps = stylex.props(walletUiStyles.stackSm, walletUiStyles.error);
-
 const walletListProps = stylex.props(walletUiStyles.walletList);
-
 const walletProps = stylex.props(walletUiStyles.wallet);
-
 const walletHeaderProps = stylex.props(walletUiStyles.walletHeader);
-
 const walletCopyProps = stylex.props(walletUiStyles.walletCopy);
-
 const walletMetaProps = stylex.props(walletUiStyles.walletMeta);
+const qrSectionProps = stylex.props(walletUiStyles.qrSection);
+const desktopSectionProps = stylex.props(walletUiStyles.desktopSection);
+
+function getPreferredQrWallet(wallets: readonly WalletOption[]): WalletOption | null {
+  return (
+    wallets.find((item) => item.id === "hedera-wallet") ??
+    wallets.find((item) => canUseWalletConnect(item)) ??
+    null
+  );
+}
 
 export function WalletDialog(): ReactNode {
-  const { isOpen, closeModal } = useWalletModal();
   const wallet = useWallet();
-  const activeWallet = wallet.wallet;
-  const disconnect = useDisconnect();
+  const { isModalOpen: isOpen, closeModal } = wallet;
+  const preferredQrWallet = useMemo(() => getPreferredQrWallet(wallet.wallets), [wallet.wallets]);
   const [copied, setCopied] = useState(false);
-  const [attemptedDeepLinkUri, setAttemptedDeepLinkUri] = useState<string | null>(null);
-  const [deepLinkNeedsManualRetry, setDeepLinkNeedsManualRetry] = useState(false);
+  const errorCopy = wallet.error ? walletErrorCopy(wallet.error) : null;
 
   useEffect(() => {
     if (!isOpen || wallet.status !== "connected" || !wallet.account) {
@@ -154,36 +160,30 @@ export function WalletDialog(): ReactNode {
   }, [closeModal, isOpen, wallet.account, wallet.status]);
 
   useEffect(() => {
-    if (!isOpen || !wallet.prompt || wallet.prompt.kind !== "deeplink") {
-      setAttemptedDeepLinkUri(null);
-      setDeepLinkNeedsManualRetry(false);
+    if (
+      !isOpen ||
+      wallet.account ||
+      wallet.prompt ||
+      wallet.status === "restoring" ||
+      wallet.status === "disconnecting" ||
+      !preferredQrWallet
+    ) {
       return;
     }
 
-    if (attemptedDeepLinkUri === wallet.prompt.uri) {
-      return;
-    }
-
-    setAttemptedDeepLinkUri(wallet.prompt.uri);
-    setDeepLinkNeedsManualRetry(false);
-
-    try {
-      launchWallet(wallet.prompt.href);
-    } catch {
-      setDeepLinkNeedsManualRetry(true);
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      if (document.visibilityState === "visible") {
-        setDeepLinkNeedsManualRetry(true);
-      }
-    }, 1500);
-
-    return () => {
-      window.clearTimeout(timeout);
-    };
-  }, [attemptedDeepLinkUri, isOpen, wallet.prompt]);
+    void wallet.prepareQr({
+      wallet: preferredQrWallet.id,
+      chain: wallet.chain.id,
+    });
+  }, [
+    isOpen,
+    preferredQrWallet,
+    wallet,
+    wallet.account,
+    wallet.chain.id,
+    wallet.prompt,
+    wallet.status,
+  ]);
 
   if (!isOpen) {
     return null;
@@ -196,8 +196,8 @@ export function WalletDialog(): ReactNode {
           <div {...stackProps}>
             <strong {...titleProps}>Wallet</strong>
             <span {...copyProps}>
-              Choose a wallet below. Use the installed browser extension when available, or open a
-              WalletConnect QR code when you want to connect from another device.
+              Scan the WalletConnect QR code with your phone first, or use a desktop wallet below if
+              you want to stay in this browser.
             </span>
           </div>
           <button onClick={closeModal} type="button" {...secondaryButtonProps}>
@@ -205,107 +205,47 @@ export function WalletDialog(): ReactNode {
           </button>
         </div>
 
-        {activeWallet && wallet.account ? (
+        {wallet.wallet && wallet.account ? (
           <ConnectedWalletCard
             accountId={wallet.account.accountId}
             chainId={wallet.chain.id}
             onDisconnect={() => {
-              void disconnect().finally(closeModal);
+              void wallet.disconnect().finally(closeModal);
             }}
             transport={wallet.transport}
-            walletName={activeWallet.name}
+            walletName={wallet.wallet.name}
           />
         ) : (
-          <WalletList />
+          <div {...stackProps}>
+            <WalletPromptCard
+              copied={copied}
+              onCopy={async () => {
+                const prompt = wallet.prompt;
+
+                if (!prompt?.uri) {
+                  return;
+                }
+
+                const didCopy = await copyText(prompt.uri);
+                setCopied(didCopy);
+
+                if (didCopy) {
+                  window.setTimeout(() => {
+                    setCopied(false);
+                  }, 1400);
+                }
+              }}
+              preferredQrWallet={preferredQrWallet}
+              wallet={wallet}
+            />
+            <DesktopWalletList />
+          </div>
         )}
 
-        {wallet.prompt ? (
-          <WalletPromptCard
-            copied={copied}
-            deepLinkNeedsManualRetry={deepLinkNeedsManualRetry}
-            onCopy={async () => {
-              const prompt = wallet.prompt;
-
-              if (!prompt) {
-                return;
-              }
-
-              const uri = prompt.uri;
-
-              if (!uri) {
-                return;
-              }
-
-              const didCopy = await copyText(uri);
-              setCopied(didCopy);
-
-              if (didCopy) {
-                window.setTimeout(() => {
-                  setCopied(false);
-                }, 1400);
-              }
-            }}
-            onOpenWallet={() => {
-              const prompt = wallet.prompt;
-
-              if (!prompt || prompt.kind !== "deeplink") {
-                return;
-              }
-
-              launchWallet(prompt.href);
-            }}
-            wallet={wallet}
-          />
-        ) : wallet.status === "connecting" || wallet.status === "restoring" ? (
-          <div {...stackProps}>
-            <strong {...titleProps}>
-              {wallet.status === "restoring"
-                ? "Restoring session"
-                : wallet.transport === "walletconnect"
-                  ? "Preparing WalletConnect"
-                  : "Open your wallet to continue"}
-            </strong>
-            <span {...copyProps}>
-              {wallet.status === "restoring"
-                ? "Checking whether a previous wallet session is still available."
-                : wallet.transport === "extension"
-                  ? `Approve the request in ${wallet.wallet?.name ?? "your wallet extension"}. If the wallet window was closed or nothing happened, open it again or cancel this request.`
-                  : "Getting the WalletConnect QR code ready now."}
-            </span>
-            {wallet.status === "connecting" ? (
-              <div {...actionsProps}>
-                {wallet.transport === "extension" && activeWallet ? (
-                  <button
-                    onClick={() => {
-                      startConnection(wallet, {
-                        wallet: activeWallet.id,
-                        transport: "extension",
-                      });
-                    }}
-                    type="button"
-                    {...primaryButtonProps}
-                  >
-                    Open {activeWallet.name} again
-                  </button>
-                ) : null}
-                <button
-                  onClick={() => {
-                    wallet.cancel();
-                  }}
-                  type="button"
-                  {...secondaryButtonProps}
-                >
-                  Cancel request
-                </button>
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-
-        {wallet.error ? (
+        {errorCopy ? (
           <div {...errorProps}>
-            <strong {...titleProps}>Wallet request failed</strong>
-            <span {...copyProps}>{wallet.error.message}</span>
+            <strong {...titleProps}>{errorCopy.title}</strong>
+            <span {...copyProps}>{errorCopy.message}</span>
           </div>
         ) : null}
       </div>
@@ -348,31 +288,25 @@ function ConnectedWalletCard({
 interface WalletPromptCardProps {
   readonly wallet: ReturnType<typeof useWallet>;
   readonly copied: boolean;
-  readonly deepLinkNeedsManualRetry: boolean;
   readonly onCopy: () => void;
-  readonly onOpenWallet: () => void;
+  readonly preferredQrWallet: WalletOption | null;
 }
 
 function WalletPromptCard({
   wallet,
   copied,
-  deepLinkNeedsManualRetry,
   onCopy,
-  onOpenWallet,
+  preferredQrWallet,
 }: WalletPromptCardProps): ReactNode {
   const prompt = wallet.prompt;
 
-  if (!prompt) {
-    return null;
-  }
-
-  if (prompt.kind === "qr") {
+  if (prompt?.uri) {
     return (
-      <div {...centeredStackProps}>
-        <strong {...titleProps}>Connect with WalletConnect</strong>
+      <div {...qrSectionProps}>
+        <strong {...titleProps}>Scan with your mobile wallet</strong>
         <span {...copyProps}>
-          Open a Hedera wallet on another device and scan this WalletConnect QR code to approve the
-          connection.
+          Open a Hedera wallet on your phone and scan this WalletConnect QR code to connect right
+          away.
         </span>
         <WalletQr value={prompt.uri} />
         <button onClick={onCopy} type="button" {...primaryButtonProps}>
@@ -382,134 +316,81 @@ function WalletPromptCard({
     );
   }
 
-  if (prompt.kind === "deeplink") {
-    return (
-      <div {...stackProps}>
-        <strong {...titleProps}>Open {prompt.wallet.name}</strong>
-        <span {...copyProps}>
-          Approve the request in your wallet, then return here. If nothing happened, open the wallet
-          again.
-        </span>
-        <div {...actionsProps}>
-          <button onClick={onOpenWallet} type="button" {...primaryButtonProps}>
-            {deepLinkNeedsManualRetry ? "Open wallet again" : `Open ${prompt.wallet.name}`}
-          </button>
-          <button onClick={onCopy} type="button" {...secondaryButtonProps}>
-            {copied ? "Pairing link copied" : "Copy pairing link"}
-          </button>
-          {prompt.wallet.installUrl ? (
-            <a href={prompt.wallet.installUrl} rel="noreferrer" target="_blank" {...linkProps}>
-              Install wallet
-            </a>
-          ) : null}
-        </div>
-      </div>
-    );
-  }
-
-  const returnHref = prompt.href;
-
   return (
-    <div {...stackProps}>
-      <strong {...titleProps}>Finish in your wallet</strong>
-      <span {...copyProps}>Open the wallet, approve the request, then return to the app.</span>
-      <div {...actionsProps}>
-        {returnHref ? (
-          <button
-            onClick={() => {
-              launchWallet(returnHref);
-            }}
-            type="button"
-            {...primaryButtonProps}
-          >
-            Open app
-          </button>
-        ) : null}
-        {prompt.uri ? (
-          <button onClick={onCopy} type="button" {...secondaryButtonProps}>
-            {copied ? "Pairing link copied" : "Copy pairing link"}
-          </button>
-        ) : null}
-      </div>
+    <div {...qrSectionProps}>
+      <strong {...titleProps}>Scan with your mobile wallet</strong>
+      <span {...copyProps}>
+        {preferredQrWallet
+          ? `Opening a WalletConnect session for ${preferredQrWallet.name}. The QR code will appear here as soon as the pairing is ready.`
+          : "WalletConnect is not available for the current wallet configuration."}
+      </span>
     </div>
   );
 }
 
 export function WalletList(): ReactNode {
+  return <DesktopWalletList />;
+}
+
+function DesktopWalletList(): ReactNode {
   const wallet = useWallet();
   const disabled = isConnectDisabled(wallet.status);
+  const desktopWallets = wallet.wallets.filter(hasExtension);
+
+  if (desktopWallets.length === 0) {
+    return null;
+  }
 
   return (
-    <div {...walletListProps}>
-      {wallet.wallets.map((item) => (
-        <div key={item.id} {...walletProps}>
-          <div {...walletHeaderProps}>
-            <img
-              alt=""
-              height={28}
-              src={item.icon}
-              width={28}
-              {...stylex.props(walletUiStyles.walletIcon)}
-            />
-            <div {...walletCopyProps}>
-              <strong {...titleProps}>{item.name}</strong>
-              <span {...walletMetaProps}>{walletStateLabel(item)}</span>
-              <span {...walletMetaProps}>{walletStateDescription(item)}</span>
+    <div {...desktopSectionProps}>
+      <div {...stackProps}>
+        <strong {...titleProps}>Desktop wallet options</strong>
+        <span {...copyProps}>
+          Prefer staying on this device? Use an installed extension or add one in this browser.
+        </span>
+      </div>
+      <div {...walletListProps}>
+        {desktopWallets.map((item) => (
+          <div key={item.id} {...walletProps}>
+            <div {...walletHeaderProps}>
+              <img
+                alt=""
+                height={28}
+                src={item.icon}
+                width={28}
+                {...stylex.props(walletUiStyles.walletIcon)}
+              />
+              <div {...walletCopyProps}>
+                <strong {...titleProps}>{item.name}</strong>
+                <span {...walletMetaProps}>{walletStateLabel(item)}</span>
+                <span {...walletMetaProps}>{walletStateDescription(item)}</span>
+              </div>
+            </div>
+
+            <div {...actionsProps}>
+              {isInstalled(item) ? (
+                <button
+                  disabled={disabled}
+                  onClick={() => {
+                    startConnection(wallet, {
+                      wallet: item.id,
+                      transport: "extension",
+                    });
+                  }}
+                  type="button"
+                  {...primaryButtonProps}
+                >
+                  {connectButtonLabel(wallet, item)}
+                </button>
+              ) : item.installUrl ? (
+                <a href={item.installUrl} rel="noreferrer" target="_blank" {...linkProps}>
+                  Install
+                </a>
+              ) : null}
             </div>
           </div>
-
-          <div {...actionsProps}>
-            {item.readyState === "installed" || item.readyState === "loadable" ? (
-              <button
-                disabled={disabled}
-                onClick={() => {
-                  startConnection(wallet, {
-                    wallet: item.id,
-                    transport: item.defaultTransport ?? undefined,
-                  });
-                }}
-                type="button"
-                {...primaryButtonProps}
-              >
-                {connectButtonLabel(wallet, item)}
-              </button>
-            ) : null}
-
-            {item.readyState === "install-required" ? (
-              <>
-                {item.installUrl ? (
-                  <a href={item.installUrl} rel="noreferrer" target="_blank" {...linkProps}>
-                    Install
-                  </a>
-                ) : null}
-              </>
-            ) : null}
-
-            {item.readyState === "cross-device" ? (
-              <button
-                disabled={disabled || isQrPromptActive(wallet, item)}
-                onClick={() => {
-                  startConnection(wallet, {
-                    wallet: item.id,
-                    presentation: "qr",
-                    transport: "walletconnect",
-                  });
-                }}
-                type="button"
-                {...secondaryButtonProps}
-              >
-                {walletConnectButtonLabel(wallet, item)}
-              </button>
-            ) : null}
-
-            {item.readyState === "unsupported" && item.installUrl ? (
-              <a href={item.installUrl} rel="noreferrer" target="_blank" {...linkProps}>
-                Learn more
-              </a>
-            ) : null}
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

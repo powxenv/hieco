@@ -28,14 +28,6 @@ export interface WalletContextValue extends WalletModalState {
 
 const WalletContext = createContext<WalletContextValue | null>(null);
 
-function shouldCancelPendingRequest(wallet: Wallet): boolean {
-  const state = wallet.snapshot();
-
-  return (
-    !state.account && (state.status === "connecting" || state.status === "error" || !!state.prompt)
-  );
-}
-
 export interface WalletProviderCreateRuntimeProps extends CreateWalletOptions {
   readonly children: ReactNode;
 }
@@ -51,6 +43,15 @@ function createsWalletRuntime(
   props: WalletProviderProps,
 ): props is WalletProviderCreateRuntimeProps {
   return !("wallet" in props);
+}
+
+function findQrWallet(wallet: WalletState["wallets"][number][]): string | null {
+  return (
+    wallet.find((item) => item.id === "hedera-wallet" && item.transports.includes("walletconnect"))
+      ?.id ??
+    wallet.find((item) => item.transports.includes("walletconnect"))?.id ??
+    null
+  );
 }
 
 export function WalletProvider(props: WalletProviderProps): ReactNode {
@@ -78,6 +79,34 @@ export function WalletProvider(props: WalletProviderProps): ReactNode {
     };
   }, []);
 
+  useEffect(() => {
+    const ensureQr = (): void => {
+      const state = activeWallet.snapshot();
+      const walletId = findQrWallet([...state.wallets]);
+
+      if (
+        !walletId ||
+        state.account ||
+        state.status === "restoring" ||
+        state.status === "disconnecting" ||
+        state.prompt ||
+        (state.status === "connecting" && state.transport === "extension")
+      ) {
+        return;
+      }
+
+      void activeWallet
+        .prepareQr({
+          wallet: walletId,
+          chain: state.chain.id,
+        })
+        .catch(() => undefined);
+    };
+
+    ensureQr();
+    return activeWallet.onChange(ensureQr);
+  }, [activeWallet]);
+
   const value = useMemo<WalletContextValue>(
     () => ({
       wallet: activeWallet,
@@ -86,20 +115,10 @@ export function WalletProvider(props: WalletProviderProps): ReactNode {
         setIsOpen(true);
       },
       closeModal: () => {
-        if (shouldCancelPendingRequest(activeWallet)) {
-          activeWallet.cancel();
-        }
-
         setIsOpen(false);
       },
       toggleModal: () => {
-        setIsOpen((currentOpen) => {
-          if (currentOpen && shouldCancelPendingRequest(activeWallet)) {
-            activeWallet.cancel();
-          }
-
-          return !currentOpen;
-        });
+        setIsOpen((currentOpen) => !currentOpen);
       },
     }),
     [activeWallet, isOpen],

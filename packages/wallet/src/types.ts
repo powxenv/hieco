@@ -11,13 +11,6 @@ export type WalletStatus =
   | "disconnecting"
   | "error";
 
-export type WalletReadyState =
-  | "installed"
-  | "loadable"
-  | "install-required"
-  | "cross-device"
-  | "unsupported";
-
 export type WalletNetwork = "mainnet" | "testnet" | "previewnet" | "devnet" | "custom";
 
 export interface WalletAppMetadata {
@@ -69,8 +62,6 @@ export interface WalletExtension {
 }
 
 export interface WalletOption extends WalletDefinition {
-  readonly readyState: WalletReadyState;
-  readonly defaultTransport: WalletTransportId | null;
   readonly extension: WalletExtension | null;
 }
 
@@ -95,7 +86,6 @@ export interface WalletConnection {
 export interface ConnectOptions {
   readonly wallet?: string;
   readonly chain?: string;
-  readonly presentation?: WalletPresentation;
   readonly transport?: WalletTransportId;
 }
 
@@ -115,26 +105,11 @@ export interface CreateWalletOptions {
   readonly storageKey?: string;
 }
 
-export type WalletPresentation = "auto" | "qr" | "deeplink";
-
-export type WalletPrompt =
-  | {
-      readonly kind: "qr";
-      readonly uri: string;
-      readonly wallet: WalletOption;
-    }
-  | {
-      readonly kind: "deeplink";
-      readonly uri: string;
-      readonly href: string;
-      readonly wallet: WalletOption;
-    }
-  | {
-      readonly kind: "return";
-      readonly wallet: WalletOption;
-      readonly href?: string;
-      readonly uri?: string;
-    };
+export interface WalletPrompt {
+  readonly kind: "qr";
+  readonly uri: string;
+  readonly wallet: WalletOption;
+}
 
 export interface WalletState {
   readonly status: WalletStatus;
@@ -154,8 +129,8 @@ export interface Wallet {
   readonly $state: ReadableAtom<WalletState>;
   readonly snapshot: () => WalletState;
   readonly onChange: (listener: () => void) => () => void;
+  readonly prepareQr: (options?: ConnectOptions) => Promise<void>;
   readonly connect: (options?: ConnectOptions) => Promise<WalletConnection>;
-  readonly cancel: () => void;
   readonly disconnect: () => Promise<void>;
   readonly restore: () => Promise<WalletConnection | null>;
   readonly switchChain: (chainId: string) => Promise<void>;

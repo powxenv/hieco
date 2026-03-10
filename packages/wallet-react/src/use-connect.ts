@@ -1,6 +1,6 @@
 import type { ConnectOptions, WalletConnection } from "@hieco/wallet";
-import { useWalletContext } from "./context";
+import { useWallet } from "./use-wallet";
 
 export function useConnect(): (options?: ConnectOptions) => Promise<WalletConnection> {
-  return useWalletContext().wallet.connect;
+  return useWallet().connect;
 }

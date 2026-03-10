@@ -1,6 +1,6 @@
 import type { WalletAccount } from "@hieco/wallet";
-import { useWalletState } from "./context";
+import { useWallet } from "./use-wallet";
 
 export function useWalletAccount(): WalletAccount | null {
-  return useWalletState().account;
+  return useWallet().account;
 }
