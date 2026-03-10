@@ -3,12 +3,11 @@
 This example shows how to use:
 
 - `@hieco/wallet` for the headless wallet runtime
-- `@hieco/wallet-react` for the React provider, hooks, and default UI
+- `@hieco/wallet-react` for the React provider and hooks
 
 The app demonstrates:
 
 - explicit WalletConnect project ID mode with `VITE_WALLETCONNECT_PROJECT_ID`
-- the default `WalletButton` and `WalletDialog`
 - custom wallet controls built with `useWallet()` and related hooks
 - desktop extension-first connection routing
 - explicit QR pairing when the user chooses it
@@ -47,6 +46,5 @@ To pair the wallet signer with the transactional SDK layer, mount `@hieco/react`
 ## Connection Behavior
 
 - Desktop browsers prefer installed HashPack or Kabila extensions.
-- The dialog lets the user choose an installed extension or open a QR code explicitly.
-- Installed extension actions still remain available inside the dialog.
+- The example lets the user choose an installed extension or open a QR code explicitly.
 - Mobile browsers prefer wallet handoff flows.
