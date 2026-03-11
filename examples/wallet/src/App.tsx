@@ -16,7 +16,6 @@ import {
   useWalletSigner,
   useWallets,
 } from "@hieco/wallet-react";
-import { WalletButton, WalletDialog } from "@hieco/wallet-react/ui";
 import { walletRuntimeMode } from "./wallet";
 import "./App.css";
 
@@ -103,8 +102,8 @@ function walletErrorSummary(error: WalletError): {
 
   if (error.code === "CONNECT_FAILED") {
     return {
-      title: "Couldn’t connect",
-      message: "We couldn’t connect to the wallet. Try again from the wallet dialog.",
+      title: "Couldn't connect",
+      message: "We couldn't connect to the wallet. Try again from the wallet dialog.",
     };
   }
 
@@ -115,12 +114,7 @@ function walletErrorSummary(error: WalletError): {
 }
 
 function App(): ReactNode {
-  return (
-    <>
-      <WalletShowcase />
-      <WalletDialog />
-    </>
-  );
+  return <WalletShowcase />;
 }
 
 function WalletShowcase(): ReactNode {
@@ -142,10 +136,12 @@ function WalletShowcase(): ReactNode {
           <h1>Connect once. Inspect the state. Swap to headless control when you need it.</h1>
           <p className="lead">
             This example uses <code>@hieco/wallet</code> for the runtime and{" "}
-            <code>@hieco/wallet-react</code> for the provider, hooks, QR dialog, and connect button.
+            <code>@hieco/wallet-react</code> for the provider and hooks.
           </p>
           <div className="hero-actions">
-            <WalletButton />
+            <button onClick={modal.openModal} type="button">
+              {account ? "Connected" : "Connect Wallet"}
+            </button>
             <button
               onClick={() => {
                 void wallet.restore();
@@ -153,9 +149,6 @@ function WalletShowcase(): ReactNode {
               type="button"
             >
               Restore session
-            </button>
-            <button onClick={modal.openModal} type="button">
-              Open dialog
             </button>
           </div>
         </div>
@@ -176,10 +169,7 @@ function WalletShowcase(): ReactNode {
       </section>
 
       <section className="grid">
-        <Panel
-          title="Wallet catalog"
-          description="Use the built-in dialog, or connect directly from your own UI."
-        >
+        <Panel title="Wallet catalog" description="Connect directly from your own UI.">
           <div className="wallet-list">
             {wallets.map((item) => (
               <div key={item.id} className="wallet-row">

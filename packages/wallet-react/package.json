@@ -1,7 +1,7 @@
 {
   "name": "@hieco/wallet-react",
   "version": "0.0.1",
-  "description": "React bindings and optional UI for @hieco/wallet",
+  "description": "React bindings for @hieco/wallet",
   "keywords": [
     "hedera",
     "hiero",
@@ -27,16 +27,12 @@
     "LICENSE"
   ],
   "type": "module",
-  "sideEffects": false,
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "typings": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "ui": [
-        "./dist/ui/index.d.ts"
-      ],
       "*": [
         "./dist/*"
       ]
@@ -47,11 +43,6 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    },
-    "./ui": {
-      "types": "./dist/ui/index.d.ts",
-      "import": "./dist/ui/index.js",
-      "require": "./dist/ui/index.cjs"
     }
   },
   "publishConfig": {
@@ -68,15 +59,12 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@fontsource-variable/manrope": "^5.2.8",
     "@hieco/wallet": "workspace:*",
-    "@nanostores/react": "^1.0.0",
-    "@stylexjs/stylex": "0.18.1",
-    "qrcode": "1.5.3"
+    "@nanostores/react": "^1.0.0"
   },
   "devDependencies": {
     "@hiero-ledger/sdk": "^2.80.0",
-    "@stylexjs/unplugin": "0.18.1",
-    "@types/qrcode": "^1.5.6",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "@typescript/native-preview": "catalog:",
