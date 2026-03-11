@@ -1,177 +1,100 @@
 ---
 import Button from "../components/ui/button";
+import DemoTabs from "../components/demo-tabs";
 import BaseLayout from "../layouts/base-layout.astro";
-import logo from "../assets/logo.svg";
-import typescriptLogo from "../assets/tech-icons/ts.svg";
-import solidLogo from "../assets/tech-icons/solid.svg";
-import reactLogo from "../assets/tech-icons/react.svg";
+import logo from "../assets/logo-white.svg";
 import preactLogo from "../assets/tech-icons/preact.svg";
-import hederaLogo from "../assets/tech-icons/hedera.svg";
-import TextureOverlay from "../components/texture-overlay.astro";
+import reactLogo from "../assets/tech-icons/react.svg";
+import solidLogo from "../assets/tech-icons/solid.svg";
+import typescriptLogo from "../assets/tech-icons/ts.svg";
+import heroImg from "../assets/hero.jpeg";
 import SolarArrowRightLineDuotone from "~icons/solar/arrow-right-line-duotone";
+import SolarWalletMoneyLineDuotone from "~icons/solar/wallet-money-line-duotone";
 ---
 
 <BaseLayout
-    title="Hieco"
-    description="The complete frontend toolkit for building on Hedera. Type-safe SDK, framework hooks, testing utilities, and real-time subscriptions."
+  title="Hieco"
+  description="Expressive tooling for teams building fast, trusted Hedera apps with type-safe SDKs, realtime primitives, wallet flows, and agent-ready workflows."
 >
-    <header class="fixed top-4 inset-x-0 bg-white z-10">
-        <div class="inner border pl-1 py-1 pr-6 border-zinc-800 flex justify-between items-center">
-            <a href="">
-                <img class="size-10" src={logo.src} alt="Hieco Logo" />
-            </a>
-            <nav class="flex gap-6">
-                <a href="/docs">Docs</a>
-                <a href="/docs">Ecosystem</a>
-                <a href="/docs">Agent Guide</a>
-            </nav>
-        </div>
-    </header>
-    <div class="h-8 overflow-hidden mt-[4.1rem]">
-        <div class="inner">
-            <svg width="100%" height="100%" aria-hidden="true"
-                ><defs
-                    ><pattern viewBox="0 0 10 10" width="8" height="8" patternUnits="userSpaceOnUse" id="_r9R_g_"
-                        ><line
-                            x1="0"
-                            y1="10"
-                            x2="10"
-                            y2="0"
-                            stroke="currentColor"
-                            vector-effect="non-scaling-stroke"
-                            class="stroke-[hsl(0,0%,0%)] dark:stroke-[hsl(0,0%,30%)]"></line></pattern
-                    ></defs
-                ><rect width="100%" height="100%" fill="url(#_r9R_g_)"></rect>
-            </svg>
-        </div>
+  <header class="fixed top-4 left-1/2 -translate-x-1/2 z-10">
+    <div
+      class="flex gap-12 bg-zinc-800 h-14 items-center pl-5 pr-2 ring-4 ring-white/20 rounded-xl shadow-2xl shadow-black/6"
+    >
+      <a href="" class="flex items-center gap-2 text-white text-xl">
+        <img class="size-6" src={logo.src} alt="Hieco Logo" />
+        Hieco
+      </a>
+      <nav class="flex gap-6">
+        <a
+          class="text-zinc-200 whitespace-nowrap hover:underline decoration-wavy hover:text-white transition-all"
+          href="/docs"
+        >
+          Docs
+        </a>
+        <a
+          class="text-zinc-200 whitespace-nowrap hover:underline decoration-wavy hover:text-white transition-all"
+          href="/docs"
+        >
+          Ecosystem
+        </a>
+        <a
+          class="text-zinc-200 whitespace-nowrap hover:underline decoration-wavy hover:text-white transition-all"
+          href="/docs"
+        >
+          Examples
+        </a>
+      </nav>
+      <button
+        class="h-10 px-4 inline-flex gap-1 items-center rounded-lg font-medium text-sm bg-white hover:bg-white/90 transition-all"
+      >
+        <SolarWalletMoneyLineDuotone />
+        Connect
+      </button>
     </div>
-    <main>
-        <div class="inner border relative border-zinc-800 flex flex-col items-center">
-            <TextureOverlay />
-            <div class="relative py-30 w-full bg-linear-to-b from-transparent via-white to-transparent">
-                <div class="max-w-5xl text-center relative mx-auto flex flex-col items-center gap-8">
-                    <div class="bg-white border font-mono px-2 py-1">
-                        // Introducing <span class="underline decoration-wavy"> Hieco </span>
-                    </div>
-                    <h1 class="text-8xl tracking-tight">
-                        Build the Future on <span
-                            class="bg-black text-white rounded-2xl inline-flex items-center px-4 py-2">Hedera</span
-                        >
-                    </h1>
-                    <p class="text-2xl text-zinc-600 max-w-2xl leading-relaxed mx-auto">
-                        Type-safe <img
-                            class="inline select-none size-8 rounded-lg shadow align-top bg-white border border-zinc-300 p-0.5"
-                            src={typescriptLogo.src}
-                            alt=""
-                        /> SDK, framework hooks, testing utilities, and real-time subscriptions <img
-                            class="inline select-none size-8 rounded-lg shadow align-top bg-white border border-zinc-300 p-0.5"
-                            src={reactLogo.src}
-                            alt=""
-                        />
-                        <img
-                            class="inline select-none size-8 rounded-lg shadow align-top bg-white border border-zinc-300 p-0.5"
-                            src={solidLogo.src}
-                            alt=""
-                        />
-                        <img
-                            class="inline select-none size-8 rounded-lg shadow align-top bg-white border border-zinc-300 p-0.5"
-                            src={preactLogo.src}
-                            alt=""
-                        />. Enterprise-ready tooling for developers building the future on Hedera.
-                    </p>
-                    <Button
-                        className="h-14 px-8 rounded-full text-lg cursor-pointer bg-zinc-800 text-white [&>svg]:size-6 inline-flex items-center gap-1 hover:bg-zinc-700 transition-all"
-                    >
-                        Get Started
-                        <SolarArrowRightLineDuotone />
-                    </Button>
-                </div>
-            </div>
-        </div>
-    </main>
+  </header>
 
-    <div class="h-8 overflow-hidden">
-        <div class="inner">
-            <svg width="100%" height="100%" aria-hidden="true"
-                ><defs
-                    ><pattern viewBox="0 0 10 10" width="8" height="8" patternUnits="userSpaceOnUse" id="_r9R_g_"
-                        ><line
-                            x1="0"
-                            y1="10"
-                            x2="10"
-                            y2="0"
-                            stroke="currentColor"
-                            vector-effect="non-scaling-stroke"
-                            class="stroke-[hsl(0,0%,0%)] dark:stroke-[hsl(0,0%,30%)]"></line></pattern
-                    ></defs
-                ><rect width="100%" height="100%" fill="url(#_r9R_g_)"></rect>
-            </svg>
-        </div>
+  <main class="min-h-lvh flex items-end relative">
+    <img class="absolute size-full object-cover" src={heroImg.src} />
+    <div
+      class="absolute inset-0 bg-linear-to-b from-transparent via-25% via-white/95 to-transparent"
+    >
     </div>
 
-    <section>
-        <div class="inner border border-zinc-800">
-            <div class="py-16 text-center">
-                <h2 class="text-4xl">Understanding the Stack</h2>
-                <p class="mt-4 text-lg text-zinc-600">How Hedera, Hiero, and Hieco work together</p>
-            </div>
-
-            <div class="grid grid-cols-3 divide-x divide-zinc-800 border-t border-zinc-800">
-                <div class="p-8">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="size-12 rounded-xl bg-zinc-100 flex items-center justify-center text-2xl">🌐</div>
-                        <h3 class="text-xl font-bold">Hedera</h3>
-                    </div>
-                    <p class="text-zinc-600 mb-4">The network</p>
-                    <p class="text-sm text-zinc-500">
-                        Layer 1 blockchain governed by Fortune 500 companies. Fast, secure, and enterprise-grade
-                        infrastructure for real-world applications.
-                    </p>
-                </div>
-
-                <div class="p-8">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="size-12 rounded-xl bg-zinc-100 flex items-center justify-center text-2xl">🛠️</div>
-                        <h3 class="text-xl font-bold">Hiero</h3>
-                    </div>
-                    <p class="text-zinc-600 mb-4">Open-source SDK</p>
-                    <p class="text-sm text-zinc-500">
-                        Developer tools contributed to Linux Foundation Decentralized Trust. SDKs for JavaScript, Java,
-                        Python, Go, and more.
-                    </p>
-                </div>
-
-                <div class="p-8">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="size-12 rounded-xl bg-zinc-100 flex items-center justify-center text-2xl">⚡</div>
-                        <h3 class="text-xl font-bold">Hieco</h3>
-                    </div>
-                    <p class="text-zinc-600 mb-4">Frontend toolkit</p>
-                    <p class="text-sm text-zinc-500">
-                        Modern developer experience built on Hiero SDK. Framework hooks, testing utilities, and
-                        type-safe APIs for Hedera development.
-                    </p>
-                </div>
-            </div>
+    <div class="inner isolate">
+      <div class="flex flex-col items-center text-center gap-4">
+        <h1 class="text-6xl tracking-tight">Build the future on Hedera</h1>
+        <p class="text-xl max-w-xl text-zinc-600">
+          Expressive, type-safe <img
+            class="inline select-none size-8 rounded-lg align-top bg-white p-0.5"
+            src={typescriptLogo.src}
+            alt=""
+          /> tooling for building trusted Hedera apps with framework-native hooks,
+          realtime subscriptions, wallet flows, and agent-ready tools
+          <img
+            class="inline select-none size-8 rounded-lg align-top bg-white p-0.5"
+            src={reactLogo.src}
+            alt=""
+          />
+          <img
+            class="inline select-none size-8 rounded-lg align-top bg-white p-0.5"
+            src={solidLogo.src}
+            alt=""
+          />
+          <img
+            class="inline select-none size-8 rounded-lg align-top bg-white p-0.5"
+            src={preactLogo.src}
+            alt=""
+          />.
+        </p>
+        <div class="flex gap-4">
+          <Button>
+            Start building
+            <SolarArrowRightLineDuotone />
+          </Button>
         </div>
-    </section>
+      </div>
 
-    <div class="h-8 overflow-hidden">
-        <div class="inner">
-            <svg width="100%" height="100%" aria-hidden="true"
-                ><defs
-                    ><pattern viewBox="0 0 10 10" width="8" height="8" patternUnits="userSpaceOnUse" id="_r9R_g_"
-                        ><line
-                            x1="0"
-                            y1="10"
-                            x2="10"
-                            y2="0"
-                            stroke="currentColor"
-                            vector-effect="non-scaling-stroke"
-                            class="stroke-[hsl(0,0%,0%)] dark:stroke-[hsl(0,0%,30%)]"></line></pattern
-                    ></defs
-                ><rect width="100%" height="100%" fill="url(#_r9R_g_)"></rect>
-            </svg>
-        </div>
+      <DemoTabs client:load />
     </div>
+  </main>
 </BaseLayout>
