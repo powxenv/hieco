@@ -25,9 +25,9 @@ import {
 import { proto } from "@hiero-ledger/proto";
 import type SignClient from "@walletconnect/sign-client";
 import type { SessionTypes } from "@walletconnect/types";
-import { WalletError } from "./errors.ts";
-import { openExtension } from "./extensions.ts";
-import type { WalletChain } from "./types.ts";
+import { WalletError } from "./errors";
+import { openExtension } from "./extensions";
+import type { WalletChain } from "./types";
 
 const HEDERA_SIGN_MESSAGE = "hedera_signMessage";
 const HEDERA_SIGN_QUERY = "hedera_signAndExecuteQuery";

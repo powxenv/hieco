@@ -9,12 +9,14 @@
     "lint": "oxlint --type-aware",
     "fmt": "oxfmt",
     "preview": "vite preview",
-    "typecheck": "tsgo --noEmit --project tsconfig.app.json"
+    "typecheck": "./node_modules/.bin/tsgo --noEmit --project tsconfig.app.json"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
+    "@hieco/mirror-react": "workspace:*",
     "@hieco/wallet": "workspace:*",
     "@hieco/wallet-react": "workspace:*",
+    "@tanstack/react-query": "^5.90.21",
     "qrcode.react": "^4.2.0",
     "react": "catalog:react",
     "react-dom": "catalog:react"

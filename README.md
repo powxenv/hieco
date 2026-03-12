@@ -56,7 +56,7 @@ Choose the package family that matches what you are building:
 
 | If you want to build...                              | Start with                                                                                                                                                                              | Why                                                                            |
 | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| A React app that needs wallet connection             | [`@hieco/wallet-react`](./packages/wallet-react/README.md)                                                                                                                              | It gives you the provider, hooks, and optional UI for wallet connection.       |
+| A React app that needs wallet connection             | [`@hieco/wallet-react`](./packages/wallet-react/README.md)                                                                                                                              | It gives you the provider, low-level hooks, and a dialog-friendly wallet hook. |
 | A React app that needs Hedera queries or mutations   | [`@hieco/react`](./packages/react/README.md)                                                                                                                                            | It wraps `@hieco/sdk` with TanStack Query hooks.                               |
 | Server code, scripts, workers, or backend handlers   | [`@hieco/sdk`](./packages/sdk/README.md)                                                                                                                                                | It is the core Hedera client for reads, transactions, and signer-scoped usage. |
 | Read-only blockchain data from Mirror Node           | [`@hieco/mirror`](./packages/mirror/README.md)                                                                                                                                          | It gives you a typed client for Mirror Node APIs.                              |
@@ -204,7 +204,7 @@ The current Hieco wallet flow is designed around practical web usage:
 
 - desktop web opens the wallet dialog first
 - installed extensions are preferred when they exist
-- QR is available for explicit paired-device connection
+- the same dialog can expose QR and extension actions from one shared attempt
 - mobile flows are wallet-handoff oriented
 
 To actually connect a wallet, you should pass a real WalletConnect `projectId`.

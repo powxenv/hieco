@@ -1,26 +1,20 @@
 # Hieco Wallet Example
 
-This example shows how to use:
+This example demonstrates the rewritten wallet flow:
 
-- `@hieco/wallet` for the headless wallet runtime
-- `@hieco/wallet-react` for the React provider and hooks
-
-The app demonstrates:
-
-- explicit WalletConnect project ID mode with `VITE_WALLETCONNECT_PROJECT_ID`
-- custom wallet controls built with `useWallet()` and related hooks
-- desktop extension-first connection routing
-- explicit QR pairing when the user chooses it
+- one Base UI dialog
+- one shared runtime connection attempt
+- one QR surface that starts immediately
+- one wallet list with installed and unavailable extensions
+- one settled session view
 
 ## Run The Example
 
-Install the workspace dependencies:
+Install workspace dependencies:
 
 ```bash
 bun install
 ```
-
-The example resolves `@hieco/wallet` and `@hieco/wallet-react` through Bun workspaces.
 
 Start the example:
 
@@ -28,7 +22,7 @@ Start the example:
 bun --filter '@examples/hieco-wallet' dev
 ```
 
-## Explicit Project ID
+## WalletConnect Setup
 
 Create `examples/wallet/.env.local`:
 
@@ -39,12 +33,9 @@ VITE_APP_URL=http://localhost:5173
 
 Then restart the dev server.
 
-## Next Step
+## What The Example Demonstrates
 
-To pair the wallet signer with the transactional SDK layer, mount `@hieco/react` and pass `useWalletSigner()` into `HiecoProvider`.
-
-## Connection Behavior
-
-- Desktop browsers prefer installed HashPack or Kabila extensions.
-- The example lets the user choose an installed extension or open a QR code explicitly.
-- Mobile browsers prefer wallet handoff flows.
+- `@hieco/wallet` exposes one shared `connection`, one `session`, and one wallet list with real availability
+- `@hieco/wallet-react` exposes `useWallet()` as the headless connect controller
+- opening the dialog starts the shared QR attempt immediately
+- clicking an installed extension reuses the same attempt instead of creating another one

@@ -1,5 +1,4 @@
-import { isBrowser } from "./platform.ts";
-import type { WalletExtension } from "./types.ts";
+import type { WalletExtension } from "./types";
 
 const EXTENSION_QUERY = "hedera-extension-query";
 const EXTENSION_CONNECT = "hedera-extension-connect-";
@@ -157,4 +156,7 @@ export function pairExtension(extension: WalletExtension, pairingString: string)
   }
 
   postWindowMessage(`${EXTENSION_CONNECT}${extension.id}`, pairingString);
+}
+function isBrowser(): boolean {
+  return typeof window !== "undefined" && typeof document !== "undefined";
 }

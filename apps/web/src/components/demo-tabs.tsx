@@ -205,23 +205,32 @@ const wallet = createWallet({
   },
 });
 
-await wallet.connect({ wallet: "hashpack" });
+await wallet.connectExtension("hashpack");
 
-console.log(wallet.snapshot().account?.accountId);`,
+console.log(wallet.snapshot().session?.accountId);`,
       },
       {
         value: "react",
         fileName: "connect-button.tsx",
         language: "tsx",
         icon: reactLogo.src,
-        code: `import { useWallet } from "@hieco/wallet-react";
+        code: `import { useState } from "react";
+import { useWallet } from "@hieco/wallet-react";
 
 function ConnectButton() {
-  const { account, connect } = useWallet();
+  const wallet = useWallet();
+  const [open, setOpen] = useState(false);
 
   return (
-    <button onClick={() => void connect({ wallet: "hashpack" })}>
-      {account?.accountId ?? "Connect with HashPack"}
+    <button
+      onClick={() => {
+        setOpen(true);
+        if (!wallet.connection && !wallet.session) {
+          void wallet.connectQr();
+        }
+      }}
+    >
+      {wallet.session?.accountId ?? (open ? "Connecting..." : "Open wallet dialog")}
     </button>
   );
 }`,
@@ -367,11 +376,7 @@ const DemoTabs = () => {
                         value={sample.value}
                       >
                         {sample.icon ? (
-                          <img
-                            className="size-5 rounded-md"
-                            src={sample.icon}
-                            alt=""
-                          />
+                          <img className="size-5 rounded-md" src={sample.icon} alt="" />
                         ) : null}
                         {sample.fileName}
                       </Tabs.Tab>
@@ -384,10 +389,7 @@ const DemoTabs = () => {
                       value={sample.value}
                       className="h-[calc(50lvh-2.5rem)] overflow-auto bg-white"
                     >
-                      <ShikiHighlighter
-                        language={sample.language}
-                        theme="github-light"
-                      >
+                      <ShikiHighlighter language={sample.language} theme="github-light">
                         {sample.code}
                       </ShikiHighlighter>
                     </Tabs.Panel>

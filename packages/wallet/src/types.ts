@@ -1,17 +1,8 @@
 import type { Signer } from "@hiero-ledger/sdk";
-import type { ReadableAtom } from "nanostores";
-
-export type WalletTransportId = "extension" | "walletconnect";
-
-export type WalletStatus =
-  | "idle"
-  | "connecting"
-  | "connected"
-  | "restoring"
-  | "disconnecting"
-  | "error";
 
 export type WalletNetwork = "mainnet" | "testnet" | "previewnet" | "devnet" | "custom";
+export type WalletSessionKind = "qr" | "extension";
+export type WalletAvailability = "installed" | "unavailable";
 
 export interface WalletAppMetadata {
   readonly name: string;
@@ -50,7 +41,7 @@ export interface WalletDefinition {
       readonly extensionUrl?: string;
     };
   };
-  readonly transports: readonly WalletTransportId[];
+  readonly transports: readonly ("extension" | "walletconnect")[];
 }
 
 export interface WalletExtension {
@@ -61,32 +52,30 @@ export interface WalletExtension {
   readonly availableInIframe: boolean;
 }
 
-export interface WalletOption extends WalletDefinition {
-  readonly extension: WalletExtension | null;
+export interface WalletInfo {
+  readonly id: string;
+  readonly name: string;
+  readonly icon: string;
 }
 
-export interface WalletAccount {
+export interface WalletOption extends WalletInfo {
+  readonly availability: WalletAvailability;
+  readonly canConnect: boolean;
+  readonly installUrl?: string;
+}
+
+export interface WalletSession {
+  readonly kind: WalletSessionKind;
+  readonly wallet: WalletInfo;
   readonly accountId: string;
   readonly caip10: string;
-  readonly chainId: string;
-  readonly ledgerId: string;
+  readonly chain: WalletChain;
+  readonly signer: Signer;
 }
 
 export interface WalletConnection {
-  readonly wallet: WalletOption;
-  readonly account: WalletAccount;
-  readonly accounts: readonly WalletAccount[];
-  readonly chain: WalletChain;
-  readonly signer: Signer;
-  readonly transport: WalletTransportId;
-  readonly extensionId?: string;
-  readonly topic: string;
-}
-
-export interface ConnectOptions {
-  readonly wallet?: string;
-  readonly chain?: string;
-  readonly transport?: WalletTransportId;
+  readonly uri: string | null;
+  readonly extensionId: string | null;
 }
 
 export interface WalletStorage {
@@ -98,42 +87,28 @@ export interface WalletStorage {
 export interface CreateWalletOptions {
   readonly projectId?: string;
   readonly app: WalletAppMetadata;
-  readonly chains?: readonly WalletChain[];
+  readonly chain?: WalletChain;
   readonly wallets?: readonly WalletDefinition[];
-  readonly autoConnect?: boolean;
+  readonly restoreOnStart?: boolean;
   readonly storage?: WalletStorage;
   readonly storageKey?: string;
 }
 
-export interface WalletPrompt {
-  readonly kind: "qr";
-  readonly uri: string;
-  readonly wallet: WalletOption;
-}
-
 export interface WalletState {
-  readonly status: WalletStatus;
-  readonly wallets: readonly WalletOption[];
-  readonly wallet: WalletOption | null;
-  readonly account: WalletAccount | null;
-  readonly accounts: readonly WalletAccount[];
   readonly chain: WalletChain;
-  readonly chains: readonly WalletChain[];
-  readonly signer: Signer | undefined;
-  readonly transport: WalletTransportId | null;
-  readonly error: import("./errors.ts").WalletError | null;
-  readonly prompt: WalletPrompt | null;
+  readonly walletConnectEnabled: boolean;
+  readonly wallets: readonly WalletOption[];
+  readonly session: WalletSession | null;
+  readonly connection: WalletConnection | null;
 }
 
 export interface Wallet {
-  readonly $state: ReadableAtom<WalletState>;
   readonly snapshot: () => WalletState;
-  readonly onChange: (listener: () => void) => () => void;
-  readonly prepareQr: (options?: ConnectOptions) => Promise<void>;
-  readonly connect: (options?: ConnectOptions) => Promise<WalletConnection>;
+  readonly subscribe: (listener: () => void) => () => void;
+  readonly connectQr: () => Promise<WalletSession>;
+  readonly connectExtension: (walletId: string) => Promise<WalletSession>;
+  readonly cancelConnection: () => void;
   readonly disconnect: () => Promise<void>;
-  readonly restore: () => Promise<WalletConnection | null>;
-  readonly switchChain: (chainId: string) => Promise<void>;
-  readonly signer: () => Signer | undefined;
+  readonly restore: () => Promise<WalletSession | null>;
   readonly destroy: () => Promise<void>;
 }

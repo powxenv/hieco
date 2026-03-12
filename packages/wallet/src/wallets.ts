@@ -1,4 +1,4 @@
-import type { WalletDefinition } from "./types.ts";
+import type { WalletDefinition } from "./types";
 
 const EXTENSION_AND_WALLETCONNECT = ["extension", "walletconnect"] as const;
 const WALLETCONNECT_TRANSPORT = ["walletconnect"] as const;

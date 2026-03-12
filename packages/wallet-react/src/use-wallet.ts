@@ -1,54 +1,124 @@
-import type {
-  ConnectOptions,
-  WalletAccount,
-  WalletChain,
-  WalletConnection,
-  WalletError,
-  WalletOption,
-  WalletPrompt,
-  WalletStatus,
-  WalletTransportId,
+import { useEffect, useRef, useState } from "react";
+import {
+  type WalletChain,
+  getConnectableWallets,
+  getUnavailableWallets,
+  type WalletOption,
+  type WalletSession,
 } from "@hieco/wallet";
-import type { Signer } from "@hiero-ledger/sdk";
-import { useWalletContext, useWalletState } from "./context";
+import { useWalletClient, useWalletSnapshot } from "./context";
+
+export interface UseWalletQrState {
+  readonly enabled: boolean;
+  readonly uri: string | null;
+  readonly pending: boolean;
+}
 
 export interface UseWalletResult {
-  readonly status: WalletStatus;
-  readonly wallets: readonly WalletOption[];
-  readonly wallet: WalletOption | null;
-  readonly account: WalletAccount | null;
-  readonly accounts: readonly WalletAccount[];
   readonly chain: WalletChain;
-  readonly chains: readonly WalletChain[];
-  readonly signer: Signer | undefined;
-  readonly transport: WalletTransportId | null;
-  readonly error: WalletError | null;
-  readonly prompt: WalletPrompt | null;
-  readonly prepareQr: (options?: ConnectOptions) => Promise<void>;
-  readonly connect: (options?: ConnectOptions) => Promise<WalletConnection>;
+  readonly session: WalletSession | null;
+  readonly ready: boolean;
+  readonly connectableWallets: readonly WalletOption[];
+  readonly unavailableWallets: readonly WalletOption[];
+  readonly qr: UseWalletQrState;
+  readonly error: Error | null;
+  readonly open: () => Promise<void>;
+  readonly close: () => void;
+  readonly connectExtension: (walletId: string) => Promise<void>;
   readonly disconnect: () => Promise<void>;
-  readonly restore: () => Promise<WalletConnection | null>;
-  readonly switchChain: (chainId: string) => Promise<void>;
-  readonly openModal: () => void;
-  readonly closeModal: () => void;
-  readonly toggleModal: () => void;
-  readonly isModalOpen: boolean;
+  readonly clearError: () => void;
+}
+
+function toControllerError(error: unknown, fallback: string): Error {
+  return error instanceof Error ? error : new Error(fallback);
 }
 
 export function useWallet(): UseWalletResult {
-  const { wallet, isOpen, openModal, closeModal, toggleModal } = useWalletContext();
-  const state = useWalletState();
+  const wallet = useWalletClient();
+  const state = useWalletSnapshot();
+  const [error, setError] = useState<Error | null>(null);
+  const muteConnectionErrorsRef = useRef(false);
+
+  useEffect(() => {
+    if (state.session) {
+      setError(null);
+    }
+  }, [state.session]);
+
+  const startConnection = (
+    action: () => Promise<WalletSession>,
+    fallback: string,
+  ): Promise<void> => {
+    muteConnectionErrorsRef.current = false;
+    setError(null);
+
+    try {
+      const pendingSession = action();
+      void pendingSession.catch((nextError: unknown) => {
+        if (muteConnectionErrorsRef.current) {
+          return;
+        }
+
+        setError(toControllerError(nextError, fallback));
+      });
+    } catch (nextError) {
+      const controllerError = toControllerError(nextError, fallback);
+      setError(controllerError);
+    }
+
+    return Promise.resolve();
+  };
+
+  const ready = state.walletConnectEnabled;
+  const connectableWallets = getConnectableWallets(state);
+  const unavailableWallets = getUnavailableWallets(state);
+  const qr = {
+    enabled: ready && state.session === null,
+    uri: state.connection?.uri ?? null,
+    pending: state.session === null && state.connection !== null && state.connection.uri === null,
+  };
 
   return {
-    ...state,
-    prepareQr: wallet.prepareQr,
-    connect: wallet.connect,
-    disconnect: wallet.disconnect,
-    restore: wallet.restore,
-    switchChain: wallet.switchChain,
-    openModal,
-    closeModal,
-    toggleModal,
-    isModalOpen: isOpen,
+    chain: state.chain,
+    session: state.session,
+    ready,
+    connectableWallets,
+    unavailableWallets,
+    qr,
+    error,
+    open: () => {
+      if (state.session || state.connection) {
+        setError(null);
+        return Promise.resolve();
+      }
+
+      return startConnection(wallet.connectQr, "Unable to start wallet connection.");
+    },
+    close: () => {
+      muteConnectionErrorsRef.current = true;
+      setError(null);
+    },
+    connectExtension: (walletId: string) => {
+      if (state.session) {
+        setError(null);
+        return Promise.resolve();
+      }
+
+      return startConnection(() => wallet.connectExtension(walletId), "Unable to connect wallet.");
+    },
+    disconnect: async () => {
+      setError(null);
+
+      try {
+        await wallet.disconnect();
+      } catch (nextError) {
+        const controllerError = toControllerError(nextError, "Unable to disconnect wallet.");
+        setError(controllerError);
+        throw controllerError;
+      }
+    },
+    clearError: () => {
+      setError(null);
+    },
   };
 }

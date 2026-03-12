@@ -1,12 +1,6 @@
 # @hieco/wallet-react
 
-`@hieco/wallet-react` brings the Hieco wallet runtime into React.
-
-It provides:
-
-- `WalletProvider`
-- hooks for wallet state and actions
-- a signer that works with `@hieco/react` and `@hieco/sdk`
+`@hieco/wallet-react` is the primary wallet DX layer for React apps.
 
 ## Installation
 
@@ -19,33 +13,34 @@ Host app peer dependencies:
 - `react >= 18`
 - `react-dom >= 18`
 
-You also need a WalletConnect `projectId` before you can connect a real wallet.
-
 ## Quick Start
 
 ```tsx
 import type { ReactNode } from "react";
 import { WalletProvider, useWallet } from "@hieco/wallet-react";
 
-function ConnectButton() {
-  const { connect, disconnect, account, status } = useWallet();
+function ConnectWallet() {
+  const wallet = useWallet();
 
-  if (account) {
-    return <button onClick={() => disconnect()}>Disconnect</button>;
+  if (wallet.session) {
+    return <button onClick={() => void wallet.disconnect()}>Disconnect</button>;
   }
 
   return (
-    <button
-      onClick={() =>
-        connect({
-          chain: "hedera:testnet",
-          transport: "walletconnect",
-          wallet: "hedera-wallet",
-        })
-      }
-    >
-      Connect Wallet
-    </button>
+    <div>
+      <button onClick={() => void wallet.open()}>Open wallet dialog</button>
+      {wallet.connectableWallets.map((walletOption) => (
+        <button
+          disabled={!walletOption.canConnect}
+          key={walletOption.id}
+          onClick={() => {
+            void wallet.connectExtension(walletOption.id);
+          }}
+        >
+          {walletOption.name}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -60,30 +55,108 @@ export function Providers({ children }: { children: ReactNode }) {
         icons: ["https://example.com/icon.png"],
       }}
     >
-      <ConnectButton />
+      <ConnectWallet />
       {children}
     </WalletProvider>
   );
 }
 ```
 
-`WalletProvider` requires explicit app metadata when it creates the wallet runtime for you.
-If you pass a prebuilt `wallet` instance instead, you can keep that metadata at the `createWallet()` call site.
+## Public API
 
-## Hooks
+- `useWallet()` returns the headless connect controller for the common dialog flow
+- `useWalletClient()` returns the low-level runtime
+- `WalletProvider` creates and tears down the runtime when needed
 
-- `useWallet()` - main hook for wallet state and actions
-- `useWallets()` - wallet catalog
-- `useConnect()` - connect action
-- `useDisconnect()` - disconnect action
-- `useSwitchChain()` - switch chain action
-- `useWalletAccount()` - account info
-- `useWalletError()` - error state
-- `useWalletModal()` - modal state
-- `useWalletSigner()` - signer for transactions
+## Build Your Own UI
+
+`@hieco/wallet-react` stays headless on purpose. The intended path is:
+
+- use `useWallet()` for grouped wallet lists, QR state, and connect actions
+- keep only the dialog shell open state in your app
+- render QR from `wallet.qr`
+- render wallet buttons from `wallet.connectableWallets`
+- render install links from `wallet.unavailableWallets`
+- show action errors from `wallet.error`
+
+Base UI dialog example:
+
+```tsx
+import { useEffect, useState } from "react";
+import { Dialog } from "@base-ui/react/dialog";
+import { useWallet } from "@hieco/wallet-react";
+import { QRCodeSVG } from "qrcode.react";
+
+function WalletDialog() {
+  const wallet = useWallet();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (wallet.session) {
+      setOpen(false);
+    }
+  }, [wallet.session]);
+
+  const handleOpenChange = (nextOpen: boolean): void => {
+    setOpen(nextOpen);
+
+    if (!nextOpen) {
+      wallet.close();
+      return;
+    }
+
+    void wallet.open();
+  };
+
+  return (
+    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
+      <Dialog.Trigger>Connect wallet</Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Backdrop />
+        <Dialog.Viewport>
+          <Dialog.Popup>
+            {wallet.error ? <div>{wallet.error.message}</div> : null}
+
+            {wallet.qr.uri ? (
+              <QRCodeSVG value={wallet.qr.uri} />
+            ) : (
+              <div>{wallet.qr.pending ? "Generating QR..." : "QR pending"}</div>
+            )}
+
+            {wallet.connectableWallets.map((walletOption) => (
+              <button
+                disabled={!walletOption.canConnect}
+                key={walletOption.id}
+                onClick={() => {
+                  void wallet.connectExtension(walletOption.id);
+                }}
+              >
+                {walletOption.name}
+              </button>
+            ))}
+
+            {wallet.unavailableWallets.map((walletOption) => (
+              <a
+                href={walletOption.installUrl}
+                key={walletOption.id}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Install {walletOption.name}
+              </a>
+            ))}
+          </Dialog.Popup>
+        </Dialog.Viewport>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+```
+
+## Low-Level Runtime
+
+If you need raw runtime access, `useWalletClient()` still returns the underlying `@hieco/wallet` instance with `snapshot()`, `subscribe()`, `connectQr()`, `connectExtension()`, `cancelConnection()`, `disconnect()`, `restore()`, and `destroy()`.
 
 ## Example
 
-See [`examples/wallet`](../../examples/wallet/README.md) for the local integration harness.
-
-Inside this workspace, consumers should resolve `@hieco/wallet-react` and `@hieco/wallet` through Bun workspaces rather than by aliasing sibling package source directories.
+See [`examples/wallet`](../../examples/wallet/README.md).

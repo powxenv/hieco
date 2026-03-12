@@ -1,334 +1,359 @@
-import { useEffect, type ReactNode } from "react";
-import type { WalletOption, WalletStatus } from "@hieco/wallet";
+import { useEffect, useState, type ReactNode } from "react";
 import { Dialog } from "@base-ui/react/dialog";
-import { QRCodeSVG } from "qrcode.react";
+import { useAccountBalances, useAccountInfo } from "@hieco/mirror-react";
 import { useWallet } from "@hieco/wallet-react";
-import { walletRuntimeMode } from "./wallet";
+import { QRCodeSVG } from "qrcode.react";
 
-const statusLabels: Record<WalletStatus, string> = {
-  idle: "Ready",
-  connecting: "Connecting",
-  connected: "Connected",
-  restoring: "Restoring",
-  disconnecting: "Disconnecting",
-  error: "Try again",
-};
+function formatValue(value: string | number | null | undefined, fallback: string): string {
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
 
-function supportsExtension(wallet: WalletOption): boolean {
-  return wallet.transports.includes("extension");
+  return `${value}`;
 }
 
-function shortenAccount(value: string | null | undefined): string {
-  if (!value) {
-    return "No wallet connected";
+function formatHbarBalance(value: number | null | undefined): string {
+  if (value === null || value === undefined) {
+    return "Unavailable";
   }
 
-  if (value.length <= 18) {
-    return value;
-  }
-
-  return `${value.slice(0, 8)}...${value.slice(-6)}`;
+  return `${value / 100_000_000} HBAR`;
 }
 
 function App(): ReactNode {
-  return <WalletDemo />;
-}
-
-function WalletDemo(): ReactNode {
   const wallet = useWallet();
-  const extensionWallets = wallet.wallets.filter(supportsExtension).slice(0, 2);
-  const qrWalletId =
-    wallet.wallets.find(
-      (item) => item.id === "hedera-wallet" && item.transports.includes("walletconnect"),
-    )?.id ??
-    wallet.wallets.find((item) => item.transports.includes("walletconnect"))?.id ??
-    null;
-  const qrUri = wallet.prompt?.kind === "qr" ? wallet.prompt.uri : null;
-  const busy =
-    wallet.status === "connecting" ||
-    wallet.status === "restoring" ||
-    wallet.status === "disconnecting";
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!wallet.account || !wallet.isModalOpen) {
+    if (!wallet.session) {
       return;
     }
 
-    wallet.closeModal();
-  }, [wallet.account, wallet.closeModal, wallet.isModalOpen]);
+    setOpen(false);
+  }, [wallet.session]);
 
-  useEffect(() => {
-    if (!wallet.isModalOpen || wallet.account || wallet.prompt || !qrWalletId) {
+  const handleOpenChange = (nextOpen: boolean): void => {
+    setOpen(nextOpen);
+
+    if (!nextOpen) {
+      wallet.close();
       return;
     }
 
-    if (wallet.status !== "idle" && wallet.status !== "error") {
-      return;
-    }
-
-    void wallet
-      .prepareQr({
-        wallet: qrWalletId,
-        chain: wallet.chain.id,
-      })
-      .catch(() => undefined);
-  }, [
-    qrWalletId,
-    wallet.account,
-    wallet.chain.id,
-    wallet.isModalOpen,
-    wallet.prepareQr,
-    wallet.prompt,
-    wallet.status,
-  ]);
+    void wallet.open();
+  };
 
   return (
-    <Dialog.Root
-      onOpenChange={(open: boolean): void => {
-        if (open) {
-          wallet.openModal();
-          return;
-        }
-
-        wallet.closeModal();
-      }}
-      open={wallet.isModalOpen}
-    >
-      <main className="relative min-h-screen overflow-hidden px-4 py-8 sm:px-6 sm:py-10">
-        <div className="absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(45,212,191,0.24),transparent_58%)]" />
-        <div className="absolute right-0 top-24 h-72 w-72 rounded-full bg-cyan-300/20 blur-3xl" />
-        <div className="absolute left-0 top-40 h-72 w-72 rounded-full bg-indigo-200/40 blur-3xl" />
-
-        <section className="relative mx-auto flex min-h-[calc(100vh-5rem)] max-w-5xl items-center justify-center">
-          <div className="w-full rounded-[40px] border border-white/70 bg-white/80 p-6 shadow-[0_30px_120px_rgba(15,23,42,0.12)] backdrop-blur xl:p-8">
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-end">
-              <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold tracking-[0.24em] text-slate-500 uppercase">
-                  Wallet Demo
-                </div>
-
-                <div className="space-y-4">
-                  <h1 className="max-w-xl text-4xl font-semibold tracking-[-0.06em] text-slate-950 sm:text-5xl">
-                    Open a simple wallet modal with QR and browser extensions.
-                  </h1>
-                  <p className="max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-                    Tailwind CSS v4 styles the shell, Base UI handles the dialog, and the wallet
-                    runtime supplies the WalletConnect QR plus the available desktop extensions.
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <Dialog.Trigger className="inline-flex h-12 items-center justify-center rounded-full bg-slate-950 px-6 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950">
-                    {wallet.account ? "Connected" : "Connect wallet"}
-                  </Dialog.Trigger>
-                  <button
-                    className="inline-flex h-12 items-center justify-center rounded-full border border-slate-300 bg-white px-6 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950"
-                    onClick={() => {
-                      void wallet.restore();
-                    }}
-                    type="button"
-                  >
-                    Restore session
-                  </button>
-                </div>
-
-                {wallet.error ? (
-                  <div className="rounded-3xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                    {wallet.error.message}
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-                <MetricCard label="Status" value={statusLabels[wallet.status]} />
-                <MetricCard label="Wallet" value={wallet.wallet?.name ?? "Choose a wallet"} />
-                <MetricCard label="Account" value={shortenAccount(wallet.account?.accountId)} />
-              </div>
+    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
+      <main className="min-h-screen bg-zinc-50 px-4 py-6 font-sans text-zinc-950 sm:px-6 sm:py-8">
+        <div className="mx-auto grid max-w-xl gap-8">
+          <section className="grid gap-5">
+            <div className="grid gap-2">
+              <p className="text-sm font-medium text-zinc-500">Wallet example</p>
+              <h1 className="max-w-lg text-3xl font-semibold tracking-tight text-zinc-950">
+                Hedera wallet connect, stripped back to the essentials.
+              </h1>
+              <p className="max-w-md text-sm leading-6 text-zinc-600">
+                Open the dialog, scan the QR, or pick an installed extension.
+              </p>
             </div>
-          </div>
-        </section>
+
+            <div className="flex flex-wrap gap-2">
+              {wallet.session ? (
+                <button
+                  className="inline-flex h-9 items-center justify-center rounded-lg bg-zinc-950 px-3.5 text-sm font-medium text-white transition hover:bg-zinc-800"
+                  onClick={() => {
+                    void wallet.disconnect();
+                  }}
+                  type="button"
+                >
+                  Disconnect
+                </button>
+              ) : (
+                <Dialog.Trigger className="inline-flex h-9 items-center justify-center rounded-lg bg-zinc-950 px-3.5 text-sm font-medium text-white transition hover:bg-zinc-800">
+                  Connect wallet
+                </Dialog.Trigger>
+              )}
+            </div>
+
+            <dl className="grid gap-2 text-sm leading-6 text-zinc-600">
+              <div className="flex items-center justify-between gap-4">
+                <dt className="text-zinc-500">Chain</dt>
+                <dd className="font-medium text-zinc-950">{wallet.chain.id}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <dt className="text-zinc-500">Installed</dt>
+                <dd className="font-medium text-zinc-950">{wallet.connectableWallets.length}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <dt className="text-zinc-500">Available to install</dt>
+                <dd className="font-medium text-zinc-950">{wallet.unavailableWallets.length}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section className="grid gap-3">
+            {wallet.session ? (
+              <ConnectedAccountPanel
+                accountId={wallet.session.accountId}
+                walletName={wallet.session.wallet.name}
+              />
+            ) : (
+              <div className="grid gap-1 text-sm leading-6 text-zinc-600">
+                <p>The dialog starts QR automatically.</p>
+                <p>Installed extensions join the same connection attempt.</p>
+              </div>
+            )}
+          </section>
+        </div>
       </main>
 
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-slate-950/45 backdrop-blur-sm transition duration-200 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0" />
-        <Dialog.Viewport className="fixed inset-0 flex items-center justify-center p-4 sm:p-6">
-          <Dialog.Popup className="w-full max-w-4xl rounded-[32px] border border-slate-200 bg-white p-4 shadow-[0_40px_120px_rgba(15,23,42,0.24)] transition duration-200 data-[starting-style]:scale-[0.97] data-[starting-style]:opacity-0 data-[ending-style]:scale-[0.97] data-[ending-style]:opacity-0 sm:p-5">
-            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
-              <section className="rounded-[28px] bg-[linear-gradient(160deg,#0f172a_0%,#1e293b_55%,#0f172a_100%)] p-6 text-white">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-2">
-                    <div className="text-xs font-semibold tracking-[0.24em] text-slate-300 uppercase">
-                      WalletConnect
-                    </div>
-                    <Dialog.Title className="text-2xl font-semibold tracking-[-0.05em]">
-                      Scan with your phone
-                    </Dialog.Title>
-                    <Dialog.Description className="max-w-sm text-sm leading-6 text-slate-300">
-                      Pair a mobile wallet with the QR code below or continue with one of the
-                      desktop extensions on the right.
-                    </Dialog.Description>
-                  </div>
-                </div>
+        <Dialog.Backdrop className="fixed inset-0 bg-zinc-950/40 backdrop-blur-sm" />
+        <Dialog.Viewport className="fixed inset-0 overflow-y-auto p-4">
+          <div className="mx-auto flex min-h-full max-w-2xl items-center">
+            <Dialog.Popup className="w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xl shadow-zinc-950/15">
+              <div className="px-4 py-4">
+                <Dialog.Title className="text-lg font-semibold tracking-tight text-zinc-950">
+                  Connect wallet
+                </Dialog.Title>
+              </div>
 
-                <div className="mt-8 flex flex-col items-center gap-5 rounded-[28px] border border-white/10 bg-white/5 p-5">
-                  <div className="rounded-[24px] bg-white p-4 shadow-[0_20px_50px_rgba(15,23,42,0.22)]">
-                    {qrUri ? (
-                      <QRCodeSVG
-                        bgColor="#ffffff"
-                        fgColor="#0f172a"
-                        level="M"
-                        marginSize={4}
-                        size={196}
-                        title="WalletConnect QR"
-                        value={qrUri}
-                      />
+              {wallet.error ? (
+                <div className="px-4 pb-3">
+                  <Banner value={wallet.error.message} />
+                </div>
+              ) : null}
+
+              {!wallet.ready ? (
+                <div className="px-4 pb-3">
+                  <Banner value="Add VITE_WALLETCONNECT_PROJECT_ID to enable wallet connections." />
+                </div>
+              ) : null}
+
+              <div className="grid gap-0 border-t border-zinc-200 lg:grid-cols-2">
+                <section className="bg-white p-4">
+                  <div className="space-y-2.5">
+                    {wallet.connectableWallets.length > 0 ? (
+                      wallet.connectableWallets.map((walletOption) => (
+                        <button
+                          className="flex w-full items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-3 text-left transition hover:border-zinc-950 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-60"
+                          disabled={!walletOption.canConnect}
+                          key={walletOption.id}
+                          onClick={() => {
+                            void wallet.connectExtension(walletOption.id);
+                          }}
+                          type="button"
+                        >
+                          <div className="flex size-10 items-center justify-center rounded-lg border border-zinc-200 bg-white">
+                            <img
+                              alt={`${walletOption.name} icon`}
+                              className="size-8 object-contain p-1"
+                              src={walletOption.icon}
+                            />
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-medium text-zinc-950">
+                              {walletOption.name}
+                            </div>
+                          </div>
+                        </button>
+                      ))
                     ) : (
-                      <div className="flex size-[196px] items-center justify-center rounded-[16px] bg-slate-100 text-sm font-medium text-slate-500">
-                        {busy ? "Opening wallet..." : "Preparing QR..."}
-                      </div>
+                      <EmptyState value="No installed extensions." />
                     )}
                   </div>
 
-                  <div className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-3 text-sm leading-6 text-slate-300">
-                    <div className="font-medium text-white">
-                      {walletRuntimeMode === "explicit"
-                        ? "WalletConnect project ID detected"
-                        : "Managed runtime mode"}
+                  {wallet.unavailableWallets.length > 0 ? (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {wallet.unavailableWallets.map((walletOption) => (
+                        <div
+                          className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-2.5 py-2"
+                          key={walletOption.id}
+                        >
+                          <img
+                            alt={`${walletOption.name} icon`}
+                            className="size-5 object-contain opacity-70"
+                            src={walletOption.icon}
+                          />
+
+                          <div className="text-xs font-medium text-zinc-600">
+                            {walletOption.name}
+                          </div>
+
+                          {walletOption.installUrl ? (
+                            <a
+                              className="inline-flex h-7 items-center justify-center rounded-md bg-zinc-900 px-2.5 text-xs font-medium text-white transition hover:bg-zinc-800"
+                              href={walletOption.installUrl}
+                              rel="noreferrer"
+                              target="_blank"
+                            >
+                              Install
+                            </a>
+                          ) : null}
+                        </div>
+                      ))}
                     </div>
-                    <div>Chain: {wallet.chain.id}</div>
-                    <div>
-                      {wallet.account
-                        ? `Connected with ${wallet.wallet?.name ?? "wallet"}`
-                        : "Use QR for a paired-device flow when no extension is available."}
+                  ) : null}
+                </section>
+
+                <section className="border-t border-zinc-200 bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-800 p-4 text-white lg:border-l lg:border-t-0">
+                  <div className="flex h-full flex-col gap-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-medium text-zinc-100">Scan with phone</div>
+                      {wallet.qr.uri || wallet.qr.pending ? (
+                        <ConnectionBadge
+                          tone="dark"
+                          value={wallet.qr.uri ? "Ready" : "Generating"}
+                        />
+                      ) : null}
+                    </div>
+
+                    <div className="flex flex-1 items-center justify-center rounded-xl border border-zinc-700 bg-zinc-900 p-4">
+                      {wallet.qr.uri ? (
+                        <div className="rounded-xl bg-white p-3 shadow-lg shadow-zinc-950/30">
+                          <QRCodeSVG
+                            bgColor="#ffffff"
+                            fgColor="#18181b"
+                            level="M"
+                            marginSize={4}
+                            size={176}
+                            title="WalletConnect QR"
+                            value={wallet.qr.uri}
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex size-44 items-center justify-center rounded-xl border border-dashed border-zinc-700 bg-zinc-950 px-5 text-center text-sm text-zinc-400">
+                          {!wallet.ready
+                            ? "WalletConnect disabled"
+                            : wallet.qr.pending
+                              ? "Generating QR..."
+                              : "QR pending"}
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              </section>
-
-              <section className="flex flex-col rounded-[28px] bg-slate-50 p-6">
-                <div className="space-y-2">
-                  <div className="text-xs font-semibold tracking-[0.24em] text-slate-500 uppercase">
-                    Browser extensions
-                  </div>
-                  <h2 className="text-2xl font-semibold tracking-[-0.05em] text-slate-950">
-                    Continue in this browser
-                  </h2>
-                  <p className="text-sm leading-6 text-slate-600">
-                    These options come directly from the wallet catalog. Installed extensions can be
-                    opened immediately.
-                  </p>
-                </div>
-
-                <div className="mt-6 space-y-3">
-                  {extensionWallets.map((item) => (
-                    <ExtensionCard
-                      connected={wallet.wallet?.id === item.id && wallet.status === "connected"}
-                      key={item.id}
-                      onConnect={() => {
-                        void wallet
-                          .connect({
-                            wallet: item.id,
-                            transport: "extension",
-                          })
-                          .catch(() => undefined);
-                      }}
-                      wallet={item}
-                    />
-                  ))}
-                </div>
-
-                {wallet.account ? (
-                  <div className="mt-auto pt-6">
-                    <button
-                      className="inline-flex h-12 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
-                      onClick={() => {
-                        void wallet.disconnect();
-                      }}
-                      type="button"
-                    >
-                      Disconnect
-                    </button>
-                  </div>
-                ) : null}
-              </section>
-            </div>
-          </Dialog.Popup>
+                </section>
+              </div>
+            </Dialog.Popup>
+          </div>
         </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
   );
 }
 
-interface MetricCardProps {
-  readonly label: string;
+interface ConnectionBadgeProps {
+  readonly tone: "dark" | "light";
   readonly value: string;
 }
 
-function MetricCard({ label, value }: MetricCardProps): ReactNode {
+function ConnectionBadge({ tone, value }: ConnectionBadgeProps): ReactNode {
   return (
-    <div className="rounded-[28px] border border-slate-200 bg-slate-50/80 p-4">
-      <div className="text-xs font-semibold tracking-[0.22em] text-slate-500 uppercase">
-        {label}
-      </div>
-      <div className="mt-2 text-base font-semibold tracking-[-0.03em] text-slate-950">{value}</div>
+    <div
+      className={
+        tone === "dark"
+          ? "inline-flex h-7 items-center rounded-md border border-zinc-700 bg-zinc-900 px-2.5 text-xs font-medium text-zinc-200"
+          : "inline-flex h-7 items-center rounded-md border border-zinc-300 bg-white px-2.5 text-xs font-medium text-zinc-700"
+      }
+    >
+      {value}
     </div>
   );
 }
 
-interface ExtensionCardProps {
-  readonly connected: boolean;
-  readonly onConnect: () => void;
-  readonly wallet: WalletOption;
+interface BannerProps {
+  readonly value: string;
 }
 
-function ExtensionCard({ connected, onConnect, wallet }: ExtensionCardProps): ReactNode {
+function Banner({ value }: BannerProps): ReactNode {
   return (
-    <article className="flex items-center gap-4 rounded-[24px] border border-slate-200 bg-white p-4">
-      <img
-        alt={`${wallet.name} icon`}
-        className="size-12 rounded-2xl bg-slate-100 object-contain p-2"
-        src={wallet.icon}
-      />
+    <div className="rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm text-zinc-700">
+      {value}
+    </div>
+  );
+}
 
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <h3 className="text-base font-semibold tracking-[-0.03em] text-slate-950">
-            {wallet.name}
-          </h3>
-          <span
-            className={`rounded-full px-2 py-1 text-[11px] font-semibold uppercase ${
-              wallet.extension ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
-            }`}
-          >
-            {wallet.extension ? "Installed" : "Extension"}
-          </span>
-        </div>
-        <p className="mt-1 text-sm text-slate-600">
-          {wallet.extension
-            ? "Continue in browser with the detected extension."
-            : "Install the extension first, then reconnect from this dialog."}
-        </p>
+interface EmptyStateProps {
+  readonly value: string;
+}
+
+function EmptyState({ value }: EmptyStateProps): ReactNode {
+  return (
+    <div className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-3 py-6 text-sm text-zinc-500">
+      {value}
+    </div>
+  );
+}
+
+interface ConnectedAccountPanelProps {
+  readonly accountId: string;
+  readonly walletName: string;
+}
+
+function ConnectedAccountPanel({ accountId, walletName }: ConnectedAccountPanelProps): ReactNode {
+  const balance = useAccountBalances({ accountId });
+  const info = useAccountInfo({ accountId });
+
+  if (balance.isPending || info.isPending) {
+    return <EmptyState value="Loading account details..." />;
+  }
+
+  if (balance.isError || info.isError) {
+    return (
+      <Banner
+        value={balance.error?.message ?? info.error?.message ?? "Unable to load account details."}
+      />
+    );
+  }
+
+  const account = info.data?.success ? info.data.data : null;
+  const accountBalance = balance.data?.success ? balance.data.data : null;
+  const staking =
+    account?.staked_account_id ??
+    (account?.staked_node_id !== null && account?.staked_node_id !== undefined
+      ? `Node ${account.staked_node_id}`
+      : "Not staking");
+
+  return (
+    <div className="grid gap-3">
+      <div className="grid gap-1">
+        <p className="text-sm font-medium text-zinc-500">Connected wallet</p>
+        <h2 className="text-xl font-semibold tracking-tight text-zinc-950">{walletName}</h2>
       </div>
 
-      {wallet.extension ? (
-        <button
-          className="inline-flex h-11 items-center justify-center rounded-full bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950"
-          onClick={onConnect}
-          type="button"
-        >
-          {connected ? "Connected" : "Open"}
-        </button>
-      ) : (
-        <a
-          className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950"
-          href={wallet.installUrl}
-          rel="noreferrer"
-          target="_blank"
-        >
-          Install
-        </a>
-      )}
-    </article>
+      <dl className="grid gap-2 text-sm leading-6 text-zinc-600">
+        <div className="grid gap-0.5">
+          <dt className="text-zinc-500">Account ID</dt>
+          <dd className="break-all font-medium text-zinc-950">
+            {formatValue(account?.account, accountId)}
+          </dd>
+        </div>
+        <div className="grid gap-0.5">
+          <dt className="text-zinc-500">HBAR</dt>
+          <dd className="font-medium text-zinc-950">
+            {formatHbarBalance(accountBalance?.balance)}
+          </dd>
+        </div>
+        <div className="grid gap-0.5">
+          <dt className="text-zinc-500">Tokens</dt>
+          <dd className="font-medium text-zinc-950">
+            {formatValue(accountBalance?.tokens?.length ?? 0, "0")}
+          </dd>
+        </div>
+        <div className="grid gap-0.5">
+          <dt className="text-zinc-500">EVM address</dt>
+          <dd className="break-all font-medium text-zinc-950">
+            {formatValue(account?.evm_address, "Unavailable")}
+          </dd>
+        </div>
+        <div className="grid gap-0.5">
+          <dt className="text-zinc-500">Staking</dt>
+          <dd className="font-medium text-zinc-950">{formatValue(staking, "Not staking")}</dd>
+        </div>
+      </dl>
+    </div>
   );
 }
 

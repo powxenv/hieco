@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { createWallet } from "../src/config";
+import { createWallet } from "../src";
 import type { WalletDefinition } from "../src/types";
-import { genericWalletConnectWallet } from "../src/wallets";
 
 const originalWindow = Reflect.get(globalThis, "window");
 const originalDocument = Reflect.get(globalThis, "document");
@@ -87,20 +86,20 @@ afterEach(() => {
 });
 
 describe("createWallet", () => {
-  test("keeps browser-only connect guarded on the server", async () => {
+  test("guards qr connect on the server", async () => {
     clearBrowserEnvironment();
 
     const wallet = createWallet({
       app: TEST_APP,
     });
 
-    expect(wallet.connect()).rejects.toMatchObject({
+    expect(wallet.connectQr()).rejects.toMatchObject({
       code: "WALLET_NOT_READY",
       message: "WALLET_NOT_READY",
     });
   });
 
-  test("keeps browser-only restore guarded on the server", async () => {
+  test("guards restore on the server", async () => {
     clearBrowserEnvironment();
 
     const wallet = createWallet({
@@ -113,20 +112,12 @@ describe("createWallet", () => {
     });
   });
 
-  test("uses the generic WalletConnect fallback", () => {
-    const wallet = genericWalletConnectWallet();
-
-    expect(wallet.id).toBe("hedera-wallet");
-    expect(wallet.name).toBe("WalletConnect");
-    expect(wallet.installUrl).toBeUndefined();
-  });
-
-  test("requires installing an extension before using the extension transport", async () => {
+  test("requires an installed configured extension", async () => {
     setBrowserEnvironment();
 
     const wallet = createWallet({
       app: TEST_APP,
-      autoConnect: false,
+      projectId: "project-id",
       wallets: [
         {
           id: "extension-only",
@@ -143,14 +134,38 @@ describe("createWallet", () => {
       ],
     });
 
-    expect(
-      wallet.connect({
-        wallet: "extension-only",
-        transport: "extension",
-      }),
-    ).rejects.toMatchObject({
+    expect(wallet.connectExtension("extension-only")).rejects.toMatchObject({
       code: "WALLET_NOT_INSTALLED",
       message: "WALLET_NOT_INSTALLED",
+    });
+  });
+
+  test("starts with minimal state", () => {
+    clearBrowserEnvironment();
+
+    const wallet = createWallet({
+      app: TEST_APP,
+    });
+
+    expect(wallet.snapshot()).toEqual({
+      chain: expect.objectContaining({
+        id: "hedera:testnet",
+      }),
+      walletConnectEnabled: false,
+      wallets: [
+        expect.objectContaining({
+          id: "hashpack",
+          availability: "unavailable",
+          canConnect: false,
+        }),
+        expect.objectContaining({
+          id: "kabila",
+          availability: "unavailable",
+          canConnect: false,
+        }),
+      ],
+      session: null,
+      connection: null,
     });
   });
 });
