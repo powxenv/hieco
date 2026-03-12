@@ -51,6 +51,8 @@ For any package intended to be published to npm:
 - Do **NOT** add `src` to `files` to work around local workspace resolution
 - Public package entry fields such as `main`, `module`, `types`, `typings`, and `exports` must point to built files in `dist`
 - If local workspace development breaks, fix the build or package metadata correctly; do not publish source files as a shortcut
+- Do **NOT** use TypeScript `paths`, Vite aliases, direct file imports, or similar shortcuts to point one workspace package at another
+- Workspace packages must resolve each other through Bun workspaces, package manifests, and normal package imports only
 
 ## Code Quality Tools
 
