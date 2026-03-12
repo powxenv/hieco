@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import type { WalletOption, WalletStatus } from "@hieco/wallet";
 import { Dialog } from "@base-ui/react/dialog";
-import QRCode from "react-qr-code";
+import { QRCodeSVG } from "qrcode.react";
 import { useWallet } from "@hieco/wallet-react";
 import { walletRuntimeMode } from "./wallet";
 
@@ -168,22 +168,16 @@ function WalletDemo(): ReactNode {
                       desktop extensions on the right.
                     </Dialog.Description>
                   </div>
-
-                  <Dialog.Close
-                    aria-label="Close dialog"
-                    className="inline-flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-lg text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                  >
-                    x
-                  </Dialog.Close>
                 </div>
 
                 <div className="mt-8 flex flex-col items-center gap-5 rounded-[28px] border border-white/10 bg-white/5 p-5">
                   <div className="rounded-[24px] bg-white p-4 shadow-[0_20px_50px_rgba(15,23,42,0.22)]">
                     {qrUri ? (
-                      <QRCode
+                      <QRCodeSVG
                         bgColor="#ffffff"
                         fgColor="#0f172a"
                         level="M"
+                        marginSize={4}
                         size={196}
                         title="WalletConnect QR"
                         value={qrUri}
@@ -228,7 +222,6 @@ function WalletDemo(): ReactNode {
                 <div className="mt-6 space-y-3">
                   {extensionWallets.map((item) => (
                     <ExtensionCard
-                      busy={busy}
                       connected={wallet.wallet?.id === item.id && wallet.status === "connected"}
                       key={item.id}
                       onConnect={() => {
@@ -244,18 +237,19 @@ function WalletDemo(): ReactNode {
                   ))}
                 </div>
 
-                <div className="mt-auto pt-6">
-                  <button
-                    className="inline-flex h-12 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
-                    disabled={!wallet.account}
-                    onClick={() => {
-                      void wallet.disconnect();
-                    }}
-                    type="button"
-                  >
-                    Disconnect
-                  </button>
-                </div>
+                {wallet.account ? (
+                  <div className="mt-auto pt-6">
+                    <button
+                      className="inline-flex h-12 items-center justify-center rounded-full border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={() => {
+                        void wallet.disconnect();
+                      }}
+                      type="button"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
+                ) : null}
               </section>
             </div>
           </Dialog.Popup>
@@ -282,13 +276,12 @@ function MetricCard({ label, value }: MetricCardProps): ReactNode {
 }
 
 interface ExtensionCardProps {
-  readonly busy: boolean;
   readonly connected: boolean;
   readonly onConnect: () => void;
   readonly wallet: WalletOption;
 }
 
-function ExtensionCard({ busy, connected, onConnect, wallet }: ExtensionCardProps): ReactNode {
+function ExtensionCard({ connected, onConnect, wallet }: ExtensionCardProps): ReactNode {
   return (
     <article className="flex items-center gap-4 rounded-[24px] border border-slate-200 bg-white p-4">
       <img
@@ -319,8 +312,7 @@ function ExtensionCard({ busy, connected, onConnect, wallet }: ExtensionCardProp
 
       {wallet.extension ? (
         <button
-          className="inline-flex h-11 items-center justify-center rounded-full bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={busy || connected}
+          className="inline-flex h-11 items-center justify-center rounded-full bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950"
           onClick={onConnect}
           type="button"
         >
