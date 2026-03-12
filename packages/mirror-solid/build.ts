@@ -8,7 +8,7 @@ const result = await Bun.build({
   target: "node",
   format: "esm",
   sourcemap: "linked",
-  external: ["solid-js", "@tanstack/solid-query", "@hieco/mirror"],
+  external: ["solid-js", "@tanstack/solid-query", "@hieco/mirror", "@hieco/utils"],
 });
 
 if (!result.success) {

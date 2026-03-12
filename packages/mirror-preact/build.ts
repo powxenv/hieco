@@ -8,7 +8,7 @@ const result = await Bun.build({
   target: "node",
   format: "esm",
   sourcemap: "linked",
-  external: ["preact", "@tanstack/preact-query", "@hieco/mirror"],
+  external: ["preact", "@tanstack/preact-query", "@hieco/mirror", "@hieco/utils"],
 });
 
 if (!result.success) {

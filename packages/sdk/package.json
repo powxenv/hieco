@@ -42,7 +42,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun run ./build.ts && bunx tsc -p tsconfig.build.json",
+    "build": "bun run ./build.ts && tsc -p tsconfig.build.json",
     "dev": "bun --watch ./build.ts",
     "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",
@@ -61,7 +61,8 @@
     "bun-types": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
-    "oxlint-tsgolint": "catalog:"
+    "oxlint-tsgolint": "catalog:",
+    "typescript": "catalog:"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -79,6 +79,7 @@
         "oxfmt": "catalog:",
         "oxlint": "catalog:",
         "oxlint-tsgolint": "catalog:",
+        "typescript": "catalog:",
       },
     },
     "packages/mirror-cli": {
@@ -126,6 +127,10 @@
     "packages/mirror-preact": {
       "name": "@hieco/mirror-preact",
       "version": "0.0.1",
+      "dependencies": {
+        "@hieco/mirror": "workspace:*",
+        "@hieco/utils": "workspace:*",
+      },
       "devDependencies": {
         "@typescript/native-preview": "catalog:",
         "bun-types": "catalog:",
@@ -133,6 +138,7 @@
         "oxlint": "catalog:",
         "oxlint-tsgolint": "catalog:",
         "preact": "^10.0.0",
+        "typescript": "catalog:",
       },
       "peerDependencies": {
         "@hieco/mirror": "workspace:*",
@@ -144,6 +150,10 @@
     "packages/mirror-react": {
       "name": "@hieco/mirror-react",
       "version": "0.0.1",
+      "dependencies": {
+        "@hieco/mirror": "workspace:*",
+        "@hieco/utils": "workspace:*",
+      },
       "devDependencies": {
         "@types/react": "catalog:react",
         "@types/react-dom": "catalog:react",
@@ -154,6 +164,7 @@
         "oxlint-tsgolint": "catalog:",
         "react": "catalog:react",
         "react-dom": "catalog:react",
+        "typescript": "catalog:",
       },
       "peerDependencies": {
         "@hieco/mirror": "workspace:*",
@@ -166,12 +177,17 @@
     "packages/mirror-solid": {
       "name": "@hieco/mirror-solid",
       "version": "0.0.1",
+      "dependencies": {
+        "@hieco/mirror": "workspace:*",
+        "@hieco/utils": "workspace:*",
+      },
       "devDependencies": {
         "@typescript/native-preview": "catalog:",
         "bun-types": "catalog:",
         "oxfmt": "catalog:",
         "oxlint": "catalog:",
         "oxlint-tsgolint": "catalog:",
+        "typescript": "catalog:",
       },
       "peerDependencies": {
         "@hieco/mirror": "workspace:*",
@@ -184,6 +200,7 @@
       "name": "@hieco/react",
       "version": "0.0.1",
       "dependencies": {
+        "@hieco/sdk": "workspace:*",
         "@hieco/utils": "workspace:*",
       },
       "devDependencies": {
@@ -199,6 +216,7 @@
         "oxlint-tsgolint": "catalog:",
         "react": "catalog:react",
         "react-dom": "catalog:react",
+        "typescript": "catalog:",
       },
       "peerDependencies": {
         "@hashgraph/hedera-wallet-connect": "^2.0.6",
@@ -216,21 +234,28 @@
     "packages/realtime": {
       "name": "@hieco/realtime",
       "version": "0.0.1",
+      "dependencies": {
+        "@hieco/utils": "workspace:*",
+      },
       "devDependencies": {
         "@typescript/native-preview": "catalog:",
         "bun-types": "catalog:",
         "oxfmt": "catalog:",
         "oxlint": "catalog:",
         "oxlint-tsgolint": "catalog:",
+        "typescript": "catalog:",
       },
       "peerDependencies": {
-        "@hieco/mirror": "workspace:*",
         "@hieco/utils": "workspace:*",
       },
     },
     "packages/realtime-react": {
       "name": "@hieco/realtime-react",
       "version": "0.0.1",
+      "dependencies": {
+        "@hieco/mirror": "workspace:*",
+        "@hieco/realtime": "workspace:*",
+      },
       "devDependencies": {
         "@types/react": "catalog:react",
         "@types/react-dom": "catalog:react",
@@ -241,6 +266,7 @@
         "oxlint-tsgolint": "catalog:",
         "react": "catalog:react",
         "react-dom": "catalog:react",
+        "typescript": "catalog:",
       },
       "peerDependencies": {
         "@hieco/mirror": "workspace:*",
@@ -264,6 +290,7 @@
         "oxfmt": "catalog:",
         "oxlint": "catalog:",
         "oxlint-tsgolint": "catalog:",
+        "typescript": "catalog:",
       },
     },
     "packages/utils": {
@@ -276,6 +303,7 @@
         "oxfmt": "catalog:",
         "oxlint": "catalog:",
         "oxlint-tsgolint": "catalog:",
+        "typescript": "catalog:",
       },
       "peerDependencies": {
         "@tanstack/query-core": "^5.67.1",
@@ -298,6 +326,7 @@
         "oxfmt": "catalog:",
         "oxlint": "catalog:",
         "oxlint-tsgolint": "catalog:",
+        "typescript": "catalog:",
       },
     },
     "packages/wallet-react": {
@@ -317,6 +346,7 @@
         "oxlint-tsgolint": "catalog:",
         "react": "catalog:react",
         "react-dom": "catalog:react",
+        "typescript": "catalog:",
       },
       "peerDependencies": {
         "@hieco/wallet": "workspace:*",
@@ -331,6 +361,7 @@
     "oxfmt": "^0.34.0",
     "oxlint": "^1.49.0",
     "oxlint-tsgolint": "^0.14.2",
+    "typescript": "~5.9.3",
   },
   "catalogs": {
     "react": {

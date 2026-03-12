@@ -25,7 +25,7 @@
     }
   },
   "scripts": {
-    "build": "bun run ./build.ts && bunx tsc -p tsconfig.build.json",
+    "build": "bun run ./build.ts && tsc -p tsconfig.build.json",
     "dev": "bun --watch ./build.ts",
     "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",
@@ -41,7 +41,8 @@
     "bun-types": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
-    "oxlint-tsgolint": "catalog:"
+    "oxlint-tsgolint": "catalog:",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "@tanstack/query-core": "^5.67.1"

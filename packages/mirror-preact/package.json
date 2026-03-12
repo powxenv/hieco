@@ -40,7 +40,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun run ./build.ts && bunx tsc -p tsconfig.build.json",
+    "build": "bun run ./build.ts && tsc -p tsconfig.build.json",
     "dev": "bun --watch ./build.ts",
     "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",
@@ -48,13 +48,18 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check"
   },
+  "dependencies": {
+    "@hieco/mirror": "workspace:*",
+    "@hieco/utils": "workspace:*"
+  },
   "devDependencies": {
     "@typescript/native-preview": "catalog:",
     "bun-types": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
-    "preact": "^10.0.0"
+    "preact": "^10.0.0",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "@hieco/mirror": "workspace:*",

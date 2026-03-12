@@ -8,7 +8,7 @@ const result = await Bun.build({
   target: "node",
   format: "esm",
   sourcemap: "linked",
-  external: ["@hieco/mirror"],
+  external: ["@hieco/mirror", "@hieco/utils"],
 });
 
 if (!result.success) {

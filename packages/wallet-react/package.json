@@ -41,7 +41,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun run ./build.ts && bunx tsc -p tsconfig.build.json",
+    "build": "bun run ./build.ts && tsc -p tsconfig.build.json",
     "dev": "bun --watch ./build.ts",
     "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",
@@ -63,7 +63,8 @@
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "react": "catalog:react",
-    "react-dom": "catalog:react"
+    "react-dom": "catalog:react",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "@hieco/wallet": "workspace:*",
