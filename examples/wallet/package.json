@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
+    "@cloudflare/kumo": "^1.10.0",
     "@hieco/mirror-react": "workspace:*",
     "@hieco/wallet": "workspace:*",
     "@hieco/wallet-react": "workspace:*",
