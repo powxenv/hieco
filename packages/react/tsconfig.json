@@ -4,6 +4,6 @@
     "lib": ["ESNext", "DOM"],
     "types": ["bun-types"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "build.ts"],
   "exclude": ["node_modules", "dist"]
 }

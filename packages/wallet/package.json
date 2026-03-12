@@ -41,8 +41,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "mkdir -p ./dist && find ./dist -mindepth 1 -delete && bun build ./src/index.ts --outdir ./dist --target browser --format esm --sourcemap --splitting --external @walletconnect/sign-client --external @walletconnect/types --external @walletconnect/utils && bunx tsc -p tsconfig.build.json",
-    "dev": "mkdir -p ./dist && find ./dist -mindepth 1 -delete && bun build ./src/index.ts --outdir ./dist --target browser --format esm --watch --splitting --external @walletconnect/sign-client --external @walletconnect/types --external @walletconnect/utils",
+    "build": "bun run ./build.ts && bunx tsc -p tsconfig.build.json",
+    "dev": "bun --watch ./build.ts",
     "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",

@@ -5,10 +5,10 @@ await rm("dist", { force: true, recursive: true });
 const result = await Bun.build({
   entrypoints: ["./src/index.ts"],
   outdir: "./dist",
-  target: "browser",
+  target: "node",
   format: "esm",
-  sourcemap: "external",
-  external: ["react", "react-dom", "@hieco/wallet"],
+  sourcemap: "linked",
+  external: ["react", "react-dom", "@hieco/mirror", "@hieco/realtime"],
 });
 
 if (!result.success) {

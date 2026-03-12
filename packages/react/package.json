@@ -45,8 +45,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun run generate && bun build ./src/index.ts ./src/appkit/index.ts --outdir ./dist --target browser --format esm --sourcemap --external react --external react-dom --external @hieco/sdk --external @tanstack/react-query --external @reown/appkit/react --external @hashgraph/hedera-wallet-connect && bunx tsc -p tsconfig.build.json",
-    "dev": "bun run generate && bun build ./src/index.ts ./src/appkit/index.ts --outdir ./dist --target browser --format esm --watch --external react --external react-dom --external @hieco/sdk --external @tanstack/react-query --external @reown/appkit/react --external @hashgraph/hedera-wallet-connect",
+    "build": "bun run generate && bun run ./build.ts && bunx tsc -p tsconfig.build.json",
+    "dev": "bun run generate && bun --watch ./build.ts",
     "generate": "bun ./scripts/generate-hooks.ts",
     "typecheck": "tsgo --noEmit --project tsconfig.test.json",
     "lint": "oxlint --type-aware",

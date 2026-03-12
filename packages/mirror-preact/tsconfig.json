@@ -6,6 +6,6 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "build.ts"],
   "exclude": ["node_modules", "dist", "__tests__"]
 }

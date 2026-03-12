@@ -7,8 +7,9 @@ const result = await Bun.build({
   outdir: "./dist",
   target: "browser",
   format: "esm",
-  sourcemap: "external",
-  external: ["react", "react-dom", "@hieco/wallet"],
+  sourcemap: "linked",
+  splitting: true,
+  external: ["@walletconnect/sign-client", "@walletconnect/types", "@walletconnect/utils"],
 });
 
 if (!result.success) {
