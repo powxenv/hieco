@@ -45,6 +45,13 @@ When encountering errors or unfamiliar APIs:
 Use **bun** and **bunx** exclusively.
 Do **NOT** use npm, npx, pnpm, or yarn under any circumstances.
 
+For any package intended to be published to npm:
+
+- The `files` field must include publish artifacts only, centered on `dist`
+- Do **NOT** add `src` to `files` to work around local workspace resolution
+- Public package entry fields such as `main`, `module`, `types`, `typings`, and `exports` must point to built files in `dist`
+- If local workspace development breaks, fix the build or package metadata correctly; do not publish source files as a shortcut
+
 ## Code Quality Tools
 
 All packages **MUST** use these tools:
