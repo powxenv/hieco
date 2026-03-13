@@ -8,52 +8,43 @@ Canonical docs:
 
 ## Package Choice
 
-- Prefer `@hieco/wallet-react` for React wallet connection and wallet UI.
-- Prefer `@hieco/wallet` for headless or custom UI flows.
+- Prefer `@hieco/wallet-react` for wallet connection inside React.
+- Prefer `@hieco/wallet` for non-React runtimes or when the app owns runtime lifecycle directly.
 
 ## Runtime Boundaries
 
 - Creating a wallet runtime is SSR-safe.
-- `connect()` and `restore()` are browser-only runtime actions.
-- Do not treat wallet connection as a server-side concern for normal user flows.
+- `connectQr()`, `connectExtension()`, `disconnect()`, and `restore()` are browser-only runtime actions.
+- Pass `projectId` explicitly before attempting a real wallet connection or session restore.
 
-## Connection UX
+## Connection Flow
 
-- Prefer the default flow: `WalletProvider`, `WalletButton`, and `WalletDialog`.
-- Prefer installed wallet extensions on desktop web.
-- Show install or help states on desktop when no supported extension is available.
-- Use wallet handoff on mobile when a wallet definition provides mobile routes.
-- Use QR only for explicit paired-device or cross-device flows.
-- Keep a manual retry or fallback action visible when opening the wallet app can fail.
+- Treat one runtime as one chain, one active session, and one pending connection attempt.
+- Start the common flow with `connectQr()` or `useWallet().open()`.
+- Let installed extension buttons call `connectExtension(walletId)` so they can reuse the shared pending attempt.
+- Use `cancelConnection()` when dismissing the UI should stop the pending attempt.
 
-## Bring Your Own UI
+## UI Composition
 
-- Prefer `@hieco/wallet` when the app wants full control over layout and presentation.
-- In React, prefer `useWallet()` for the main state and actions and `useWallets()` when only the wallet list is needed.
-- Render from `wallet.prompt` instead of reimplementing connection logic yourself.
-- Treat `wallet.status`, `wallet.error`, and `wallet.prompt` as the primary UI control surface.
-- Keep the runtime logic in Hieco and the presentation logic in your own components.
+- Keep the runtime in Hieco and the presentation in your own components.
+- In React, render from `connectableWallets`, `unavailableWallets`, `qr`, `session`, and `error`.
+- Use `getConnectableWallets(state)` and `getUnavailableWallets(state)` when building directly on the core runtime.
+- Show install links only for unavailable wallets that expose `installUrl`.
 
-## Configuration Strategy
+## Restore And Persistence
 
-- Pass `projectId` explicitly before trying a real wallet connection.
-- Use the default wallet catalog and default testnet chain unless the app has a clear reason to narrow them.
+- Use `restoreOnStart` when the app should attempt reconnection automatically after hydration.
+- Use `restore()` when the app wants to control reconnect timing itself.
 - Persist only reconnect-safe session metadata. Do not persist secrets or signer material.
 
 ## Signer Integration
 
-- Use `useWalletSigner()` as the signer source for `@hieco/react`.
-- Keep wallet state in the wallet layer and blockchain data in `@hieco/react` or `@hieco/sdk`.
-- Treat the signer as late-bound runtime session state.
+- In React, use `useWallet().session?.signer` as the signer source for `@hieco/react`.
+- Outside React, use `wallet.snapshot().session?.signer` after the session is connected.
+- Keep wallet state in the wallet layer and Hedera reads and writes in `@hieco/react` or `@hieco/sdk`.
 
 ## Custom Wallets
 
-- Use the curated built-ins first: HashPack, Kabila, and the generic Hedera WalletConnect fallback.
-- Add custom wallets only when you have stable icon and mobile-link metadata.
-- Prefer native deep links over universal links when both exist.
-
-## Branding And Standards
-
-- Reown is the platform and docs brand.
-- WalletConnect remains the protocol and package brand.
-- Hedera wallet sessions should stay aligned with the `hedera` namespace and CAIP identifiers.
+- Start with the curated defaults: HashPack, Kabila, and the generic WalletConnect wallet.
+- Add custom wallets only when the app has stable install metadata and icon URLs.
+- Narrow the wallet catalog only when the product has a clear compatibility or UX requirement.

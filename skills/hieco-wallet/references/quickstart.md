@@ -6,164 +6,157 @@ Canonical docs:
 - [`@hieco/wallet-react` quick start](https://github.com/powxenv/hieco/tree/main/packages/wallet-react)
 - [`@hieco/react` signer integration](https://github.com/powxenv/hieco/tree/main/packages/react)
 
-## `@hieco/wallet` With Explicit `projectId`
+## `@hieco/wallet`
 
 ```ts
 import { createWallet } from "@hieco/wallet";
 
 const wallet = createWallet({
   projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  app: {
+    name: "My Hieco App",
+    description: "Wallet connection for My Hieco App",
+    url: "https://example.com",
+    icons: ["https://example.com/icon.png"],
+  },
 });
 
-await wallet.connect({
-  wallet: "hashpack",
-});
+const session = await wallet.connectQr();
+
+console.log(session.accountId);
 ```
-
-Use this shape for production apps.
 
 ## `@hieco/wallet` With Your Own UI
 
 ```ts
-import { createWallet } from "@hieco/wallet";
+import { createWallet, getConnectableWallets, getUnavailableWallets } from "@hieco/wallet";
 
 const wallet = createWallet({
   projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  app: {
+    name: "My Hieco App",
+    description: "Wallet connection for My Hieco App",
+    url: "https://example.com",
+    icons: ["https://example.com/icon.png"],
+  },
 });
 
-const stop = wallet.onChange(() => {
+const stop = wallet.subscribe(() => {
   const state = wallet.snapshot();
-  console.log(state.status, state.prompt?.kind, state.account?.accountId);
+  const connectableWallets = getConnectableWallets(state);
+  const unavailableWallets = getUnavailableWallets(state);
+
+  console.log(state.connection?.uri, state.session?.accountId);
+  console.log(connectableWallets.length, unavailableWallets.length);
 });
 
-await wallet.connect({
-  wallet: "hashpack",
-});
+await wallet.connectQr();
 
 stop();
 ```
 
-Use this when the app wants to render its own modal, drawer, QR screen, or retry flow.
-
-## `@hieco/wallet-react` In A React App
+## `@hieco/wallet-react`
 
 ```tsx
 "use client";
 
-import { WalletProvider } from "@hieco/wallet-react";
-import { WalletButton, WalletDialog } from "@hieco/wallet-react/ui";
+import { WalletProvider, useWallet } from "@hieco/wallet-react";
+
+function ConnectWallet() {
+  const wallet = useWallet();
+
+  if (wallet.session) {
+    return <div>{wallet.session.accountId}</div>;
+  }
+
+  return (
+    <button onClick={() => void wallet.open()} type="button">
+      Connect wallet
+    </button>
+  );
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <WalletProvider projectId="YOUR_WALLETCONNECT_PROJECT_ID">
-      <WalletButton />
-      <WalletDialog />
+    <WalletProvider
+      projectId="YOUR_WALLETCONNECT_PROJECT_ID"
+      app={{
+        name: "My Hieco App",
+        description: "Wallet connection for My Hieco App",
+        url: "https://example.com",
+        icons: ["https://example.com/icon.png"],
+      }}
+    >
+      <ConnectWallet />
       {children}
     </WalletProvider>
   );
 }
 ```
 
-`WalletButton` uses the default platform-aware flow:
-
-- desktop => installed extension first
-- mobile => wallet handoff first
-- paired-device QR => explicit flow only
-
-## `@hieco/wallet-react` Bring Your Own UI
+## `@hieco/wallet-react` With A Custom Dialog
 
 ```tsx
 "use client";
 
-import { useWallet, useWallets } from "@hieco/wallet-react";
+import { useWallet, useWalletClient } from "@hieco/wallet-react";
 
-export function CustomWalletPicker() {
+export function WalletDialog() {
   const wallet = useWallet();
-  const wallets = useWallets();
+  const walletClient = useWalletClient();
 
   return (
     <div>
-      {wallets.map((item) => (
+      <button
+        onClick={() => {
+          void wallet.open();
+        }}
+        type="button"
+      >
+        Open wallet dialog
+      </button>
+
+      {wallet.qr.uri ? <div>Render QR from {wallet.qr.uri}</div> : null}
+
+      {wallet.connectableWallets.map((item) => (
         <button
           key={item.id}
           onClick={() => {
-            void wallet.connect({
-              wallet: item.id,
-              transport: item.defaultTransport ?? undefined,
-            });
+            void wallet.connectExtension(item.id);
           }}
           type="button"
         >
-          {item.name} ({item.readyState})
+          {item.name}
         </button>
       ))}
 
-      {wallet.prompt?.kind === "qr" ? <div>Render QR from {wallet.prompt.uri}</div> : null}
+      <button
+        onClick={() => {
+          wallet.close();
+          walletClient.cancelConnection();
+        }}
+        type="button"
+      >
+        Close
+      </button>
     </div>
   );
 }
 ```
 
-## `@hieco/wallet-react` With Explicit `projectId`
-
-```tsx
-"use client";
-
-import { WalletProvider } from "@hieco/wallet-react";
-import { WalletButton, WalletDialog } from "@hieco/wallet-react/ui";
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <WalletProvider projectId="YOUR_WALLETCONNECT_PROJECT_ID">
-      <WalletButton />
-      <WalletDialog />
-      {children}
-    </WalletProvider>
-  );
-}
-```
-
-## Explicit Paired-Device QR
-
-```tsx
-"use client";
-
-import { useWallet } from "@hieco/wallet-react";
-
-export function PairFromAnotherDeviceButton() {
-  const wallet = useWallet();
-
-  return (
-    <button
-      onClick={() => {
-        void wallet.connect({
-          wallet: "generic-hedera-walletconnect",
-          transport: "walletconnect",
-          presentation: "qr",
-        });
-      }}
-      type="button"
-    >
-      Pair from another device
-    </button>
-  );
-}
-```
-
-## Use The Signer With `@hieco/react`
+## `@hieco/wallet-react` With `@hieco/react`
 
 ```tsx
 "use client";
 
 import { HiecoProvider } from "@hieco/react";
-import { WalletProvider, useWalletSigner } from "@hieco/wallet-react";
-import { WalletButton, WalletDialog } from "@hieco/wallet-react/ui";
+import { WalletProvider, useWallet } from "@hieco/wallet-react";
 
 function HiecoRuntime({ children }: { children: React.ReactNode }) {
-  const signer = useWalletSigner();
+  const wallet = useWallet();
 
   return (
-    <HiecoProvider config={{ network: "testnet" }} signer={signer}>
+    <HiecoProvider config={{ network: "testnet" }} signer={wallet.session?.signer}>
       {children}
     </HiecoProvider>
   );
@@ -171,9 +164,15 @@ function HiecoRuntime({ children }: { children: React.ReactNode }) {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <WalletProvider projectId="YOUR_WALLETCONNECT_PROJECT_ID">
-      <WalletButton />
-      <WalletDialog />
+    <WalletProvider
+      projectId="YOUR_WALLETCONNECT_PROJECT_ID"
+      app={{
+        name: "My Hieco App",
+        description: "Wallet connection for My Hieco App",
+        url: "https://example.com",
+        icons: ["https://example.com/icon.png"],
+      }}
+    >
       <HiecoRuntime>{children}</HiecoRuntime>
     </WalletProvider>
   );
