@@ -28,38 +28,33 @@ const sections: readonly Section[] = [
     samples: [
       {
         value: "typescript",
-        fileName: "send.ts",
+        fileName: "account.ts",
         language: "typescript",
         icon: typescriptLogo.src,
         code: `import { hieco } from "@hieco/sdk";
 
 const client = hieco.forTestnet();
 
-const receipt = await client.account.send({
-  to: "0.0.2002",
-  hbar: 1,
-}).now();
+const account = await client.account.info("0.0.1001").now();
 
-console.log(receipt);`,
+if (account.ok) {
+  console.log(account.value.accountId);
+}`,
       },
       {
         value: "react",
-        fileName: "send-button.tsx",
+        fileName: "account-card.tsx",
         language: "tsx",
         icon: reactLogo.src,
-        code: `import { useAccountSend } from "@hieco/react";
+        code: `import { useAccountInfo } from "@hieco/react";
 
-function SendButton() {
-  const send = useAccountSend();
+function AccountCard({ accountId }: { accountId: string }) {
+  const account = useAccountInfo(accountId);
 
-  return (
-    <button
-      disabled={send.isPending}
-      onClick={() => send.mutate({ to: "0.0.2002", hbar: 1 })}
-    >
-      Send 1 HBAR instantly
-    </button>
-  );
+  if (account.isPending) return <div>Loading...</div>;
+  if (account.isError) return <div>{account.error.message}</div>;
+
+  return <div>{account.data?.accountId}</div>;
 }`,
       },
     ],
@@ -85,50 +80,48 @@ if (account.success) {
       },
       {
         value: "react",
-        fileName: "account-name.tsx",
+        fileName: "account-card.tsx",
         language: "tsx",
         icon: reactLogo.src,
         code: `import { useAccountInfo } from "@hieco/mirror-react";
 
-function AccountName() {
+function AccountCard() {
   const account = useAccountInfo({ accountId: "0.0.1001" });
 
-  if (account.isPending) return <div>Loading account...</div>;
+  if (account.isPending) return <div>Loading...</div>;
+  if (account.isError) return <div>{account.error.message}</div>;
 
-  return <div>{account.data?.success ? account.data.data.account : "Account not found"}</div>;
+  return <pre>{JSON.stringify(account.data, null, 2)}</pre>;
 }`,
       },
       {
         value: "preact",
-        fileName: "account-name.tsx",
+        fileName: "account-card.tsx",
         language: "tsx",
         icon: preactLogo.src,
         code: `import { useAccountInfo } from "@hieco/mirror-preact";
 
-function AccountName() {
+function AccountCard() {
   const account = useAccountInfo({ accountId: "0.0.1001" });
 
-  if (account.isPending) return <div>Loading account...</div>;
+  if (account.isPending) return <div>Loading...</div>;
+  if (account.isError) return <div>{account.error.message}</div>;
 
-  return <div>{account.data?.success ? account.data.data.account : "Account not found"}</div>;
+  return <pre>{JSON.stringify(account.data, null, 2)}</pre>;
 }`,
       },
       {
         value: "solid",
-        fileName: "account-name.tsx",
+        fileName: "account-card.tsx",
         language: "tsx",
         icon: solidLogo.src,
         code: `import type { JSX } from "solid-js";
 import { createAccountInfo } from "@hieco/mirror-solid";
 
-function AccountName(): JSX.Element {
+function AccountCard(): JSX.Element {
   const account = createAccountInfo(() => ({ accountId: "0.0.1001" }));
 
-  return (
-    <div>
-      {account.data?.success ? account.data.data.account : "Loading account..."}
-    </div>
-  );
+  return <pre>{JSON.stringify(account.data ?? null, null, 2)}</pre>;
 }`,
       },
       {
@@ -136,10 +129,10 @@ function AccountName(): JSX.Element {
         fileName: "terminal.sh",
         language: "bash",
         icon: typescriptLogo.src,
-        code: `npx @hieco/mirror-cli account 0.0.1001
-npx @hieco/mirror-cli balance 0.0.1001
-npx @hieco/mirror-cli transactions:list --account 0.0.1001 --limit 10
-npx @hieco/mirror-cli topic:messages 0.0.3003 --encoding utf-8`,
+        code: `bunx @hieco/mirror-cli account 0.0.1001
+bunx @hieco/mirror-cli balance 0.0.1001
+bunx @hieco/mirror-cli transactions:list --account 0.0.1001 --limit 10
+bunx @hieco/mirror-cli topic:messages 0.0.3003 --encoding utf-8`,
       },
     ],
   },
@@ -161,25 +154,40 @@ const client = new RelayWebSocketClient({
 
 await client.connect();
 
-await client.subscribe({ type: "newHeads", filter: {} }, (message) => {
-  console.log(message.result.number);
-});`,
+const result = await client.subscribe(
+  {
+    type: "logs",
+    filter: {
+      address: "0x0000000000000000000000000000000000001389",
+    },
+  },
+  (message) => {
+    console.log(message.result);
+  },
+);
+
+if (result.success) {
+  await client.unsubscribe(result.data);
+}`,
       },
       {
         value: "react",
-        fileName: "live-logs.tsx",
+        fileName: "contract-log-feed.tsx",
         language: "tsx",
         icon: reactLogo.src,
         code: `import { useContractLogs, useStreamState } from "@hieco/realtime-react";
 
-function LiveLogs() {
-  const state = useStreamState();
-  const { logs } = useContractLogs({
+function ContractLogFeed() {
+  const { logs, isConnected, error } = useContractLogs({
     address: "0x0000000000000000000000000000000000001389",
-    enabled: state._tag === "Connected",
+    enabled: true,
   });
+  const state = useStreamState();
 
-  return <div>{logs.length} logs streaming live</div>;
+  if (!isConnected) return <div>{state._tag}</div>;
+  if (error) return <div>{error.message}</div>;
+
+  return <pre>{JSON.stringify(logs, null, 2)}</pre>;
 }`,
       },
     ],
@@ -205,33 +213,39 @@ const wallet = createWallet({
   },
 });
 
-await wallet.connectExtension("hashpack");
+const session = await wallet.connectQr();
 
-console.log(wallet.snapshot().session?.accountId);`,
+console.log(session.accountId);`,
       },
       {
         value: "react",
-        fileName: "connect-button.tsx",
+        fileName: "connect-wallet.tsx",
         language: "tsx",
         icon: reactLogo.src,
-        code: `import { useState } from "react";
-import { useWallet } from "@hieco/wallet-react";
+        code: `import { useWallet } from "@hieco/wallet-react";
 
-function ConnectButton() {
+function ConnectWallet() {
   const wallet = useWallet();
-  const [open, setOpen] = useState(false);
+
+  if (wallet.session) {
+    return <button onClick={() => void wallet.disconnect()}>Disconnect</button>;
+  }
 
   return (
-    <button
-      onClick={() => {
-        setOpen(true);
-        if (!wallet.connection && !wallet.session) {
-          void wallet.connectQr();
-        }
-      }}
-    >
-      {wallet.session?.accountId ?? (open ? "Connecting..." : "Open wallet dialog")}
-    </button>
+    <div>
+      <button onClick={() => void wallet.open()}>Connect wallet</button>
+      {wallet.connectableWallets.map((walletOption) => (
+        <button
+          disabled={!walletOption.canConnect}
+          key={walletOption.id}
+          onClick={() => {
+            void wallet.connectExtension(walletOption.id);
+          }}
+        >
+          {walletOption.name}
+        </button>
+      ))}
+    </div>
   );
 }`,
       },
