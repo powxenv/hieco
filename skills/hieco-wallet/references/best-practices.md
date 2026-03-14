@@ -22,7 +22,9 @@ Canonical docs:
 - Treat one runtime as one chain, one active session, and one pending connection attempt.
 - Start the common flow with `connectQr()` or `useWallet().open()`.
 - Let installed extension buttons call `connectExtension(walletId)` so they can reuse the shared pending attempt.
+- Use `useWallet().reload()` when the QR URI has expired and the UI should recreate it without requiring a full dialog reopen.
 - Use `cancelConnection()` when dismissing the UI should stop the pending attempt.
+- Treat `qr.enabled === true`, `qr.uri === null`, `qr.pending === false`, and `qr.expired === false` as an idle state that is ready to start a new attempt.
 
 ## UI Composition
 
@@ -30,6 +32,8 @@ Canonical docs:
 - In React, render from `connectableWallets`, `unavailableWallets`, `qr`, `session`, and `error`.
 - Use `getConnectableWallets(state)` and `getUnavailableWallets(state)` when building directly on the core runtime.
 - Show install links only for unavailable wallets that expose `installUrl`.
+- Show a recreate or reload action when `qr.expired` is `true`.
+- Keep loading copy tied to `qr.pending` instead of only checking `qr.uri`.
 
 ## Restore And Persistence
 

@@ -66,6 +66,7 @@ describe("wallet-react hooks", () => {
     });
 
     let open!: () => Promise<void>;
+    let reload!: () => Promise<void>;
     let close!: () => void;
     let connectExtension!: (walletId: string) => Promise<unknown>;
     let disconnect!: () => Promise<void>;
@@ -76,6 +77,7 @@ describe("wallet-react hooks", () => {
       const state = useWallet();
       walletClient = useWalletClient();
       open = state.open;
+      reload = state.reload;
       close = state.close;
       connectExtension = state.connectExtension;
       disconnect = state.disconnect;
@@ -85,7 +87,8 @@ describe("wallet-react hooks", () => {
         <div>
           {state.connectableWallets[0]?.id ?? "no-wallet"}|
           {state.unavailableWallets[0]?.id ?? "no-unavailable"}|{state.qr.uri ?? "no-qr"}|
-          {state.qr.pending ? "pending" : "not-pending"}|{state.ready ? "ready" : "not-ready"}|
+          {state.qr.pending ? "pending" : "not-pending"}|
+          {state.qr.expired ? "expired" : "not-expired"}|{state.ready ? "ready" : "not-ready"}|
           {state.session === null ? "no-session" : "session"}
         </div>
       );
@@ -101,17 +104,20 @@ describe("wallet-react hooks", () => {
     expect(markup).toContain("kabila");
     expect(markup).toContain("no-qr");
     expect(markup).toContain("not-pending");
+    expect(markup).toContain("not-expired");
     expect(markup).toContain("ready");
     expect(markup).toContain("no-session");
     expect(walletClient).toBe(wallet);
 
     await open();
+    await reload();
     await connectExtension("hashpack").catch(() => undefined);
     close();
     clearError();
     await disconnect();
 
-    expect(wallet.connectQr).toHaveBeenCalledTimes(1);
+    expect(wallet.cancelConnection).toHaveBeenCalledTimes(1);
+    expect(wallet.connectQr).toHaveBeenCalledTimes(2);
     expect(wallet.connectExtension).toHaveBeenCalledWith("hashpack");
     expect(wallet.disconnect).toHaveBeenCalledTimes(1);
   });

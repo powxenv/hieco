@@ -117,6 +117,7 @@ export function WalletDialog() {
       </button>
 
       {wallet.qr.uri ? <div>Render QR from {wallet.qr.uri}</div> : null}
+      {wallet.qr.expired ? <div>QR expired. Recreate it.</div> : null}
 
       {wallet.connectableWallets.map((item) => (
         <button
@@ -129,6 +130,15 @@ export function WalletDialog() {
           {item.name}
         </button>
       ))}
+
+      <button
+        onClick={() => {
+          void wallet.reload();
+        }}
+        type="button"
+      >
+        {wallet.qr.expired ? "Recreate QR" : "Reload QR"}
+      </button>
 
       <button
         onClick={() => {

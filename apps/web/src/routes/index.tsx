@@ -10,12 +10,16 @@ import typescriptLogo from "../assets/tech-icons/ts.svg";
 import heroImg from "../assets/hero.jpeg";
 import SolarArrowRightLineDuotone from "~icons/solar/arrow-right-line-duotone";
 import ConnectDialog from "../components/connect-dialog";
+import { useWallet } from "@hieco/wallet-react";
+import DisconnectDialog from "#/components/disconnect-dialog";
 
 export const Route = createFileRoute("/")({
   component: App,
 });
 
 function App(): ReactElement {
+  const { session } = useWallet();
+
   return (
     <>
       <header className="fixed top-4 left-1/2 -translate-x-1/2 z-10">
@@ -44,7 +48,7 @@ function App(): ReactElement {
               Examples
             </a>
           </nav>
-          <ConnectDialog />
+          {session ? <DisconnectDialog /> : <ConnectDialog />}
         </div>
       </header>
 

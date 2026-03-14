@@ -125,7 +125,15 @@ function App(): ReactNode {
         </div>
 
         {wallet.error ? (
-          <Banner description={wallet.error.message} title="Connection failed" variant="error" />
+          <Banner
+            description={
+              wallet.qr.expired
+                ? "The QR expired. Create a new one to continue."
+                : wallet.error.message
+            }
+            title="Connection failed"
+            variant="error"
+          />
         ) : null}
 
         {!wallet.ready ? (
@@ -188,7 +196,20 @@ function App(): ReactNode {
               <Text as="h2" variant="heading3">
                 QR
               </Text>
-              <Badge variant={wallet.qr.uri ? "success" : "secondary"}>{qrStatus}</Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant={wallet.qr.uri ? "success" : "secondary"}>{qrStatus}</Badge>
+                {wallet.ready && !wallet.session ? (
+                  <Button
+                    onClick={() => {
+                      void wallet.reload();
+                    }}
+                    size="sm"
+                    variant={wallet.qr.expired ? "primary" : "secondary"}
+                  >
+                    {wallet.qr.expired ? "Recreate QR" : "Reload"}
+                  </Button>
+                ) : null}
+              </div>
             </div>
 
             <div className="flex min-h-56 items-center justify-center">

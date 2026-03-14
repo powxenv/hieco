@@ -7,6 +7,9 @@ import ConvexProvider from "../integrations/convex/provider";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
 import appCss from "../styles.css?url";
+import { hederaTestnet, hashpack, kabila } from "@hieco/wallet";
+import { WalletProvider } from "@hieco/wallet-react";
+import { env } from "#/env";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -71,7 +74,21 @@ function RootDocument({ children }: { children: ReactNode }): ReactNode {
       <body>
         <ConvexProvider>
           <TanStackQueryProvider>
-            {children}
+            <WalletProvider
+              app={{
+                name: "Hieco Wallet Example",
+                description: "Hieco Connect",
+                url: env.VITE_APP_URL,
+                icons: [new URL("/wallet-icon.svg", env.VITE_APP_URL).toString()],
+              }}
+              chain={hederaTestnet()}
+              projectId={env.VITE_WALLETCONNECT_PROJECT_ID}
+              restoreOnStart
+              wallets={[hashpack(), kabila()]}
+            >
+              {children}
+            </WalletProvider>
+
             <TanStackDevtools
               config={{
                 position: "bottom-right",

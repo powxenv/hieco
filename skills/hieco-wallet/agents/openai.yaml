@@ -1,7 +1,7 @@
 interface:
   display_name: "Hieco Wallet"
-  short_description: "Use the Hieco wallet runtime and React layer"
-  default_prompt: "Use $hieco-wallet to build or explain integrations with @hieco/wallet or @hieco/wallet-react."
+  short_description: "Use Hieco wallet and QR connect flows"
+  default_prompt: "Use $hieco-wallet to build or explain @hieco/wallet or @hieco/wallet-react, including QR reload and expired URI handling."
 
 policy:
   allow_implicit_invocation: true

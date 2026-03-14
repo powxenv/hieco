@@ -117,12 +117,13 @@ That keeps the public surface small whether your app wants default ownership or 
 - `qr`
 - `error`
 - `open()`
+- `reload()`
 - `close()`
 - `connectExtension(walletId)`
 - `disconnect()`
 - `clearError()`
 
-`open()` starts or joins the shared QR connection attempt. `connectExtension(walletId)` can reuse that same attempt when the user chooses an installed extension.
+`open()` starts or joins the shared QR connection attempt. `reload()` cancels the current pending QR attempt and starts a fresh one so the UI can recreate an expired URI without closing the dialog first. `connectExtension(walletId)` can reuse that same attempt when the user chooses an installed extension.
 
 ### Low-Level Runtime Access
 
@@ -181,6 +182,14 @@ function WalletDialog() {
             ) : (
               <div>{wallet.qr.pending ? "Generating QR..." : "QR pending"}</div>
             )}
+
+            <button
+              onClick={() => {
+                void wallet.reload();
+              }}
+            >
+              {wallet.qr.expired ? "Recreate QR" : "Reload QR"}
+            </button>
 
             {wallet.connectableWallets.map((walletOption) => (
               <button

@@ -1,11 +1,11 @@
 ---
 name: hieco-wallet
-description: Use the Hieco wallet SDK family for Hedera. Use when building with @hieco/wallet or @hieco/wallet-react; when choosing between the headless wallet runtime and the React wrapper; or when the task needs installation guidance, shared QR and extension flow guidance, signer integration, or wallet API reference coverage.
+description: Use the Hieco wallet SDK family for Hedera. Use when building with @hieco/wallet or @hieco/wallet-react; when choosing between the headless wallet runtime and the React wrapper; or when the task needs installation guidance, shared QR and extension flow guidance, expired URI reload guidance, signer integration, or wallet API reference coverage.
 ---
 
 # Hieco Wallet
 
-Use this skill when implementing code with `@hieco/wallet` or `@hieco/wallet-react`.
+Use this skill when implementing code with `@hieco/wallet` or `@hieco/wallet-react`, especially when the task involves QR connection lifecycle, expired URI recovery, or custom wallet dialogs.
 
 ## Workflow
 

@@ -56,6 +56,7 @@ type UseWalletQrState = {
   readonly enabled: boolean;
   readonly uri: string | null;
   readonly pending: boolean;
+  readonly expired: boolean;
 };
 ```
 
@@ -71,6 +72,7 @@ type UseWalletResult = {
   readonly qr: UseWalletQrState;
   readonly error: Error | null;
   readonly open: () => Promise<void>;
+  readonly reload: () => Promise<void>;
   readonly close: () => void;
   readonly connectExtension: (walletId: string) => Promise<void>;
   readonly disconnect: () => Promise<void>;
@@ -83,9 +85,14 @@ type UseWalletResult = {
 - `@hieco/wallet-react` is headless by design. There is no built-in UI subpath.
 - `WalletProvider` can create a runtime from `CreateWalletOptions` or reuse an existing runtime via `wallet={wallet}`.
 - `open()` starts or joins the shared QR connection flow exposed by `@hieco/wallet`.
+- `reload()` cancels the current pending QR attempt and immediately starts a fresh one.
 - `connectExtension(walletId)` can reuse the same pending connection attempt when an installed extension is selected.
 - `close()` clears controller-local UI error state. Use `useWalletClient().cancelConnection()` when closing the UI should cancel the pending runtime attempt.
 - For signer-aware React data flows, read the signer from `useWallet().session?.signer`.
+- `qr.enabled` means WalletConnect is ready and there is no active session. It does not mean a QR URI already exists.
+- `qr.pending` is only `true` while a connection attempt exists and the URI has not been assigned yet.
+- `qr.expired` reflects a `SESSION_EXPIRED` controller error and is the signal for showing a `reload()` or recreate-QR action.
+- `{"enabled":true,"uri":null,"pending":false,"expired":false}` is an idle state with no active attempt, not an in-flight QR state.
 
 ## Exact Type Definition Entry Points
 
