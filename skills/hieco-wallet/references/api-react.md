@@ -22,19 +22,19 @@ Use the installed declaration file as the authoritative source for exact hook si
 
 ## Provider Exports
 
-| Export                | What it does                                         | Parameters            | Returns     |
-| --------------------- | ---------------------------------------------------- | --------------------- | ----------- |
-| `WalletProvider`      | Provide a wallet runtime to React components.        | `WalletProviderProps` | `ReactNode` |
-| `WalletProviderProps` | Props accepted by `WalletProvider`.                  | none                  | type only   |
-| `useWalletClient`     | Read the underlying `@hieco/wallet` runtime.         | none                  | `Wallet`    |
+| Export                | What it does                                  | Parameters            | Returns     |
+| --------------------- | --------------------------------------------- | --------------------- | ----------- |
+| `WalletProvider`      | Provide a wallet runtime to React components. | `WalletProviderProps` | `ReactNode` |
+| `WalletProviderProps` | Props accepted by `WalletProvider`.           | none                  | type only   |
+| `useWalletClient`     | Read the underlying `@hieco/wallet` runtime.  | none                  | `Wallet`    |
 
 ## Controller Exports
 
-| Export             | What it does                                             | Parameters | Returns           |
-| ------------------ | -------------------------------------------------------- | ---------- | ----------------- |
-| `useWallet`        | Read grouped wallet state and common connect actions.    | none       | `UseWalletResult` |
-| `UseWalletResult`  | Return type exposed by `useWallet()`.                    | none       | type only         |
-| `UseWalletQrState` | QR state returned by `useWallet().qr`.                   | none       | type only         |
+| Export             | What it does                                          | Parameters | Returns           |
+| ------------------ | ----------------------------------------------------- | ---------- | ----------------- |
+| `useWallet`        | Read grouped wallet state and common connect actions. | none       | `UseWalletResult` |
+| `UseWalletResult`  | Return type exposed by `useWallet()`.                 | none       | type only         |
+| `UseWalletQrState` | QR state returned by `useWallet().qr`.                | none       | type only         |
 
 ### `WalletProviderProps`
 

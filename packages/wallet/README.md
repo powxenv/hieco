@@ -167,46 +167,46 @@ const client = hieco({ network: "testnet" }).as(session.signer);
 
 ### Root Exports
 
-| Export                       | Kind     | Purpose                                               | Usage form                         |
-| ---------------------------- | -------- | ----------------------------------------------------- | ---------------------------------- |
-| `createWallet`               | function | Create the headless wallet runtime.                   | `createWallet(options)`            |
-| `getConnectableWallets`      | function | Filter installed wallet options for UI rendering.     | `getConnectableWallets(state)`     |
-| `getUnavailableWallets`      | function | Filter unavailable wallet options for install links.  | `getUnavailableWallets(state)`     |
-| `hederaMainnet`              | function | Create the built-in Hedera mainnet chain definition.  | `hederaMainnet()`                  |
-| `hederaTestnet`              | function | Create the built-in Hedera testnet chain definition.  | `hederaTestnet()`                  |
-| `hederaPreviewnet`           | function | Create the built-in Hedera previewnet chain.          | `hederaPreviewnet()`               |
-| `hederaDevnet`               | function | Create a devnet or custom chain definition.           | `hederaDevnet(config?)`            |
-| `hashpack`                   | function | Create the curated HashPack wallet definition.        | `hashpack()`                       |
-| `kabila`                     | function | Create the curated Kabila wallet definition.          | `kabila()`                         |
-| `genericWalletConnectWallet` | function | Create the generic WalletConnect wallet definition.   | `genericWalletConnectWallet()`     |
-| `getDefaultWallets`          | function | Return the default wallet catalog used by the runtime | `getDefaultWallets()`              |
-| `WalletError`                | class    | Typed wallet error with a stable `code` field.        | `new WalletError(code, message?)`  |
-| `asWalletError`              | function | Normalize unknown errors into `WalletError`.          | `asWalletError(error, fallback)`   |
+| Export                       | Kind     | Purpose                                               | Usage form                        |
+| ---------------------------- | -------- | ----------------------------------------------------- | --------------------------------- |
+| `createWallet`               | function | Create the headless wallet runtime.                   | `createWallet(options)`           |
+| `getConnectableWallets`      | function | Filter installed wallet options for UI rendering.     | `getConnectableWallets(state)`    |
+| `getUnavailableWallets`      | function | Filter unavailable wallet options for install links.  | `getUnavailableWallets(state)`    |
+| `hederaMainnet`              | function | Create the built-in Hedera mainnet chain definition.  | `hederaMainnet()`                 |
+| `hederaTestnet`              | function | Create the built-in Hedera testnet chain definition.  | `hederaTestnet()`                 |
+| `hederaPreviewnet`           | function | Create the built-in Hedera previewnet chain.          | `hederaPreviewnet()`              |
+| `hederaDevnet`               | function | Create a devnet or custom chain definition.           | `hederaDevnet(config?)`           |
+| `hashpack`                   | function | Create the curated HashPack wallet definition.        | `hashpack()`                      |
+| `kabila`                     | function | Create the curated Kabila wallet definition.          | `kabila()`                        |
+| `genericWalletConnectWallet` | function | Create the generic WalletConnect wallet definition.   | `genericWalletConnectWallet()`    |
+| `getDefaultWallets`          | function | Return the default wallet catalog used by the runtime | `getDefaultWallets()`             |
+| `WalletError`                | class    | Typed wallet error with a stable `code` field.        | `new WalletError(code, message?)` |
+| `asWalletError`              | function | Normalize unknown errors into `WalletError`.          | `asWalletError(error, fallback)`  |
 
 ### Runtime Methods
 
-| Member                     | Kind   | Purpose                                                      | Usage form                        |
-| -------------------------- | ------ | ------------------------------------------------------------ | --------------------------------- |
-| `wallet.snapshot`          | method | Read the current wallet state synchronously.                 | `wallet.snapshot()`               |
-| `wallet.subscribe`         | method | Listen for wallet state updates.                             | `wallet.subscribe(listener)`      |
-| `wallet.connectQr`         | method | Start or join the shared QR connection flow.                 | `wallet.connectQr()`              |
-| `wallet.connectExtension`  | method | Start or join the shared extension connection flow.          | `wallet.connectExtension(id)`     |
-| `wallet.cancelConnection`  | method | Clear the pending connection attempt without ending a session. | `wallet.cancelConnection()`     |
-| `wallet.disconnect`        | method | Disconnect the active wallet session.                        | `wallet.disconnect()`             |
-| `wallet.restore`           | method | Restore a previously persisted wallet session if possible.   | `wallet.restore()`                |
-| `wallet.destroy`           | method | Tear down the runtime and clear client resources.            | `wallet.destroy()`                |
+| Member                    | Kind   | Purpose                                                        | Usage form                    |
+| ------------------------- | ------ | -------------------------------------------------------------- | ----------------------------- |
+| `wallet.snapshot`         | method | Read the current wallet state synchronously.                   | `wallet.snapshot()`           |
+| `wallet.subscribe`        | method | Listen for wallet state updates.                               | `wallet.subscribe(listener)`  |
+| `wallet.connectQr`        | method | Start or join the shared QR connection flow.                   | `wallet.connectQr()`          |
+| `wallet.connectExtension` | method | Start or join the shared extension connection flow.            | `wallet.connectExtension(id)` |
+| `wallet.cancelConnection` | method | Clear the pending connection attempt without ending a session. | `wallet.cancelConnection()`   |
+| `wallet.disconnect`       | method | Disconnect the active wallet session.                          | `wallet.disconnect()`         |
+| `wallet.restore`          | method | Restore a previously persisted wallet session if possible.     | `wallet.restore()`            |
+| `wallet.destroy`          | method | Tear down the runtime and clear client resources.              | `wallet.destroy()`            |
 
 ### Exported Types
 
-| Export                | Kind | Purpose                                                      | Usage form                |
-| --------------------- | ---- | ------------------------------------------------------------ | ------------------------- |
+| Export                | Kind | Purpose                                                                  | Usage form                 |
+| --------------------- | ---- | ------------------------------------------------------------------------ | -------------------------- |
 | `CreateWalletOptions` | type | Runtime configuration for app metadata, chain, wallets, and persistence. | `type CreateWalletOptions` |
-| `WalletState`         | type | Snapshot returned by `wallet.snapshot()`.                    | `type WalletState`        |
-| `WalletSession`       | type | Active connected wallet session with `Signer`.               | `type WalletSession`      |
-| `WalletConnection`    | type | Pending connection state for QR and extension flows.         | `type WalletConnection`   |
-| `WalletChain`         | type | Hedera chain definition used by the runtime.                 | `type WalletChain`        |
-| `WalletDefinition`    | type | Input wallet catalog entry for custom wallet definitions.    | `type WalletDefinition`   |
-| `WalletOption`        | type | Runtime wallet option with availability metadata.            | `type WalletOption`       |
+| `WalletState`         | type | Snapshot returned by `wallet.snapshot()`.                                | `type WalletState`         |
+| `WalletSession`       | type | Active connected wallet session with `Signer`.                           | `type WalletSession`       |
+| `WalletConnection`    | type | Pending connection state for QR and extension flows.                     | `type WalletConnection`    |
+| `WalletChain`         | type | Hedera chain definition used by the runtime.                             | `type WalletChain`         |
+| `WalletDefinition`    | type | Input wallet catalog entry for custom wallet definitions.                | `type WalletDefinition`    |
+| `WalletOption`        | type | Runtime wallet option with availability metadata.                        | `type WalletOption`        |
 
 ## Related Packages
 

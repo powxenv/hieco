@@ -272,19 +272,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 ### Provider Exports
 
-| Export                | Kind      | Purpose                                                    | Usage form                        |
-| --------------------- | --------- | ---------------------------------------------------------- | --------------------------------- |
-| `WalletProvider`      | component | Root provider for the wallet runtime.                      | `<WalletProvider {...props}>`     |
-| `WalletProviderProps` | type      | Props accepted by `WalletProvider`.                        | `type WalletProviderProps`        |
-| `useWalletClient`     | hook      | Access the underlying `@hieco/wallet` runtime.             | `useWalletClient()`               |
+| Export                | Kind      | Purpose                                        | Usage form                    |
+| --------------------- | --------- | ---------------------------------------------- | ----------------------------- |
+| `WalletProvider`      | component | Root provider for the wallet runtime.          | `<WalletProvider {...props}>` |
+| `WalletProviderProps` | type      | Props accepted by `WalletProvider`.            | `type WalletProviderProps`    |
+| `useWalletClient`     | hook      | Access the underlying `@hieco/wallet` runtime. | `useWalletClient()`           |
 
 ### Controller Exports
 
-| Export             | Kind | Purpose                                                      | Usage form               |
-| ------------------ | ---- | ------------------------------------------------------------ | ------------------------ |
-| `useWallet`        | hook | Read grouped wallet state and common connect actions.        | `useWallet()`            |
-| `UseWalletResult`  | type | Return shape from `useWallet()`.                             | `type UseWalletResult`   |
-| `UseWalletQrState` | type | QR state returned from `useWallet().qr`.                     | `type UseWalletQrState`  |
+| Export             | Kind | Purpose                                               | Usage form              |
+| ------------------ | ---- | ----------------------------------------------------- | ----------------------- |
+| `useWallet`        | hook | Read grouped wallet state and common connect actions. | `useWallet()`           |
+| `UseWalletResult`  | type | Return shape from `useWallet()`.                      | `type UseWalletResult`  |
+| `UseWalletQrState` | type | QR state returned from `useWallet().qr`.              | `type UseWalletQrState` |
 
 ### `WalletProviderProps`
 

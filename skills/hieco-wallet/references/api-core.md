@@ -22,21 +22,21 @@ Use `dist/index.d.ts` as the authoritative source for exact runtime signatures a
 
 ## Root Exports
 
-| Export                       | What it does                                            | Parameters             | Returns            |
-| ---------------------------- | ------------------------------------------------------- | ---------------------- | ------------------ |
-| `createWallet`               | Create the headless wallet runtime.                     | `CreateWalletOptions`  | `Wallet`           |
-| `getConnectableWallets`      | Filter installed wallet options from `WalletState`.     | `state`                | `readonly WalletOption[]` |
-| `getUnavailableWallets`      | Filter unavailable wallet options from `WalletState`.   | `state`                | `readonly WalletOption[]` |
-| `hederaMainnet`              | Create the built-in Hedera mainnet chain.               | none                   | `WalletChain`      |
-| `hederaTestnet`              | Create the built-in Hedera testnet chain.               | none                   | `WalletChain`      |
-| `hederaPreviewnet`           | Create the built-in Hedera previewnet chain.            | none                   | `WalletChain`      |
-| `hederaDevnet`               | Create a devnet or custom chain definition.             | config object          | `WalletChain`      |
-| `hashpack`                   | Create the curated HashPack wallet definition.          | none                   | `WalletDefinition` |
-| `kabila`                     | Create the curated Kabila wallet definition.            | none                   | `WalletDefinition` |
-| `genericWalletConnectWallet` | Create the generic WalletConnect wallet definition.     | none                   | `WalletDefinition` |
-| `getDefaultWallets`          | Return the default wallet catalog.                      | none                   | `readonly WalletDefinition[]` |
-| `WalletError`                | Typed wallet error class with a stable `code`.          | `code`, `message?`     | `WalletError`      |
-| `asWalletError`              | Normalize unknown errors into a `WalletError`.          | `error`, `fallback`    | `WalletError`      |
+| Export                       | What it does                                          | Parameters            | Returns                       |
+| ---------------------------- | ----------------------------------------------------- | --------------------- | ----------------------------- |
+| `createWallet`               | Create the headless wallet runtime.                   | `CreateWalletOptions` | `Wallet`                      |
+| `getConnectableWallets`      | Filter installed wallet options from `WalletState`.   | `state`               | `readonly WalletOption[]`     |
+| `getUnavailableWallets`      | Filter unavailable wallet options from `WalletState`. | `state`               | `readonly WalletOption[]`     |
+| `hederaMainnet`              | Create the built-in Hedera mainnet chain.             | none                  | `WalletChain`                 |
+| `hederaTestnet`              | Create the built-in Hedera testnet chain.             | none                  | `WalletChain`                 |
+| `hederaPreviewnet`           | Create the built-in Hedera previewnet chain.          | none                  | `WalletChain`                 |
+| `hederaDevnet`               | Create a devnet or custom chain definition.           | config object         | `WalletChain`                 |
+| `hashpack`                   | Create the curated HashPack wallet definition.        | none                  | `WalletDefinition`            |
+| `kabila`                     | Create the curated Kabila wallet definition.          | none                  | `WalletDefinition`            |
+| `genericWalletConnectWallet` | Create the generic WalletConnect wallet definition.   | none                  | `WalletDefinition`            |
+| `getDefaultWallets`          | Return the default wallet catalog.                    | none                  | `readonly WalletDefinition[]` |
+| `WalletError`                | Typed wallet error class with a stable `code`.        | `code`, `message?`    | `WalletError`                 |
+| `asWalletError`              | Normalize unknown errors into a `WalletError`.        | `error`, `fallback`   | `WalletError`                 |
 
 ## Config And State Types
 
@@ -103,16 +103,16 @@ type WalletOption = {
 
 ## `Wallet`
 
-| Member                    | What it does                                                | Parameters               | Returns                        |
-| ------------------------- | ----------------------------------------------------------- | ------------------------ | ------------------------------ |
-| `wallet.snapshot`         | Read the current wallet state synchronously.                | none                     | `WalletState`                  |
-| `wallet.subscribe`        | Subscribe to state changes.                                 | `listener: () => void`   | `() => void`                   |
-| `wallet.connectQr`        | Start or join the shared QR connection flow.                | none                     | `Promise<WalletSession>`       |
-| `wallet.connectExtension` | Start or join the shared extension flow for a wallet ID.    | `walletId: string`       | `Promise<WalletSession>`       |
-| `wallet.cancelConnection` | Clear the pending connection attempt.                       | none                     | `void`                         |
-| `wallet.disconnect`       | Disconnect the active wallet session.                       | none                     | `Promise<void>`                |
-| `wallet.restore`          | Restore the previous wallet session if it can be rehydrated. | none                    | `Promise<WalletSession \| null>` |
-| `wallet.destroy`          | Tear down the runtime and clear cached client state.        | none                     | `Promise<void>`                |
+| Member                    | What it does                                                 | Parameters             | Returns                          |
+| ------------------------- | ------------------------------------------------------------ | ---------------------- | -------------------------------- |
+| `wallet.snapshot`         | Read the current wallet state synchronously.                 | none                   | `WalletState`                    |
+| `wallet.subscribe`        | Subscribe to state changes.                                  | `listener: () => void` | `() => void`                     |
+| `wallet.connectQr`        | Start or join the shared QR connection flow.                 | none                   | `Promise<WalletSession>`         |
+| `wallet.connectExtension` | Start or join the shared extension flow for a wallet ID.     | `walletId: string`     | `Promise<WalletSession>`         |
+| `wallet.cancelConnection` | Clear the pending connection attempt.                        | none                   | `void`                           |
+| `wallet.disconnect`       | Disconnect the active wallet session.                        | none                   | `Promise<void>`                  |
+| `wallet.restore`          | Restore the previous wallet session if it can be rehydrated. | none                   | `Promise<WalletSession \| null>` |
+| `wallet.destroy`          | Tear down the runtime and clear cached client state.         | none                   | `Promise<void>`                  |
 
 ## Errors
 
