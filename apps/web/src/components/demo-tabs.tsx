@@ -30,7 +30,7 @@ const sections: readonly Section[] = [
         value: "typescript",
         fileName: "account.ts",
         language: "typescript",
-        icon: typescriptLogo.src,
+        icon: typescriptLogo,
         code: `import { hieco } from "@hieco/sdk";
 
 const client = hieco.forTestnet();
@@ -45,7 +45,7 @@ if (account.ok) {
         value: "react",
         fileName: "account-card.tsx",
         language: "tsx",
-        icon: reactLogo.src,
+        icon: reactLogo,
         code: `import { useAccountInfo } from "@hieco/react";
 
 function AccountCard({ accountId }: { accountId: string }) {
@@ -67,7 +67,7 @@ function AccountCard({ accountId }: { accountId: string }) {
         value: "typescript",
         fileName: "account.ts",
         language: "typescript",
-        icon: typescriptLogo.src,
+        icon: typescriptLogo,
         code: `import { MirrorNodeClient } from "@hieco/mirror";
 
 const client = new MirrorNodeClient({ network: "testnet" });
@@ -82,7 +82,7 @@ if (account.success) {
         value: "react",
         fileName: "account-card.tsx",
         language: "tsx",
-        icon: reactLogo.src,
+        icon: reactLogo,
         code: `import { useAccountInfo } from "@hieco/mirror-react";
 
 function AccountCard() {
@@ -98,7 +98,7 @@ function AccountCard() {
         value: "preact",
         fileName: "account-card.tsx",
         language: "tsx",
-        icon: preactLogo.src,
+        icon: preactLogo,
         code: `import { useAccountInfo } from "@hieco/mirror-preact";
 
 function AccountCard() {
@@ -114,7 +114,7 @@ function AccountCard() {
         value: "solid",
         fileName: "account-card.tsx",
         language: "tsx",
-        icon: solidLogo.src,
+        icon: solidLogo,
         code: `import type { JSX } from "solid-js";
 import { createAccountInfo } from "@hieco/mirror-solid";
 
@@ -128,7 +128,7 @@ function AccountCard(): JSX.Element {
         value: "cli",
         fileName: "terminal.sh",
         language: "bash",
-        icon: typescriptLogo.src,
+        icon: typescriptLogo,
         code: `bunx @hieco/mirror-cli account 0.0.1001
 bunx @hieco/mirror-cli balance 0.0.1001
 bunx @hieco/mirror-cli transactions:list --account 0.0.1001 --limit 10
@@ -144,7 +144,7 @@ bunx @hieco/mirror-cli topic:messages 0.0.3003 --encoding utf-8`,
         value: "typescript",
         fileName: "subscribe.ts",
         language: "typescript",
-        icon: typescriptLogo.src,
+        icon: typescriptLogo,
         code: `import { RelayWebSocketClient } from "@hieco/realtime";
 
 const client = new RelayWebSocketClient({
@@ -174,7 +174,7 @@ if (result.success) {
         value: "react",
         fileName: "contract-log-feed.tsx",
         language: "tsx",
-        icon: reactLogo.src,
+        icon: reactLogo,
         code: `import { useContractLogs, useStreamState } from "@hieco/realtime-react";
 
 function ContractLogFeed() {
@@ -200,7 +200,7 @@ function ContractLogFeed() {
         value: "typescript",
         fileName: "connect.ts",
         language: "typescript",
-        icon: typescriptLogo.src,
+        icon: typescriptLogo,
         code: `import { createWallet } from "@hieco/wallet";
 
 const wallet = createWallet({
@@ -221,7 +221,7 @@ console.log(session.accountId);`,
         value: "react",
         fileName: "connect-wallet.tsx",
         language: "tsx",
-        icon: reactLogo.src,
+        icon: reactLogo,
         code: `import { useWallet } from "@hieco/wallet-react";
 
 function ConnectWallet() {
@@ -259,7 +259,7 @@ function ConnectWallet() {
         value: "agent-skills",
         fileName: "Agent Skills",
         language: "bash",
-        icon: skillsLogo.src,
+        icon: skillsLogo,
         code: `npx flins add powxenv/hieco
 npx flins add powxenv/hieco --skill hieco-sdk
 npx flins add powxenv/hieco --skill hieco-wallet
@@ -271,7 +271,7 @@ npx flins add powxenv/hieco --skill hieco-mirror-cli`,
         value: "claude-code",
         fileName: "Claude Code",
         language: "bash",
-        icon: mcpLogo.src,
+        icon: mcpLogo,
         code: `claude mcp add --transport stdio \\
   --env MIRROR_NETWORK=testnet \\
   --env MIRROR_ALLOW_NETWORK_SWITCH=true \\
@@ -282,7 +282,7 @@ npx flins add powxenv/hieco --skill hieco-mirror-cli`,
         value: "codex",
         fileName: "Codex",
         language: "bash",
-        icon: mcpLogo.src,
+        icon: mcpLogo,
         code: `codex mcp add \\
   --env MIRROR_NETWORK=testnet \\
   --env MIRROR_ALLOW_NETWORK_SWITCH=true \\
@@ -293,7 +293,7 @@ npx flins add powxenv/hieco --skill hieco-mirror-cli`,
         value: "github-copilot",
         fileName: "GitHub Copilot",
         language: "json",
-        icon: mcpLogo.src,
+        icon: mcpLogo,
         code: `{
   "servers": {
     "hedera-mirror": {
@@ -311,7 +311,7 @@ npx flins add powxenv/hieco --skill hieco-mirror-cli`,
         value: "opencode",
         fileName: "OpenCode",
         language: "json",
-        icon: mcpLogo.src,
+        icon: mcpLogo,
         code: `{
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
@@ -331,7 +331,7 @@ npx flins add powxenv/hieco --skill hieco-mirror-cli`,
         value: "other-agents",
         fileName: "Other Agents",
         language: "json",
-        icon: mcpLogo.src,
+        icon: mcpLogo,
         code: `{
   "mcpServers": {
     "hedera-mirror": {
