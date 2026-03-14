@@ -1,31 +1,38 @@
 ---
 name: hieco-wallet
-description: Use the Hieco wallet SDK family for Hedera. Use when building with @hieco/wallet or @hieco/wallet-react; when choosing between the headless wallet runtime and the React wrapper; or when the task needs installation guidance, shared QR and extension flow guidance, expired URI reload guidance, signer integration, or wallet API reference coverage.
+description: Use the Hieco wallet package family for Hedera. Reach for this skill when the task involves @hieco/wallet or @hieco/wallet-react, when you need to choose between the headless runtime and the React wrapper, or when you need package selection, installation, quickstarts, best practices, or API references for wallet flows.
 ---
 
 # Hieco Wallet
 
-Use this skill when implementing code with `@hieco/wallet` or `@hieco/wallet-react`, especially when the task involves QR connection lifecycle, expired URI recovery, or custom wallet dialogs.
+Use this skill when the task is about `@hieco/wallet` or `@hieco/wallet-react`.
 
-## Workflow
+Start here when the user wants wallet connection, QR pairing, extension flows, reconnect behavior, session restore, or signer handoff into the rest of the Hieco stack.
 
-1. Start with [references/package-selection.md](references/package-selection.md).
-2. Load [references/sources.md](references/sources.md) when you need GitHub links, npm links, or installed `node_modules` lookup paths.
-3. Load [references/installation.md](references/installation.md).
-4. Load [references/quickstart.md](references/quickstart.md) for the first runnable example.
-5. Load [references/best-practices.md](references/best-practices.md) for runtime ownership, shared connection flow, and signer guidance.
-6. Load the API file that matches the package surface:
-   - headless runtime: [references/api-core.md](references/api-core.md)
-   - React wrapper: [references/api-react.md](references/api-react.md)
+## Start Here
 
-If the task is primarily about Hedera queries, transactions, React query hooks, or the legacy `@hieco/react/appkit` bridge, use the main SDK skill instead.
+1. Read [references/package-selection.md](references/package-selection.md) to choose between the headless runtime and the React wrapper.
+2. Read [references/installation.md](references/installation.md) when the task needs setup guidance.
+3. Read [references/quickstart.md](references/quickstart.md) for the fastest runnable example.
 
-## References
+## Pull In As Needed
+
+- [references/best-practices.md](references/best-practices.md) for runtime ownership, shared connection attempts, restore flows, and signer guidance
+- [references/api-core.md](references/api-core.md) for the headless runtime
+- [references/api-react.md](references/api-react.md) for the React wrapper
+- [references/sources.md](references/sources.md) for repository, npm, and installed-package lookup paths
+
+## Route To A Different Skill When Needed
+
+- If the task is mainly about Hedera reads, writes, or React query hooks, use `hieco-sdk`.
+- If the task is mainly about read-only Mirror data, use `hieco-mirror`.
+
+## Reference Map
 
 - Package selection: [references/package-selection.md](references/package-selection.md)
-- Package sources: [references/sources.md](references/sources.md)
 - Installation: [references/installation.md](references/installation.md)
 - Quick start: [references/quickstart.md](references/quickstart.md)
 - Best practices: [references/best-practices.md](references/best-practices.md)
-- `@hieco/wallet` API reference: [references/api-core.md](references/api-core.md)
-- `@hieco/wallet-react` API reference: [references/api-react.md](references/api-react.md)
+- Core wallet API: [references/api-core.md](references/api-core.md)
+- React wallet API: [references/api-react.md](references/api-react.md)
+- Sources: [references/sources.md](references/sources.md)

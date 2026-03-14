@@ -1,31 +1,31 @@
 # @hieco/realtime-react
 
-## Overview
+`@hieco/realtime-react` brings Hieco’s realtime relay client into React with a provider, hooks, and managed connection state.
 
-`@hieco/realtime-react` wraps `@hieco/realtime` in a React provider and a small set of hooks for live Relay subscriptions.
+It is the easiest way to add live Hedera updates to a React app without hand-rolling websocket orchestration.
 
-It is built for:
+## Why This Package Exists
 
-- React apps that want connection state in context
-- components that need automatic subscription cleanup
-- live log feeds and manual Relay interactions from React
+Realtime React code gets messy fast when connection state, subscriptions, and cleanup all live in components. This package gives you:
+
+- a `RealtimeProvider`
+- shared client and connection state
+- hooks for relay subscriptions
+- an easier bridge between static reads and live updates
+
+## When To Use It
+
+Choose `@hieco/realtime-react` when you are building:
+
+- live transaction feeds
+- streaming dashboards
+- React apps that combine initial Mirror reads with realtime updates
+- components that should subscribe and unsubscribe cleanly with the tree
 
 ## Installation
 
 ```bash
-npm install @hieco/realtime @hieco/realtime-react
-```
-
-```bash
-pnpm add @hieco/realtime @hieco/realtime-react
-```
-
-```bash
-yarn add @hieco/realtime @hieco/realtime-react
-```
-
-```bash
-bun add @hieco/realtime @hieco/realtime-react
+bun add @hieco/realtime-react @hieco/realtime @hieco/mirror
 ```
 
 Peer dependencies expected from the host app:
@@ -33,170 +33,42 @@ Peer dependencies expected from the host app:
 - `react >= 18`
 - `react-dom >= 18`
 
-## When To Use This Package
-
-Use `@hieco/realtime-react` when you want to:
-
-- subscribe to Relay streams from React components
-- reuse a single realtime client across a component tree
-- show connection status, chain ID, or live log data in React
-
-If you need direct control over WebSocket lifecycle outside React, use [`@hieco/realtime`](../realtime/README.md) directly.
-
 ## Quick Start
 
 ```tsx
-"use client";
+import { RealtimeProvider } from "@hieco/realtime-react";
 
-import { RealtimeProvider, useContractLogs, useStreamState } from "@hieco/realtime-react";
-
-function ContractLogFeed() {
-  const { logs, isConnected, error } = useContractLogs({
-    address: "0x0000000000000000000000000000000000001389",
-    enabled: true,
-  });
-  const state = useStreamState();
-
-  if (!isConnected) return <div>{state._tag}</div>;
-  if (error) return <div>{error.message}</div>;
-
-  return <pre>{JSON.stringify(logs, null, 2)}</pre>;
-}
-
-export function Providers({ children }: { children: React.ReactNode }) {
+export function App({ children }: { children: React.ReactNode }) {
   return (
     <RealtimeProvider
       config={{
         network: "testnet",
-        relayEndpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
+        relayEndpoint: "wss://testnet.hashio.io/api/v1/ws",
       }}
     >
       {children}
-      <ContractLogFeed />
     </RealtimeProvider>
   );
 }
 ```
 
-## Core Concepts
+## The Provider Model
 
-### Provider-Owned Client
+`RealtimeProvider` owns:
 
-`RealtimeProvider` creates and owns one `RelayWebSocketClient` based on:
+- the active relay client
+- the current stream state
+- `connect()`
+- `disconnect()`
 
-- `network`
-- `relayEndpoint`
+That makes it easier to treat realtime connectivity as shared app infrastructure instead of one more local component concern.
 
-The provider also mirrors the current `StreamState` into React context.
+## Notes
 
-### Context Hooks
-
-The base hooks are:
-
-- `useRealtimeContext()`
-- `useRealtimeClient()`
-- `useStreamState()`
-- `useChainId()`
-
-These cover most manual control cases without exposing provider internals.
-
-### Subscription Hook
-
-`useContractLogs()` manages the full lifecycle of a logs subscription:
-
-- subscribe on mount
-- append messages as they arrive
-- unsubscribe on cleanup
-
-## Advanced
-
-### Manual Connect And Disconnect
-
-```tsx
-"use client";
-
-import { useRealtimeContext } from "@hieco/realtime-react";
-
-export function ConnectionControls() {
-  const { state, connect, disconnect } = useRealtimeContext();
-
-  return (
-    <div>
-      <span>{state._tag}</span>
-      <button onClick={() => void connect()}>Connect</button>
-      <button onClick={() => void disconnect()}>Disconnect</button>
-    </div>
-  );
-}
-```
-
-### Manual Custom Subscriptions
-
-```tsx
-"use client";
-
-import { useRealtimeClient } from "@hieco/realtime-react";
-
-export function SubscribeToHeads() {
-  const client = useRealtimeClient();
-
-  async function subscribe() {
-    await client.subscribe({ type: "newHeads", filter: {} }, (message) => {
-      console.log(message.result);
-    });
-  }
-
-  return <button onClick={() => void subscribe()}>Subscribe</button>;
-}
-```
-
-### Chain ID Queries
-
-```tsx
-"use client";
-
-import { useChainId } from "@hieco/realtime-react";
-
-export function ChainIdButton() {
-  const { getChainId, result } = useChainId();
-
-  return (
-    <button onClick={() => void getChainId()}>
-      {result?.success ? result.data : "Get chain ID"}
-    </button>
-  );
-}
-```
-
-## API Reference
-
-### Provider Exports
-
-| Export                  | Kind      | Purpose                                              | Usage form                        |
-| ----------------------- | --------- | ---------------------------------------------------- | --------------------------------- |
-| `RealtimeProvider`      | component | Root provider for the Relay client and stream state. | `<RealtimeProvider config={...}>` |
-| `RealtimeProviderProps` | type      | Props accepted by `RealtimeProvider`.                | `type RealtimeProviderProps`      |
-| `RealtimeConfig`        | type      | Provider config.                                     | `{ network, relayEndpoint }`      |
-| `RealtimeContextValue`  | type      | Context shape returned by `useRealtimeContext()`.    | `type RealtimeContextValue`       |
-
-### Context Hooks
-
-| Export               | Kind | Purpose                                       | Usage form             |
-| -------------------- | ---- | --------------------------------------------- | ---------------------- |
-| `useRealtimeContext` | hook | Access the full context value.                | `useRealtimeContext()` |
-| `useRealtimeClient`  | hook | Access the underlying `RelayWebSocketClient`. | `useRealtimeClient()`  |
-| `useStreamState`     | hook | Read the current `StreamState`.               | `useStreamState()`     |
-| `useChainId`         | hook | Query the relay chain ID on demand.           | `useChainId()`         |
-
-### Subscription Hooks
-
-| Export                   | Kind | Purpose                                                      | Usage form                                         |
-| ------------------------ | ---- | ------------------------------------------------------------ | -------------------------------------------------- |
-| `useContractLogs`        | hook | Subscribe to `logs` and keep the results in component state. | `useContractLogs({ address?, topics?, enabled? })` |
-| `UseContractLogsOptions` | type | Options accepted by `useContractLogs`.                       | `type UseContractLogsOptions`                      |
-| `UseContractLogsResult`  | type | Result shape returned by `useContractLogs`.                  | `{ logs, isConnected, error }`                     |
+- This package depends on `@hieco/realtime` for the underlying client.
+- It is a good companion to `@hieco/mirror-react` when you want “load the current view, then stay live.”
 
 ## Related Packages
 
-- [`@hieco/realtime`](../realtime/README.md) for the underlying Relay WebSocket client
-- [`@hieco/react`](../react/README.md) for Hedera transaction and query hooks in React
+- [`@hieco/realtime`](../realtime/README.md)
+- [`@hieco/mirror-react`](../mirror-react/README.md)

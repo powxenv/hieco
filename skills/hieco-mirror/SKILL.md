@@ -1,33 +1,43 @@
 ---
 name: hieco-mirror
-description: Use the Hieco Mirror SDK family for read-only Hedera Mirror Node access. Use when building with @hieco/mirror, @hieco/mirror-react, @hieco/mirror-preact, or @hieco/mirror-solid; when choosing between the core client and framework wrappers; or when the task needs installation guidance, best practices, or complete API reference coverage for mirror reads across supported frameworks.
+description: Use the Hieco Mirror package family for read-only Hedera Mirror Node access. Reach for this skill when the task involves @hieco/mirror or its framework wrappers, when you need to choose the right wrapper for React, Preact, or Solid, or when you need package selection, installation, quickstarts, best practices, or API references for Mirror reads.
 ---
 
 # Hieco Mirror
 
-Use this skill when implementing code with `@hieco/mirror` or one of its framework wrappers.
+Use this skill when the task is about `@hieco/mirror`, `@hieco/mirror-react`, `@hieco/mirror-preact`, or `@hieco/mirror-solid`.
 
-## Workflow
+Start here when the user wants public Hedera data without signer logic or transaction execution.
 
-1. Start with [references/package-selection.md](references/package-selection.md).
-2. Load [references/sources.md](references/sources.md) when you need GitHub links, npm links, or installed `node_modules` lookup paths.
-3. Load [references/installation.md](references/installation.md).
-4. Load [references/quickstart.md](references/quickstart.md) for the first runnable example.
-5. Load [references/best-practices.md](references/best-practices.md) for pagination, network, and result handling guidance.
-6. Load the API file that matches the package surface:
-   - core client: [references/api-core.md](references/api-core.md)
-   - React wrapper: [references/api-react.md](references/api-react.md)
-   - Preact wrapper: [references/api-preact.md](references/api-preact.md)
-   - Solid wrapper: [references/api-solid.md](references/api-solid.md)
+## Start Here
 
-## References
+1. Read [references/package-selection.md](references/package-selection.md) to choose the right package in the Mirror family.
+2. Read [references/installation.md](references/installation.md) when setup guidance is needed.
+3. Read [references/quickstart.md](references/quickstart.md) for the fastest working example.
+
+## Pull In As Needed
+
+- [references/best-practices.md](references/best-practices.md) for pagination, network selection, and result handling guidance
+- [references/api-core.md](references/api-core.md) for the plain TypeScript client
+- [references/api-react.md](references/api-react.md) for the React wrapper
+- [references/api-preact.md](references/api-preact.md) for the Preact wrapper
+- [references/api-solid.md](references/api-solid.md) for the Solid wrapper
+- [references/sources.md](references/sources.md) for repository, npm, and installed-package lookup paths
+
+## Route To A Different Skill When Needed
+
+- If the task is about live relay subscriptions, use `hieco-realtime`.
+- If the task is about transaction execution or signer-aware app logic, use `hieco-sdk`.
+- If the task is about terminal-only Mirror usage, use `hieco-mirror-cli`.
+
+## Reference Map
 
 - Package selection: [references/package-selection.md](references/package-selection.md)
-- Package sources: [references/sources.md](references/sources.md)
 - Installation: [references/installation.md](references/installation.md)
 - Quick start: [references/quickstart.md](references/quickstart.md)
 - Best practices: [references/best-practices.md](references/best-practices.md)
-- `@hieco/mirror` API reference: [references/api-core.md](references/api-core.md)
-- `@hieco/mirror-react` API reference: [references/api-react.md](references/api-react.md)
-- `@hieco/mirror-preact` API reference: [references/api-preact.md](references/api-preact.md)
-- `@hieco/mirror-solid` API reference: [references/api-solid.md](references/api-solid.md)
+- Core Mirror API: [references/api-core.md](references/api-core.md)
+- React API: [references/api-react.md](references/api-react.md)
+- Preact API: [references/api-preact.md](references/api-preact.md)
+- Solid API: [references/api-solid.md](references/api-solid.md)
+- Sources: [references/sources.md](references/sources.md)

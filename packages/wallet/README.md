@@ -1,44 +1,37 @@
 # @hieco/wallet
 
-## Overview
+`@hieco/wallet` is the headless Hieco wallet runtime for browser apps that want full control over wallet state, QR pairing, extension flows, and session restore.
 
-`@hieco/wallet` is the headless Hedera wallet runtime for Hieco.
+It is the package you reach for when you want to own the wallet experience instead of adopting one for free.
 
-It provides:
+## Why This Package Exists
 
-- one configured chain per runtime
-- one active wallet session
-- one shared pending WalletConnect connection attempt
-- one wallet catalog with installed and unavailable desktop extension options
+Wallet connection is rarely just a button. Real apps need to manage:
+
+- a current session
+- a pending connection attempt
+- extension and WalletConnect entry points
+- reconnect and restore behavior
+- a signer that can move into the rest of the app
+
+`@hieco/wallet` keeps that complexity in one runtime so your UI can stay focused on presentation.
+
+## When To Use It
+
+Choose `@hieco/wallet` when you are building:
+
+- a browser app outside React
+- a custom wallet modal, drawer, or inline picker
+- a framework integration that wants direct runtime ownership
+- a product that needs fine-grained control over pairing and restore flows
+
+If you want the React wrapper, use [`@hieco/wallet-react`](../wallet-react/README.md).
 
 ## Installation
 
 ```bash
-npm install @hieco/wallet
-```
-
-```bash
-pnpm add @hieco/wallet
-```
-
-```bash
-yarn add @hieco/wallet
-```
-
-```bash
 bun add @hieco/wallet
 ```
-
-## When To Use This Package
-
-Use `@hieco/wallet` when you want to:
-
-- manage wallet connection from a browser runtime outside React
-- build your own wallet dialog, drawer, or inline picker
-- keep direct control over QR, extension, restore, and disconnect flows
-- read the connected `Signer` from one shared runtime
-
-If you are building a React UI, prefer [`@hieco/wallet-react`](../wallet-react/README.md) unless you specifically want to own runtime lifecycle yourself.
 
 ## Quick Start
 
@@ -61,60 +54,56 @@ console.log(session.accountId);
 console.log(session.signer);
 ```
 
-## Core Concepts
+## How To Think About The Runtime
 
-### One Runtime
+One wallet runtime owns:
 
-`createWallet(...)` returns one runtime with these actions:
+- one configured chain
+- one active session
+- one shared pending connection attempt
+- one wallet catalog
 
-- `snapshot()`
-- `subscribe(listener)`
-- `connectQr()`
-- `connectExtension(walletId)`
-- `cancelConnection()`
-- `disconnect()`
-- `restore()`
-- `destroy()`
+That shared pending attempt is the important detail. `connectQr()` and `connectExtension(walletId)` join the same in-flight connection until it settles or gets cancelled, which makes custom wallet UI much easier to reason about.
 
-### State Model
+## Common Workflows
 
-`snapshot()` returns the current `WalletState`:
+### Read wallet state
 
 ```ts
-type WalletState = {
-  readonly chain: WalletChain;
-  readonly walletConnectEnabled: boolean;
-  readonly wallets: readonly WalletOption[];
-  readonly session: WalletSession | null;
-  readonly connection: WalletConnection | null;
-};
+const state = wallet.snapshot();
+
+console.log(state.session?.accountId);
+console.log(state.connection?.uri);
 ```
 
-- `walletConnectEnabled` tells the UI whether connection actions are available
-- `wallets` contains installed and unavailable wallet options
-- `session` is the durable connected wallet state
-- `connection` is the current shared in-flight connection attempt
+### Build your own wallet picker
 
-### Shared Connection Flow
+```ts
+import {
+  createWallet,
+  getConnectableWallets,
+  getUnavailableWallets,
+} from "@hieco/wallet";
 
-`connectQr()` and `connectExtension(walletId)` join the same pending connection attempt until it settles or is canceled.
+const wallet = createWallet({
+  projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+  app: {
+    name: "My Hieco App",
+    description: "Wallet connection for My Hieco App",
+    url: "https://example.com",
+    icons: ["https://example.com/icon.png"],
+  },
+});
 
-That lets you:
+const stop = wallet.subscribe(() => {
+  const state = wallet.snapshot();
 
-- start a QR flow immediately
-- let an installed extension reuse the same attempt
-- keep one piece of connection state for your UI
+  console.log(getConnectableWallets(state));
+  console.log(getUnavailableWallets(state));
+});
+```
 
-### Wallet Catalog Helpers
-
-The package also exports selectors for common UI groupings:
-
-- `getConnectableWallets(state)`
-- `getUnavailableWallets(state)`
-
-## Advanced
-
-### Restore A Previous Session
+### Restore a previous session
 
 ```ts
 const wallet = createWallet({
@@ -128,33 +117,10 @@ const wallet = createWallet({
   restoreOnStart: true,
 });
 
-const restoredSession = await wallet.restore();
+await wallet.restore();
 ```
 
-`restoreOnStart` performs a best-effort browser restore after the runtime is created. `restore()` lets you control that flow manually.
-
-### Custom Chains And Wallet Catalogs
-
-```ts
-import { createWallet, hashpack, hederaDevnet, kabila } from "@hieco/wallet";
-
-const wallet = createWallet({
-  projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
-  app: {
-    name: "My Hieco App",
-    description: "Wallet connection for My Hieco App",
-    url: "https://example.com",
-    icons: ["https://example.com/icon.png"],
-  },
-  chain: hederaDevnet({
-    rpcUrl: "http://127.0.0.1:7546",
-    mirrorUrl: "http://127.0.0.1:5551",
-  }),
-  wallets: [hashpack(), kabila()],
-});
-```
-
-### Signer Integration
+### Pass the signer into Hieco
 
 ```ts
 import { hieco } from "@hieco/sdk";
@@ -163,53 +129,41 @@ const session = await wallet.connectQr();
 const client = hieco({ network: "testnet" }).as(session.signer);
 ```
 
-## API Reference
+## API At A Glance
 
-### Root Exports
+Core exports:
 
-| Export                       | Kind     | Purpose                                               | Usage form                        |
-| ---------------------------- | -------- | ----------------------------------------------------- | --------------------------------- |
-| `createWallet`               | function | Create the headless wallet runtime.                   | `createWallet(options)`           |
-| `getConnectableWallets`      | function | Filter installed wallet options for UI rendering.     | `getConnectableWallets(state)`    |
-| `getUnavailableWallets`      | function | Filter unavailable wallet options for install links.  | `getUnavailableWallets(state)`    |
-| `hederaMainnet`              | function | Create the built-in Hedera mainnet chain definition.  | `hederaMainnet()`                 |
-| `hederaTestnet`              | function | Create the built-in Hedera testnet chain definition.  | `hederaTestnet()`                 |
-| `hederaPreviewnet`           | function | Create the built-in Hedera previewnet chain.          | `hederaPreviewnet()`              |
-| `hederaDevnet`               | function | Create a devnet or custom chain definition.           | `hederaDevnet(config?)`           |
-| `hashpack`                   | function | Create the curated HashPack wallet definition.        | `hashpack()`                      |
-| `kabila`                     | function | Create the curated Kabila wallet definition.          | `kabila()`                        |
-| `genericWalletConnectWallet` | function | Create the generic WalletConnect wallet definition.   | `genericWalletConnectWallet()`    |
-| `getDefaultWallets`          | function | Return the default wallet catalog used by the runtime | `getDefaultWallets()`             |
-| `WalletError`                | class    | Typed wallet error with a stable `code` field.        | `new WalletError(code, message?)` |
-| `asWalletError`              | function | Normalize unknown errors into `WalletError`.          | `asWalletError(error, fallback)`  |
+- `createWallet`
+- `getConnectableWallets`
+- `getUnavailableWallets`
+- `hederaMainnet()`
+- `hederaTestnet()`
+- `hederaPreviewnet()`
+- `hederaDevnet()`
+- `hashpack()`
+- `kabila()`
+- `genericWalletConnectWallet()`
+- `getDefaultWallets()`
 
-### Runtime Methods
+Key runtime methods:
 
-| Member                    | Kind   | Purpose                                                        | Usage form                    |
-| ------------------------- | ------ | -------------------------------------------------------------- | ----------------------------- |
-| `wallet.snapshot`         | method | Read the current wallet state synchronously.                   | `wallet.snapshot()`           |
-| `wallet.subscribe`        | method | Listen for wallet state updates.                               | `wallet.subscribe(listener)`  |
-| `wallet.connectQr`        | method | Start or join the shared QR connection flow.                   | `wallet.connectQr()`          |
-| `wallet.connectExtension` | method | Start or join the shared extension connection flow.            | `wallet.connectExtension(id)` |
-| `wallet.cancelConnection` | method | Clear the pending connection attempt without ending a session. | `wallet.cancelConnection()`   |
-| `wallet.disconnect`       | method | Disconnect the active wallet session.                          | `wallet.disconnect()`         |
-| `wallet.restore`          | method | Restore a previously persisted wallet session if possible.     | `wallet.restore()`            |
-| `wallet.destroy`          | method | Tear down the runtime and clear client resources.              | `wallet.destroy()`            |
+- `snapshot()`
+- `subscribe(listener)`
+- `connectQr()`
+- `connectExtension(walletId)`
+- `cancelConnection()`
+- `disconnect()`
+- `restore()`
+- `destroy()`
 
-### Exported Types
+## Notes
 
-| Export                | Kind | Purpose                                                                  | Usage form                 |
-| --------------------- | ---- | ------------------------------------------------------------------------ | -------------------------- |
-| `CreateWalletOptions` | type | Runtime configuration for app metadata, chain, wallets, and persistence. | `type CreateWalletOptions` |
-| `WalletState`         | type | Snapshot returned by `wallet.snapshot()`.                                | `type WalletState`         |
-| `WalletSession`       | type | Active connected wallet session with `Signer`.                           | `type WalletSession`       |
-| `WalletConnection`    | type | Pending connection state for QR and extension flows.                     | `type WalletConnection`    |
-| `WalletChain`         | type | Hedera chain definition used by the runtime.                             | `type WalletChain`         |
-| `WalletDefinition`    | type | Input wallet catalog entry for custom wallet definitions.                | `type WalletDefinition`    |
-| `WalletOption`        | type | Runtime wallet option with availability metadata.                        | `type WalletOption`        |
+- `projectId` is required for real WalletConnect-backed pairing.
+- Runtime creation is safe in shared app code, but connection and restore actions are browser-only.
+- The curated wallet catalog includes HashPack, Kabila, and a generic WalletConnect option.
 
 ## Related Packages
 
 - [`@hieco/wallet-react`](../wallet-react/README.md) for React bindings over this runtime
-- [`@hieco/react`](../react/README.md) for Hedera queries and mutations scoped to a wallet signer
-- [`examples/wallet`](../../examples/wallet/README.md) for a complete wallet dialog example
+- [`@hieco/react`](../react/README.md) for signer-aware React queries and mutations
+- [`@hieco/sdk`](../sdk/README.md) for direct signer-scoped application logic

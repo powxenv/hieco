@@ -1,29 +1,38 @@
 ---
 name: hieco-realtime
-description: Use the Hieco realtime SDK family for Hedera Mirror Node Relay streams. Use when building with @hieco/realtime or @hieco/realtime-react; when choosing direct clients, connection pools, or React provider wiring; or when the task needs installation guidance, best practices, or complete API reference coverage for realtime subscriptions and the React wrapper.
+description: Use the Hieco realtime package family for Hedera relay streams. Reach for this skill when the task involves @hieco/realtime or @hieco/realtime-react, when you need to choose between low-level realtime clients and React bindings, or when you need package selection, installation, quickstarts, best practices, or API references for live subscriptions.
 ---
 
 # Hieco Realtime
 
-Use this skill when implementing code with `@hieco/realtime` or `@hieco/realtime-react`.
+Use this skill when the task is about `@hieco/realtime` or `@hieco/realtime-react`.
 
-## Workflow
+Start here when the user needs live updates, relay subscriptions, connection lifecycle guidance, or a clean bridge from static reads to streaming data.
 
-1. Start with [references/package-selection.md](references/package-selection.md).
-2. Load [references/sources.md](references/sources.md) when you need GitHub links, npm links, or installed `node_modules` lookup paths.
-3. Load [references/installation.md](references/installation.md).
-4. Load [references/quickstart.md](references/quickstart.md) for the first runnable example.
-5. Load [references/best-practices.md](references/best-practices.md) for connection lifecycle and subscription guidance.
-6. Load the API file that matches the package surface:
-   - core client: [references/api-core.md](references/api-core.md)
-   - React wrapper: [references/api-react.md](references/api-react.md)
+## Start Here
 
-## References
+1. Read [references/package-selection.md](references/package-selection.md) to choose between the low-level client and the React wrapper.
+2. Read [references/installation.md](references/installation.md) when setup guidance is needed.
+3. Read [references/quickstart.md](references/quickstart.md) for the fastest working example.
+
+## Pull In As Needed
+
+- [references/best-practices.md](references/best-practices.md) for connection lifecycle and subscription guidance
+- [references/api-core.md](references/api-core.md) for the base client
+- [references/api-react.md](references/api-react.md) for the React wrapper
+- [references/sources.md](references/sources.md) for repository, npm, and installed-package lookup paths
+
+## Route To A Different Skill When Needed
+
+- If the task is mainly about read-only current state from Mirror Node, use `hieco-mirror`.
+- If the task is mainly about signed transactions or React query hooks, use `hieco-sdk`.
+
+## Reference Map
 
 - Package selection: [references/package-selection.md](references/package-selection.md)
-- Package sources: [references/sources.md](references/sources.md)
 - Installation: [references/installation.md](references/installation.md)
 - Quick start: [references/quickstart.md](references/quickstart.md)
 - Best practices: [references/best-practices.md](references/best-practices.md)
-- `@hieco/realtime` API reference: [references/api-core.md](references/api-core.md)
-- `@hieco/realtime-react` API reference: [references/api-react.md](references/api-react.md)
+- Core realtime API: [references/api-core.md](references/api-core.md)
+- React realtime API: [references/api-react.md](references/api-react.md)
+- Sources: [references/sources.md](references/sources.md)

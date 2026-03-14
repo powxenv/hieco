@@ -1,29 +1,32 @@
 # @hieco/wallet-react
 
-## Overview
+`@hieco/wallet-react` brings the Hieco wallet runtime into React with a provider, a headless controller hook, and just enough structure to let your UI stay yours.
 
-`@hieco/wallet-react` wraps `@hieco/wallet` in a React provider and a headless controller hook.
+It is built for teams who want React-native wallet flows without being boxed into a prebuilt design system.
 
-It provides:
+## Why This Package Exists
 
-- one `WalletProvider` for runtime ownership
-- one `useWallet()` controller for common connect flows
-- one `useWalletClient()` escape hatch for low-level runtime access
-- grouped wallet lists, QR state, and action errors for custom UI
+Most React apps want the same wallet ingredients:
+
+- one runtime shared across the tree
+- one hook for the common connection flow
+- one place to read the session and signer
+- enough low-level access to build a custom dialog
+
+`@hieco/wallet-react` packages those pieces without taking over your UI.
+
+## When To Use It
+
+Choose `@hieco/wallet-react` when you are building:
+
+- a React app with Hedera wallet connection
+- a custom wallet modal or connect button
+- a signer source for `@hieco/react`
+- a React experience that needs QR, extension, reload, and disconnect flows
+
+If you are not in React, use [`@hieco/wallet`](../wallet/README.md).
 
 ## Installation
-
-```bash
-npm install @hieco/wallet @hieco/wallet-react
-```
-
-```bash
-pnpm add @hieco/wallet @hieco/wallet-react
-```
-
-```bash
-yarn add @hieco/wallet @hieco/wallet-react
-```
 
 ```bash
 bun add @hieco/wallet @hieco/wallet-react
@@ -33,17 +36,6 @@ Peer dependencies expected from the host app:
 
 - `react >= 18`
 - `react-dom >= 18`
-
-## When To Use This Package
-
-Use `@hieco/wallet-react` when you want to:
-
-- connect Hedera wallets from React components
-- keep one wallet runtime available across a component tree
-- build a custom dialog, drawer, or inline wallet picker with Hieco state
-- read the connected wallet session and signer from React
-
-If you need direct runtime control outside React, use [`@hieco/wallet`](../wallet/README.md) directly.
 
 ## Quick Start
 
@@ -59,20 +51,9 @@ function ConnectWallet() {
   }
 
   return (
-    <div>
-      <button onClick={() => void wallet.open()}>Open wallet dialog</button>
-      {wallet.connectableWallets.map((walletOption) => (
-        <button
-          disabled={!walletOption.canConnect}
-          key={walletOption.id}
-          onClick={() => {
-            void wallet.connectExtension(walletOption.id);
-          }}
-        >
-          {walletOption.name}
-        </button>
-      ))}
-    </div>
+    <button onClick={() => void wallet.open()} type="button">
+      Connect wallet
+    </button>
   );
 }
 
@@ -94,22 +75,21 @@ export function Providers({ children }: { children: ReactNode }) {
 }
 ```
 
-## Core Concepts
+## The Main Pieces
 
-### Provider-Owned Runtime
+### `WalletProvider`
 
-`WalletProvider` can:
+`WalletProvider` can either:
 
-- create and own a wallet runtime from `CreateWalletOptions`
+- create and own a wallet runtime from wallet options
 - reuse an existing runtime through `wallet={wallet}`
 
-That keeps the public surface small whether your app wants default ownership or already created a runtime with `createWallet(...)`.
+That gives you a smooth default and a deliberate escape hatch for advanced apps.
 
-### Headless Controller
+### `useWallet()`
 
-`useWallet()` returns the main UI controller for the common flow:
+`useWallet()` is the main controller hook. It groups the UI-facing state you usually care about:
 
-- `chain`
 - `session`
 - `ready`
 - `connectableWallets`
@@ -123,132 +103,65 @@ That keeps the public surface small whether your app wants default ownership or 
 - `disconnect()`
 - `clearError()`
 
-`open()` starts or joins the shared QR connection attempt. `reload()` cancels the current pending QR attempt and starts a fresh one so the UI can recreate an expired URI without closing the dialog first. `connectExtension(walletId)` can reuse that same attempt when the user chooses an installed extension.
+### `useWalletClient()`
 
-### Low-Level Runtime Access
+Use `useWalletClient()` when you need the underlying runtime directly, such as `cancelConnection()`, `restore()`, or raw `snapshot()` access.
 
-`useWalletClient()` returns the underlying `@hieco/wallet` runtime. Use it when you need methods such as:
+## Common Workflows
 
-- `snapshot()`
-- `subscribe()`
-- `cancelConnection()`
-- `restore()`
-- `destroy()`
-
-## Advanced
-
-### Build Your Own Dialog
+### Build a custom dialog
 
 ```tsx
-import { useEffect, useState } from "react";
-import { Dialog } from "@base-ui/react/dialog";
-import { QRCodeSVG } from "qrcode.react";
 import { useWallet, useWalletClient } from "@hieco/wallet-react";
 
-function WalletDialog() {
+export function WalletDialog() {
   const wallet = useWallet();
   const walletClient = useWalletClient();
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (wallet.session) {
-      setOpen(false);
-    }
-  }, [wallet.session]);
-
-  const handleOpenChange = (nextOpen: boolean): void => {
-    setOpen(nextOpen);
-
-    if (!nextOpen) {
-      wallet.close();
-      walletClient.cancelConnection();
-      return;
-    }
-
-    void wallet.open();
-  };
 
   return (
-    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-      <Dialog.Trigger>Connect wallet</Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Backdrop />
-        <Dialog.Viewport>
-          <Dialog.Popup>
-            {wallet.error ? <div>{wallet.error.message}</div> : null}
+    <div>
+      <button onClick={() => void wallet.open()} type="button">
+        Open wallet dialog
+      </button>
 
-            {wallet.qr.uri ? (
-              <QRCodeSVG value={wallet.qr.uri} />
-            ) : (
-              <div>{wallet.qr.pending ? "Generating QR..." : "QR pending"}</div>
-            )}
+      {wallet.qr.uri ? <div>Render QR from {wallet.qr.uri}</div> : null}
+      {wallet.qr.expired ? <div>QR expired. Recreate it.</div> : null}
 
-            <button
-              onClick={() => {
-                void wallet.reload();
-              }}
-            >
-              {wallet.qr.expired ? "Recreate QR" : "Reload QR"}
-            </button>
+      {wallet.connectableWallets.map((item) => (
+        <button
+          key={item.id}
+          onClick={() => {
+            void wallet.connectExtension(item.id);
+          }}
+          type="button"
+        >
+          {item.name}
+        </button>
+      ))}
 
-            {wallet.connectableWallets.map((walletOption) => (
-              <button
-                disabled={!walletOption.canConnect}
-                key={walletOption.id}
-                onClick={() => {
-                  void wallet.connectExtension(walletOption.id);
-                }}
-              >
-                {walletOption.name}
-              </button>
-            ))}
+      <button onClick={() => void wallet.reload()} type="button">
+        {wallet.qr.expired ? "Recreate QR" : "Reload QR"}
+      </button>
 
-            {wallet.unavailableWallets.map((walletOption) => (
-              <a
-                href={walletOption.installUrl}
-                key={walletOption.id}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Install {walletOption.name}
-              </a>
-            ))}
-          </Dialog.Popup>
-        </Dialog.Viewport>
-      </Dialog.Portal>
-    </Dialog.Root>
+      <button
+        onClick={() => {
+          wallet.close();
+          walletClient.cancelConnection();
+        }}
+        type="button"
+      >
+        Close
+      </button>
+    </div>
   );
 }
 ```
 
-### Reuse An Existing Runtime
+### Feed the signer into `@hieco/react`
 
 ```tsx
-import { createWallet } from "@hieco/wallet";
-import { WalletProvider } from "@hieco/wallet-react";
-
-const wallet = createWallet({
-  projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
-  app: {
-    name: "My Hieco App",
-    description: "Wallet connection for My Hieco App",
-    url: "https://example.com",
-    icons: ["https://example.com/icon.png"],
-  },
-});
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return <WalletProvider wallet={wallet}>{children}</WalletProvider>;
-}
-```
-
-### Pair With `@hieco/react`
-
-```tsx
-"use client";
-
 import { HiecoProvider } from "@hieco/react";
-import { WalletProvider, useWallet } from "@hieco/wallet-react";
+import { useWallet } from "@hieco/wallet-react";
 
 function HiecoRuntime({ children }: { children: React.ReactNode }) {
   const wallet = useWallet();
@@ -259,78 +172,30 @@ function HiecoRuntime({ children }: { children: React.ReactNode }) {
     </HiecoProvider>
   );
 }
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <WalletProvider
-      projectId="YOUR_WALLETCONNECT_PROJECT_ID"
-      app={{
-        name: "My Hieco App",
-        description: "Wallet connection for My Hieco App",
-        url: "https://example.com",
-        icons: ["https://example.com/icon.png"],
-      }}
-    >
-      <HiecoRuntime>{children}</HiecoRuntime>
-    </WalletProvider>
-  );
-}
 ```
 
-## API Reference
+## API At A Glance
 
-### Provider Exports
+Core exports:
 
-| Export                | Kind      | Purpose                                        | Usage form                    |
-| --------------------- | --------- | ---------------------------------------------- | ----------------------------- |
-| `WalletProvider`      | component | Root provider for the wallet runtime.          | `<WalletProvider {...props}>` |
-| `WalletProviderProps` | type      | Props accepted by `WalletProvider`.            | `type WalletProviderProps`    |
-| `useWalletClient`     | hook      | Access the underlying `@hieco/wallet` runtime. | `useWalletClient()`           |
+- `WalletProvider`
+- `useWallet`
+- `useWalletClient`
 
-### Controller Exports
+Key ideas:
 
-| Export             | Kind | Purpose                                               | Usage form              |
-| ------------------ | ---- | ----------------------------------------------------- | ----------------------- |
-| `useWallet`        | hook | Read grouped wallet state and common connect actions. | `useWallet()`           |
-| `UseWalletResult`  | type | Return shape from `useWallet()`.                      | `type UseWalletResult`  |
-| `UseWalletQrState` | type | QR state returned from `useWallet().qr`.              | `type UseWalletQrState` |
+- headless by design
+- built for custom UI
+- signer available through `wallet.session?.signer`
 
-### `WalletProviderProps`
+## Notes
 
-```ts
-type WalletProviderProps =
-  | {
-      readonly children: ReactNode;
-      readonly wallet: Wallet;
-    }
-  | (CreateWalletOptions & {
-      readonly children: ReactNode;
-    });
-```
+- `open()` starts or joins the shared QR flow.
+- `reload()` recreates the pending QR flow without forcing a full UI restart.
+- `close()` is controller-level UI state, while `cancelConnection()` stops the runtime’s pending connection attempt.
 
-### `UseWalletResult`
+## Related Packages
 
-```ts
-type UseWalletResult = {
-  readonly chain: WalletChain;
-  readonly session: WalletSession | null;
-  readonly ready: boolean;
-  readonly connectableWallets: readonly WalletOption[];
-  readonly unavailableWallets: readonly WalletOption[];
-  readonly qr: {
-    readonly enabled: boolean;
-    readonly uri: string | null;
-    readonly pending: boolean;
-  };
-  readonly error: Error | null;
-  readonly open: () => Promise<void>;
-  readonly close: () => void;
-  readonly connectExtension: (walletId: string) => Promise<void>;
-  readonly disconnect: () => Promise<void>;
-  readonly clearError: () => void;
-};
-```
-
-## Example
-
-See [`examples/wallet`](../../examples/wallet/README.md).
+- [`@hieco/wallet`](../wallet/README.md) for the underlying runtime
+- [`@hieco/react`](../react/README.md) for Hedera queries and mutations in React
+- [`@hieco/sdk`](../sdk/README.md) for non-React signer-scoped logic
