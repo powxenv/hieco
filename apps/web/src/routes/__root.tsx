@@ -10,12 +10,14 @@ import appCss from "../styles.css?url";
 import { hederaTestnet, hashpack, kabila } from "@hieco/wallet";
 import { WalletProvider } from "@hieco/wallet-react";
 import { env } from "#/env";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import Header from "#/components/header";
 
 interface MyRouterContext {
   queryClient: QueryClient;
 }
 
-const THEME_INIT_SCRIPT = `const theme = localStorage.getItem('theme') || 'system';const prefers_dark = window.matchMedia('(prefers-color-scheme: dark)').matches;if (theme === 'dark' || (theme === 'system' && prefers_dark)) {document.documentElement.classList.add('dark');}`;
+// const THEME_INIT_SCRIPT = `const theme = localStorage.getItem('theme') || 'system';const prefers_dark = window.matchMedia('(prefers-color-scheme: dark)').matches;if (theme === 'dark' || (theme === 'system' && prefers_dark)) {document.documentElement.classList.add('dark');}`;
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
@@ -66,9 +68,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: ReactNode }): ReactNode {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="light">
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {/* <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} /> */}
         <HeadContent />
       </head>
       <body>
@@ -86,7 +88,10 @@ function RootDocument({ children }: { children: ReactNode }): ReactNode {
               restoreOnStart
               wallets={[hashpack(), kabila()]}
             >
-              {children}
+              <TooltipProvider>
+                <Header />
+                {children}
+              </TooltipProvider>
             </WalletProvider>
 
             <TanStackDevtools

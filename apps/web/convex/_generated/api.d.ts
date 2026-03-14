@@ -8,12 +8,16 @@
  * @module
  */
 
-import type * as todos from "../todos.js";
+import type * as projects from "../projects.js";
+import type * as projectsSubmit from "../projectsSubmit.js";
+import type * as walletChallenges from "../walletChallenges.js";
 
 import type { ApiFromModules, FilterApi, FunctionReference } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  todos: typeof todos;
+  projects: typeof projects;
+  projectsSubmit: typeof projectsSubmit;
+  walletChallenges: typeof walletChallenges;
 }>;
 
 /**
