@@ -79,11 +79,7 @@ console.log(state.connection?.uri);
 ### Build your own wallet picker
 
 ```ts
-import {
-  createWallet,
-  getConnectableWallets,
-  getUnavailableWallets,
-} from "@hieco/wallet";
+import { createWallet, getConnectableWallets, getUnavailableWallets } from "@hieco/wallet";
 
 const wallet = createWallet({
   projectId: "YOUR_WALLETCONNECT_PROJECT_ID",

@@ -31,12 +31,7 @@ bun add @hieco/utils --cwd packages/<package-name>
 ## Quick Start
 
 ```ts
-import {
-  ApiErrorFactory,
-  NETWORK_CONFIGS,
-  isValidEntityId,
-  mirrorNodeKeys,
-} from "@hieco/utils";
+import { ApiErrorFactory, NETWORK_CONFIGS, isValidEntityId, mirrorNodeKeys } from "@hieco/utils";
 
 const tokenId = "0.0.2001";
 const key = mirrorNodeKeys.token.info("testnet", tokenId);

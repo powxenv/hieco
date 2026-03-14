@@ -36,11 +36,7 @@ Peer dependencies expected from the host app:
 ## Quick Start
 
 ```tsx
-import {
-  MirrorNodeProvider,
-  useAccountInfo,
-  useTransactionList,
-} from "@hieco/mirror-preact";
+import { MirrorNodeProvider, useAccountInfo, useTransactionList } from "@hieco/mirror-preact";
 
 function AccountPanel() {
   const account = useAccountInfo("0.0.1001");
@@ -54,7 +50,9 @@ function AccountPanel() {
     return <div>Loading...</div>;
   }
 
-  return <pre>{JSON.stringify({ account: account.data, transactions: transactions.data }, null, 2)}</pre>;
+  return (
+    <pre>{JSON.stringify({ account: account.data, transactions: transactions.data }, null, 2)}</pre>
+  );
 }
 
 export function App() {
