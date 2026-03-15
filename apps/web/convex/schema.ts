@@ -56,6 +56,7 @@ export default defineSchema({
   })
     .index("by_slug", ["slug"])
     .index("by_owner_account_id", ["ownerAccountId"])
+    .index("by_owner_account_id_and_open_source", ["ownerAccountId", "isOpenSource"])
     .index("by_status", ["status"])
     .index("by_open_source", ["isOpenSource"])
     .index("by_status_and_open_source", ["status", "isOpenSource"]),

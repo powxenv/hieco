@@ -8,6 +8,12 @@ import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { useWallet } from "@hieco/wallet-react";
 import {
+  isPackageOption,
+  isUseCaseOption,
+  packageOptions,
+  useCaseOptions,
+} from "#/lib/showcase-options";
+import {
   Combobox,
   ComboboxChip,
   ComboboxChips,
@@ -42,43 +48,6 @@ import { Input } from "#/components/ui/input";
 import { Switch } from "#/components/ui/switch";
 import { Textarea } from "#/components/ui/textarea";
 import { Button } from "./ui/button";
-
-const packageOptions = [
-  "Hieco Mirror",
-  "Hieco Mirror CLI",
-  "Hieco Mirror MCP",
-  "Hieco Mirror Preact",
-  "Hieco Mirror React",
-  "Hieco Mirror Solid",
-  "Hieco React",
-  "Hieco Realtime",
-  "Hieco Realtime React",
-  "Hieco SDK",
-  "Hieco Wallet",
-  "Hieco Wallet React",
-  "Hiero SDK",
-] as const;
-
-const useCaseOptions = [
-  "Payments",
-  "Tokenized Loyalty",
-  "NFT Marketplace",
-  "Gaming",
-  "Wallet Infrastructure",
-  "Onchain Identity",
-  "DAO Tools",
-  "DeFi",
-  "Social",
-  "Real World Assets",
-  "Supply Chain",
-  "Developer Tools",
-] as const;
-
-const isPackageOption = (value: string): value is (typeof packageOptions)[number] =>
-  packageOptions.some((option) => option === value);
-
-const isUseCaseOption = (value: string): value is (typeof useCaseOptions)[number] =>
-  useCaseOptions.some((option) => option === value);
 
 function slugifyProjectName(value: string): string {
   return value

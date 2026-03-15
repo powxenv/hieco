@@ -1,7 +1,8 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { useWallet } from "@hieco/wallet-react";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import SolarBranchingPathsUpLineDuotone from "~icons/solar/branching-paths-up-line-duotone";
 import SolarBoxLineDuotone from "~icons/solar/box-line-duotone";
 import SolarMinimalisticMagniferLineDuotone from "~icons/solar/minimalistic-magnifer-line-duotone";
@@ -21,7 +22,6 @@ import { Label } from "#/components/ui/label";
 import {
   Popover,
   PopoverContent,
-  PopoverDescription,
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
@@ -32,27 +32,62 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "#/components/ui/tooltip";
+import {
+  isPackageOption,
+  isUseCaseOption,
+  packageOptions,
+  useCaseOptions,
+} from "#/lib/showcase-options";
 import { Button } from "@/components/ui/button";
 
+const searchSchema = z.object({
+  q: z.string().catch("").default(""),
+  packages: z
+    .union([z.string(), z.array(z.string())])
+    .optional()
+    .transform((value) => {
+      const values = typeof value === "string" ? [value] : (value ?? []);
+
+      return values.filter(isPackageOption);
+    }),
+  useCases: z
+    .union([z.string(), z.array(z.string())])
+    .optional()
+    .transform((value) => {
+      const values = typeof value === "string" ? [value] : (value ?? []);
+
+      return values.filter(isUseCaseOption);
+    }),
+  openSource: z.boolean().catch(false).default(false),
+  hideYours: z.boolean().catch(false).default(false),
+});
+
 export const Route = createFileRoute("/showcase")({
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      convexQuery(api.projects.listApproved, {}),
-    );
-  },
+  validateSearch: searchSchema,
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const { session } = useWallet();
-  const { data: approvedProjects } = useSuspenseQuery(
-    convexQuery(api.projects.listApproved, {}),
-  );
+  const filters = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const { data: approvedProjects = [] } = useQuery({
+    ...convexQuery(api.projects.listApproved, {
+      q: filters.q,
+      openSource: filters.openSource,
+      packageNames: filters.packages,
+      useCases: filters.useCases,
+    }),
+  });
   const { data: yourProjects = [] } = useQuery({
     ...convexQuery(api.projects.listByOwner, {
       ownerAccountId: session?.accountId ?? "",
+      q: filters.q,
+      openSource: filters.openSource,
+      packageNames: filters.packages,
+      useCases: filters.useCases,
     }),
-    enabled: session !== null,
+    enabled: session !== null && !filters.hideYours,
   });
 
   return (
@@ -86,7 +121,18 @@ function RouteComponent() {
           )}
           <div className="flex gap-2 mt-4">
             <InputGroup className="max-w-xs">
-              <InputGroupInput placeholder="Search..." />
+              <InputGroupInput
+                onChange={(event) => {
+                  void navigate({
+                    search: (previous) => ({
+                      ...previous,
+                      q: event.target.value,
+                    }),
+                  });
+                }}
+                placeholder="Search..."
+                value={filters.q}
+              />
               <InputGroupAddon>
                 <SolarMinimalisticMagniferLineDuotone />
               </InputGroupAddon>
@@ -106,17 +152,34 @@ function RouteComponent() {
               <PopoverContent align="start">
                 <PopoverHeader>
                   <PopoverTitle>Packages</PopoverTitle>
-                  <PopoverDescription className="mt-2">
-                    <FieldGroup>
-                      <Field orientation="horizontal">
-                        <Checkbox id="filter-package-hiero-sdk" />
-                        <Label htmlFor="filter-package-hiero-sdk">
-                          Hiero SDK
+                </PopoverHeader>
+                <div className="mt-2">
+                  <FieldGroup>
+                    {packageOptions.map((packageName) => (
+                      <Field key={packageName} orientation="horizontal">
+                        <Checkbox
+                          checked={filters.packages.includes(packageName)}
+                          id={`filter-package-${packageName}`}
+                          onCheckedChange={(checked) => {
+                            void navigate({
+                              search: (previous) => ({
+                                ...previous,
+                                packages: checked
+                                  ? [...previous.packages, packageName]
+                                  : previous.packages.filter(
+                                      (value) => value !== packageName,
+                                    ),
+                              }),
+                            });
+                          }}
+                        />
+                        <Label htmlFor={`filter-package-${packageName}`}>
+                          {packageName}
                         </Label>
                       </Field>
-                    </FieldGroup>
-                  </PopoverDescription>
-                </PopoverHeader>
+                    ))}
+                  </FieldGroup>
+                </div>
               </PopoverContent>
             </Popover>
             <Popover>
@@ -131,24 +194,65 @@ function RouteComponent() {
               <PopoverContent align="start">
                 <PopoverHeader>
                   <PopoverTitle>Use Cases</PopoverTitle>
-                  <PopoverDescription className="mt-2">
-                    <FieldGroup>
-                      <Field orientation="horizontal">
-                        <Checkbox id="filter-use-case-defi" />
-                        <Label htmlFor="filter-use-case-defi">DeFi</Label>
-                      </Field>
-                    </FieldGroup>
-                  </PopoverDescription>
                 </PopoverHeader>
+                <div className="mt-2">
+                  <FieldGroup>
+                    {useCaseOptions.map((useCase) => (
+                      <Field key={useCase} orientation="horizontal">
+                        <Checkbox
+                          checked={filters.useCases.includes(useCase)}
+                          id={`filter-use-case-${useCase}`}
+                          onCheckedChange={(checked) => {
+                            void navigate({
+                              search: (previous) => ({
+                                ...previous,
+                                useCases: checked
+                                  ? [...previous.useCases, useCase]
+                                  : previous.useCases.filter(
+                                      (value) => value !== useCase,
+                                    ),
+                              }),
+                            });
+                          }}
+                        />
+                        <Label htmlFor={`filter-use-case-${useCase}`}>
+                          {useCase}
+                        </Label>
+                      </Field>
+                    ))}
+                  </FieldGroup>
+                </div>
               </PopoverContent>
             </Popover>
             <Field className="w-fit" orientation="horizontal">
-              <Switch id="filter-open-source" />
+              <Switch
+                checked={filters.openSource}
+                id="filter-open-source"
+                onCheckedChange={(checked) => {
+                  void navigate({
+                    search: (previous) => ({
+                      ...previous,
+                      openSource: checked,
+                    }),
+                  });
+                }}
+              />
               <FieldLabel htmlFor="filter-open-source">Open Source</FieldLabel>
             </Field>
             {session && (
               <Field className="w-fit" orientation="horizontal">
-                <Switch id="filter-hide-yours" />
+                <Switch
+                  checked={filters.hideYours}
+                  id="filter-hide-yours"
+                  onCheckedChange={(checked) => {
+                    void navigate({
+                      search: (previous) => ({
+                        ...previous,
+                        hideYours: checked,
+                      }),
+                    });
+                  }}
+                />
                 <FieldLabel htmlFor="filter-hide-yours">Hide Yours</FieldLabel>
               </Field>
             )}
@@ -156,8 +260,8 @@ function RouteComponent() {
         </div>
       </section>
       <section className="py-10">
-        <div className="inner">
-          {session ? (
+        <div className="inner space-y-4">
+          {session && !filters.hideYours ? (
             <>
               <h2 className="text-2xl mb-4 font-semibold">Your Projects</h2>
               {yourProjects.length > 0 ? (
@@ -167,12 +271,12 @@ function RouteComponent() {
                   ))}
                 </div>
               ) : (
-                <p>No projects yet.</p>
+                <p>No projects match the current filters.</p>
               )}
             </>
           ) : null}
 
-          <h2 className="text-2xl mb-4 font-semibold">All Approved Projects</h2>
+          <h2 className="text-2xl mb-4 font-semibold">All Projects</h2>
           {approvedProjects.length > 0 ? (
             <div className="grid grid-cols-3 gap-4">
               {approvedProjects.map((project) => (
@@ -180,7 +284,7 @@ function RouteComponent() {
               ))}
             </div>
           ) : (
-            <p>No approved projects yet.</p>
+            <p>No public projects match the current filters.</p>
           )}
         </div>
       </section>
