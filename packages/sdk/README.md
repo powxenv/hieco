@@ -147,8 +147,21 @@ Core entry points:
 Useful shared exports:
 
 - `Signer`
+- `PrivateKey`
+- `PublicKey`
+- `Mnemonic`
+- `KeyList`
 - result helpers and result types
 - network and timestamp types from the shared layer
+
+```ts
+import { Mnemonic, PublicKey, hieco } from "@hieco/sdk";
+
+const client = hieco.forTestnet();
+const publicKey = PublicKey.fromString("302a300506032b6570032100...");
+const mnemonic = await Mnemonic.fromString("word1 word2 word3 ...");
+const privateKey = await mnemonic.toStandardEd25519PrivateKey();
+```
 
 ## Notes
 
