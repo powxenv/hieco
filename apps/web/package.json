@@ -12,7 +12,6 @@
     "deploy": "bun run build && wrangler deploy",
     "cf-typegen": "wrangler types",
     "convex:gen": "CONVEX_AGENT_MODE=anonymous convex codegen",
-    "test": "vitest run",
     "typecheck": "tsgo --noEmit --project tsconfig.json",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
@@ -73,8 +72,6 @@
     "@svgr/plugin-jsx": "^8.1.0",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/devtools-vite": "latest",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/react": "^16.3.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
@@ -88,7 +85,6 @@
     "typescript": "^5.7.2",
     "unplugin-icons": "^23.0.1",
     "vite": "^8.0.0",
-    "vitest": "^3.0.5",
     "wrangler": "^4.73.0"
   }
 }
