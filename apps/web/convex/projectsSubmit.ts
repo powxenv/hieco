@@ -19,8 +19,7 @@ async function fetchAccountKey(
   }
 
   const payload = await response.json();
-  const key =
-    typeof payload === "object" && payload !== null ? payload.key : null;
+  const key = typeof payload === "object" && payload !== null ? payload.key : null;
 
   if (
     typeof key !== "object" ||
@@ -28,9 +27,7 @@ async function fetchAccountKey(
     typeof key.key !== "string" ||
     (key._type !== "ED25519" && key._type !== "ECDSA_SECP256K1")
   ) {
-    throw new Error(
-      "Only single ED25519 and ECDSA account keys are supported for submissions.",
-    );
+    throw new Error("Only single ED25519 and ECDSA account keys are supported for submissions.");
   }
 
   return {
@@ -143,9 +140,7 @@ export const submitProject = action({
 
     const accountKey = await fetchAccountKey(args.accountId);
     const publicKey = PublicKey.fromString(accountKey.key);
-    const signatureMap = proto.SignatureMap.decode(
-      Buffer.from(args.signatureMap, "base64"),
-    );
+    const signatureMap = proto.SignatureMap.decode(Buffer.from(args.signatureMap, "base64"));
     const accountPublicKeyBytes = publicKey.toBytesRaw();
     const challengeBytes = new TextEncoder().encode(challenge.message);
     const message = new TextEncoder().encode(
@@ -163,20 +158,14 @@ export const submitProject = action({
       }) ?? null;
 
     if (!signaturePair) {
-      throw new Error(
-        "The wallet did not return a signature for this account.",
-      );
+      throw new Error("The wallet did not return a signature for this account.");
     }
 
     const signature =
-      accountKey.type === "ED25519"
-        ? signaturePair.ed25519
-        : signaturePair.ECDSASecp256k1;
+      accountKey.type === "ED25519" ? signaturePair.ed25519 : signaturePair.ECDSASecp256k1;
 
     if (!signature) {
-      throw new Error(
-        "The wallet returned a signature pair with an unexpected key type.",
-      );
+      throw new Error("The wallet returned a signature pair with an unexpected key type.");
     }
 
     if (!publicKey.verify(message, signature)) {

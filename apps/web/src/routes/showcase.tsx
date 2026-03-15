@@ -1,10 +1,23 @@
+import { convexQuery } from "@convex-dev/react-query";
+import { useWallet } from "@hieco/wallet-react";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import SolarBranchingPathsUpLineDuotone from "~icons/solar/branching-paths-up-line-duotone";
+import SolarBoxLineDuotone from "~icons/solar/box-line-duotone";
 import SolarMinimalisticMagniferLineDuotone from "~icons/solar/minimalistic-magnifer-line-duotone";
+import { api } from "../../convex/_generated/api";
+import type { Doc } from "../../convex/_generated/dataModel";
+import heroImg from "../assets/hero.jpeg";
+import SubmitProject from "#/components/submit-project";
+import { Badge } from "#/components/ui/badge";
+import { Checkbox } from "#/components/ui/checkbox";
+import { Field, FieldGroup, FieldLabel } from "#/components/ui/field";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "#/components/ui/input-group";
-import { Button } from "@/components/ui/button";
+import { Label } from "#/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -12,35 +25,41 @@ import {
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import heroImg from "../assets/hero.jpeg";
-import { createFileRoute } from "@tanstack/react-router";
-import { Checkbox } from "#/components/ui/checkbox";
-import { Field, FieldGroup, FieldLabel } from "#/components/ui/field";
-import { Label } from "#/components/ui/label";
+} from "#/components/ui/popover";
 import { Switch } from "#/components/ui/switch";
-import SolarBoxLineDuotone from "~icons/solar/box-line-duotone";
-import SolarBranchingPathsUpLineDuotone from "~icons/solar/branching-paths-up-line-duotone";
-import { Badge } from "#/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "#/components/ui/tooltip";
-import { useWallet } from "@hieco/wallet-react";
-import SubmitProject from "#/components/submit-project";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/showcase")({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      convexQuery(api.projects.listApproved, {}),
+    );
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
   const { session } = useWallet();
+  const { data: approvedProjects } = useSuspenseQuery(
+    convexQuery(api.projects.listApproved, {}),
+  );
+  const { data: yourProjects = [] } = useQuery({
+    ...convexQuery(api.projects.listByOwner, {
+      ownerAccountId: session?.accountId ?? "",
+    }),
+    enabled: session !== null,
+  });
 
   return (
     <>
       <div className="h-60 relative">
         <img
+          alt="Showcase hero"
           className="absolute size-full object-cover object-top"
           src={heroImg}
         />
@@ -50,10 +69,9 @@ function RouteComponent() {
         <div className="inner">
           <h1 className="text-6xl font-bold">Showcase</h1>
           <p className="text-xl max-w-md my-4">
-            Discover projects yang dibuat di hedera network dan dibuat
-            menggunakan ekosistem hiero dan hieco.
+            Discover projects built on Hedera with the Hiero and Hieco
+            ecosystem.
           </p>
-
           {session ? (
             <SubmitProject />
           ) : (
@@ -72,12 +90,14 @@ function RouteComponent() {
               <InputGroupAddon>
                 <SolarMinimalisticMagniferLineDuotone />
               </InputGroupAddon>
-              <InputGroupAddon align="inline-end">12 results</InputGroupAddon>
+              <InputGroupAddon align="inline-end">
+                {approvedProjects.length} results
+              </InputGroupAddon>
             </InputGroup>
             <Popover>
               <PopoverTrigger
                 render={
-                  <Button variant="outline" className="w-fit">
+                  <Button className="w-fit" variant="outline">
                     <SolarBoxLineDuotone />
                     Filter Packages
                   </Button>
@@ -89,8 +109,10 @@ function RouteComponent() {
                   <PopoverDescription className="mt-2">
                     <FieldGroup>
                       <Field orientation="horizontal">
-                        <Checkbox id="terms-checkbox" name="terms-checkbox" />
-                        <Label htmlFor="terms-checkbox">Hieco SDK</Label>
+                        <Checkbox id="filter-package-hiero-sdk" />
+                        <Label htmlFor="filter-package-hiero-sdk">
+                          Hiero SDK
+                        </Label>
                       </Field>
                     </FieldGroup>
                   </PopoverDescription>
@@ -100,7 +122,7 @@ function RouteComponent() {
             <Popover>
               <PopoverTrigger
                 render={
-                  <Button variant="outline" className="w-fit">
+                  <Button className="w-fit" variant="outline">
                     <SolarBranchingPathsUpLineDuotone />
                     Filter Use Cases
                   </Button>
@@ -112,26 +134,22 @@ function RouteComponent() {
                   <PopoverDescription className="mt-2">
                     <FieldGroup>
                       <Field orientation="horizontal">
-                        <Checkbox id="terms-checkbox" name="terms-checkbox" />
-                        <Label htmlFor="terms-checkbox">Something</Label>
+                        <Checkbox id="filter-use-case-defi" />
+                        <Label htmlFor="filter-use-case-defi">DeFi</Label>
                       </Field>
                     </FieldGroup>
                   </PopoverDescription>
                 </PopoverHeader>
               </PopoverContent>
             </Popover>
-            <Field orientation="horizontal" className="w-fit">
-              <Switch id="switch-disabled-unchecked" />
-              <FieldLabel htmlFor="switch-disabled-unchecked">
-                Open Source
-              </FieldLabel>
+            <Field className="w-fit" orientation="horizontal">
+              <Switch id="filter-open-source" />
+              <FieldLabel htmlFor="filter-open-source">Open Source</FieldLabel>
             </Field>
             {session && (
-              <Field orientation="horizontal" className="w-fit">
-                <Switch id="switch-disabled-unchecked" />
-                <FieldLabel htmlFor="switch-disabled-unchecked">
-                  Hide Yours
-                </FieldLabel>
+              <Field className="w-fit" orientation="horizontal">
+                <Switch id="filter-hide-yours" />
+                <FieldLabel htmlFor="filter-hide-yours">Hide Yours</FieldLabel>
               </Field>
             )}
           </div>
@@ -139,77 +157,71 @@ function RouteComponent() {
       </section>
       <section className="py-10">
         <div className="inner">
-          <h2 className="text-2xl mb-4 font-semibold">Your Projects</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <div className="aspect-video rounded-xl overflow-hidden">
-                <img
-                  src="https://picsum.photos/1600/900"
-                  className="object-cover size-full"
-                />
-              </div>
-              <div className="-translate-y-8 px-4">
-                <div className="bg-white border p-2 rounded-xl aspect-square size-14">
-                  <svg
-                    className="size-full"
-                    viewBox="0 0 40 40"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M20 0C9.50659 0 1 8.50659 1 19V20.1719L4 23.1719V19C4 10.1634 11.1634 3 20 3C28.8366 3 36 10.1634 36 19V23.1719L39 20.1719V19C39 8.50659 30.4934 0 20 0ZM20 10C15.0294 10 11 14.0294 11 19V31.0498C11 31.5743 10.5743 32 10.0498 32C9.7981 31.9999 9.55691 31.8997 9.37891 31.7217L0 22.3428V26.585L7.25781 33.8428C7.99842 34.5834 9.00245 34.9999 10.0498 35C12.2312 35 14 33.2312 14 31.0498V19C14 15.6863 16.6863 13 20 13C23.3137 13 26 15.6863 26 19V31.0498C26 33.2312 27.7688 35 29.9502 35C30.9976 34.9999 32.0016 34.5834 32.7422 33.8428L34.7066 31.8785L37.7066 28.8785L40 26.585V22.3428L37.8789 24.4639L35.5854 26.7574L32.5854 29.7574L30.6211 31.7217C30.4431 31.8997 30.2019 31.9999 29.9502 32C29.4257 32 29 31.5743 29 31.0498V19C29 14.0294 24.9706 10 20 10ZM20 15C17.7909 15 16 16.7909 16 19V31.0498C16 34.3358 13.3358 37 10.0498 37C8.47201 36.9999 6.95846 36.3735 5.84277 35.2578L0 29.4141V33.6562L3.72168 37.3789C5.39997 39.0572 7.67636 39.9999 10.0498 40C14.9926 40 19 35.9926 19 31.0498V19C19 18.4477 19.4477 18 20 18C20.5523 18 21 18.4477 21 19V31.0498C21 35.9926 25.0074 40 29.9502 40C32.3236 39.9999 34.6 39.0572 36.2783 37.3789L40 33.6562V29.4141L34.1572 35.2578C33.0415 36.3735 31.528 36.9999 29.9502 37C26.6642 37 24 34.3358 24 31.0498V19C24 16.7909 22.2091 15 20 15ZM20 5C12.268 5 6 11.268 6 19V25.1719L9 28.1719V19C9 12.9249 13.9249 8 20 8C26.0751 8 31 12.9249 31 19V28.1719L34 25.1719V19C34 11.268 27.732 5 20 5Z"
-                      fill="#FF3902"
-                    ></path>
-                  </svg>
+          {session ? (
+            <>
+              <h2 className="text-2xl mb-4 font-semibold">Your Projects</h2>
+              {yourProjects.length > 0 ? (
+                <div className="grid grid-cols-3 gap-4">
+                  {yourProjects.map((project) => (
+                    <ProjectCard key={project._id} project={project} />
+                  ))}
                 </div>
-                <div className="my-2">
-                  <h3 className="text-2xl font-bold">Project Title</h3>
-                  <p className="text-lg">Project Tagline</p>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  <Badge>Hieco SDK</Badge>
-                  <Badge>Mirror CLI</Badge>
-                </div>
-              </div>
-            </div>
-          </div>
+              ) : (
+                <p>No projects yet.</p>
+              )}
+            </>
+          ) : null}
 
-          <h2 className="text-2xl mb-4 font-semibold">All Projects</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <div className="aspect-video rounded-xl overflow-hidden">
-                <img
-                  src="https://picsum.photos/1600/900"
-                  className="object-cover size-full"
-                />
-              </div>
-              <div className="-translate-y-8 px-4">
-                <div className="bg-white border p-2 rounded-xl aspect-square size-14">
-                  <svg
-                    className="size-full"
-                    viewBox="0 0 40 40"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M20 0C9.50659 0 1 8.50659 1 19V20.1719L4 23.1719V19C4 10.1634 11.1634 3 20 3C28.8366 3 36 10.1634 36 19V23.1719L39 20.1719V19C39 8.50659 30.4934 0 20 0ZM20 10C15.0294 10 11 14.0294 11 19V31.0498C11 31.5743 10.5743 32 10.0498 32C9.7981 31.9999 9.55691 31.8997 9.37891 31.7217L0 22.3428V26.585L7.25781 33.8428C7.99842 34.5834 9.00245 34.9999 10.0498 35C12.2312 35 14 33.2312 14 31.0498V19C14 15.6863 16.6863 13 20 13C23.3137 13 26 15.6863 26 19V31.0498C26 33.2312 27.7688 35 29.9502 35C30.9976 34.9999 32.0016 34.5834 32.7422 33.8428L34.7066 31.8785L37.7066 28.8785L40 26.585V22.3428L37.8789 24.4639L35.5854 26.7574L32.5854 29.7574L30.6211 31.7217C30.4431 31.8997 30.2019 31.9999 29.9502 32C29.4257 32 29 31.5743 29 31.0498V19C29 14.0294 24.9706 10 20 10ZM20 15C17.7909 15 16 16.7909 16 19V31.0498C16 34.3358 13.3358 37 10.0498 37C8.47201 36.9999 6.95846 36.3735 5.84277 35.2578L0 29.4141V33.6562L3.72168 37.3789C5.39997 39.0572 7.67636 39.9999 10.0498 40C14.9926 40 19 35.9926 19 31.0498V19C19 18.4477 19.4477 18 20 18C20.5523 18 21 18.4477 21 19V31.0498C21 35.9926 25.0074 40 29.9502 40C32.3236 39.9999 34.6 39.0572 36.2783 37.3789L40 33.6562V29.4141L34.1572 35.2578C33.0415 36.3735 31.528 36.9999 29.9502 37C26.6642 37 24 34.3358 24 31.0498V19C24 16.7909 22.2091 15 20 15ZM20 5C12.268 5 6 11.268 6 19V25.1719L9 28.1719V19C9 12.9249 13.9249 8 20 8C26.0751 8 31 12.9249 31 19V28.1719L34 25.1719V19C34 11.268 27.732 5 20 5Z"
-                      fill="#FF3902"
-                    ></path>
-                  </svg>
-                </div>
-                <div className="my-2">
-                  <h3 className="text-2xl font-bold">Project Title</h3>
-                  <p className="text-lg">Project Tagline</p>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  <Badge>Hieco SDK</Badge>
-                  <Badge>Mirror CLI</Badge>
-                </div>
-              </div>
+          <h2 className="text-2xl mb-4 font-semibold">All Approved Projects</h2>
+          {approvedProjects.length > 0 ? (
+            <div className="grid grid-cols-3 gap-4">
+              {approvedProjects.map((project) => (
+                <ProjectCard key={project._id} project={project} />
+              ))}
             </div>
-          </div>
+          ) : (
+            <p>No approved projects yet.</p>
+          )}
         </div>
       </section>
     </>
+  );
+}
+
+function ProjectCard({ project }: { project: Doc<"projects"> }) {
+  return (
+    <a href={project.projectUrl} rel="noreferrer" target="_blank">
+      <div className="aspect-video rounded-xl overflow-hidden">
+        <img
+          alt={`${project.name} screenshot`}
+          className="object-cover size-full"
+          src={project.screenshotUrl}
+        />
+      </div>
+      <div className="-translate-y-8 px-4">
+        <div className="bg-white border p-2 rounded-xl aspect-square size-14">
+          {project.logoUrl ? (
+            <img
+              alt={`${project.name} logo`}
+              className="size-full object-cover"
+              src={project.logoUrl}
+            />
+          ) : null}
+        </div>
+        <div className="my-2">
+          <h3 className="text-2xl font-bold wrap-break-words">
+            {project.name}
+          </h3>
+          <p className="text-lg text-zinc-600 break-all line-clamp-2">
+            {project.tagline}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-1">
+          {project.packageNames.map((packageName) => (
+            <Badge key={packageName}>{packageName}</Badge>
+          ))}
+        </div>
+      </div>
+    </a>
   );
 }

@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internalMutation, internalQuery } from "./_generated/server";
+import { internalMutation, internalQuery, query } from "./_generated/server";
 
 export const getChallenge = internalQuery({
   args: {
@@ -135,5 +135,31 @@ export const createProject = internalMutation({
     });
 
     return { projectId, status };
+  },
+});
+
+export const listApproved = query({
+  args: {},
+  handler: async (ctx) => {
+    const projects = await ctx.db
+      .query("projects")
+      .withIndex("by_status", (query) => query.eq("status", "approved"))
+      .collect();
+
+    return [...projects].sort((left, right) => right.updatedAt - left.updatedAt);
+  },
+});
+
+export const listByOwner = query({
+  args: {
+    ownerAccountId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const projects = await ctx.db
+      .query("projects")
+      .withIndex("by_owner_account_id", (query) => query.eq("ownerAccountId", args.ownerAccountId))
+      .collect();
+
+    return [...projects].sort((left, right) => right.updatedAt - left.updatedAt);
   },
 });
