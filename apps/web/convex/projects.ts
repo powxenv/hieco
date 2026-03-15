@@ -148,6 +148,55 @@ export const createProject = internalMutation({
   },
 });
 
+export const deleteProject = internalMutation({
+  args: {
+    challengeId: v.id("walletChallenges"),
+    projectId: v.id("projects"),
+    ownerAccountId: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const challenge = await ctx.db.get(args.challengeId);
+
+    if (!challenge) {
+      throw new Error("Challenge not found.");
+    }
+
+    if (challenge.accountId !== args.ownerAccountId) {
+      throw new Error("Challenge account mismatch.");
+    }
+
+    if (challenge.action !== "delete_project") {
+      throw new Error("Challenge action mismatch.");
+    }
+
+    if (challenge.usedAt) {
+      throw new Error("Challenge has already been used.");
+    }
+
+    if (challenge.expiresAt < Date.now()) {
+      throw new Error("Challenge has expired.");
+    }
+
+    const project = await ctx.db.get(args.projectId);
+
+    if (!project) {
+      throw new Error("Project not found.");
+    }
+
+    if (project.ownerAccountId !== args.ownerAccountId) {
+      throw new Error("You do not have permission to delete this project.");
+    }
+
+    await ctx.db.patch(args.challengeId, {
+      usedAt: Date.now(),
+    });
+    await ctx.db.delete(args.projectId);
+
+    return null;
+  },
+});
+
 export const listApproved = query({
   args: projectFilterArgs,
   handler: async (ctx, args) => {

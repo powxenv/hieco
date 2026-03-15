@@ -189,3 +189,80 @@ export const submitProject = action({
     });
   },
 });
+
+export const deleteProject = action({
+  args: {
+    challengeId: v.id("walletChallenges"),
+    accountId: v.string(),
+    projectId: v.id("projects"),
+    signatureMap: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const challenge = await ctx.runQuery(internal.projects.getChallenge, {
+      challengeId: args.challengeId,
+    });
+
+    if (!challenge) {
+      throw new Error("Challenge not found.");
+    }
+
+    if (challenge.accountId !== args.accountId) {
+      throw new Error("Challenge account mismatch.");
+    }
+
+    if (challenge.action !== "delete_project") {
+      throw new Error("Challenge action mismatch.");
+    }
+
+    if (challenge.usedAt) {
+      throw new Error("Challenge has already been used.");
+    }
+
+    if (challenge.expiresAt < Date.now()) {
+      throw new Error("Challenge has expired.");
+    }
+
+    const accountKey = await fetchAccountKey(args.accountId);
+    const publicKey = PublicKey.fromString(accountKey.key);
+    const signatureMap = proto.SignatureMap.decode(Buffer.from(args.signatureMap, "base64"));
+    const accountPublicKeyBytes = publicKey.toBytesRaw();
+    const challengeBytes = new TextEncoder().encode(challenge.message);
+    const message = new TextEncoder().encode(
+      `\u0019Hedera Signed Message:\n${challengeBytes.length}${challenge.message}`,
+    );
+    const signaturePair =
+      signatureMap.sigPair.find((pair) => {
+        const publicKeyPrefix = pair.pubKeyPrefix;
+
+        if (!publicKeyPrefix || publicKeyPrefix.length === 0) {
+          return signatureMap.sigPair.length === 1;
+        }
+
+        return startsWithPrefix(accountPublicKeyBytes, publicKeyPrefix);
+      }) ?? null;
+
+    if (!signaturePair) {
+      throw new Error("The wallet did not return a signature for this account.");
+    }
+
+    const signature =
+      accountKey.type === "ED25519" ? signaturePair.ed25519 : signaturePair.ECDSASecp256k1;
+
+    if (!signature) {
+      throw new Error("The wallet returned a signature pair with an unexpected key type.");
+    }
+
+    if (!publicKey.verify(message, signature)) {
+      throw new Error("The wallet signature could not be verified.");
+    }
+
+    await ctx.runMutation(internal.projects.deleteProject, {
+      challengeId: args.challengeId,
+      projectId: args.projectId,
+      ownerAccountId: args.accountId,
+    });
+
+    return null;
+  },
+});

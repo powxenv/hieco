@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { convexQuery } from "@convex-dev/react-query";
 import { useWallet } from "@hieco/wallet-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { useAction, useMutation } from "convex/react";
+import { toast } from "sonner";
 import { z } from "zod";
 import SolarHamburgerMenuLineDuotone from "~icons/solar/hamburger-menu-line-duotone";
-import SolarLinkLineDuotone from "~icons/solar/link-line-duotone";
 import SolarPenLineDuotone from "~icons/solar/pen-line-duotone";
 import SolarTrashBinTrashLineDuotone from "~icons/solar/trash-bin-trash-line-duotone";
 import SolarArrowRightUpLineDuotone from "~icons/solar/arrow-right-up-line-duotone";
@@ -12,6 +14,16 @@ import heroImg from "../assets/hero.jpeg";
 import { api } from "../../convex/_generated/api";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "#/components/ui/alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +42,12 @@ export const Route = createFileRoute("/showcase/$slug")({
 
 function RouteComponent() {
   const { slug } = Route.useParams();
+  const navigate = Route.useNavigate();
   const { session } = useWallet();
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const requestChallenge = useMutation(api.walletChallenges.requestChallenge);
+  const deleteProject = useAction(api.projectsSubmit.deleteProject);
   const { data: project } = useQuery(
     convexQuery(
       api.projects.getBySlug,
@@ -67,6 +84,39 @@ function RouteComponent() {
   }
 
   const isOwner = session?.accountId === project.ownerAccountId;
+
+  const handleDeleteProject = async () => {
+    if (!session) {
+      toast.error("Connect your wallet before deleting a project.");
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      const challenge = await requestChallenge({
+        accountId: session.accountId,
+        action: "delete_project",
+        domain: window.location.host,
+      });
+      const signatureMap = await session.signer.signMessage(challenge.message);
+
+      await deleteProject({
+        challengeId: challenge.challengeId,
+        accountId: session.accountId,
+        projectId: project._id,
+        signatureMap,
+      });
+
+      setIsDeleteDialogOpen(false);
+      toast.success("Project deleted.");
+      await navigate({ to: "/showcase" });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to delete the project.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <>
@@ -116,18 +166,13 @@ function RouteComponent() {
                 {project.repositoryUrl ? (
                   <p>
                     <span className="font-semibold">Repository URL:</span>{" "}
-                    <a
-                      href={project.repositoryUrl}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
+                    <a href={project.repositoryUrl} rel="noreferrer" target="_blank">
                       {project.repositoryUrl}
                     </a>
                   </p>
                 ) : null}
                 <p>
-                  <span className="font-semibold">Owner Account:</span>{" "}
-                  {project.ownerAccountId}
+                  <span className="font-semibold">Owner Account:</span> {project.ownerAccountId}
                 </p>
               </div>
             </div>
@@ -158,7 +203,12 @@ function RouteComponent() {
                       <SolarPenLineDuotone />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem variant="destructive">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setIsDeleteDialogOpen(true);
+                      }}
+                      variant="destructive"
+                    >
                       <SolarTrashBinTrashLineDuotone />
                       Delete
                     </DropdownMenuItem>
@@ -173,27 +223,13 @@ function RouteComponent() {
             </div>
 
             <div className="flex flex-wrap gap-1">
-              <Button
-                render={
-                  <a
-                    href={project.projectUrl}
-                    rel="noreferrer"
-                    target="_blank"
-                  />
-                }
-              >
+              <Button render={<a href={project.projectUrl} rel="noreferrer" target="_blank" />}>
                 Visit Project
                 <SolarArrowRightUpLineDuotone />
               </Button>
               {project.repositoryUrl ? (
                 <Button
-                  render={
-                    <a
-                      href={project.repositoryUrl}
-                      rel="noreferrer"
-                      target="_blank"
-                    />
-                  }
+                  render={<a href={project.repositoryUrl} rel="noreferrer" target="_blank" />}
                   variant="outline"
                 >
                   View Repository
@@ -206,6 +242,29 @@ function RouteComponent() {
           </div>
         </div>
       </section>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this project?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action is sensitive. You will need to confirm here and sign a wallet challenge
+              before the project is permanently removed from the showcase.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDeleting}
+              onClick={async () => {
+                await handleDeleteProject();
+              }}
+              variant="destructive"
+            >
+              {isDeleting ? "Deleting..." : "Delete Project"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
