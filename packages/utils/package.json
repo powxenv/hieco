@@ -31,9 +31,7 @@
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
     "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check",
-    "test": "bun test",
-    "test:coverage": "bun test --coverage"
+    "fmt:check": "oxfmt --check"
   },
   "devDependencies": {
     "@tanstack/query-core": "^5.67.1",

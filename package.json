@@ -85,15 +85,11 @@
     "build:sdk": "bun --filter '@hieco/sdk' build",
     "build:wallet": "bun --filter '@hieco/wallet' build",
     "build:wallet-react": "bun --filter '@hieco/wallet-react' build",
-    "test": "bun --filter '*' test",
-    "test:testing": "bun --filter '@hieco/testing' test",
-    "dev:web": "bun --filter '@hieco/web' dev",
-    "test:utils": "bun --filter '@hieco/utils' test"
+    "dev:web": "bun --filter '@hieco/web' dev"
   },
   "devDependencies": {
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:"
-  },
-  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
+  }
 }
