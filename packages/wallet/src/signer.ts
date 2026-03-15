@@ -34,8 +34,6 @@ const HEDERA_SIGN_QUERY = "hedera_signAndExecuteQuery";
 const HEDERA_SIGN_TRANSACTION = "hedera_signTransaction";
 const HEDERA_EXECUTE_TRANSACTION = "hedera_signAndExecuteTransaction";
 
-const PREFIX = "\u0019Hedera Signed Message:\n";
-
 function encodeBase64(bytes: Uint8Array): string {
   if (typeof Buffer !== "undefined") {
     return Buffer.from(bytes).toString("base64");
@@ -59,10 +57,6 @@ function decodeBase64(value: string): Uint8Array {
     bytes[index] = binary.charCodeAt(index);
   }
   return bytes;
-}
-
-function encodeText(value: string): Uint8Array {
-  return new TextEncoder().encode(value);
 }
 
 function toUtf8(value: Uint8Array): string {
@@ -260,18 +254,22 @@ export class WalletConnectHederaSigner implements Signer {
     return this.#networkClient.mirrorNetwork;
   }
 
+  async signMessage(message: string): Promise<string> {
+    const result = await this.#request<{ signatureMap: string }>(HEDERA_SIGN_MESSAGE, {
+      signerAccountId: `${this.#chain.id}:${this.#accountId.toString()}`,
+      message,
+    });
+
+    return result.signatureMap;
+  }
+
   async sign(messages: Uint8Array[]): Promise<SignerSignature[]> {
     const payload = messages[0];
     if (!payload) {
       return [];
     }
 
-    const prefixed = encodeText(`${PREFIX}${payload.length}${toUtf8(payload)}`);
-    const result = await this.#request<{ signatureMap: string }>(HEDERA_SIGN_MESSAGE, {
-      signerAccountId: `${this.#chain.id}:${this.#accountId.toString()}`,
-      message: toUtf8(prefixed),
-    });
-    const signatureMap = parseSignatureMap(result.signatureMap);
+    const signatureMap = parseSignatureMap(await this.signMessage(toUtf8(payload)));
     const first = signatureMap.sigPair[0];
 
     if (!first) {

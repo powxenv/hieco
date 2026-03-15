@@ -1,12 +1,15 @@
 "use node";
 
+import { proto } from "@hiero-ledger/proto";
 import { PublicKey } from "@hiero-ledger/sdk";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { action } from "./_generated/server";
 
-async function fetchAccountPublicKey(accountId: string): Promise<string> {
+async function fetchAccountKey(
+  accountId: string,
+): Promise<{ key: string; type: "ED25519" | "ECDSA_SECP256K1" }> {
   const response = await fetch(
     `https://testnet.mirrornode.hedera.com/api/v1/accounts/${encodeURIComponent(accountId)}`,
   );
@@ -15,22 +18,39 @@ async function fetchAccountPublicKey(accountId: string): Promise<string> {
     throw new Error("Failed to load the account from Hedera Mirror Node.");
   }
 
-  const payload = (await response.json()) as {
-    key?: {
-      _type?: string;
-      key?: string;
-    };
+  const payload = await response.json();
+  const key =
+    typeof payload === "object" && payload !== null ? payload.key : null;
+
+  if (
+    typeof key !== "object" ||
+    key === null ||
+    typeof key.key !== "string" ||
+    (key._type !== "ED25519" && key._type !== "ECDSA_SECP256K1")
+  ) {
+    throw new Error(
+      "Only single ED25519 and ECDSA account keys are supported for submissions.",
+    );
+  }
+
+  return {
+    key: key.key,
+    type: key._type,
   };
+}
 
-  if (!payload.key?.key || !payload.key._type) {
-    throw new Error("Mirror Node returned an unexpected account payload.");
+function startsWithPrefix(value: Uint8Array, prefix: Uint8Array): boolean {
+  if (prefix.length > value.length) {
+    return false;
   }
 
-  if (payload.key._type !== "ED25519" && payload.key._type !== "ECDSA_SECP256K1") {
-    throw new Error("Only single ED25519 and ECDSA account keys are supported for submissions.");
+  for (let index = 0; index < prefix.length; index += 1) {
+    if (value[index] !== prefix[index]) {
+      return false;
+    }
   }
 
-  return payload.key.key;
+  return true;
 }
 
 export const submitProject = action({
@@ -79,7 +99,7 @@ export const submitProject = action({
         v.literal("Hiero SDK"),
       ),
     ),
-    signature: v.string(),
+    signatureMap: v.string(),
   },
   returns: v.object({
     projectId: v.id("projects"),
@@ -97,13 +117,7 @@ export const submitProject = action({
     projectId: Id<"projects">;
     status: "draft" | "pending" | "approved" | "rejected";
   }> => {
-    const challenge: {
-      accountId: string;
-      action: string;
-      expiresAt: number;
-      message: string;
-      usedAt?: number;
-    } | null = await ctx.runQuery(internal.projects.getChallenge, {
+    const challenge = await ctx.runQuery(internal.projects.getChallenge, {
       challengeId: args.challengeId,
     });
 
@@ -127,11 +141,43 @@ export const submitProject = action({
       throw new Error("Challenge has expired.");
     }
 
-    const publicKey = PublicKey.fromString(await fetchAccountPublicKey(args.accountId));
-    const signature = new Uint8Array(Buffer.from(args.signature, "base64"));
-    const message = new TextEncoder().encode(
-      `\u0019Hedera Signed Message:\n${challenge.message.length}${challenge.message}`,
+    const accountKey = await fetchAccountKey(args.accountId);
+    const publicKey = PublicKey.fromString(accountKey.key);
+    const signatureMap = proto.SignatureMap.decode(
+      Buffer.from(args.signatureMap, "base64"),
     );
+    const accountPublicKeyBytes = publicKey.toBytesRaw();
+    const challengeBytes = new TextEncoder().encode(challenge.message);
+    const message = new TextEncoder().encode(
+      `\u0019Hedera Signed Message:\n${challengeBytes.length}${challenge.message}`,
+    );
+    const signaturePair =
+      signatureMap.sigPair.find((pair) => {
+        const publicKeyPrefix = pair.pubKeyPrefix;
+
+        if (!publicKeyPrefix || publicKeyPrefix.length === 0) {
+          return signatureMap.sigPair.length === 1;
+        }
+
+        return startsWithPrefix(accountPublicKeyBytes, publicKeyPrefix);
+      }) ?? null;
+
+    if (!signaturePair) {
+      throw new Error(
+        "The wallet did not return a signature for this account.",
+      );
+    }
+
+    const signature =
+      accountKey.type === "ED25519"
+        ? signaturePair.ed25519
+        : signaturePair.ECDSASecp256k1;
+
+    if (!signature) {
+      throw new Error(
+        "The wallet returned a signature pair with an unexpected key type.",
+      );
+    }
 
     if (!publicKey.verify(message, signature)) {
       throw new Error("The wallet signature could not be verified.");

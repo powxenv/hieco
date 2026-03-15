@@ -70,7 +70,11 @@ export interface WalletSession {
   readonly accountId: string;
   readonly caip10: string;
   readonly chain: WalletChain;
-  readonly signer: Signer;
+  readonly signer: WalletMessageSigner;
+}
+
+export interface WalletMessageSigner extends Signer {
+  readonly signMessage: (message: string) => Promise<string>;
 }
 
 export interface WalletConnection {

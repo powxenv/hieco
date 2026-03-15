@@ -1,5 +1,5 @@
 import { Button as BaseButton, type ButtonProps } from "@base-ui/react/button";
-import { cn } from "../../utils/cn";
+import { cn } from "#/lib/utils";
 
 type Props = {} & ButtonProps;
 
