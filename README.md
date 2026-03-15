@@ -22,6 +22,14 @@ In practice:
 - Hiero is the lower-level SDK and ecosystem foundation
 - Hieco is the application-facing toolkit that helps those pieces feel cohesive
 
+## Showcase
+
+The [Showcase](https://hieco.noval.me/showcase) is a curated gallery of projects built with the Hieco and Hiero ecosystem on Hedera. It demonstrates real-world applications of the toolkit across various use cases.
+
+Anyone can submit their project — whether it's DeFi, gaming, identity, or anything else built on Hedera using Hieco packages. Browse featured projects, filter by packages and use cases, and see what's possible with the ecosystem.
+
+https://raw.githubusercontent.com/hiero-ledger/hiero/master/hieco-showcase-demo.mp4
+
 ## Start Here
 
 Choose the path that matches the app you want to ship.
