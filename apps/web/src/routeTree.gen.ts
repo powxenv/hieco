@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShowcaseIndexRouteImport } from './routes/showcase.index'
+import { Route as EcosystemIndexRouteImport } from './routes/ecosystem.index'
 import { Route as ShowcaseSlugRouteImport } from './routes/showcase.$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const ShowcaseIndexRoute = ShowcaseIndexRouteImport.update({
   path: '/showcase/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EcosystemIndexRoute = EcosystemIndexRouteImport.update({
+  id: '/ecosystem/',
+  path: '/ecosystem/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShowcaseSlugRoute = ShowcaseSlugRouteImport.update({
   id: '/showcase/$slug',
   path: '/showcase/$slug',
@@ -32,30 +38,34 @@ const ShowcaseSlugRoute = ShowcaseSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/showcase/$slug': typeof ShowcaseSlugRoute
+  '/ecosystem/': typeof EcosystemIndexRoute
   '/showcase/': typeof ShowcaseIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/showcase/$slug': typeof ShowcaseSlugRoute
+  '/ecosystem': typeof EcosystemIndexRoute
   '/showcase': typeof ShowcaseIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/showcase/$slug': typeof ShowcaseSlugRoute
+  '/ecosystem/': typeof EcosystemIndexRoute
   '/showcase/': typeof ShowcaseIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/showcase/$slug' | '/showcase/'
+  fullPaths: '/' | '/showcase/$slug' | '/ecosystem/' | '/showcase/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/showcase/$slug' | '/showcase'
-  id: '__root__' | '/' | '/showcase/$slug' | '/showcase/'
+  to: '/' | '/showcase/$slug' | '/ecosystem' | '/showcase'
+  id: '__root__' | '/' | '/showcase/$slug' | '/ecosystem/' | '/showcase/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ShowcaseSlugRoute: typeof ShowcaseSlugRoute
+  EcosystemIndexRoute: typeof EcosystemIndexRoute
   ShowcaseIndexRoute: typeof ShowcaseIndexRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShowcaseIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ecosystem/': {
+      id: '/ecosystem/'
+      path: '/ecosystem'
+      fullPath: '/ecosystem/'
+      preLoaderRoute: typeof EcosystemIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/showcase/$slug': {
       id: '/showcase/$slug'
       path: '/showcase/$slug'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ShowcaseSlugRoute: ShowcaseSlugRoute,
+  EcosystemIndexRoute: EcosystemIndexRoute,
   ShowcaseIndexRoute: ShowcaseIndexRoute,
 }
 export const routeTree = rootRouteImport

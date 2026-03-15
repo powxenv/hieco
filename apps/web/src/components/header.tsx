@@ -21,12 +21,12 @@ const Header = () => {
           >
             Docs
           </a>
-          <a
+          <Link
             className="text-zinc-200 whitespace-nowrap hover:underline decoration-wavy hover:text-white transition-all"
-            href="/docs"
+            to="/ecosystem"
           >
             Ecosystem
-          </a>
+          </Link>
           <Link
             className="text-zinc-200 whitespace-nowrap hover:underline decoration-wavy hover:text-white transition-all"
             to="/showcase"
