@@ -197,6 +197,93 @@ export const deleteProject = internalMutation({
   },
 });
 
+export const updateProject = internalMutation({
+  args: {
+    challengeId: v.id("walletChallenges"),
+    projectId: v.id("projects"),
+    ownerAccountId: v.string(),
+    name: v.string(),
+    slug: v.string(),
+    projectUrl: v.string(),
+    isOpenSource: v.boolean(),
+    repositoryUrl: v.optional(v.string()),
+    screenshotUrl: v.string(),
+    description: v.string(),
+    logoUrl: v.optional(v.string()),
+    tagline: v.string(),
+    useCases: useCaseValidator,
+    packageNames: packageNameValidator,
+  },
+  returns: v.object({
+    slug: v.string(),
+  }),
+  handler: async (ctx, args) => {
+    const challenge = await ctx.db.get(args.challengeId);
+
+    if (!challenge) {
+      throw new Error("Challenge not found.");
+    }
+
+    if (challenge.accountId !== args.ownerAccountId) {
+      throw new Error("Challenge account mismatch.");
+    }
+
+    if (challenge.action !== "edit_project") {
+      throw new Error("Challenge action mismatch.");
+    }
+
+    if (challenge.usedAt) {
+      throw new Error("Challenge has already been used.");
+    }
+
+    if (challenge.expiresAt < Date.now()) {
+      throw new Error("Challenge has expired.");
+    }
+
+    const project = await ctx.db.get(args.projectId);
+
+    if (!project) {
+      throw new Error("Project not found.");
+    }
+
+    if (project.ownerAccountId !== args.ownerAccountId) {
+      throw new Error("You do not have permission to edit this project.");
+    }
+
+    const projectsWithSlug = await ctx.db
+      .query("projects")
+      .withIndex("by_slug", (query) => query.eq("slug", args.slug))
+      .collect();
+
+    if (projectsWithSlug.some((existingProject) => existingProject._id !== args.projectId)) {
+      throw new Error("A project with this slug already exists.");
+    }
+
+    await ctx.db.patch(args.challengeId, {
+      usedAt: Date.now(),
+    });
+
+    await ctx.db.patch(args.projectId, {
+      name: args.name,
+      slug: args.slug,
+      projectUrl: args.projectUrl,
+      isOpenSource: args.isOpenSource,
+      repositoryUrl: args.repositoryUrl,
+      screenshotUrl: args.screenshotUrl,
+      description: args.description,
+      logoUrl: args.logoUrl,
+      tagline: args.tagline,
+      useCases: args.useCases,
+      packageNames: args.packageNames,
+      updatedAt: Date.now(),
+    });
+
+    return {
+      slug: args.slug,
+    };
+  },
+});
+
 export const listApproved = query({
   args: projectFilterArgs,
   handler: async (ctx, args) => {

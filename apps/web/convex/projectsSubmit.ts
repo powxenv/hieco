@@ -266,3 +266,138 @@ export const deleteProject = action({
     return null;
   },
 });
+
+export const updateProject = action({
+  args: {
+    challengeId: v.id("walletChallenges"),
+    accountId: v.string(),
+    projectId: v.id("projects"),
+    name: v.string(),
+    slug: v.string(),
+    projectUrl: v.string(),
+    isOpenSource: v.boolean(),
+    repositoryUrl: v.optional(v.string()),
+    screenshotUrl: v.string(),
+    description: v.string(),
+    logoUrl: v.optional(v.string()),
+    tagline: v.string(),
+    useCases: v.array(
+      v.union(
+        v.literal("Payments"),
+        v.literal("Tokenized Loyalty"),
+        v.literal("NFT Marketplace"),
+        v.literal("Gaming"),
+        v.literal("Wallet Infrastructure"),
+        v.literal("Onchain Identity"),
+        v.literal("DAO Tools"),
+        v.literal("DeFi"),
+        v.literal("Social"),
+        v.literal("Real World Assets"),
+        v.literal("Supply Chain"),
+        v.literal("Developer Tools"),
+      ),
+    ),
+    packageNames: v.array(
+      v.union(
+        v.literal("Hieco Mirror"),
+        v.literal("Hieco Mirror CLI"),
+        v.literal("Hieco Mirror MCP"),
+        v.literal("Hieco Mirror Preact"),
+        v.literal("Hieco Mirror React"),
+        v.literal("Hieco Mirror Solid"),
+        v.literal("Hieco React"),
+        v.literal("Hieco Realtime"),
+        v.literal("Hieco Realtime React"),
+        v.literal("Hieco SDK"),
+        v.literal("Hieco Wallet"),
+        v.literal("Hieco Wallet React"),
+        v.literal("Hiero SDK"),
+      ),
+    ),
+    signatureMap: v.string(),
+  },
+  returns: v.object({
+    slug: v.string(),
+  }),
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{
+    slug: string;
+  }> => {
+    const challenge = await ctx.runQuery(internal.projects.getChallenge, {
+      challengeId: args.challengeId,
+    });
+
+    if (!challenge) {
+      throw new Error("Challenge not found.");
+    }
+
+    if (challenge.accountId !== args.accountId) {
+      throw new Error("Challenge account mismatch.");
+    }
+
+    if (challenge.action !== "edit_project") {
+      throw new Error("Challenge action mismatch.");
+    }
+
+    if (challenge.usedAt) {
+      throw new Error("Challenge has already been used.");
+    }
+
+    if (challenge.expiresAt < Date.now()) {
+      throw new Error("Challenge has expired.");
+    }
+
+    const accountKey = await fetchAccountKey(args.accountId);
+    const publicKey = PublicKey.fromString(accountKey.key);
+    const signatureMap = proto.SignatureMap.decode(Buffer.from(args.signatureMap, "base64"));
+    const accountPublicKeyBytes = publicKey.toBytesRaw();
+    const challengeBytes = new TextEncoder().encode(challenge.message);
+    const message = new TextEncoder().encode(
+      `\u0019Hedera Signed Message:\n${challengeBytes.length}${challenge.message}`,
+    );
+    const signaturePair =
+      signatureMap.sigPair.find((pair) => {
+        const publicKeyPrefix = pair.pubKeyPrefix;
+
+        if (!publicKeyPrefix || publicKeyPrefix.length === 0) {
+          return signatureMap.sigPair.length === 1;
+        }
+
+        return startsWithPrefix(accountPublicKeyBytes, publicKeyPrefix);
+      }) ?? null;
+
+    if (!signaturePair) {
+      throw new Error("The wallet did not return a signature for this account.");
+    }
+
+    const signature =
+      accountKey.type === "ED25519" ? signaturePair.ed25519 : signaturePair.ECDSASecp256k1;
+
+    if (!signature) {
+      throw new Error("The wallet returned a signature pair with an unexpected key type.");
+    }
+
+    if (!publicKey.verify(message, signature)) {
+      throw new Error("The wallet signature could not be verified.");
+    }
+
+    return await ctx.runMutation(internal.projects.updateProject, {
+      challengeId: args.challengeId,
+      projectId: args.projectId,
+      ownerAccountId: args.accountId,
+      name: args.name,
+      slug: args.slug,
+      projectUrl: args.projectUrl,
+      isOpenSource: args.isOpenSource,
+      repositoryUrl: args.repositoryUrl,
+      screenshotUrl: args.screenshotUrl,
+      description: args.description,
+      logoUrl: args.logoUrl,
+      tagline: args.tagline,
+      useCases: args.useCases,
+      packageNames: args.packageNames,
+    });
+  },
+});

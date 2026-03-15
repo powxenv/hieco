@@ -7,11 +7,12 @@ import { useAction, useMutation } from "convex/react";
 import { toast } from "sonner";
 import { z } from "zod";
 import SolarHamburgerMenuLineDuotone from "~icons/solar/hamburger-menu-line-duotone";
-import SolarPenLineDuotone from "~icons/solar/pen-line-duotone";
 import SolarTrashBinTrashLineDuotone from "~icons/solar/trash-bin-trash-line-duotone";
+import SolarPenLineDuotone from "~icons/solar/pen-line-duotone";
 import SolarArrowRightUpLineDuotone from "~icons/solar/arrow-right-up-line-duotone";
 import heroImg from "../assets/hero.jpeg";
 import { api } from "../../convex/_generated/api";
+import EditProject from "#/components/edit-project";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,6 +45,7 @@ function RouteComponent() {
   const { slug } = Route.useParams();
   const navigate = Route.useNavigate();
   const { session } = useWallet();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const requestChallenge = useMutation(api.walletChallenges.requestChallenge);
@@ -199,7 +201,11 @@ function RouteComponent() {
                     }
                   />
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setIsEditDialogOpen(true);
+                      }}
+                    >
                       <SolarPenLineDuotone />
                       Edit
                     </DropdownMenuItem>
@@ -219,7 +225,7 @@ function RouteComponent() {
 
             <div>
               <h2 className="text-2xl font-semibold">{project.name}</h2>
-              <p className="text-zinc-500 break-all">{project.description}</p>
+              <p className="text-zinc-500 break-all">{project.tagline}</p>
             </div>
 
             <div className="flex flex-wrap gap-1">
@@ -242,6 +248,7 @@ function RouteComponent() {
           </div>
         </div>
       </section>
+      <EditProject onOpenChange={setIsEditDialogOpen} open={isEditDialogOpen} project={project} />
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
