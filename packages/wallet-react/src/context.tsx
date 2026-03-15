@@ -3,14 +3,16 @@ import {
   useContext,
   useEffect,
   useRef,
+  useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
-  createWallet,
+  WalletError,
   type CreateWalletOptions,
   type Wallet,
   type WalletState,
+  createWalletInitialState,
 } from "@hieco/wallet";
 
 const WalletContext = createContext<Wallet | null>(null);
@@ -26,35 +28,79 @@ export interface WalletProviderWithRuntimeProps {
 
 export type WalletProviderProps = WalletProviderWithRuntimeProps | WalletProviderCreateRuntimeProps;
 
+function createInactiveWallet(state: WalletState): Wallet {
+  return {
+    snapshot: () => state,
+    subscribe: () => () => undefined,
+    connectQr: async () => {
+      throw new WalletError("WALLET_NOT_READY");
+    },
+    connectExtension: async () => {
+      throw new WalletError("WALLET_NOT_READY");
+    },
+    cancelConnection: () => undefined,
+    disconnect: async () => undefined,
+    restore: async () => null,
+    destroy: async () => undefined,
+  };
+}
+
 export function WalletProvider(props: WalletProviderProps): ReactNode {
   const { children } = props;
-  const createdWalletRef = useRef<Wallet | null>(null);
   const ownsWallet = !("wallet" in props);
+  const createOptionsRef = useRef<WalletProviderCreateRuntimeProps | null>(
+    ownsWallet ? props : null,
+  );
+  const [wallet, setWallet] = useState<Wallet>(() => {
+    if (!ownsWallet) {
+      return props.wallet;
+    }
 
-  if (ownsWallet && !createdWalletRef.current) {
-    createdWalletRef.current = createWallet(props);
-  }
-
-  const wallet = ownsWallet ? createdWalletRef.current : props.wallet;
+    return createInactiveWallet(createWalletInitialState(props));
+  });
 
   if (!wallet) {
     throw new Error("WalletProvider could not create a wallet runtime.");
   }
 
   useEffect(() => {
+    if (ownsWallet) {
+      return;
+    }
+
+    setWallet(props.wallet);
+  }, [ownsWallet, props]);
+
+  useEffect(() => {
     if (!ownsWallet) {
       return;
     }
 
-    const createdWallet = createdWalletRef.current;
+    if (import.meta.env.SSR) {
+      return;
+    }
 
-    return () => {
-      if (!createdWallet) {
+    let active = true;
+    let createdWallet: Wallet | null = null;
+
+    void import("@hieco/wallet").then(({ createWallet }) => {
+      if (!active || !createOptionsRef.current) {
         return;
       }
 
-      if (createdWalletRef.current === createdWallet) {
-        createdWalletRef.current = null;
+      if (typeof createWallet !== "function") {
+        return;
+      }
+
+      createdWallet = createWallet(createOptionsRef.current);
+      setWallet(createdWallet);
+    });
+
+    return () => {
+      active = false;
+
+      if (!createdWallet) {
+        return;
       }
 
       void createdWallet.destroy();

@@ -3,8 +3,24 @@ import { renderToStaticMarkup } from "react-dom/server";
 import type { Wallet, WalletState } from "../../wallet/src";
 
 mock.module("@hieco/wallet", () => ({
-  createWallet: mock(() => {
-    throw new Error("Not needed in this test.");
+  WalletError: class WalletError extends Error {
+    readonly code: string;
+
+    constructor(code: string) {
+      super(code);
+      this.code = code;
+    }
+  },
+  createWalletInitialState: () => ({
+    chain: {
+      id: "hedera:testnet",
+      network: "testnet",
+      ledgerId: "testnet",
+    },
+    walletConnectEnabled: false,
+    wallets: [],
+    session: null,
+    connection: null,
   }),
   getConnectableWallets: (state: WalletState) => {
     return state.wallets.filter((wallet) => wallet.availability === "installed");
