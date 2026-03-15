@@ -1,4 +1,4 @@
-import SignClient from "@walletconnect/sign-client";
+import type SignClient from "@walletconnect/sign-client";
 import type { SessionTypes, SignClientTypes } from "@walletconnect/types";
 import type { WalletAppMetadata } from "./types";
 
@@ -59,13 +59,17 @@ export function createWalletConnectClientManager(input: {
       }
 
       if (!clientPromise) {
-        clientPromise = SignClient.init({
-          projectId: input.projectId,
-          metadata: {
-            ...input.app,
-            icons: [...input.app.icons],
-          },
-        }).then(bindClient);
+        clientPromise = import("@walletconnect/sign-client")
+          .then(({ default: SignClient }) =>
+            SignClient.init({
+              projectId: input.projectId,
+              metadata: {
+                ...input.app,
+                icons: [...input.app.icons],
+              },
+            }),
+          )
+          .then(bindClient);
       }
 
       return clientPromise;
