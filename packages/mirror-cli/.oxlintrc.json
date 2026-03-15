@@ -4,7 +4,17 @@
   "categories": {},
   "rules": {
     "typescript/no-deprecated": "error",
-    "unicorn/no-useless-undefined": "error"
+    "unicorn/no-useless-undefined": "error",
+    "typescript/no-inferrable-types": "error",
+    "typescript/no-unnecessary-condition": "error",
+    "typescript/no-unnecessary-type-arguments": "error",
+    "typescript/no-unnecessary-parameter-property-assignment": "error",
+    "typescript/no-unsafe-assignment": "error",
+    "typescript/no-unsafe-call": "error",
+    "typescript/no-unnecessary-boolean-literal-compare": "error",
+    "typescript/no-unnecessary-type-conversion": "error",
+    "typescript/no-unnecessary-qualifier": "error",
+    "typescript/no-unnecessary-template-expression": "error"
   },
   "settings": {
     "jsx-a11y": {
