@@ -33,28 +33,23 @@ async def run_test():
         # -> Navigate to http://localhost:5878/testsprite-lab
         await page.goto("http://localhost:5878/testsprite-lab")
         
-        # -> Click the 'Open Showcase index' button (element index 107) to navigate to /showcase and load the showcase page.
+        # -> Click the 'Open Showcase index' control (element index 110) to navigate to the /showcase page.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/div/section[2]/div/div[2]/a').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Type 'wallet' into the field with placeholder 'Search...' (use input element index 725).
+        # -> Type 'zzzzzz-nonexistent-project' into the Search... field (interactive element index 407) and wait for the page to update.
         frame = context.pages[-1]
         # Input text
         elem = frame.locator('xpath=/html/body/section/div/div/div/input').nth(0)
-        await asyncio.sleep(3); await elem.fill('wallet')
+        await asyncio.sleep(3); await elem.fill('zzzzzz-nonexistent-project')
         
-        # -> Focus the search input and press Enter to trigger the app to update the URL. After that, verify the URL contains 'q=wallet' and that the 'All Projects' text remains visible. If the URL still does not contain q=wallet, report the issue and finish.
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/section/div/div/div/input').nth(0)
-        await asyncio.sleep(3); await elem.click()
-        
-        # --> Test passed — verified by AI agent
+        # --> Assertions to verify final state
         frame = context.pages[-1]
         current_url = await frame.evaluate("() => window.location.href")
-        assert current_url is not None, "Test completed successfully"
+        assert 'q=zzzzzz-nonexistent-project' in current_url
+        assert await frame.locator("xpath=//*[contains(., 'No public projects match the current filters.')]").nth(0).is_visible(), "Expected 'No public projects match the current filters.' to be visible"
         await asyncio.sleep(5)
 
     finally:

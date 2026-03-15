@@ -33,28 +33,29 @@ async def run_test():
         # -> Navigate to http://localhost:5878/testsprite-lab
         await page.goto("http://localhost:5878/testsprite-lab")
         
-        # -> Click the 'Open Showcase index' button (element index 107) to navigate to /showcase and load the showcase page.
+        # -> Click the 'Open Showcase index' button (element index 107) to navigate to /showcase.
         frame = context.pages[-1]
         # Click element
         elem = frame.locator('xpath=/html/body/main/div/section[2]/div/div[2]/a').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Type 'wallet' into the field with placeholder 'Search...' (use input element index 725).
-        frame = context.pages[-1]
-        # Input text
-        elem = frame.locator('xpath=/html/body/section/div/div/div/input').nth(0)
-        await asyncio.sleep(3); await elem.fill('wallet')
-        
-        # -> Focus the search input and press Enter to trigger the app to update the URL. After that, verify the URL contains 'q=wallet' and that the 'All Projects' text remains visible. If the URL still does not contain q=wallet, report the issue and finish.
+        # -> Click the 'Filter Packages' button to open the packages filter panel.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/section/div/div/div/input').nth(0)
+        elem = frame.locator('xpath=/html/body/section/div/div/button').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # --> Test passed — verified by AI agent
+        # -> Ensure the packages filter panel is open and reveal the 'Hieco Wallet' checkbox. If no checkbox is exposed, preserve that evidence and report the feature as missing.
+        frame = context.pages[-1]
+        # Click element
+        elem = frame.locator('xpath=/html/body/section/div/div/button').nth(0)
+        await asyncio.sleep(3); await elem.click()
+        
+        # --> Assertions to verify final state
         frame = context.pages[-1]
         current_url = await frame.evaluate("() => window.location.href")
-        assert current_url is not None, "Test completed successfully"
+        assert '/packages' in current_url
+        assert await frame.locator("xpath=//*[contains(., 'All Projects')]").nth(0).is_visible(), "Expected 'All Projects' to be visible"
         await asyncio.sleep(5)
 
     finally:

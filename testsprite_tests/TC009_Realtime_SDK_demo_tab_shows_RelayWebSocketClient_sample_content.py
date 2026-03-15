@@ -33,28 +33,18 @@ async def run_test():
         # -> Navigate to http://localhost:5878/testsprite-lab
         await page.goto("http://localhost:5878/testsprite-lab")
         
-        # -> Click the 'Open Showcase index' button (element index 107) to navigate to /showcase and load the showcase page.
+        # -> Navigate to '/' (http://localhost:5878/) as the next immediate action.
+        await page.goto("http://localhost:5878/")
+        
+        # -> Click the 'Realtime SDK' tab (interactive element index 433) to load the realtime demo section.
         frame = context.pages[-1]
         # Click element
-        elem = frame.locator('xpath=/html/body/main/div/section[2]/div/div[2]/a').nth(0)
+        elem = frame.locator('xpath=/html/body/main/div[2]/div[2]/div/div/button[3]').nth(0)
         await asyncio.sleep(3); await elem.click()
         
-        # -> Type 'wallet' into the field with placeholder 'Search...' (use input element index 725).
+        # --> Assertions to verify final state
         frame = context.pages[-1]
-        # Input text
-        elem = frame.locator('xpath=/html/body/section/div/div/div/input').nth(0)
-        await asyncio.sleep(3); await elem.fill('wallet')
-        
-        # -> Focus the search input and press Enter to trigger the app to update the URL. After that, verify the URL contains 'q=wallet' and that the 'All Projects' text remains visible. If the URL still does not contain q=wallet, report the issue and finish.
-        frame = context.pages[-1]
-        # Click element
-        elem = frame.locator('xpath=/html/body/section/div/div/div/input').nth(0)
-        await asyncio.sleep(3); await elem.click()
-        
-        # --> Test passed — verified by AI agent
-        frame = context.pages[-1]
-        current_url = await frame.evaluate("() => window.location.href")
-        assert current_url is not None, "Test completed successfully"
+        assert await frame.locator("xpath=//*[contains(., 'RelayWebSocketClient')]").nth(0).is_visible(), "Expected 'RelayWebSocketClient' to be visible"
         await asyncio.sleep(5)
 
     finally:
