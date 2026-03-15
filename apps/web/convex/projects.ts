@@ -252,3 +252,30 @@ export const listByOwner = query({
       .sort((left, right) => right.updatedAt - left.updatedAt);
   },
 });
+
+export const getBySlug = query({
+  args: {
+    slug: v.string(),
+    ownerAccountId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const project = await ctx.db
+      .query("projects")
+      .withIndex("by_slug", (query) => query.eq("slug", args.slug))
+      .unique();
+
+    if (!project) {
+      return null;
+    }
+
+    if (project.status === "approved") {
+      return project;
+    }
+
+    if (project.ownerAccountId === args.ownerAccountId) {
+      return project;
+    }
+
+    return null;
+  },
+});

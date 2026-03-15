@@ -1,7 +1,7 @@
 import { convexQuery } from "@convex-dev/react-query";
 import { useWallet } from "@hieco/wallet-react";
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import SolarBranchingPathsUpLineDuotone from "~icons/solar/branching-paths-up-line-duotone";
 import SolarBoxLineDuotone from "~icons/solar/box-line-duotone";
@@ -54,8 +54,24 @@ const searchSchema = z.object({
   hideYours: z.boolean().catch(false).default(false),
 });
 
-export const Route = createFileRoute("/showcase")({
+export const Route = createFileRoute("/showcase/")({
   validateSearch: searchSchema,
+  loaderDeps: ({ search }) => ({
+    openSource: search.openSource,
+    packageNames: search.packages,
+    q: search.q,
+    useCases: search.useCases,
+  }),
+  loader: async ({ context, deps }) => {
+    await context.queryClient.ensureQueryData(
+      convexQuery(api.projects.listApproved, {
+        q: deps.q,
+        openSource: deps.openSource,
+        packageNames: deps.packageNames,
+        useCases: deps.useCases,
+      }),
+    );
+  },
   component: RouteComponent,
 });
 
@@ -63,14 +79,14 @@ function RouteComponent() {
   const { session } = useWallet();
   const filters = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { data: approvedProjects = [] } = useQuery({
-    ...convexQuery(api.projects.listApproved, {
+  const { data: approvedProjects } = useSuspenseQuery(
+    convexQuery(api.projects.listApproved, {
       q: filters.q,
       openSource: filters.openSource,
       packageNames: filters.packages,
       useCases: filters.useCases,
     }),
-  });
+  );
   const { data: yourProjects = [] } = useQuery({
     ...convexQuery(api.projects.listByOwner, {
       ownerAccountId: session?.accountId ?? "",
@@ -275,7 +291,7 @@ function RouteComponent() {
 
 function ProjectCard({ project }: { project: Doc<"projects"> }) {
   return (
-    <a href={project.projectUrl} rel="noreferrer" target="_blank">
+    <Link params={{ slug: project.slug }} to="/showcase/$slug">
       <div className="aspect-video rounded-xl overflow-hidden">
         <img
           alt={`${project.name} screenshot`}
@@ -303,6 +319,6 @@ function ProjectCard({ project }: { project: Doc<"projects"> }) {
           ))}
         </div>
       </div>
-    </a>
+    </Link>
   );
 }
