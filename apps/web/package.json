@@ -7,9 +7,9 @@
   },
   "scripts": {
     "dev": "vite dev --port 5878",
-    "build": "vite build",
+    "build": "cd ../.. && bun run build:utils && bun run build:wallet && bun run build:wallet-react && cd apps/web && vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && wrangler deploy",
+    "deploy": "bun run build && wrangler deploy",
     "cf-typegen": "wrangler types",
     "convex:gen": "CONVEX_AGENT_MODE=anonymous convex codegen",
     "test": "vitest run",
