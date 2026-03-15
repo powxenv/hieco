@@ -8,6 +8,9 @@ const result = await Bun.build({
   target: "node",
   format: "esm",
   sourcemap: "linked",
+  define: {
+    "process.env.NODE_ENV": '"production"',
+  },
   external: ["preact", "@tanstack/preact-query", "@hieco/mirror", "@hieco/utils"],
 });
 

@@ -8,6 +8,9 @@ const result = await Bun.build({
   target: "browser",
   format: "esm",
   sourcemap: "external",
+  define: {
+    "process.env.NODE_ENV": '"production"',
+  },
   external: ["react", "react-dom", "@hieco/wallet"],
 });
 
