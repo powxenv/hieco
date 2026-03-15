@@ -235,12 +235,16 @@ function RouteComponent() {
             </div>
 
             <div className="flex flex-wrap gap-1">
-              <Button render={<a href={project.projectUrl} rel="noreferrer" target="_blank" />}>
+              <Button
+                nativeButton={false}
+                render={<a href={project.projectUrl} rel="noreferrer" target="_blank" />}
+              >
                 Visit Project
                 <SolarArrowRightUpLineDuotone />
               </Button>
               {project.repositoryUrl ? (
                 <Button
+                  nativeButton={false}
                   render={<a href={project.repositoryUrl} rel="noreferrer" target="_blank" />}
                   variant="outline"
                 >
