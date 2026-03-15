@@ -13,11 +13,7 @@ import SubmitProject from "#/components/submit-project";
 import { Badge } from "#/components/ui/badge";
 import { Checkbox } from "#/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "#/components/ui/field";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "#/components/ui/input-group";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "#/components/ui/input-group";
 import { Label } from "#/components/ui/label";
 import {
   Popover,
@@ -27,11 +23,7 @@ import {
   PopoverTrigger,
 } from "#/components/ui/popover";
 import { Switch } from "#/components/ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "#/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "#/components/ui/tooltip";
 import {
   isPackageOption,
   isUseCaseOption,
@@ -104,16 +96,13 @@ function RouteComponent() {
         <div className="inner">
           <h1 className="text-6xl font-bold">Showcase</h1>
           <p className="text-xl max-w-md my-4">
-            Discover projects built on Hedera with the Hiero and Hieco
-            ecosystem.
+            Discover projects built on Hedera with the Hiero and Hieco ecosystem.
           </p>
           {session ? (
             <SubmitProject />
           ) : (
             <Tooltip>
-              <TooltipTrigger
-                render={<Button size="lg">Submit Yours</Button>}
-              />
+              <TooltipTrigger render={<Button size="lg">Submit Yours</Button>} />
               <TooltipContent>
                 <p>Connect first to submit your project</p>
               </TooltipContent>
@@ -166,16 +155,12 @@ function RouteComponent() {
                                 ...previous,
                                 packages: checked
                                   ? [...previous.packages, packageName]
-                                  : previous.packages.filter(
-                                      (value) => value !== packageName,
-                                    ),
+                                  : previous.packages.filter((value) => value !== packageName),
                               }),
                             });
                           }}
                         />
-                        <Label htmlFor={`filter-package-${packageName}`}>
-                          {packageName}
-                        </Label>
+                        <Label htmlFor={`filter-package-${packageName}`}>{packageName}</Label>
                       </Field>
                     ))}
                   </FieldGroup>
@@ -208,16 +193,12 @@ function RouteComponent() {
                                 ...previous,
                                 useCases: checked
                                   ? [...previous.useCases, useCase]
-                                  : previous.useCases.filter(
-                                      (value) => value !== useCase,
-                                    ),
+                                  : previous.useCases.filter((value) => value !== useCase),
                               }),
                             });
                           }}
                         />
-                        <Label htmlFor={`filter-use-case-${useCase}`}>
-                          {useCase}
-                        </Label>
+                        <Label htmlFor={`filter-use-case-${useCase}`}>{useCase}</Label>
                       </Field>
                     ))}
                   </FieldGroup>
@@ -313,12 +294,8 @@ function ProjectCard({ project }: { project: Doc<"projects"> }) {
           ) : null}
         </div>
         <div className="my-2">
-          <h3 className="text-2xl font-bold wrap-break-words">
-            {project.name}
-          </h3>
-          <p className="text-lg text-zinc-600 break-all line-clamp-2">
-            {project.tagline}
-          </p>
+          <h3 className="text-2xl font-bold wrap-break-words">{project.name}</h3>
+          <p className="text-lg text-zinc-600 break-all line-clamp-2">{project.tagline}</p>
         </div>
         <div className="flex flex-wrap gap-1">
           {project.packageNames.map((packageName) => (
