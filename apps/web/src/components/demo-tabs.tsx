@@ -4,7 +4,10 @@ import json from "@shikijs/langs/json";
 import tsx from "@shikijs/langs/tsx";
 import typescript from "@shikijs/langs/typescript";
 import githubLight from "@shikijs/themes/github-light";
-import ShikiHighlighter, { createHighlighterCore, createJavaScriptRegexEngine } from "react-shiki/core";
+import ShikiHighlighter, {
+  createHighlighterCore,
+  createJavaScriptRegexEngine,
+} from "react-shiki/core";
 import mcpLogo from "../assets/tech-icons/mcp.svg";
 import preactLogo from "../assets/tech-icons/preact.svg";
 import reactLogo from "../assets/tech-icons/react.svg";
