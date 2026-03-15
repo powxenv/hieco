@@ -23,10 +23,11 @@ export function createWalletInitialState(
   const chain = options.chain ?? hederaTestnet();
   const projectId = options.projectId?.trim();
   const definitions = options.wallets ?? getDefaultWallets();
+  const walletConnectEnabled = projectId !== undefined && projectId.length > 0;
 
   return {
     chain,
-    walletConnectEnabled: projectId !== undefined,
+    walletConnectEnabled,
     wallets: definitions.flatMap((definition) => {
       const wallet = toWalletOption(definition);
       return wallet ? [wallet] : [];

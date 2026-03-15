@@ -324,7 +324,7 @@ export function createWallet(options: CreateWalletOptions): Wallet {
   const chain = options.chain ?? hederaTestnet();
   const definitions = options.wallets ?? getDefaultWallets();
   const projectId = options.projectId?.trim();
-  const walletConnectEnabled = projectId !== undefined;
+  const walletConnectEnabled = projectId !== undefined && projectId.length > 0;
   const storage = options.storage ?? createStorage();
   const storageKey = options.storageKey ?? DEFAULT_STORAGE_KEY;
   const restoreOnStart = options.restoreOnStart ?? false;

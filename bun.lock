@@ -15,6 +15,9 @@
       "dependencies": {
         "@base-ui/react": "^1.3.0",
         "@convex-dev/react-query": "0.1.0",
+        "@hieco/mirror": "workspace:*",
+        "@hieco/realtime": "workspace:*",
+        "@hieco/sdk": "workspace:*",
         "@hieco/utils": "workspace:*",
         "@hieco/wallet": "workspace:*",
         "@hieco/wallet-react": "workspace:*",

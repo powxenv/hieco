@@ -48,7 +48,7 @@
     "build": "bun run generate && bun run ./build.ts && tsc -p tsconfig.build.json",
     "dev": "bun run generate && bun --watch ./build.ts",
     "generate": "bun ./scripts/generate-hooks.ts",
-    "typecheck": "tsgo --noEmit --project tsconfig.test.json",
+    "typecheck": "tsgo --noEmit --project tsconfig.typecheck.json",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
     "fmt": "oxfmt",

@@ -1,0 +1,445 @@
+[
+  {
+    "id": "TC001",
+    "title": "Homepage hero content renders",
+    "description": "Verify the public landing page loads the main hero copy and primary call to action.",
+    "category": "Landing Page Discovery",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Build the future on Hedera\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"tooling for building trusted Hedera apps\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Start building\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Homepage demo tabs switch code examples",
+    "description": "Verify the homepage demo tabs surface switches between framework or SDK examples and updates the visible code sample.",
+    "category": "Landing Page Discovery",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Hedera SDK\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Mirror SDK\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"MirrorNodeClient\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Wallet SDK\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"createWallet\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Showcase unauthenticated state exposes submit guardrail",
+    "description": "Verify the showcase page renders its main discovery UI and keeps submission gated when no wallet session is present.",
+    "category": "Showcase Discovery",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/showcase\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Showcase\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Submit Yours\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"All Projects\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Showcase search updates URL query state",
+    "description": "Verify typing in the showcase search field updates the URL with the real query parameter used by the app and keeps the results view stable.",
+    "category": "Showcase Discovery",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/showcase\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"wallet\" into the field with placeholder \"Search...\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"q=wallet\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"All Projects\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Showcase open-source toggle persists in URL state",
+    "description": "Verify toggling the Open Source filter updates route state without breaking the page.",
+    "category": "Showcase Discovery",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/showcase\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Open Source\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on the switch labeled \"Open Source\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"openSource\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"All Projects\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Showcase empty-state messaging appears for no-match queries",
+    "description": "Verify an intentionally rare search query renders the real empty-state copy instead of a broken or blank page.",
+    "category": "Showcase Discovery",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/showcase\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"zzzzzz-nonexistent-project\" into the field with placeholder \"Search...\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"q=zzzzzz-nonexistent-project\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"No public projects match the current filters.\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Missing showcase slug renders not-found state and recovery path",
+    "description": "Verify a nonexistent showcase slug returns a clear not-found page with a working way back to the index.",
+    "category": "Showcase Project Detail",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/showcase/nonexistent-slug\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Project not found.\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Back to Showcase\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Back to Showcase\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/showcase\""
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Existing showcase card opens detail page with core sections",
+    "description": "Verify the first available showcase card opens a detail page that includes the stable detail sections exposed by the UI.",
+    "category": "Showcase Project Detail",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/showcase\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"All Projects\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible project card"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/showcase/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Libraries Used\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Use Cases\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Project Details\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Ecosystem page exposes major explanatory sections",
+    "description": "Verify the ecosystem page renders its major content sections that explain how Hieco fits into the broader stack.",
+    "category": "Ecosystem Content",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/ecosystem\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"What Hieco Is\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"What the Hedera Network Is\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"How the Pieces Fit Together\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "WalletConnect enablement changes across deterministic wallet scenarios",
+    "description": "Verify the package harness reflects WalletConnect disabled by default and enabled when the configured project-id scenario is selected.",
+    "category": "Package QA Harness",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/testsprite-lab\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Wallet State Scenarios\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"WalletConnect enabled\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"false\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Configured project ID enables WalletConnect\" from the Scenario select in the wallet section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"true\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Mixed wallet availability shows installed and unavailable wallet names",
+    "description": "Verify the wallet package harness exposes both installed and unavailable wallet states through real public helpers.",
+    "category": "Package QA Harness",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/testsprite-lab\""
+      },
+      {
+        "type": "action",
+        "description": "Select \"Mixed installed and unavailable wallets\" from the Scenario select in the wallet section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Connectable wallets\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"HashPack\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Unavailable wallets\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Kabila\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "SDK error scenarios expose classification and unwrap failure details",
+    "description": "Verify the SDK harness exposes meaningful configuration-error and unwrap-error outputs without depending on live network calls.",
+    "category": "Package QA Harness",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/testsprite-lab\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Error And Result Handling\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Configuration validation failure\" from the Scenario select in the SDK section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Use the format shard.realm.num\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select \"unwrap() throws on err()\" from the Scenario select in the SDK section"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Thrown message\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Invalid operator account id: not-an-id\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Utility validation updates for invalid entity IDs and missing custom networks",
+    "description": "Verify the utility harness reflects invalid entity input and throws the expected required-network error for an unknown custom network.",
+    "category": "Package QA Harness",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/testsprite-lab\""
+      },
+      {
+        "type": "action",
+        "description": "Clear the Entity ID input and type \"not-an-entity\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Invalid Hedera entity ID\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Missing custom network\" from the Network lookup select"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Required URL result\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Unknown custom network \\\"missing\\\". Add it to config.networks before using it.\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Mirror override URL is reflected in derived client configuration",
+    "description": "Verify the mirror package harness reflects an overridden base URL without making a live network request.",
+    "category": "Package QA Harness",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/testsprite-lab\""
+      },
+      {
+        "type": "action",
+        "description": "Clear the Override base URL input and type \"https://example.com/mirror\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Override base URL\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"https://example.com/mirror\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Realtime pre-connect guard fails fast before a pool is connected",
+    "description": "Verify the realtime harness returns the expected not-connected guard result before any relay connection exists.",
+    "category": "Package QA Harness",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to \"/testsprite-lab\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Connection Guard\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Run pre-connect subscribe check\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Guard result\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Not connected\" is visible"
+      }
+    ]
+  }
+]

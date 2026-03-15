@@ -42,7 +42,7 @@
   "scripts": {
     "build": "bun run ./build.ts && tsc -p tsconfig.build.json",
     "dev": "bun --watch ./build.ts",
-    "typecheck": "tsgo --noEmit --project tsconfig.test.json",
+    "typecheck": "tsgo --noEmit --project tsconfig.typecheck.json",
     "lint": "oxlint --type-aware",
     "lint:fix": "oxlint --fix --type-aware",
     "fmt": "oxfmt",

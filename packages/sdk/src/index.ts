@@ -6,5 +6,5 @@ export * from "./results/shapes.ts";
 export * from "./errors/index.ts";
 export { KeyList, Mnemonic, PrivateKey, PublicKey } from "@hiero-ledger/sdk";
 export type { Signer } from "@hiero-ledger/sdk";
-export type { NetworkType, TimestampFilter } from "@hieco/utils";
 export { NETWORK_CONFIGS, isDefaultNetwork, isValidEntityId } from "@hieco/utils";
+export type { NetworkType, TimestampFilter } from "@hieco/utils";

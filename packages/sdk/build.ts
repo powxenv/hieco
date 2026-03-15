@@ -9,6 +9,7 @@ const result = await Bun.build({
   format: "esm",
   sourcemap: "linked",
   packages: "external",
+  splitting: true,
 });
 
 if (!result.success) {

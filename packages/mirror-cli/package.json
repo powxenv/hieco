@@ -37,7 +37,7 @@
   "scripts": {
     "build": "bun run ./build.ts",
     "dev": "bun --watch ./build.ts",
-    "typecheck": "tsgo --noEmit --project tsconfig.test.json",
+    "typecheck": "tsgo --noEmit --project tsconfig.typecheck.json",
     "lint": "oxlint --type-aware",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check"
