@@ -145,6 +145,8 @@ Apply these principles in all code:
 
 ## Shared Utilities
 
+**DO NOT modify files in `@apps/web/src/components/ui/`**. This directory contains shadcn UI components and should not be edited directly.
+
 Before creating utilities in any package:
 
 1. **Check existing shared packages:**
