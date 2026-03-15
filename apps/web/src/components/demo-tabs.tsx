@@ -1,5 +1,10 @@
 import { Tabs } from "@base-ui/react/tabs";
-import ShikiHighlighter from "react-shiki";
+import bash from "@shikijs/langs/bash";
+import json from "@shikijs/langs/json";
+import tsx from "@shikijs/langs/tsx";
+import typescript from "@shikijs/langs/typescript";
+import githubLight from "@shikijs/themes/github-light";
+import ShikiHighlighter, { createHighlighterCore, createJavaScriptRegexEngine } from "react-shiki/core";
 import mcpLogo from "../assets/tech-icons/mcp.svg";
 import preactLogo from "../assets/tech-icons/preact.svg";
 import reactLogo from "../assets/tech-icons/react.svg";
@@ -349,6 +354,12 @@ npx flins add powxenv/hieco --skill hieco-mirror-cli`,
   },
 ];
 
+const shikiHighlighter = await createHighlighterCore({
+  themes: [githubLight],
+  langs: [bash, json, tsx, typescript],
+  engine: createJavaScriptRegexEngine(),
+});
+
 const DemoTabs = () => {
   return (
     <div className="mt-10">
@@ -371,6 +382,7 @@ const DemoTabs = () => {
               {section.samples.length === 1 ? (
                 <div className="h-full overflow-auto bg-white">
                   <ShikiHighlighter
+                    highlighter={shikiHighlighter}
                     language={section.samples[0]?.language ?? "bash"}
                     theme="github-light"
                   >
@@ -403,7 +415,11 @@ const DemoTabs = () => {
                       value={sample.value}
                       className="h-[calc(50lvh-2.5rem)] overflow-auto bg-white"
                     >
-                      <ShikiHighlighter language={sample.language} theme="github-light">
+                      <ShikiHighlighter
+                        highlighter={shikiHighlighter}
+                        language={sample.language}
+                        theme="github-light"
+                      >
                         {sample.code}
                       </ShikiHighlighter>
                     </Tabs.Panel>
