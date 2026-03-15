@@ -34,6 +34,22 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./chains": {
+      "types": "./dist/exports/chains.d.ts",
+      "import": "./dist/exports/chains.js"
+    },
+    "./selectors": {
+      "types": "./dist/exports/selectors.d.ts",
+      "import": "./dist/exports/selectors.js"
+    },
+    "./state": {
+      "types": "./dist/exports/state.d.ts",
+      "import": "./dist/exports/state.js"
+    },
+    "./wallets": {
+      "types": "./dist/exports/wallets.d.ts",
+      "import": "./dist/exports/wallets.js"
     }
   },
   "publishConfig": {

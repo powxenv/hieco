@@ -7,8 +7,14 @@
     "priority": "High",
     "steps": [
       { "type": "action", "description": "Navigate to \"/\"" },
-      { "type": "assertion", "description": "Verify text \"Build the future on Hedera\" is visible" },
-      { "type": "assertion", "description": "Verify text \"tooling for building trusted Hedera apps\" is visible" },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Build the future on Hedera\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"tooling for building trusted Hedera apps\" is visible"
+      },
       { "type": "assertion", "description": "Verify element \"Start building\" is visible" }
     ]
   },
@@ -149,7 +155,10 @@
     "steps": [
       { "type": "action", "description": "Navigate to \"/showcase\"" },
       { "type": "assertion", "description": "Verify text \"Showcase\" is visible" },
-      { "type": "assertion", "description": "Verify the field with placeholder \"Search...\" is visible" },
+      {
+        "type": "assertion",
+        "description": "Verify the field with placeholder \"Search...\" is visible"
+      },
       { "type": "assertion", "description": "Verify element \"Filter Packages\" is visible" },
       { "type": "assertion", "description": "Verify element \"Filter Use Cases\" is visible" },
       { "type": "assertion", "description": "Verify text \"All Projects\" is visible" }
@@ -164,7 +173,10 @@
     "steps": [
       { "type": "action", "description": "Navigate to \"/showcase?q=wallet\"" },
       { "type": "assertion", "description": "Verify URL contains \"q=wallet\"" },
-      { "type": "assertion", "description": "Verify the field with placeholder \"Search...\" contains the value \"wallet\"" },
+      {
+        "type": "assertion",
+        "description": "Verify the field with placeholder \"Search...\" contains the value \"wallet\""
+      },
       { "type": "assertion", "description": "Verify text \"All Projects\" is visible" }
     ]
   },
@@ -177,7 +189,10 @@
     "steps": [
       { "type": "action", "description": "Navigate to \"/showcase?q=wallet\"" },
       { "type": "assertion", "description": "Verify URL contains \"q=wallet\"" },
-      { "type": "assertion", "description": "Verify the field with placeholder \"Search...\" contains the value \"wallet\"" },
+      {
+        "type": "assertion",
+        "description": "Verify the field with placeholder \"Search...\" contains the value \"wallet\""
+      },
       { "type": "assertion", "description": "Verify text \"All Projects\" is visible" }
     ]
   },
@@ -189,9 +204,18 @@
     "priority": "High",
     "steps": [
       { "type": "action", "description": "Navigate to \"/showcase?q=zzzzzz-nonexistent-project\"" },
-      { "type": "assertion", "description": "Verify URL contains \"q=zzzzzz-nonexistent-project\"" },
-      { "type": "assertion", "description": "Verify the field with placeholder \"Search...\" contains the value \"zzzzzz-nonexistent-project\"" },
-      { "type": "assertion", "description": "Verify text \"No public projects match the current filters.\" is visible" }
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"q=zzzzzz-nonexistent-project\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the field with placeholder \"Search...\" contains the value \"zzzzzz-nonexistent-project\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"No public projects match the current filters.\" is visible"
+      }
     ]
   },
   {
@@ -202,7 +226,10 @@
     "priority": "Medium",
     "steps": [
       { "type": "action", "description": "Navigate to \"/showcase?q=zzzzzz-nonexistent-project\"" },
-      { "type": "assertion", "description": "Verify text \"No public projects match the current filters.\" is visible" },
+      {
+        "type": "assertion",
+        "description": "Verify text \"No public projects match the current filters.\" is visible"
+      },
       { "type": "action", "description": "Clear the field with placeholder \"Search...\"" },
       { "type": "assertion", "description": "Verify text \"All Projects\" is visible" }
     ]
@@ -282,7 +309,10 @@
     "category": "Showcase Search And Filters",
     "priority": "High",
     "steps": [
-      { "type": "action", "description": "Navigate to \"/showcase?packages=Hieco%20Wallet&useCases=Developer%20Tools\"" },
+      {
+        "type": "action",
+        "description": "Navigate to \"/showcase?packages=Hieco%20Wallet&useCases=Developer%20Tools\""
+      },
       { "type": "assertion", "description": "Verify URL contains \"packages\"" },
       { "type": "assertion", "description": "Verify URL contains \"useCases\"" },
       { "type": "assertion", "description": "Verify text \"All Projects\" is visible" }
@@ -298,7 +328,10 @@
       { "type": "action", "description": "Navigate to \"/showcase?q=wallet&openSource=true\"" },
       { "type": "assertion", "description": "Verify URL contains \"q=wallet\"" },
       { "type": "assertion", "description": "Verify URL contains \"openSource=true\"" },
-      { "type": "assertion", "description": "Verify the field with placeholder \"Search...\" contains the value \"wallet\"" }
+      {
+        "type": "assertion",
+        "description": "Verify the field with placeholder \"Search...\" contains the value \"wallet\""
+      }
     ]
   },
   {
@@ -308,10 +341,16 @@
     "category": "Showcase Search And Filters",
     "priority": "Medium",
     "steps": [
-      { "type": "action", "description": "Navigate to \"/showcase?q=wallet&packages=Hieco%20Wallet\"" },
+      {
+        "type": "action",
+        "description": "Navigate to \"/showcase?q=wallet&packages=Hieco%20Wallet\""
+      },
       { "type": "assertion", "description": "Verify URL contains \"q=wallet\"" },
       { "type": "assertion", "description": "Verify URL contains \"packages\"" },
-      { "type": "assertion", "description": "Verify the field with placeholder \"Search...\" contains the value \"wallet\"" }
+      {
+        "type": "assertion",
+        "description": "Verify the field with placeholder \"Search...\" contains the value \"wallet\""
+      }
     ]
   },
   {
@@ -434,7 +473,10 @@
     "steps": [
       { "type": "action", "description": "Navigate to \"/ecosystem\"" },
       { "type": "assertion", "description": "Verify text \"Ecosystem\" is visible" },
-      { "type": "assertion", "description": "Verify text \"Hieco fits into a wider stack\" is visible" }
+      {
+        "type": "assertion",
+        "description": "Verify text \"Hieco fits into a wider stack\" is visible"
+      }
     ]
   },
   {
@@ -456,7 +498,10 @@
     "priority": "Medium",
     "steps": [
       { "type": "action", "description": "Navigate to \"/ecosystem\"" },
-      { "type": "assertion", "description": "Verify text \"What the Hedera Network Is\" is visible" }
+      {
+        "type": "assertion",
+        "description": "Verify text \"What the Hedera Network Is\" is visible"
+      }
     ]
   },
   {
@@ -478,7 +523,10 @@
     "priority": "Medium",
     "steps": [
       { "type": "action", "description": "Navigate to \"/ecosystem\"" },
-      { "type": "assertion", "description": "Verify text \"How the Pieces Fit Together\" is visible" }
+      {
+        "type": "assertion",
+        "description": "Verify text \"How the Pieces Fit Together\" is visible"
+      }
     ]
   },
   {
@@ -515,7 +563,10 @@
       { "type": "action", "description": "Navigate to \"/testsprite-lab\"" },
       { "type": "action", "description": "Click on \"Open Landing page\"" },
       { "type": "assertion", "description": "Verify URL contains \"/\"" },
-      { "type": "assertion", "description": "Verify text \"Build the future on Hedera\" is visible" }
+      {
+        "type": "assertion",
+        "description": "Verify text \"Build the future on Hedera\" is visible"
+      }
     ]
   },
   {
@@ -552,7 +603,10 @@
     "priority": "High",
     "steps": [
       { "type": "action", "description": "Navigate to \"/testsprite-lab\"" },
-      { "type": "action", "description": "Click on \"Configured project ID enables WalletConnect\"" },
+      {
+        "type": "action",
+        "description": "Click on \"Configured project ID enables WalletConnect\""
+      },
       { "type": "assertion", "description": "Verify text \"WalletConnect enabled\" is visible" },
       { "type": "assertion", "description": "Verify text \"true\" is visible" }
     ]
@@ -595,7 +649,10 @@
       { "type": "action", "description": "Navigate to \"/testsprite-lab\"" },
       { "type": "action", "description": "Click on \"Configuration validation failure\"" },
       { "type": "assertion", "description": "Verify text \"CONFIG_INVALID_OPERATOR\" is visible" },
-      { "type": "assertion", "description": "Verify text \"Use the format shard.realm.num\" is visible" }
+      {
+        "type": "assertion",
+        "description": "Verify text \"Use the format shard.realm.num\" is visible"
+      }
     ]
   },
   {
@@ -608,7 +665,10 @@
       { "type": "action", "description": "Navigate to \"/testsprite-lab\"" },
       { "type": "action", "description": "Click on \"unwrap() throws on err()\"" },
       { "type": "assertion", "description": "Verify text \"ready\" is visible" },
-      { "type": "assertion", "description": "Verify text \"Invalid operator account id: not-an-id\" is visible" }
+      {
+        "type": "assertion",
+        "description": "Verify text \"Invalid operator account id: not-an-id\" is visible"
+      }
     ]
   },
   {
@@ -619,10 +679,16 @@
     "priority": "High",
     "steps": [
       { "type": "action", "description": "Navigate to \"/testsprite-lab\"" },
-      { "type": "action", "description": "Type \"not-an-entity\" into the field labeled \"Entity ID\"" },
+      {
+        "type": "action",
+        "description": "Type \"not-an-entity\" into the field labeled \"Entity ID\""
+      },
       { "type": "action", "description": "Click on \"Missing custom network\"" },
       { "type": "assertion", "description": "Verify text \"Invalid Hedera entity ID\" is visible" },
-      { "type": "assertion", "description": "Verify text \"Unknown custom network \\\"missing\\\"\" is visible" }
+      {
+        "type": "assertion",
+        "description": "Verify text \"Unknown custom network \\\"missing\\\"\" is visible"
+      }
     ]
   },
   {
@@ -634,7 +700,10 @@
     "steps": [
       { "type": "action", "description": "Navigate to \"/testsprite-lab\"" },
       { "type": "action", "description": "Click on \"Configured custom network\"" },
-      { "type": "assertion", "description": "Verify text \"https://mirror.demo.hieco.local\" is visible" }
+      {
+        "type": "assertion",
+        "description": "Verify text \"https://mirror.demo.hieco.local\" is visible"
+      }
     ]
   },
   {
@@ -645,8 +714,14 @@
     "priority": "High",
     "steps": [
       { "type": "action", "description": "Navigate to \"/testsprite-lab\"" },
-      { "type": "action", "description": "Fill \"https://example.com/mirror\" into the field labeled \"Override base URL\"" },
-      { "type": "assertion", "description": "Verify text \"https://example.com/mirror\" is visible" },
+      {
+        "type": "action",
+        "description": "Fill \"https://example.com/mirror\" into the field labeled \"Override base URL\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"https://example.com/mirror\" is visible"
+      },
       { "type": "assertion", "description": "Verify text \"Network\" is visible" }
     ]
   },
@@ -659,7 +734,10 @@
     "steps": [
       { "type": "action", "description": "Navigate to \"/testsprite-lab\"" },
       { "type": "action", "description": "Click on \"Run pre-connect subscribe check\"" },
-      { "type": "assertion", "description": "Verify text \"Pool states before connect\" is visible" },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Pool states before connect\" is visible"
+      },
       { "type": "assertion", "description": "Verify text \"0\" is visible" },
       { "type": "assertion", "description": "Verify text \"Pool not initialized\" is visible" }
     ]

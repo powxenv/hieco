@@ -36,6 +36,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./errors": {
+      "types": "./dist/exports/errors.d.ts",
+      "import": "./dist/exports/errors.js"
+    },
+    "./result": {
+      "types": "./dist/exports/result.d.ts",
+      "import": "./dist/exports/result.js"
     }
   },
   "publishConfig": {
