@@ -225,6 +225,23 @@ The repo includes package-specific agent skills so humans and agents can follow 
 - [`skills/hieco-realtime`](./skills/hieco-realtime)
 - [`skills/hieco-mirror-cli`](./skills/hieco-mirror-cli)
 
+Install them with [flins.tech](https://flins.tech/):
+
+```bash
+# Browse the catalog
+flins search
+
+# Install the full Hieco skill set
+flins add powxenv/hieco
+
+# Install individual skills
+flins add powxenv/hieco --skill hieco-sdk
+flins add powxenv/hieco --skill hieco-wallet
+flins add powxenv/hieco --skill hieco-mirror
+flins add powxenv/hieco --skill hieco-realtime
+flins add powxenv/hieco --skill hieco-mirror-cli
+```
+
 ## License
 
 [MIT](./LICENSE)
