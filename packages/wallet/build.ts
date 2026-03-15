@@ -8,7 +8,6 @@ const result = await Bun.build({
   target: "browser",
   format: "esm",
   sourcemap: "linked",
-  splitting: true,
   external: ["@walletconnect/sign-client", "@walletconnect/types", "@walletconnect/utils"],
 });
 
