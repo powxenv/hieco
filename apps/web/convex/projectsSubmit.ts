@@ -1,5 +1,7 @@
 "use node";
 
+import { NETWORK_CONFIGS } from "@hieco/utils";
+import type { NetworkType } from "@hieco/utils";
 import { proto } from "@hiero-ledger/proto";
 import { PublicKey } from "@hiero-ledger/sdk";
 import { v } from "convex/values";
@@ -8,10 +10,11 @@ import { internal } from "./_generated/api";
 import { action } from "./_generated/server";
 
 async function fetchAccountKey(
+  network: NetworkType,
   accountId: string,
 ): Promise<{ key: string; type: "ED25519" | "ECDSA_SECP256K1" }> {
   const response = await fetch(
-    `https://testnet.mirrornode.hedera.com/api/v1/accounts/${encodeURIComponent(accountId)}`,
+    `${NETWORK_CONFIGS[network].mirrorNode}/api/v1/accounts/${encodeURIComponent(accountId)}`,
   );
 
   if (!response.ok) {
@@ -34,6 +37,16 @@ async function fetchAccountKey(
     key: key.key,
     type: key._type,
   };
+}
+
+function getConfiguredNetwork(): NetworkType {
+  const network = process.env.HEDERA_NETWORK;
+
+  if (network === "mainnet" || network === "testnet" || network === "previewnet") {
+    return network;
+  }
+
+  throw new Error("HEDERA_NETWORK must be set to mainnet, testnet, or previewnet.");
 }
 
 function startsWithPrefix(value: Uint8Array, prefix: Uint8Array): boolean {
@@ -114,6 +127,7 @@ export const submitProject = action({
     projectId: Id<"projects">;
     status: "draft" | "pending" | "approved" | "rejected";
   }> => {
+    const network = getConfiguredNetwork();
     const challenge = await ctx.runQuery(internal.projects.getChallenge, {
       challengeId: args.challengeId,
     });
@@ -138,7 +152,7 @@ export const submitProject = action({
       throw new Error("Challenge has expired.");
     }
 
-    const accountKey = await fetchAccountKey(args.accountId);
+    const accountKey = await fetchAccountKey(network, args.accountId);
     const publicKey = PublicKey.fromString(accountKey.key);
     const signatureMap = proto.SignatureMap.decode(Buffer.from(args.signatureMap, "base64"));
     const accountPublicKeyBytes = publicKey.toBytesRaw();
@@ -199,6 +213,7 @@ export const deleteProject = action({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    const network = getConfiguredNetwork();
     const challenge = await ctx.runQuery(internal.projects.getChallenge, {
       challengeId: args.challengeId,
     });
@@ -223,7 +238,7 @@ export const deleteProject = action({
       throw new Error("Challenge has expired.");
     }
 
-    const accountKey = await fetchAccountKey(args.accountId);
+    const accountKey = await fetchAccountKey(network, args.accountId);
     const publicKey = PublicKey.fromString(accountKey.key);
     const signatureMap = proto.SignatureMap.decode(Buffer.from(args.signatureMap, "base64"));
     const accountPublicKeyBytes = publicKey.toBytesRaw();
@@ -325,6 +340,7 @@ export const updateProject = action({
   ): Promise<{
     slug: string;
   }> => {
+    const network = getConfiguredNetwork();
     const challenge = await ctx.runQuery(internal.projects.getChallenge, {
       challengeId: args.challengeId,
     });
@@ -349,7 +365,7 @@ export const updateProject = action({
       throw new Error("Challenge has expired.");
     }
 
-    const accountKey = await fetchAccountKey(args.accountId);
+    const accountKey = await fetchAccountKey(network, args.accountId);
     const publicKey = PublicKey.fromString(accountKey.key);
     const signatureMap = proto.SignatureMap.decode(Buffer.from(args.signatureMap, "base64"));
     const accountPublicKeyBytes = publicKey.toBytesRaw();

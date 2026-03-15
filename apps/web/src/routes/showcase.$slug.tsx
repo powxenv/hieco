@@ -15,6 +15,7 @@ import { api } from "../../convex/_generated/api";
 import EditProject from "#/components/edit-project";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { env } from "#/env";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -90,6 +91,11 @@ function RouteComponent() {
   const handleDeleteProject = async () => {
     if (!session) {
       toast.error("Connect your wallet before deleting a project.");
+      return;
+    }
+
+    if (session.chain.network !== env.VITE_HEDERA_NETWORK) {
+      toast.error(`Connect a ${env.VITE_HEDERA_NETWORK} wallet before deleting a project.`);
       return;
     }
 

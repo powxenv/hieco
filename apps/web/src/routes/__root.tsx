@@ -7,7 +7,7 @@ import ConvexProvider from "../integrations/convex/provider";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
 import appCss from "../styles.css?url";
-import { hederaTestnet, hashpack, kabila } from "@hieco/wallet";
+import { hederaMainnet, hederaPreviewnet, hederaTestnet, hashpack, kabila } from "@hieco/wallet";
 import { WalletProvider } from "@hieco/wallet-react";
 import { env } from "#/env";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,6 +18,18 @@ interface MyRouterContext {
 }
 
 // const THEME_INIT_SCRIPT = `const theme = localStorage.getItem('theme') || 'system';const prefers_dark = window.matchMedia('(prefers-color-scheme: dark)').matches;if (theme === 'dark' || (theme === 'system' && prefers_dark)) {document.documentElement.classList.add('dark');}`;
+
+function getConfiguredChain() {
+  if (env.VITE_HEDERA_NETWORK === "mainnet") {
+    return hederaMainnet();
+  }
+
+  if (env.VITE_HEDERA_NETWORK === "previewnet") {
+    return hederaPreviewnet();
+  }
+
+  return hederaTestnet();
+}
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
@@ -83,7 +95,7 @@ function RootDocument({ children }: { children: ReactNode }): ReactNode {
                 url: env.VITE_APP_URL,
                 icons: [new URL("/wallet-icon.svg", env.VITE_APP_URL).toString()],
               }}
-              chain={hederaTestnet()}
+              chain={getConfiguredChain()}
               projectId={env.VITE_WALLETCONNECT_PROJECT_ID}
               restoreOnStart
               wallets={[hashpack(), kabila()]}

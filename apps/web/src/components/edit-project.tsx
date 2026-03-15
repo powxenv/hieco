@@ -47,6 +47,7 @@ import {
   packageOptions,
   useCaseOptions,
 } from "#/lib/showcase-options";
+import { env } from "#/env";
 import { Button } from "./ui/button";
 
 function slugifyProjectName(value: string): string {
@@ -233,6 +234,11 @@ export default function EditProject({ onOpenChange, open, project }: EditProject
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!wallet.session) {
       toast.error("Connect your wallet before editing a project.");
+      return;
+    }
+
+    if (wallet.session.chain.network !== env.VITE_HEDERA_NETWORK) {
+      toast.error(`Connect a ${env.VITE_HEDERA_NETWORK} wallet before editing a project.`);
       return;
     }
 

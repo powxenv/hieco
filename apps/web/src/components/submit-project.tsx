@@ -13,6 +13,7 @@ import {
   packageOptions,
   useCaseOptions,
 } from "#/lib/showcase-options";
+import { env } from "#/env";
 import {
   Combobox,
   ComboboxChip,
@@ -216,6 +217,11 @@ const SubmitProject = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!wallet.session) {
       toast.error("Connect your wallet before submitting a project.");
+      return;
+    }
+
+    if (wallet.session.chain.network !== env.VITE_HEDERA_NETWORK) {
+      toast.error(`Connect a ${env.VITE_HEDERA_NETWORK} wallet before submitting a project.`);
       return;
     }
 

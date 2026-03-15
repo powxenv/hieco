@@ -23,6 +23,7 @@
     "@base-ui/react": "^1.3.0",
     "@convex-dev/react-query": "0.1.0",
     "@fontsource-variable/figtree": "^5.2.10",
+    "@hieco/utils": "workspace:*",
     "@hieco/wallet": "workspace:*",
     "@hieco/wallet-react": "workspace:*",
     "@hiero-ledger/proto": "^2.26.0-beta.3",

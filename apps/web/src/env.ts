@@ -17,6 +17,7 @@ export const env = createEnv({
     VITE_CONVEX_URL: z.url(),
     VITE_WALLETCONNECT_PROJECT_ID: z.string(),
     VITE_APP_URL: z.string(),
+    VITE_HEDERA_NETWORK: z.enum(["mainnet", "testnet", "previewnet"]),
   },
 
   /**
