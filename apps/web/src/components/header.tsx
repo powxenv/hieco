@@ -16,8 +16,10 @@ const Header = () => {
         </Link>
         <nav className="flex gap-6">
           <a
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-zinc-200 whitespace-nowrap hover:underline decoration-wavy hover:text-white transition-all"
-            href="/docs"
+            href="https://github.com/powxenv/hieco?tab=readme-ov-file#hieco"
           >
             Docs
           </a>
