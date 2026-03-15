@@ -16,6 +16,7 @@ import EditProject from "#/components/edit-project";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { env } from "#/env";
+import { createSeo } from "#/lib/seo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +39,29 @@ export const Route = createFileRoute("/showcase/$slug")({
     parse: (params) => ({
       slug: z.string().min(1).parse(params.slug),
     }),
+  },
+  loader: async ({ context, params }) => {
+    return await context.queryClient.ensureQueryData(
+      convexQuery(api.projects.getBySlug, {
+        slug: params.slug,
+      }),
+    );
+  },
+  head: ({ loaderData, params }) => {
+    if (!loaderData) {
+      return createSeo({
+        title: "Project Not Found",
+        description: "This showcase project could not be found.",
+        path: `/showcase/${params.slug}`,
+      });
+    }
+
+    return createSeo({
+      title: loaderData.name,
+      description: loaderData.tagline,
+      image: loaderData.screenshotUrl,
+      path: `/showcase/${loaderData.slug}`,
+    });
   },
   component: RouteComponent,
 });

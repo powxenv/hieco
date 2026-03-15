@@ -49,6 +49,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         name: "msapplication-TileColor",
         content: "#000000",
       },
+      {
+        name: "description",
+        content:
+          "Type-safe tooling for building Hedera apps with wallets, Mirror Node reads, and realtime flows.",
+      },
     ],
     links: [
       {
@@ -62,12 +67,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         rel: "icon",
-        href: "/favicon.ico",
+        type: "image/png",
+        sizes: "192x192",
+        href: "/logo192.png",
       },
       {
         rel: "apple-touch-icon",
         sizes: "180x180",
-        href: "/apple-touch-icon.png",
+        href: "/logo192.png",
       },
       {
         rel: "manifest",

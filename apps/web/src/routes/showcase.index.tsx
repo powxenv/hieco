@@ -30,6 +30,7 @@ import {
   packageOptions,
   useCaseOptions,
 } from "#/lib/showcase-options";
+import { createSeo } from "#/lib/seo";
 import { Button } from "@/components/ui/button";
 
 const searchSchema = z.object({
@@ -55,6 +56,13 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/showcase/")({
+  head: () =>
+    createSeo({
+      title: "Showcase",
+      description:
+        "Discover projects built with Hieco, Hiero, Hieco Wallet, Hieco Realtime, and other tools across the Hedera ecosystem.",
+      path: "/showcase",
+    }),
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({
     openSource: search.openSource,

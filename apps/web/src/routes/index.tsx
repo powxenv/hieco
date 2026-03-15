@@ -8,8 +8,16 @@ import solidLogo from "../assets/tech-icons/solid.svg";
 import typescriptLogo from "../assets/tech-icons/ts.svg";
 import heroImg from "../assets/hero.jpeg";
 import SolarArrowRightLineDuotone from "~icons/solar/arrow-right-line-duotone";
+import { createSeo } from "#/lib/seo";
 
 export const Route = createFileRoute("/")({
+  head: () =>
+    createSeo({
+      title: "TypeScript Toolkit for Hedera Apps",
+      description:
+        "Build Hedera apps with type-safe wallet flows, Mirror Node reads, realtime subscriptions, and framework-native tooling from Hieco.",
+      path: "/",
+    }),
   component: App,
 });
 

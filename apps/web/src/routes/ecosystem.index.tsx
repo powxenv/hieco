@@ -4,8 +4,16 @@ import hederaLogo from "../assets/tech-icons/hedera.svg";
 import hieroLogo from "../assets/tech-icons/hiero.svg";
 import lfDecentralizedTrustLogo from "../assets/tech-icons/lf-decentralized-trust.png";
 import hiecoLogo from "../assets/logo.svg";
+import { createSeo } from "#/lib/seo";
 
 export const Route = createFileRoute("/ecosystem/")({
+  head: () =>
+    createSeo({
+      title: "Ecosystem",
+      description:
+        "A compact guide to how Hieco fits with the Hedera Network, Hiero, Mirror Nodes, wallets, and the broader developer ecosystem.",
+      path: "/ecosystem",
+    }),
   component: RouteComponent,
 });
 
