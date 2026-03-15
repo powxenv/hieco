@@ -28,7 +28,7 @@ The [Showcase](https://hieco.noval.me/showcase) is a curated gallery of projects
 
 Anyone can submit their project — whether it's DeFi, gaming, identity, or anything else built on Hedera using Hieco packages. Browse featured projects, filter by packages and use cases, and see what's possible with the ecosystem.
 
-https://raw.githubusercontent.com/hiero-ledger/hiero/master/hieco-showcase-demo.mp4
+[![Watch the demo](https://img.youtube.com/vi/o40nwn68Rc0/maxresdefault.jpg)](https://youtu.be/o40nwn68Rc0)
 
 ## Start Here
 
