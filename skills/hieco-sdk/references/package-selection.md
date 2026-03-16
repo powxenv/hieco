@@ -9,20 +9,21 @@ Use this file first. It answers which SDK surface should drive the solution.
 
 ## Choose The Package
 
-| User context | Choose | Why |
-| --- | --- | --- |
-| Node script, backend handler, worker, cron job, CLI, server action, route handler | `@hieco/sdk` | The core fluent client owns transactions, reads, and server runtime configuration. |
-| Browser code that already receives a wallet `Signer` | `@hieco/sdk` | The SDK can be scoped with `client.as(signer)` without bringing in React. |
-| React app that needs Hedera queries or mutations | `@hieco/react` | The React wrapper provides `HiecoProvider`, TanStack Query integration, and domain hooks. |
-| Full-stack React app with server and client code | `@hieco/sdk` on the server and `@hieco/react` in the UI | This keeps credentials server-side and keeps client code declarative. |
+| User context                                                                      | Choose                                                  | Why                                                                                       |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Node script, backend handler, worker, cron job, CLI, server action, route handler | `@hieco/sdk`                                            | The core fluent client owns transactions, reads, and server runtime configuration.        |
+| Browser code that already receives a wallet `Signer`                              | `@hieco/sdk`                                            | The SDK can be scoped with `client.as(signer)` without bringing in React.                 |
+| React app that needs Hedera queries or mutations                                  | `@hieco/react`                                          | The React wrapper provides `HiecoProvider`, TanStack Query integration, and domain hooks. |
+| Full-stack React app with server and client code                                  | `@hieco/sdk` on the server and `@hieco/react` in the UI | This keeps credentials server-side and keeps client code declarative.                     |
+
 ## Runtime Matrix
 
-| Runtime | Preferred surface | Setup shape |
-| --- | --- | --- |
-| Server-only | `@hieco/sdk` | `hieco.fromEnv()` or `hieco(config)` |
-| Browser signer runtime | `@hieco/sdk` | `hieco({ network }).as(signer)` |
-| React client app | `@hieco/react` | `<HiecoProvider config={{ network }}>` plus hooks |
-| React app with SSR | `@hieco/sdk` and `@hieco/react` | server prefetch with `@hieco/sdk`, then hydrate `HiecoProvider` |
+| Runtime                | Preferred surface               | Setup shape                                                     |
+| ---------------------- | ------------------------------- | --------------------------------------------------------------- |
+| Server-only            | `@hieco/sdk`                    | `hieco.fromEnv()` or `hieco(config)`                            |
+| Browser signer runtime | `@hieco/sdk`                    | `hieco({ network }).as(signer)`                                 |
+| React client app       | `@hieco/react`                  | `<HiecoProvider config={{ network }}>` plus hooks               |
+| React app with SSR     | `@hieco/sdk` and `@hieco/react` | server prefetch with `@hieco/sdk`, then hydrate `HiecoProvider` |
 
 ## Package Relationships
 

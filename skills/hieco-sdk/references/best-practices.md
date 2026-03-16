@@ -34,7 +34,7 @@ Canonical docs:
 
 - `@hieco/react` should receive the resolved signer.
 - If the task is mainly about wallet connection, switch to the wallet skill.
-- Treat `@hieco/react/appkit` as a legacy compatibility bridge, not the default path for new apps.
+- Treat `@hieco/react/appkit` as an optional compatibility bridge for apps that already use Reown AppKit.
 
 ## Documentation Style For Answers
 

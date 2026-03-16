@@ -15,15 +15,15 @@ Use `dist/index.d.ts` as the authoritative source for exact exported signatures 
 
 ## Factory Exports
 
-| Export | Purpose | Parameters | Returns | Notes |
-| --- | --- | --- | --- | --- |
-| `hieco` | Create the fluent client. | `config?: ClientConfig` | `HiecoClient` | Main entry for server code or signer-backed browser code. |
-| `hieco.fromEnv` | Create a server-scoped client from environment variables. | `options?: { allowMissingSigner?: boolean }` | `HiecoClient` | Intended for server runtimes. Reads `HIERO_*` environment variables. |
-| `hieco.forTestnet` | Create a testnet client with default network config. | none | `HiecoClient` | Convenience factory. |
-| `hieco.forMainnet` | Create a mainnet client with default network config. | none | `HiecoClient` | Convenience factory. |
-| `hieco.forPreviewnet` | Create a previewnet client with default network config. | none | `HiecoClient` | Convenience factory. |
-| `hieco.withSigner` | Create a signer-scoped client in one call. | `signer: Signer, config?: ClientConfig` | `HiecoClient` | Browser-friendly when the signer comes from a wallet. |
-| `hieco.validateConfig` | Validate config without creating a client. | `config?: ClientConfig` | `Result<ClientRuntimeConfig>` | Useful for tooling or setup checks. |
+| Export                 | Purpose                                                   | Parameters                                   | Returns                       | Notes                                                                |
+| ---------------------- | --------------------------------------------------------- | -------------------------------------------- | ----------------------------- | -------------------------------------------------------------------- |
+| `hieco`                | Create the fluent client.                                 | `config?: ClientConfig`                      | `HiecoClient`                 | Main entry for server code or signer-backed browser code.            |
+| `hieco.fromEnv`        | Create a server-scoped client from environment variables. | `options?: { allowMissingSigner?: boolean }` | `HiecoClient`                 | Intended for server runtimes. Reads `HIERO_*` environment variables. |
+| `hieco.forTestnet`     | Create a testnet client with default network config.      | none                                         | `HiecoClient`                 | Convenience factory.                                                 |
+| `hieco.forMainnet`     | Create a mainnet client with default network config.      | none                                         | `HiecoClient`                 | Convenience factory.                                                 |
+| `hieco.forPreviewnet`  | Create a previewnet client with default network config.   | none                                         | `HiecoClient`                 | Convenience factory.                                                 |
+| `hieco.withSigner`     | Create a signer-scoped client in one call.                | `signer: Signer, config?: ClientConfig`      | `HiecoClient`                 | Browser-friendly when the signer comes from a wallet.                |
+| `hieco.validateConfig` | Validate config without creating a client.                | `config?: ClientConfig`                      | `Result<ClientRuntimeConfig>` | Useful for tooling or setup checks.                                  |
 
 ## Key Factory Types
 

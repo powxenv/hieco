@@ -140,7 +140,7 @@ Core exports:
 
 The package also re-exports the `@hieco/sdk` surface so shared types and helpers stay close at hand in React code.
 
-There is also an optional legacy subpath:
+There is also an optional AppKit subpath:
 
 - `@hieco/react/appkit`
 
@@ -148,7 +148,7 @@ Use that only when you specifically need the AppKit bridge.
 
 ## Packaging And Runtime Support
 
-`@hieco/react` now follows the same packaging story as the rest of the public workspace:
+`@hieco/react` publishes:
 
 - browser-friendly ESM output
 - externalized dependencies in the published build

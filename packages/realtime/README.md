@@ -92,7 +92,7 @@ Start with `RelayWebSocketClient`. Reach for `ConnectionPool` only when the app 
 
 ## Packaging And Runtime Support
 
-The package now ships browser-friendly ESM output with conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`.
+The package ships browser-friendly ESM output with conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`.
 
 That does not change the runtime model of the websocket client itself, but it does make the package easier to consume in modern browser, edge, and server toolchains.
 

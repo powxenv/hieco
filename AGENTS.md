@@ -46,6 +46,7 @@ For **internal development only**, use **bun** and **bunx** exclusively.
 Do **NOT** use npm, npx, pnpm, or yarn for internal development.
 
 For **documentation** or **packages distributed to users**:
+
 - Always provide support for **npm, pnpm, yarn, and bun**
 - Include both **npx** and **bunx** as runnners
 - Do not assume users will use bun
