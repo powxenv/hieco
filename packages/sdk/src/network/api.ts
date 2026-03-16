@@ -3,10 +3,10 @@ import { err, ok } from "../results/result.ts";
 import { createError } from "../errors/error.ts";
 import type { AddressBookData, NetworkVersionData } from "../results/shapes.ts";
 import type { NetworkNamespace } from "./namespace.ts";
-import { AddressBookQuery, NetworkVersionInfoQuery } from "@hiero-ledger/sdk";
+import { AddressBookQuery, NetworkVersionInfoQuery } from "@hieco/runtime";
 
 export function createNetworkNamespace(context: {
-  readonly client: import("@hiero-ledger/sdk").Client;
+  readonly client: import("@hieco/runtime").Client;
 }): NetworkNamespace {
   const version = async (): Promise<Result<NetworkVersionData>> => {
     try {

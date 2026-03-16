@@ -2,7 +2,7 @@ import type { ClientConfig } from "../shared/params.ts";
 import type { ClientRuntimeConfig } from "./runtime.ts";
 import type { NetworkType } from "@hieco/utils";
 import { NETWORK_CONFIGS, isValidEntityId } from "@hieco/utils";
-import { PrivateKey } from "@hiero-ledger/sdk";
+import { PrivateKey } from "@hieco/runtime";
 import { createError } from "../errors/error.ts";
 import type { Result } from "../results/result.ts";
 import { err, ok } from "../results/result.ts";

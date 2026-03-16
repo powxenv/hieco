@@ -84,8 +84,8 @@ import {
   SystemDeleteTransaction,
   SystemUndeleteTransaction,
   ContractId,
-} from "@hiero-ledger/sdk";
-import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
+} from "@hieco/runtime";
+import type { Signer as HieroSigner } from "@hieco/runtime";
 import type {
   TransactionDescriptor,
   FunctionParamsConfig,
@@ -298,7 +298,7 @@ function toEthereumBytes(data: Uint8Array | string): Uint8Array {
 }
 
 function toReceiptData(
-  receipt: import("@hiero-ledger/sdk").TransactionReceipt,
+  receipt: import("@hieco/runtime").TransactionReceipt,
   transactionId: string,
 ): TransactionReceiptData {
   const accountIdStr = receipt.accountId?.toString();
@@ -321,7 +321,7 @@ function toReceiptData(
   };
 }
 
-function toContractCallResultData(result: import("@hiero-ledger/sdk").ContractFunctionResult): {
+function toContractCallResultData(result: import("@hieco/runtime").ContractFunctionResult): {
   readonly gasUsed: number;
   readonly errorMessage: string;
   readonly raw: Uint8Array;
@@ -497,7 +497,7 @@ export function buildTransaction(
   tx: TransactionDescriptor,
   operatorKey: string | undefined,
   signing?: SigningContext,
-): import("@hiero-ledger/sdk").Transaction {
+): import("@hieco/runtime").Transaction {
   switch (tx.kind) {
     case "accounts.transfer": {
       const params = tx.params;
@@ -1614,7 +1614,7 @@ export async function callContractWithParams(
 export async function queryFileInfo(
   context: SubmitContext,
   fileId: string,
-): Promise<Result<import("@hiero-ledger/sdk").FileInfo>> {
+): Promise<Result<import("@hieco/runtime").FileInfo>> {
   try {
     const query = new FileInfoQuery().setFileId(fileId);
     const result =
@@ -1668,7 +1668,7 @@ export async function queryFileContents(
 export async function queryTransactionRecord(
   context: SubmitContext,
   transactionId: string,
-): Promise<Result<import("@hiero-ledger/sdk").TransactionRecord>> {
+): Promise<Result<import("@hieco/runtime").TransactionRecord>> {
   try {
     const query = new TransactionRecordQuery().setTransactionId(
       TransactionId.fromString(transactionId),
@@ -1702,7 +1702,7 @@ export async function queryTransactionReceipt(
     readonly includeDuplicates?: boolean;
     readonly validateStatus?: boolean;
   },
-): Promise<Result<import("@hiero-ledger/sdk").TransactionReceipt>> {
+): Promise<Result<import("@hieco/runtime").TransactionReceipt>> {
   try {
     const query = new TransactionReceiptQuery().setTransactionId(
       TransactionId.fromString(transactionId),

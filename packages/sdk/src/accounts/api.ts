@@ -10,7 +10,7 @@ import type {
 } from "../results/shapes.ts";
 import type { Result } from "../results/result.ts";
 import { err, ok } from "../results/result.ts";
-import { AccountBalanceQuery } from "@hiero-ledger/sdk";
+import { AccountBalanceQuery } from "@hieco/runtime";
 import { createError } from "../errors/error.ts";
 import type {
   AdjustAllowanceParams,
@@ -36,9 +36,9 @@ import type { AccountsNamespace } from "./namespace.ts";
 export function createAccountsNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
   readonly operator?: string;
-  readonly signer?: import("@hiero-ledger/sdk").Signer;
+  readonly signer?: import("@hieco/runtime").Signer;
   readonly mirror: import("@hieco/mirror").MirrorNodeClient;
-  readonly nativeClient?: import("@hiero-ledger/sdk").Client;
+  readonly nativeClient?: import("@hieco/runtime").Client;
   readonly operatorKey?: string;
 }): AccountsNamespace {
   const transfer = async (params: TransferParams): Promise<Result<TransferResult>> => {

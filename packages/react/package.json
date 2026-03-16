@@ -34,11 +34,21 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "workerd": "./dist/index.js",
+      "worker": "./dist/index.js",
+      "browser": "./dist/index.js",
+      "node": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./appkit": {
       "types": "./dist/appkit/index.d.ts",
-      "import": "./dist/appkit/index.js"
+      "import": "./dist/appkit/index.js",
+      "workerd": "./dist/appkit/index.js",
+      "worker": "./dist/appkit/index.js",
+      "browser": "./dist/appkit/index.js",
+      "node": "./dist/appkit/index.js",
+      "default": "./dist/appkit/index.js"
     }
   },
   "publishConfig": {

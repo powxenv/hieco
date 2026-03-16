@@ -26,12 +26,12 @@ function sleep(ms: number): Promise<void> {
 export function createSchedulesNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
   readonly mirror: import("@hieco/mirror").MirrorNodeClient;
-  readonly withSigner: (signer: import("@hiero-ledger/sdk").Signer) => {
+  readonly withSigner: (signer: import("@hieco/runtime").Signer) => {
     readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
   };
 }): SchedulesNamespace {
   const submitWithOptionalSigner = (
-    signer: import("@hiero-ledger/sdk").Signer | undefined,
+    signer: import("@hieco/runtime").Signer | undefined,
     descriptor: TransactionDescriptor,
   ): Promise<Result<TransactionReceiptData>> => {
     const submit = signer ? context.withSigner(signer).submit : context.submit;
@@ -58,7 +58,7 @@ export function createSchedulesNamespace(context: {
   const sign = async (
     scheduleId: string,
     params: Omit<ScheduleSignParams, "scheduleId"> & {
-      readonly signer?: import("@hiero-ledger/sdk").Signer;
+      readonly signer?: import("@hieco/runtime").Signer;
     } = {},
   ): Promise<Result<TransactionReceiptData>> => {
     const scheduleParams: ScheduleSignParams = {
@@ -82,7 +82,7 @@ export function createSchedulesNamespace(context: {
   const deleteSchedule = async (
     scheduleId: string,
     params: Omit<ScheduleDeleteParams, "scheduleId"> & {
-      readonly signer?: import("@hiero-ledger/sdk").Signer;
+      readonly signer?: import("@hieco/runtime").Signer;
     } = {},
   ): Promise<Result<TransactionReceiptData>> => {
     const scheduleParams: ScheduleDeleteParams = {

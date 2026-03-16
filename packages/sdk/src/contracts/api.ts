@@ -73,7 +73,7 @@ export function createContractsNamespace(context: {
   }) => ReturnType<typeof callContractWithParams>;
   readonly mirror: import("@hieco/mirror").MirrorNodeClient;
   readonly queryBytecode: (contractId: string) => Promise<Result<ContractBytecodeData>>;
-  readonly mirrorClient: import("@hiero-ledger/sdk").Client;
+  readonly mirrorClient: import("@hieco/runtime").Client;
 }): ContractsNamespace {
   const deploy = async (params: DeployContractParams): Promise<Result<ContractReceipt>> => {
     const result = await context.submit({ kind: "contracts.deploy", params });

@@ -1,4 +1,4 @@
-import type { Signer } from "@hiero-ledger/sdk";
+import type { Signer } from "@hieco/runtime";
 
 export type WalletNetwork = "mainnet" | "testnet" | "previewnet" | "devnet" | "custom";
 export type WalletSessionKind = "qr" | "extension";

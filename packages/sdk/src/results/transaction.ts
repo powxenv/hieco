@@ -1,4 +1,4 @@
-import type { TransactionRecord, TransactionReceipt } from "@hiero-ledger/sdk";
+import type { TransactionRecord, TransactionReceipt } from "@hieco/runtime";
 
 export interface TransactionReceiptData {
   readonly status: string;

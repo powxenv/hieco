@@ -40,9 +40,9 @@ import type { TokensNamespace } from "./namespace.ts";
 export function createTokensNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
   readonly operator?: string;
-  readonly signer?: import("@hiero-ledger/sdk").Signer;
+  readonly signer?: import("@hieco/runtime").Signer;
   readonly mirror: import("@hieco/mirror").MirrorNodeClient;
-  readonly nativeClient: import("@hiero-ledger/sdk").Client;
+  readonly nativeClient: import("@hieco/runtime").Client;
   readonly operatorKey?: string;
 }): TokensNamespace {
   const create = async (params: CreateTokenParams): Promise<Result<TokenReceipt>> => {

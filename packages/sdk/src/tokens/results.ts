@@ -1,5 +1,5 @@
 import type { TokenInfo } from "@hieco/mirror";
-import type { TokenNftInfo } from "@hiero-ledger/sdk";
+import type { TokenNftInfo } from "@hieco/runtime";
 import type { TransactionReceiptData } from "../results/transaction.ts";
 
 export interface TokenReceipt {

@@ -1,4 +1,4 @@
-import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
+import type { Signer as HieroSigner } from "@hieco/runtime";
 import type { NetworkType } from "@hieco/utils";
 import type { Amount } from "../shared/amount.ts";
 

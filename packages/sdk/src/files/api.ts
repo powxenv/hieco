@@ -23,7 +23,7 @@ import { createError } from "../errors/error.ts";
 
 export function createFilesNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
-  readonly queryFileInfo: (fileId: string) => Promise<Result<import("@hiero-ledger/sdk").FileInfo>>;
+  readonly queryFileInfo: (fileId: string) => Promise<Result<import("@hieco/runtime").FileInfo>>;
   readonly queryFileContents: (fileId: string) => Promise<Result<Uint8Array>>;
 }): FilesNamespace {
   const defaultChunkSize = 2048;

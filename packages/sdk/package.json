@@ -35,15 +35,30 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "workerd": "./dist/index.js",
+      "worker": "./dist/index.js",
+      "browser": "./dist/index.js",
+      "node": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./errors": {
       "types": "./dist/exports/errors.d.ts",
-      "import": "./dist/exports/errors.js"
+      "import": "./dist/exports/errors.js",
+      "workerd": "./dist/exports/errors.js",
+      "worker": "./dist/exports/errors.js",
+      "browser": "./dist/exports/errors.js",
+      "node": "./dist/exports/errors.js",
+      "default": "./dist/exports/errors.js"
     },
     "./result": {
       "types": "./dist/exports/result.d.ts",
-      "import": "./dist/exports/result.js"
+      "import": "./dist/exports/result.js",
+      "workerd": "./dist/exports/result.js",
+      "worker": "./dist/exports/result.js",
+      "browser": "./dist/exports/result.js",
+      "node": "./dist/exports/result.js",
+      "default": "./dist/exports/result.js"
     }
   },
   "publishConfig": {
@@ -60,8 +75,8 @@
   },
   "dependencies": {
     "@hieco/mirror": "workspace:*",
+    "@hieco/runtime": "workspace:*",
     "@hieco/utils": "workspace:*",
-    "@hiero-ledger/sdk": "^2.80.0",
     "bignumber.js": "9.1.1"
   },
   "devDependencies": {

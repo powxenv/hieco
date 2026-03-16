@@ -1,4 +1,4 @@
-import type { FileInfo } from "@hiero-ledger/sdk";
+import type { FileInfo } from "@hieco/runtime";
 import type { TransactionReceiptData } from "../results/transaction.ts";
 
 export interface FileReceipt {

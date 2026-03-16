@@ -15,7 +15,7 @@ export interface SchedulesNamespace {
   sign: ((
     scheduleId: string,
     params?: Omit<import("../shared/params.ts").ScheduleSignParams, "scheduleId"> & {
-      readonly signer?: import("@hiero-ledger/sdk").Signer;
+      readonly signer?: import("@hieco/runtime").Signer;
     },
   ) => Promise<Result<TransactionReceiptData>>) & {
     tx: (params: import("../shared/params.ts").ScheduleSignParams) => TransactionDescriptor;
@@ -23,7 +23,7 @@ export interface SchedulesNamespace {
   delete: ((
     scheduleId: string,
     params?: Omit<import("../shared/params.ts").ScheduleDeleteParams, "scheduleId"> & {
-      readonly signer?: import("@hiero-ledger/sdk").Signer;
+      readonly signer?: import("@hieco/runtime").Signer;
     },
   ) => Promise<Result<TransactionReceiptData>>) & {
     tx: (params: import("../shared/params.ts").ScheduleDeleteParams) => TransactionDescriptor;

@@ -1,4 +1,4 @@
-import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
+import type { Signer as HieroSigner } from "@hieco/runtime";
 import { HieroClient as CoreClient } from "../client/client.ts";
 import type * as Params from "../shared/params.ts";
 import type * as Shapes from "../results/shapes.ts";

@@ -34,7 +34,12 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "workerd": "./dist/index.js",
+      "worker": "./dist/index.js",
+      "browser": "./dist/index.js",
+      "node": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "publishConfig": {

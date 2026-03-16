@@ -1,5 +1,5 @@
 import type { NetworkType } from "@hieco/utils";
-import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
+import type { Signer as HieroSigner } from "@hieco/runtime";
 
 export interface ClientRuntimeConfig {
   readonly network: NetworkType;

@@ -1,5 +1,5 @@
 import type { AccountInfo } from "@hieco/mirror";
-import type { TransactionRecord } from "@hiero-ledger/sdk";
+import type { TransactionRecord } from "@hieco/runtime";
 import type { TransactionReceiptData } from "../results/transaction.ts";
 
 export interface TransferResult {

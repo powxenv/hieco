@@ -21,15 +21,30 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "workerd": "./dist/index.js",
+      "worker": "./dist/index.js",
+      "browser": "./dist/index.js",
+      "node": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./entity": {
       "types": "./dist/exports/entity.d.ts",
-      "import": "./dist/exports/entity.js"
+      "import": "./dist/exports/entity.js",
+      "workerd": "./dist/exports/entity.js",
+      "worker": "./dist/exports/entity.js",
+      "browser": "./dist/exports/entity.js",
+      "node": "./dist/exports/entity.js",
+      "default": "./dist/exports/entity.js"
     },
     "./network": {
       "types": "./dist/exports/network.d.ts",
-      "import": "./dist/exports/network.js"
+      "import": "./dist/exports/network.js",
+      "workerd": "./dist/exports/network.js",
+      "worker": "./dist/exports/network.js",
+      "browser": "./dist/exports/network.js",
+      "node": "./dist/exports/network.js",
+      "default": "./dist/exports/network.js"
     }
   },
   "scripts": {

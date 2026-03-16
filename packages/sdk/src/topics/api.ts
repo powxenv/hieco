@@ -1,4 +1,4 @@
-import { TopicMessageQuery } from "@hiero-ledger/sdk";
+import { TopicMessageQuery } from "@hieco/runtime";
 import type { TransactionDescriptor } from "../shared/params.ts";
 import type {
   MessageReceipt,
@@ -157,7 +157,7 @@ function createMirrorQueryFailure<T>(operation: string, error: MirrorFailureShap
 
 export function createTopicsNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
-  readonly nativeClient: import("@hiero-ledger/sdk").Client;
+  readonly nativeClient: import("@hieco/runtime").Client;
   readonly mirror: import("@hieco/mirror").MirrorNodeClient;
 }): TopicsNamespace {
   const create = async (params: CreateTopicParams): Promise<Result<TopicReceipt>> => {
@@ -243,7 +243,7 @@ export function createTopicsNamespace(context: {
   ): (() => void) => {
     const query = applyTopicWatchOptions(new TopicMessageQuery().setTopicId(topicId), options);
     const errorHandler = options.onError
-      ? (_message: import("@hiero-ledger/sdk").TopicMessage | null, error: Error) => {
+      ? (_message: import("@hieco/runtime").TopicMessage | null, error: Error) => {
           options.onError?.(error);
         }
       : null;

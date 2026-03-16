@@ -21,7 +21,7 @@ import {
   type TransactionResponseJSON,
   type Executable,
   type Signer,
-} from "@hiero-ledger/sdk";
+} from "@hieco/runtime";
 import { proto } from "@hiero-ledger/proto";
 import type SignClient from "@walletconnect/sign-client";
 import type { SessionTypes } from "@walletconnect/types";

@@ -1,4 +1,4 @@
-import type { NetworkVersionInfo, NodeAddressBook } from "@hiero-ledger/sdk";
+import type { NetworkVersionInfo, NodeAddressBook } from "@hieco/runtime";
 
 export interface NetworkVersionData {
   readonly info: NetworkVersionInfo;

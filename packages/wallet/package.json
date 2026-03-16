@@ -33,23 +33,48 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "workerd": "./dist/index.js",
+      "worker": "./dist/index.js",
+      "browser": "./dist/index.js",
+      "node": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./chains": {
       "types": "./dist/exports/chains.d.ts",
-      "import": "./dist/exports/chains.js"
+      "import": "./dist/exports/chains.js",
+      "workerd": "./dist/exports/chains.js",
+      "worker": "./dist/exports/chains.js",
+      "browser": "./dist/exports/chains.js",
+      "node": "./dist/exports/chains.js",
+      "default": "./dist/exports/chains.js"
     },
     "./selectors": {
       "types": "./dist/exports/selectors.d.ts",
-      "import": "./dist/exports/selectors.js"
+      "import": "./dist/exports/selectors.js",
+      "workerd": "./dist/exports/selectors.js",
+      "worker": "./dist/exports/selectors.js",
+      "browser": "./dist/exports/selectors.js",
+      "node": "./dist/exports/selectors.js",
+      "default": "./dist/exports/selectors.js"
     },
     "./state": {
       "types": "./dist/exports/state.d.ts",
-      "import": "./dist/exports/state.js"
+      "import": "./dist/exports/state.js",
+      "workerd": "./dist/exports/state.js",
+      "worker": "./dist/exports/state.js",
+      "browser": "./dist/exports/state.js",
+      "node": "./dist/exports/state.js",
+      "default": "./dist/exports/state.js"
     },
     "./wallets": {
       "types": "./dist/exports/wallets.d.ts",
-      "import": "./dist/exports/wallets.js"
+      "import": "./dist/exports/wallets.js",
+      "workerd": "./dist/exports/wallets.js",
+      "worker": "./dist/exports/wallets.js",
+      "browser": "./dist/exports/wallets.js",
+      "node": "./dist/exports/wallets.js",
+      "default": "./dist/exports/wallets.js"
     }
   },
   "publishConfig": {
@@ -65,9 +90,9 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
+    "@hieco/runtime": "workspace:*",
     "@hieco/utils": "workspace:*",
     "@hiero-ledger/proto": "^2.26.0-beta.3",
-    "@hiero-ledger/sdk": "^2.80.0",
     "@walletconnect/sign-client": "^2.23.7",
     "@walletconnect/types": "^2.23.7",
     "@walletconnect/utils": "^2.23.7"

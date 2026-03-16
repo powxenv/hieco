@@ -1,4 +1,4 @@
-import type { Signer } from "@hiero-ledger/sdk";
+import type { Signer } from "@hieco/runtime";
 import type { Amount } from "../shared/amount.ts";
 import type { TransactionDescriptor } from "../transactions/types.ts";
 

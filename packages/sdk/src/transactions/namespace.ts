@@ -25,11 +25,11 @@ export function createTransactionsNamespace(context: {
   readonly submit: (descriptor: TransactionDescriptor) => Promise<Result<TransactionReceiptData>>;
   readonly queryRecord: (
     transactionId: string,
-  ) => Promise<Result<import("@hiero-ledger/sdk").TransactionRecord>>;
+  ) => Promise<Result<import("@hieco/runtime").TransactionRecord>>;
   readonly queryReceipt: (
     transactionId: string,
     options?: TransactionReceiptQueryOptions,
-  ) => Promise<Result<import("@hiero-ledger/sdk").TransactionReceipt>>;
+  ) => Promise<Result<import("@hieco/runtime").TransactionReceipt>>;
 }): TransactionsNamespace {
   const record = async (transactionId: string): Promise<Result<TransactionRecordData>> => {
     const result = await context.queryRecord(transactionId);

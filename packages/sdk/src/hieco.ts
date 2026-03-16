@@ -1,4 +1,4 @@
-import type { Signer as HieroSigner } from "@hiero-ledger/sdk";
+import type { Signer as HieroSigner } from "@hieco/runtime";
 import { HieroClient } from "./client/client.ts";
 import { createTelepathic, type TelepathicClient } from "./telepathic/client.ts";
 import type { ClientRuntimeConfig } from "./client/runtime.ts";
