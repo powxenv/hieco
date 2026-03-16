@@ -1,57 +1,110 @@
 # Hieco
 
-Hieco is a TypeScript-first toolkit for building Hedera apps without stitching the stack together by hand.
+Hieco is a TypeScript-first toolkit for building Hedera apps without stitching every layer together by hand.
 
-It brings wallet connection, transaction flows, Mirror Node reads, realtime streams, CLI tools, and MCP tooling into one ecosystem that feels like modern application development instead of infrastructure assembly.
+It brings wallet connection, signer-aware SDK flows, Mirror Node reads, realtime subscriptions, CLI tooling, MCP tooling, and framework wrappers into one package family with a shared mental model.
 
-## Why Hieco Exists
+## What Changed In The Current Architecture
 
-Building on Hedera usually means crossing a few different layers at once:
+The current workspace is organized around a clearer runtime boundary:
 
-- wallet connection in the browser
-- signer-aware transactions
-- read-only data from Mirror Node
-- realtime subscriptions
-- framework bindings that fit how teams actually build apps
+- `@hieco/runtime` is now the runtime-aware adapter around the underlying Hiero SDK
+- `@hieco/sdk` and `@hieco/wallet` consume `@hieco/runtime` instead of importing `@hiero-ledger/sdk` directly
+- the library packages now ship `dist`-only artifacts and publish browser-friendly ESM entrypoints
+- most library packages expose conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`, while CLI and MCP packages continue to publish direct `dist` entrypoints and binaries
 
-Hieco sits above the lower-level network and SDK surfaces and turns them into package families with clearer boundaries, stronger typing, and more predictable developer ergonomics.
-
-In practice:
-
-- Hedera is the network
-- Hiero is the lower-level SDK and ecosystem foundation
-- Hieco is the application-facing toolkit that helps those pieces feel cohesive
-
-## Showcase
-
-The [Showcase](https://hieco.noval.me/showcase) is a curated gallery of projects built with the Hieco and Hiero ecosystem on Hedera. It demonstrates real-world applications of the toolkit across various use cases.
-
-Anyone can submit their project — whether it's DeFi, gaming, identity, or anything else built on Hedera using Hieco packages. Browse featured projects, filter by packages and use cases, and see what's possible with the ecosystem.
-
-[![Watch the demo](https://img.youtube.com/vi/o40nwn68Rc0/maxresdefault.jpg)](https://youtu.be/o40nwn68Rc0)
+In practice, that means the package family is easier to use in browsers, workers, and Node-style environments without custom aliasing or private resolution tricks.
 
 ## Start Here
 
-Choose the path that matches the app you want to ship.
+Choose the package family that matches the job you are doing.
 
-| If you want to build...                       | Start with                                                                                                                                                                           | Why                                                                            |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
-| A React app with wallet connection            | [`@hieco/wallet-react`](./packages/wallet-react/README.md)                                                                                                                           | It gives you the provider and headless hooks for wallet UI.                    |
-| A React app with Hedera reads and writes      | [`@hieco/react`](./packages/react/README.md)                                                                                                                                         | It wraps the core SDK with TanStack Query-friendly hooks.                      |
-| Server code, jobs, route handlers, or scripts | [`@hieco/sdk`](./packages/sdk/README.md)                                                                                                                                             | It is the core fluent client for Hedera queries and transactions.              |
-| Read-only Mirror Node access                  | [`@hieco/mirror`](./packages/mirror/README.md)                                                                                                                                       | It gives you a typed client for accounts, tokens, contracts, topics, and more. |
-| Mirror reads inside React, Preact, or Solid   | [`@hieco/mirror-react`](./packages/mirror-react/README.md), [`@hieco/mirror-preact`](./packages/mirror-preact/README.md), [`@hieco/mirror-solid`](./packages/mirror-solid/README.md) | They add framework-native query hooks on top of `@hieco/mirror`.               |
-| Live relay streams                            | [`@hieco/realtime`](./packages/realtime/README.md) or [`@hieco/realtime-react`](./packages/realtime-react/README.md)                                                                 | They handle realtime subscriptions over the Hedera relay layer.                |
-| Mirror Node data in a terminal                | [`@hieco/mirror-cli`](./packages/mirror-cli/README.md)                                                                                                                               | It gives you a read-only CLI for quick inspection and scripting.               |
-| Mirror Node data for AI agents through MCP    | [`@hieco/mirror-mcp`](./packages/mirror-mcp/README.md)                                                                                                                               | It exposes the same data as a local MCP server.                                |
+| If you want to build... | Start with | Why |
+| --- | --- | --- |
+| Server code, jobs, route handlers, or signer-aware scripts | [`@hieco/sdk`](./packages/sdk/README.md) | It is the main fluent client for reads, writes, and transaction orchestration. |
+| React apps with Hedera queries and mutations | [`@hieco/react`](./packages/react/README.md) | It wraps `@hieco/sdk` in a provider and TanStack Query-friendly hooks. |
+| Wallet connection outside React | [`@hieco/wallet`](./packages/wallet/README.md) | It gives you the headless wallet runtime and signer lifecycle. |
+| Wallet connection inside React | [`@hieco/wallet-react`](./packages/wallet-react/README.md) | It adds a React provider and controller hooks on top of `@hieco/wallet`. |
+| Read-only Mirror Node access | [`@hieco/mirror`](./packages/mirror/README.md) | It gives you a typed client for public chain data. |
+| Mirror reads in React, Preact, or Solid | [`@hieco/mirror-react`](./packages/mirror-react/README.md), [`@hieco/mirror-preact`](./packages/mirror-preact/README.md), [`@hieco/mirror-solid`](./packages/mirror-solid/README.md) | They expose framework-native query APIs over the same core Mirror client. |
+| Realtime relay subscriptions | [`@hieco/realtime`](./packages/realtime/README.md) or [`@hieco/realtime-react`](./packages/realtime-react/README.md) | They handle connection lifecycle and live subscription flows. |
+| Mirror data in a terminal | [`@hieco/mirror-cli`](./packages/mirror-cli/README.md) | It is the read-only CLI companion to the Mirror package family. |
+| Mirror data for AI agents over MCP | [`@hieco/mirror-mcp`](./packages/mirror-mcp/README.md) | It exposes the same read-only data through a local MCP server. |
+| Raw Hiero SDK types with Hieco’s runtime-aware packaging | [`@hieco/runtime`](./packages/runtime/README.md) | It is the runtime boundary used by the SDK and wallet layers. |
+
+## Package Families
+
+### Runtime layer
+
+| Package | Purpose |
+| --- | --- |
+| [`@hieco/runtime`](./packages/runtime/README.md) | Runtime-aware adapter over the Hiero SDK for browser, worker, workerd, and node consumers |
+
+### Application layer
+
+| Package | Purpose |
+| --- | --- |
+| [`@hieco/sdk`](./packages/sdk/README.md) | Fluent Hedera reads, writes, and transaction orchestration |
+| [`@hieco/react`](./packages/react/README.md) | React provider and hooks over `@hieco/sdk` |
+| [`@hieco/wallet`](./packages/wallet/README.md) | Headless wallet runtime and signer production |
+| [`@hieco/wallet-react`](./packages/wallet-react/README.md) | React wallet bindings over `@hieco/wallet` |
+
+### Data layer
+
+| Package | Purpose |
+| --- | --- |
+| [`@hieco/mirror`](./packages/mirror/README.md) | Typed Mirror Node client |
+| [`@hieco/mirror-react`](./packages/mirror-react/README.md) | React bindings for Mirror reads |
+| [`@hieco/mirror-preact`](./packages/mirror-preact/README.md) | Preact bindings for Mirror reads |
+| [`@hieco/mirror-solid`](./packages/mirror-solid/README.md) | Solid bindings for Mirror reads |
+| [`@hieco/realtime`](./packages/realtime/README.md) | Low-level realtime relay client |
+| [`@hieco/realtime-react`](./packages/realtime-react/README.md) | React bindings for realtime subscriptions |
+
+### Tooling layer
+
+| Package | Purpose |
+| --- | --- |
+| [`@hieco/mirror-cli`](./packages/mirror-cli/README.md) | Read-only Mirror CLI |
+| [`@hieco/mirror-mcp`](./packages/mirror-mcp/README.md) | MCP server for Mirror data |
+
+### Shared internals
+
+| Package | Purpose |
+| --- | --- |
+| [`@hieco/utils`](./packages/utils/README.md) | Shared internal types, network helpers, query keys, and validation utilities |
+
+## How The Pieces Fit Together
+
+Hieco is easiest to reason about in layers:
+
+- wallet packages connect the user and produce a signer
+- `@hieco/sdk` uses that signer to build and submit transactions
+- `@hieco/react` turns that SDK model into React-native queries and mutations
+- Mirror packages read public chain data without signer authority
+- realtime packages subscribe to what changes next
+- CLI and MCP tooling sit on top of the same Mirror client so humans and agents see the same data model
+
+`@hieco/runtime` sits underneath the SDK and wallet layers so runtime-sensitive SDK types resolve cleanly in browsers, workers, and Node-style environments.
+
+## Packaging And Runtime Support
+
+The published packages now follow a consistent build-to-`dist` model, but the exact entrypoint shape depends on the package type:
+
+- publish artifacts come from `dist`
+- library package manifests expose explicit conditional exports
+- CLI and MCP packages publish their executable `dist` entrypoints through `bin`
+- Bun builds target browser-friendly ESM output unless a package needs a separate node entry
+
+That is why most library packages now declare `browser`, `worker`, `workerd`, `node`, and `default` export conditions. `@hieco/runtime` is the one package with separate browser and node entry files because it is the runtime boundary for the underlying Hiero SDK itself, while `@hieco/mirror-cli` and `@hieco/mirror-mcp` stay focused on executable `bin` entrypoints.
 
 ## Quick Tour
 
-### React app with wallet and Hedera hooks
-
-This is the most common app path: connect a wallet, derive a signer, and use that signer inside Hieco’s React layer.
+### React app with wallet connection and Hedera hooks
 
 ```bash
+npm install @hieco/wallet @hieco/wallet-react @hieco/react @hieco/sdk @tanstack/react-query
+pnpm add @hieco/wallet @hieco/wallet-react @hieco/react @hieco/sdk @tanstack/react-query
+yarn add @hieco/wallet @hieco/wallet-react @hieco/react @hieco/sdk @tanstack/react-query
 bun add @hieco/wallet @hieco/wallet-react @hieco/react @hieco/sdk @tanstack/react-query
 ```
 
@@ -100,9 +153,10 @@ export function App() {
 
 ### Server code with the core SDK
 
-When you are outside the UI and just want a fluent Hedera client, start here.
-
 ```bash
+npm install @hieco/sdk
+pnpm add @hieco/sdk
+yarn add @hieco/sdk
 bun add @hieco/sdk
 ```
 
@@ -117,11 +171,12 @@ if (account.ok) {
 }
 ```
 
-### Read-only Mirror Node access
-
-If your app only needs blockchain data and not transaction execution, the Mirror family is the simpler path.
+### Read-only Mirror access
 
 ```bash
+npm install @hieco/mirror
+pnpm add @hieco/mirror
+yarn add @hieco/mirror
 bun add @hieco/mirror
 ```
 
@@ -129,70 +184,12 @@ bun add @hieco/mirror
 import { MirrorNodeClient } from "@hieco/mirror";
 
 const mirror = new MirrorNodeClient({ network: "testnet" });
-
 const account = await mirror.account.getInfo("0.0.1001");
-const transactions = await mirror.transaction.listPaginated({
-  accountId: "0.0.1001",
-  limit: 10,
-  order: "desc",
-});
 ```
-
-## Package Families
-
-### Application layer
-
-These packages are for reads, writes, signers, and wallet-connected app flows.
-
-| Package                                                    | Use it when you need...                                                      |
-| ---------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| [`@hieco/sdk`](./packages/sdk/README.md)                   | A fluent Hedera client for server code, scripts, and signer-scoped app logic |
-| [`@hieco/react`](./packages/react/README.md)               | React providers and TanStack Query hooks over `@hieco/sdk`                   |
-| [`@hieco/wallet`](./packages/wallet/README.md)             | A headless wallet runtime outside React                                      |
-| [`@hieco/wallet-react`](./packages/wallet-react/README.md) | React wallet state and connection flows                                      |
-
-### Mirror layer
-
-These packages are for read-only blockchain data from Mirror Node.
-
-| Package                                                      | Use it when you need...                        |
-| ------------------------------------------------------------ | ---------------------------------------------- |
-| [`@hieco/mirror`](./packages/mirror/README.md)               | A typed Mirror Node client in plain TypeScript |
-| [`@hieco/mirror-react`](./packages/mirror-react/README.md)   | Mirror hooks in React                          |
-| [`@hieco/mirror-preact`](./packages/mirror-preact/README.md) | Mirror hooks in Preact                         |
-| [`@hieco/mirror-solid`](./packages/mirror-solid/README.md)   | Mirror hooks in Solid                          |
-| [`@hieco/mirror-cli`](./packages/mirror-cli/README.md)       | Read-only Mirror inspection from the terminal  |
-| [`@hieco/mirror-mcp`](./packages/mirror-mcp/README.md)       | Mirror data exposed to MCP-compatible agents   |
-
-### Realtime layer
-
-These packages are for subscriptions and streaming updates from the Hedera relay surface.
-
-| Package                                                        | Use it when you need...                   |
-| -------------------------------------------------------------- | ----------------------------------------- |
-| [`@hieco/realtime`](./packages/realtime/README.md)             | A low-level realtime client               |
-| [`@hieco/realtime-react`](./packages/realtime-react/README.md) | React bindings for realtime subscriptions |
-
-### Shared internals
-
-| Package                                      | What it is                                                 |
-| -------------------------------------------- | ---------------------------------------------------------- |
-| [`@hieco/utils`](./packages/utils/README.md) | Private shared types and helpers used across the workspace |
-
-## How The Pieces Fit Together
-
-Hieco is easiest to reason about when you keep the layers separate:
-
-- Wallet packages connect the user and produce a signer.
-- SDK packages use that signer to read, build, and submit transactions.
-- Mirror packages read public chain data without transaction authority.
-- Realtime packages listen for what changes next.
-
-That separation keeps browser state simpler, server code cleaner, and framework bindings easier to compose.
 
 ## Local Development
 
-This repo uses Bun workspaces.
+This repo uses Bun workspaces for development and release workflows.
 
 ```bash
 bun install
@@ -215,17 +212,17 @@ bun run lint && bun run typecheck && bun run fmt
 
 ## Repository Map
 
-| Path                                | Purpose                                      |
-| ----------------------------------- | -------------------------------------------- |
-| [`packages/`](./packages)           | Publishable package families                 |
-| [`skills/`](./skills)               | Agent-facing package guidance and references |
-| [`examples/`](./examples)           | Runnable examples                            |
-| [`apps/`](./apps)                   | App surfaces built on the packages           |
-| [`brainstorming/`](./brainstorming) | Notes, research, and product exploration     |
+| Path | Purpose |
+| --- | --- |
+| [`packages/`](./packages) | Publishable package families |
+| [`skills/`](./skills) | Agent-facing package guidance and references |
+| [`examples/`](./examples) | Runnable examples |
+| [`apps/`](./apps) | App surfaces built on the packages |
+| [`brainstorming/`](./brainstorming) | Notes, research, and product exploration |
 
 ## Skills
 
-The repo includes package-specific agent skills so humans and agents can follow the same mental model:
+The repo also ships package-specific agent skills so humans and agents can follow the same package boundaries and terminology.
 
 - [`skills/hieco-sdk`](./skills/hieco-sdk)
 - [`skills/hieco-wallet`](./skills/hieco-wallet)
@@ -236,13 +233,8 @@ The repo includes package-specific agent skills so humans and agents can follow 
 Install them with [flins.tech](https://flins.tech/):
 
 ```bash
-# Browse the catalog
 flins search
-
-# Install the full Hieco skill set
 flins add powxenv/hieco
-
-# Install individual skills
 flins add powxenv/hieco --skill hieco-sdk
 flins add powxenv/hieco --skill hieco-wallet
 flins add powxenv/hieco --skill hieco-mirror

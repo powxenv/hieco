@@ -24,6 +24,7 @@ const wallet = createWallet({
 const session = await wallet.connectQr();
 
 console.log(session.accountId);
+console.log(session.signer);
 ```
 
 ## `@hieco/wallet` With Your Own UI
@@ -43,15 +44,13 @@ const wallet = createWallet({
 
 const stop = wallet.subscribe(() => {
   const state = wallet.snapshot();
-  const connectableWallets = getConnectableWallets(state);
-  const unavailableWallets = getUnavailableWallets(state);
 
   console.log(state.connection?.uri, state.session?.accountId);
-  console.log(connectableWallets.length, unavailableWallets.length);
+  console.log(getConnectableWallets(state));
+  console.log(getUnavailableWallets(state));
 });
 
 await wallet.connectQr();
-
 stop();
 ```
 
@@ -107,12 +106,7 @@ export function WalletDialog() {
 
   return (
     <div>
-      <button
-        onClick={() => {
-          void wallet.open();
-        }}
-        type="button"
-      >
+      <button onClick={() => void wallet.open()} type="button">
         Open wallet dialog
       </button>
 
@@ -131,12 +125,7 @@ export function WalletDialog() {
         </button>
       ))}
 
-      <button
-        onClick={() => {
-          void wallet.reload();
-        }}
-        type="button"
-      >
+      <button onClick={() => void wallet.reload()} type="button">
         {wallet.qr.expired ? "Recreate QR" : "Reload QR"}
       </button>
 
@@ -169,22 +158,6 @@ function HiecoRuntime({ children }: { children: React.ReactNode }) {
     <HiecoProvider config={{ network: "testnet" }} signer={wallet.session?.signer}>
       {children}
     </HiecoProvider>
-  );
-}
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <WalletProvider
-      projectId="YOUR_WALLETCONNECT_PROJECT_ID"
-      app={{
-        name: "My Hieco App",
-        description: "Wallet connection for My Hieco App",
-        url: "https://example.com",
-        icons: ["https://example.com/icon.png"],
-      }}
-    >
-      <HiecoRuntime>{children}</HiecoRuntime>
-    </WalletProvider>
   );
 }
 ```

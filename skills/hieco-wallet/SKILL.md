@@ -7,7 +7,7 @@ description: Use the Hieco wallet package family for Hedera. Reach for this skil
 
 Use this skill when the task is about `@hieco/wallet` or `@hieco/wallet-react`.
 
-Start here when the user wants wallet connection, QR pairing, extension flows, reconnect behavior, session restore, or signer handoff into the rest of the Hieco stack.
+Start here when the user wants wallet connection, QR pairing, extension flows, reconnect behavior, session restore, signer handoff into the rest of Hieco, or guidance on the wallet runtime model.
 
 ## Start Here
 
@@ -20,7 +20,7 @@ Start here when the user wants wallet connection, QR pairing, extension flows, r
 - [references/best-practices.md](references/best-practices.md) for runtime ownership, shared connection attempts, restore flows, and signer guidance
 - [references/api-core.md](references/api-core.md) for the headless runtime
 - [references/api-react.md](references/api-react.md) for the React wrapper
-- [references/sources.md](references/sources.md) for repository, npm, and installed-package lookup paths
+- [references/sources.md](references/sources.md) for repository, npm, installed-package, and subpath lookup paths
 
 ## Route To A Different Skill When Needed
 

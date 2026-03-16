@@ -15,7 +15,7 @@ Many Hedera apps spend most of their time reading:
 - topics and messages
 - schedules, blocks, and network state
 
-`@hieco/mirror` gives those reads a cleaner shape with one client, domain-specific APIs, and shared result types across the rest of the Hieco ecosystem.
+`@hieco/mirror` gives those reads a cleaner shape with one client, domain-specific APIs, and shared result types that power the CLI, MCP server, and framework wrappers.
 
 ## When To Use It
 
@@ -27,13 +27,25 @@ Choose `@hieco/mirror` when you are building:
 - scripts that inspect public chain data
 - framework wrappers or internal services that need Mirror Node access
 
-If you want framework-native hooks, use one of the wrapper packages:
+If you want framework-native query APIs, use one of the wrapper packages:
 
 - [`@hieco/mirror-react`](../mirror-react/README.md)
 - [`@hieco/mirror-preact`](../mirror-preact/README.md)
 - [`@hieco/mirror-solid`](../mirror-solid/README.md)
 
 ## Installation
+
+```bash
+npm install @hieco/mirror
+```
+
+```bash
+pnpm add @hieco/mirror
+```
+
+```bash
+yarn add @hieco/mirror
+```
 
 ```bash
 bun add @hieco/mirror
@@ -56,7 +68,7 @@ const transactions = await mirror.transaction.listPaginated({
 
 ## The Client Shape
 
-`MirrorNodeClient` is organized by domain instead of by raw endpoint path.
+`MirrorNodeClient` is organized by domain instead of raw endpoint path.
 
 Main namespaces include:
 
@@ -70,7 +82,7 @@ Main namespaces include:
 - `topic`
 - `transaction`
 
-That keeps common tasks easy to discover and makes the same data model reusable across the CLI, MCP server, and framework packages.
+That keeps common tasks easy to discover and makes the same data model reusable across the rest of the ecosystem.
 
 ## Common Workflows
 
@@ -102,6 +114,18 @@ const logs = await mirror.contract.getLogs("0.0.3001", {
 });
 ```
 
+## Network Configuration
+
+Built-in networks work out of the box through `network`. If you need a custom endpoint, pass `mirrorNodeUrl`.
+
+That same model is what the framework wrappers, CLI, and MCP server build on.
+
+## Packaging And Runtime Support
+
+`@hieco/mirror` now ships browser-friendly ESM output with explicit conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`.
+
+The important effect for consumers is simple: the package is easier to reuse in browser tools, edge-style runtimes, and server code without changing the API.
+
 ## API At A Glance
 
 Core exports:
@@ -109,16 +133,10 @@ Core exports:
 - `MirrorNodeClient`
 - domain API classes such as `AccountApi`, `TokenApi`, and `ContractApi`
 - shared pagination and response types
-- Mirror result and network types re-exported from `@hieco/utils`
-
-## Notes
-
-- This package is read-only by design.
-- `network` selects the built-in Hedera network, while `mirrorNodeUrl` lets you point at a custom endpoint.
-- Framework wrappers in the repo use this package directly, so it is the source of truth for Mirror reads across the ecosystem.
+- shared result and network types used across the Hieco package family
 
 ## Related Packages
 
-- [`@hieco/mirror-react`](../mirror-react/README.md), [`@hieco/mirror-preact`](../mirror-preact/README.md), and [`@hieco/mirror-solid`](../mirror-solid/README.md) for UI framework bindings
+- [`@hieco/mirror-react`](../mirror-react/README.md), [`@hieco/mirror-preact`](../mirror-preact/README.md), and [`@hieco/mirror-solid`](../mirror-solid/README.md) for framework bindings
 - [`@hieco/mirror-cli`](../mirror-cli/README.md) for terminal access
 - [`@hieco/mirror-mcp`](../mirror-mcp/README.md) for MCP-based agent access

@@ -1,202 +1,84 @@
-Welcome to your new TanStack Start app!
+# Hieco Web
 
-# Getting Started
+This app is the main Hieco website and playground. It combines the marketing site, ecosystem explanation pages, showcase submission flow, and a small internal QA surface for exercising public package APIs.
 
-To run this application:
+## What Lives Here
+
+The app currently covers:
+
+- the landing page and package demos
+- the ecosystem explainer pages
+- the project showcase index and detail pages
+- wallet-connected showcase submission and edit flows
+- the `/testsprite-lab` route used for focused QA scenarios
+
+## Local Development
+
+Install workspace dependencies first:
 
 ```bash
 bun install
-bun --bun run dev
 ```
 
-# Building For Production
-
-To build this application for production:
+Start the app:
 
 ```bash
-bun --bun run build
+bun --filter web dev
 ```
 
-## Styling
+Build the app:
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `bun install @tailwindcss/vite tailwindcss -D`
-
-## Setting up Convex
-
-- Set the `VITE_CONVEX_URL` and `CONVEX_DEPLOYMENT` environment variables in your `.env.local`. (Or run `bunx --bun convex init` to set them automatically.)
-- Run `bunx --bun convex dev` to start the Convex server.
-
-## T3Env
-
-- You can use T3Env to add type safety to your environment variables.
-- Add Environment variables to the `src/env.mjs` file.
-- Use the environment variables in your code.
-
-### Usage
-
-```ts
-import { env } from "#/env";
-
-console.log(env.VITE_APP_TITLE);
+```bash
+bun --filter web build
 ```
 
-## Routing
+Preview the production build:
 
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
+```bash
+bun --filter web preview
 ```
 
-Then anywhere in your JSX you can use it like so:
+## Required Environment Variables
 
-```tsx
-<Link to="/about">About</Link>
+Create `apps/web/.env.local` with:
+
+```bash
+VITE_APP_TITLE=Hieco
+VITE_CONVEX_URL=https://your-convex-deployment.convex.cloud
+VITE_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+VITE_APP_URL=http://localhost:5878
+VITE_HEDERA_NETWORK=testnet
 ```
 
-This will create a link that will navigate to the `/about` route.
+Optional server-side variable:
 
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "My App" },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-});
+```bash
+SERVER_URL=http://localhost:5878
 ```
 
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
+## Build Behavior
 
-## Server Functions
+The web app depends on workspace packages, so its build script first builds the shared package outputs it consumes:
 
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
+- `@hieco/utils`
+- `@hieco/mirror`
+- `@hieco/realtime`
+- `@hieco/sdk`
+- `@hieco/wallet`
+- `@hieco/wallet-react`
 
-```tsx
-import { createServerFn } from "@tanstack/react-start";
+That keeps the site aligned with the latest workspace artifacts instead of relying on stale generated output.
 
-const getServerTime = createServerFn({
-  method: "GET",
-}).handler(async () => {
-  return new Date().toISOString();
-});
+## Key Routes
 
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState("");
+- `/` is the main landing page with package demos
+- `/ecosystem` explains how Hieco fits with Hedera, Hiero, Mirror Nodes, and wallets
+- `/showcase` lists submitted projects
+- `/showcase/$slug` shows one showcase entry
+- `/testsprite-lab` is the internal QA harness
 
-  useEffect(() => {
-    getServerTime().then(setTime);
-  }, []);
+## Notes
 
-  return <div>Server time: {time}</div>;
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from "@tanstack/react-router";
-import { json } from "@tanstack/react-start";
-
-export const Route = createFileRoute("/api/hello")({
-  server: {
-    handlers: {
-      GET: () => json({ message: "Hello, World!" }),
-    },
-  },
-});
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from "@tanstack/react-router";
-
-export const Route = createFileRoute("/people")({
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json();
-  },
-  component: PeopleComponent,
-});
-
-function PeopleComponent() {
-  const data = Route.useLoaderData();
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  );
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+- The root document mounts `WalletProvider` with the configured Hedera network and curated wallet list.
+- Showcase write flows use wallet challenge signing.
+- The app expects TanStack Query, Convex, and wallet state to be available at the root.

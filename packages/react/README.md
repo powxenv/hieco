@@ -29,6 +29,18 @@ If you only need a non-React client, use [`@hieco/sdk`](../sdk/README.md).
 ## Installation
 
 ```bash
+npm install @hieco/react @hieco/sdk @tanstack/react-query
+```
+
+```bash
+pnpm add @hieco/react @hieco/sdk @tanstack/react-query
+```
+
+```bash
+yarn add @hieco/react @hieco/sdk @tanstack/react-query
+```
+
+```bash
 bun add @hieco/react @hieco/sdk @tanstack/react-query
 ```
 
@@ -64,13 +76,22 @@ export function App() {
 
 Most apps follow this pattern:
 
-1. Create or receive a `QueryClient`.
-2. Mount `HiecoProvider`.
-3. Pass public client config with `config`.
-4. Pass a signer when the app becomes wallet-connected.
-5. Use Hieco hooks in components.
+1. Mount `HiecoProvider`.
+2. Pass public client config with `config`.
+3. Pass a signer when the app becomes wallet-connected.
+4. Use Hieco hooks in components.
 
-The package is deliberately strict about runtime boundaries: sensitive credentials belong in server-only SDK code, not in public React config.
+The provider can create its own `QueryClient` when needed, or reuse one from the host app.
+
+## Runtime Boundaries
+
+The package is deliberately strict about runtime boundaries:
+
+- `config` only accepts public client configuration
+- operator credentials stay in server-only `@hieco/sdk` code
+- `signer` is passed separately as session state
+
+That split keeps React code focused on client state and queries instead of lower-level SDK configuration.
 
 ## Common Workflows
 
@@ -91,7 +112,7 @@ function HiecoRuntime({ children }: { children: React.ReactNode }) {
 }
 ```
 
-### Reuse your own QueryClient
+### Reuse your own `QueryClient`
 
 ```tsx
 import { QueryClient } from "@tanstack/react-query";
@@ -117,7 +138,7 @@ Core exports:
 - `createHiecoQueryKey`
 - `createHiecoMutationKey`
 
-The package also re-exports the `@hieco/sdk` surface, so shared types and client helpers stay close at hand in React code.
+The package also re-exports the `@hieco/sdk` surface so shared types and helpers stay close at hand in React code.
 
 There is also an optional legacy subpath:
 
@@ -125,14 +146,18 @@ There is also an optional legacy subpath:
 
 Use that only when you specifically need the AppKit bridge.
 
-## Notes
+## Packaging And Runtime Support
 
-- `config` only accepts public client configuration.
-- Pass `signer` separately instead of mixing signer or operator credentials into provider config.
-- The package can own a `QueryClient` or reuse one from the app.
+`@hieco/react` now follows the same packaging story as the rest of the public workspace:
+
+- browser-friendly ESM output
+- externalized dependencies in the published build
+- explicit conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`
+
+That keeps the package easier to consume in modern React stacks without changing how the public API feels in app code.
 
 ## Related Packages
 
-- [`@hieco/sdk`](../sdk/README.md) for the underlying client
+- [`@hieco/sdk`](../sdk/README.md) for the underlying fluent client
 - [`@hieco/wallet-react`](../wallet-react/README.md) for wallet connection in React
 - [`@hieco/wallet`](../wallet/README.md) for wallet runtime control outside React

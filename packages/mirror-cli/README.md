@@ -26,19 +26,43 @@ Choose `@hieco/mirror-cli` when you want to:
 
 If you need a programmatic client, use [`@hieco/mirror`](../mirror/README.md).
 
-## Installation
-
-Run it directly with Bun:
+## Run Without Installing
 
 ```bash
 bunx @hieco/mirror-cli --help
 ```
 
-You can also install it globally:
+```bash
+npx -y @hieco/mirror-cli --help
+```
+
+```bash
+pnpm dlx @hieco/mirror-cli --help
+```
+
+```bash
+yarn dlx @hieco/mirror-cli --help
+```
+
+## Global Installation
+
+```bash
+npm install --global @hieco/mirror-cli
+```
+
+```bash
+pnpm add --global @hieco/mirror-cli
+```
+
+```bash
+yarn global add @hieco/mirror-cli
+```
 
 ```bash
 bun add --global @hieco/mirror-cli
 ```
+
+The installed binary name is `hieco`.
 
 ## Quick Start
 
@@ -85,12 +109,6 @@ bunx @hieco/mirror-cli transactions:list --account 0.0.1001 --limit 25 --json > 
 ```bash
 bunx @hieco/mirror-cli accounts:list --network testnet --limit 5
 ```
-
-## Notes
-
-- This package is read-only.
-- Output is designed for both scanning and scripting.
-- The command surface tracks the same Mirror domains as `@hieco/mirror`.
 
 ## Related Packages
 

@@ -8,8 +8,7 @@ Canonical docs:
 ## Package Choice
 
 - Prefer `@hieco/react` for React component code.
-- Prefer `@hieco/sdk` for server logic, jobs, and framework server entry points.
-- Keep wallet connection concerns separate from query and mutation concerns.
+- Prefer `@hieco/sdk` for server logic, jobs, workers, and framework server entry points.
 
 ## Runtime Boundaries
 
@@ -42,4 +41,3 @@ Canonical docs:
 - Start from the package the user should install.
 - Give a runnable-looking example first.
 - Add framework-specific details only when the user mentions a framework.
-- Link to package docs, not repository source paths.

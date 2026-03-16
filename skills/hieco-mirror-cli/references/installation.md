@@ -12,16 +12,34 @@ bunx @hieco/mirror-cli --help
 ```
 
 ```bash
-npx @hieco/mirror-cli --help
+npx -y @hieco/mirror-cli --help
 ```
 
-This is the recommended usage pattern for this CLI.
+```bash
+pnpm dlx @hieco/mirror-cli --help
+```
 
-## Current Publishing Status
+```bash
+yarn dlx @hieco/mirror-cli --help
+```
 
-As of 2026-03-08, the npm registry page exists but the package is not published yet. The registry URL currently returns `404`.
+## Global Installation
 
-Use `bunx` or `npx` as the intended package workflow once the package is published. Until then, use the package sources in [sources.md](sources.md) if an agent needs to inspect the package contents.
+```bash
+npm install --global @hieco/mirror-cli
+```
+
+```bash
+pnpm add --global @hieco/mirror-cli
+```
+
+```bash
+yarn global add @hieco/mirror-cli
+```
+
+```bash
+bun add --global @hieco/mirror-cli
+```
 
 ## Package Entry
 

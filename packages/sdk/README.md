@@ -2,7 +2,7 @@
 
 `@hieco/sdk` is the core Hieco client for Hedera reads, transactions, signer-scoped actions, and server-side workflows.
 
-Use it when you want one fluent API that feels at home in scripts, route handlers, workers, and any place where you need precise control without UI framework overhead.
+It is the main application-facing SDK in the workspace. If you want one fluent API for scripts, route handlers, workers, browser signer flows, or shared domain services, start here.
 
 ## Why This Package Exists
 
@@ -11,23 +11,36 @@ Hedera apps usually need more than raw transaction primitives. They need:
 - readable domain methods
 - strong typing across params and results
 - a clean way to scope work to a signer
-- a path from quick reads to queued or executable transactions
+- a path from direct execution to descriptors and scheduled work
+- behavior that still makes sense across browser, worker, and server runtimes
 
-`@hieco/sdk` is that foundation. It is the package the React layer builds on, and it is the place to start when you want the full Hieco application model without React.
+`@hieco/sdk` is that layer.
 
 ## When To Use It
 
 Choose `@hieco/sdk` when you are building:
 
 - backend handlers and server actions
-- CLI scripts and jobs
+- scripts, jobs, or workers
 - transaction-heavy app logic
-- wallet-aware browser code that already has a signer
-- shared domain services you want to reuse across runtimes
+- browser code that already has a wallet signer
+- shared application services reused across runtimes
 
-If you want TanStack Query hooks and a provider for React, use [`@hieco/react`](../react/README.md).
+If you want React providers and query hooks, use [`@hieco/react`](../react/README.md).
 
 ## Installation
+
+```bash
+npm install @hieco/sdk
+```
+
+```bash
+pnpm add @hieco/sdk
+```
+
+```bash
+yarn add @hieco/sdk
+```
 
 ```bash
 bun add @hieco/sdk
@@ -35,7 +48,7 @@ bun add @hieco/sdk
 
 ## Quick Start
 
-### Start from environment configuration
+### Server code with environment configuration
 
 ```ts
 import { hieco } from "@hieco/sdk";
@@ -48,7 +61,7 @@ if (account.ok) {
 }
 ```
 
-### Start from explicit config
+### Explicit client configuration
 
 ```ts
 import { hieco } from "@hieco/sdk";
@@ -60,22 +73,32 @@ const client = hieco({
 const token = await client.token.info("0.0.2001").now();
 ```
 
+### Browser code with a wallet signer
+
+```ts
+import { hieco, type Signer } from "@hieco/sdk";
+
+export function createWalletClient(signer: Signer) {
+  return hieco({ network: "testnet" }).as(signer);
+}
+```
+
 ## Mental Model
 
-The SDK is designed around a simple flow:
+The SDK is built around a simple flow:
 
 1. Create a client.
-2. Enter a domain namespace like `account`, `token`, or `contract`.
+2. Enter a domain namespace such as `account`, `token`, `topic`, or `contract`.
 3. Build an operation.
-4. Choose how to use it.
+4. Choose how to finish it.
 
-Most operations give you more than one ending:
+Most operations support more than one ending:
 
-- `.now()` to execute immediately
-- `.tx()` to get a transaction descriptor
-- `.queue()` to collect work for later execution or composition
+- `.now()` executes immediately
+- `.tx()` returns a `TransactionDescriptor`
+- `.queue()` creates scheduled work for later execution
 
-That makes the SDK useful both for straightforward app code and for more deliberate transaction orchestration.
+That gives you one surface for both direct app code and more deliberate transaction orchestration.
 
 ## Common Workflows
 
@@ -94,15 +117,6 @@ const result = await client.account
   .now();
 ```
 
-### Scope a client to a wallet signer
-
-```ts
-import { hieco } from "@hieco/sdk";
-
-const client = hieco({ network: "testnet" }).as(session.signer);
-const info = await client.account.info(session.accountId).now();
-```
-
 ### Build now, submit later
 
 ```ts
@@ -118,9 +132,35 @@ const descriptor = client.token
 const receipt = await client.tx.submit(descriptor).now();
 ```
 
-## API At A Glance
+### Re-exported SDK types
 
-The public surface is organized around domain namespaces instead of one flat bag of helpers.
+`@hieco/sdk` also re-exports common SDK-facing types so most app code can stay on one package import.
+
+```ts
+import { Mnemonic, PublicKey, type Signer, hieco } from "@hieco/sdk";
+
+const client = hieco.forTestnet();
+const publicKey = PublicKey.fromString("302a300506032b6570032100...");
+```
+
+## Packaging Notes
+
+The package now ships browser-friendly ESM output with explicit conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`.
+
+For most users, the important takeaway is simple: the SDK is easier to consume in modern browser and edge-style environments without changing how you use it.
+
+## Environment Variables
+
+`hieco.fromEnv()` reads these server-side environment variables:
+
+- `HIERO_NETWORK`
+- `HIERO_OPERATOR_ID` or `HIERO_ACCOUNT_ID`
+- `HIERO_PRIVATE_KEY`
+- `HIERO_MIRROR_URL`
+
+Keep them in server-only code. Public browser configuration should use `config` plus an optional `signer`, not operator credentials.
+
+## API At A Glance
 
 Common namespaces include:
 
@@ -143,31 +183,6 @@ Core entry points:
 - `hieco.forTestnet()`
 - `hieco.forPreviewnet()`
 - `hieco.withSigner(signer, config?)`
-
-Useful shared exports:
-
-- `Signer`
-- `PrivateKey`
-- `PublicKey`
-- `Mnemonic`
-- `KeyList`
-- result helpers and result types
-- network and timestamp types from the shared layer
-
-```ts
-import { Mnemonic, PublicKey, hieco } from "@hieco/sdk";
-
-const client = hieco.forTestnet();
-const publicKey = PublicKey.fromString("302a300506032b6570032100...");
-const mnemonic = await Mnemonic.fromString("word1 word2 word3 ...");
-const privateKey = await mnemonic.toStandardEd25519PrivateKey();
-```
-
-## Notes
-
-- `hieco.fromEnv()` is the most convenient server-side entry point.
-- Signer-scoped usage is a first-class path, not a workaround.
-- The React package re-exports this SDK surface, but `@hieco/sdk` stays the better choice for non-React code.
 
 ## Related Packages
 

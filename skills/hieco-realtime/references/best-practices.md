@@ -26,5 +26,6 @@ Canonical docs:
 ## React Usage
 
 - Use `RealtimeProvider` once high in the tree.
+- Call `connect()` when the app is ready to open the relay connection. The provider does not auto-connect.
 - Use `useContractLogs()` for component-bound log subscriptions.
 - Reach for `useRealtimeClient()` only when the task needs manual subscriptions or chain ID reads.

@@ -25,7 +25,19 @@ Choose `@hieco/realtime-react` when you are building:
 ## Installation
 
 ```bash
-bun add @hieco/realtime-react @hieco/realtime @hieco/mirror
+npm install @hieco/realtime @hieco/realtime-react
+```
+
+```bash
+pnpm add @hieco/realtime @hieco/realtime-react
+```
+
+```bash
+yarn add @hieco/realtime @hieco/realtime-react
+```
+
+```bash
+bun add @hieco/realtime @hieco/realtime-react
 ```
 
 Peer dependencies expected from the host app:
@@ -36,17 +48,41 @@ Peer dependencies expected from the host app:
 ## Quick Start
 
 ```tsx
-import { RealtimeProvider } from "@hieco/realtime-react";
+import { useEffect } from "react";
+import {
+  RealtimeProvider,
+  useContractLogs,
+  useRealtimeContext,
+  useStreamState,
+} from "@hieco/realtime-react";
 
-export function App({ children }: { children: React.ReactNode }) {
+function ContractLogFeed() {
+  const { connect } = useRealtimeContext();
+  const streamState = useStreamState();
+  const { logs, isConnected, error } = useContractLogs({
+    address: "0x0000000000000000000000000000000000001389",
+    enabled: true,
+  });
+
+  useEffect(() => {
+    void connect();
+  }, [connect]);
+
+  if (!isConnected) return <div>{streamState._tag}</div>;
+  if (error) return <div>{error.message}</div>;
+
+  return <pre>{JSON.stringify(logs, null, 2)}</pre>;
+}
+
+export function App() {
   return (
     <RealtimeProvider
       config={{
         network: "testnet",
-        relayEndpoint: "wss://testnet.hashio.io/api/v1/ws",
+        relayEndpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
       }}
     >
-      {children}
+      <ContractLogFeed />
     </RealtimeProvider>
   );
 }
@@ -61,14 +97,22 @@ export function App({ children }: { children: React.ReactNode }) {
 - `connect()`
 - `disconnect()`
 
-That makes it easier to treat realtime connectivity as shared app infrastructure instead of one more local component concern.
+That makes realtime connectivity feel like shared app infrastructure instead of one more local component concern.
 
-## Notes
+The provider does not auto-connect by itself. Call `connect()` from `useRealtimeContext()` when the app is ready to open the relay connection.
 
-- This package depends on `@hieco/realtime` for the underlying client.
-- It is a good companion to `@hieco/mirror-react` when you want “load the current view, then stay live.”
+## Useful Hooks
+
+Common exports include:
+
+- `useRealtimeClient()`
+- `useStreamState()`
+- `useChainId()`
+- `useContractLogs()`
+
+Use the provider and hooks first. Drop to the raw client only when you need manual subscription logic.
 
 ## Related Packages
 
 - [`@hieco/realtime`](../realtime/README.md)
-- [`@hieco/mirror-react`](../mirror-react/README.md)
+- [`@hieco/mirror-react`](../mirror-react/README.md) for “load current state, then stay live” flows

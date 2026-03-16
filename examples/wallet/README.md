@@ -1,12 +1,14 @@
 # Hieco Wallet Example
 
-This example demonstrates the rewritten wallet flow:
+This example demonstrates the current wallet architecture in a small React app.
 
-- one Base UI dialog
+It focuses on the behavior introduced by the rewritten wallet runtime:
+
 - one shared runtime connection attempt
-- one QR surface that starts immediately
-- one wallet list with installed and unavailable extensions
-- one settled session view
+- one QR surface that starts and reloads predictably
+- one wallet list split into connectable and unavailable entries
+- one settled session view with signer-backed state
+- one headless React controller built on `useWallet()`
 
 ## Run The Example
 
@@ -36,6 +38,12 @@ Then restart the dev server.
 ## What The Example Demonstrates
 
 - `@hieco/wallet` exposes one shared `connection`, one `session`, and one wallet list with real availability
-- `@hieco/wallet-react` exposes `useWallet()` as the headless connect controller
-- opening the dialog starts the shared QR attempt immediately
-- clicking an installed extension reuses the same attempt instead of creating another one
+- `@hieco/wallet-react` exposes `useWallet()` as the headless React controller
+- opening the dialog starts the shared QR attempt
+- clicking an installed extension reuses the same pending attempt instead of creating another one
+- `reload()` recreates the QR attempt cleanly when the old session has expired
+
+## Useful Files
+
+- `src/main.tsx` wires the wallet provider
+- `src/App.tsx` renders the custom wallet dialog and connected session state

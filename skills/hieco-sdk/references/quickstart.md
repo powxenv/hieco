@@ -11,7 +11,6 @@ Canonical docs:
 import { hieco } from "@hieco/sdk";
 
 const client = hieco.fromEnv();
-
 const account = await client.account.info("0.0.1001").now();
 
 if (account.ok) {
@@ -29,11 +28,6 @@ export function createWalletClient(signer: Signer) {
 }
 ```
 
-```ts
-const client = createWalletClient(signer);
-const receipt = await client.account.send({ to: "0.0.2002", hbar: 1 }).now();
-```
-
 ## `@hieco/react` In A React App
 
 ```tsx
@@ -41,17 +35,21 @@ const receipt = await client.account.send({ to: "0.0.2002", hbar: 1 }).now();
 
 import { HiecoProvider, useAccountInfo } from "@hieco/react";
 
-function AccountCard({ accountId }: { accountId: string }) {
-  const account = useAccountInfo(accountId);
+function AccountCard() {
+  const account = useAccountInfo({ accountId: "0.0.1001" });
 
   if (account.isPending) return <div>Loading...</div>;
   if (account.isError) return <div>{account.error.message}</div>;
 
-  return <div>{account.data?.accountId}</div>;
+  return <div>{JSON.stringify(account.data)}</div>;
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <HiecoProvider config={{ network: "testnet" }}>{children}</HiecoProvider>;
+  return (
+    <HiecoProvider config={{ network: "testnet" }}>
+      {children}
+    </HiecoProvider>
+  );
 }
 ```
 

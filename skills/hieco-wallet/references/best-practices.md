@@ -24,7 +24,6 @@ Canonical docs:
 - Let installed extension buttons call `connectExtension(walletId)` so they can reuse the shared pending attempt.
 - Use `useWallet().reload()` when the QR URI has expired and the UI should recreate it without requiring a full dialog reopen.
 - Use `cancelConnection()` when dismissing the UI should stop the pending attempt.
-- Treat `qr.enabled === true`, `qr.uri === null`, `qr.pending === false`, and `qr.expired === false` as an idle state that is ready to start a new attempt.
 
 ## UI Composition
 
@@ -32,8 +31,6 @@ Canonical docs:
 - In React, render from `connectableWallets`, `unavailableWallets`, `qr`, `session`, and `error`.
 - Use `getConnectableWallets(state)` and `getUnavailableWallets(state)` when building directly on the core runtime.
 - Show install links only for unavailable wallets that expose `installUrl`.
-- Show a recreate or reload action when `qr.expired` is `true`.
-- Keep loading copy tied to `qr.pending` instead of only checking `qr.uri`.
 
 ## Restore And Persistence
 
@@ -46,9 +43,3 @@ Canonical docs:
 - In React, use `useWallet().session?.signer` as the signer source for `@hieco/react`.
 - Outside React, use `wallet.snapshot().session?.signer` after the session is connected.
 - Keep wallet state in the wallet layer and Hedera reads and writes in `@hieco/react` or `@hieco/sdk`.
-
-## Custom Wallets
-
-- Start with the curated defaults: HashPack, Kabila, and the generic WalletConnect wallet.
-- Add custom wallets only when the app has stable install metadata and icon URLs.
-- Narrow the wallet catalog only when the product has a clear compatibility or UX requirement.

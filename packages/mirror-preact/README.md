@@ -2,16 +2,16 @@
 
 `@hieco/mirror-preact` gives Preact apps the same read-only Mirror Node experience that `@hieco/mirror-react` gives React apps.
 
-It is the Preact-native way to bring Hieco Mirror reads into a component tree without giving up the underlying `@hieco/mirror` model.
+It is the Preact-native way to bring Hieco Mirror reads into a component tree without giving up the underlying `@hieco/mirror` mental model.
 
 ## Why This Package Exists
 
 Preact apps still need typed blockchain reads, shared client state, and predictable query flows. This package adds:
 
 - a `MirrorNodeProvider` for Preact
-- hook-based access to Mirror data
+- query hooks over the core Mirror client
 - shared network switching
-- a familiar Hieco Mirror mental model
+- the same domain model used by the rest of the Mirror package family
 
 ## When To Use It
 
@@ -25,7 +25,19 @@ Choose `@hieco/mirror-preact` when you are building a Preact app that needs:
 ## Installation
 
 ```bash
-bun add @hieco/mirror @hieco/mirror-preact @hieco/utils @tanstack/preact-query
+npm install @hieco/mirror @hieco/mirror-preact @tanstack/preact-query
+```
+
+```bash
+pnpm add @hieco/mirror @hieco/mirror-preact @tanstack/preact-query
+```
+
+```bash
+yarn add @hieco/mirror @hieco/mirror-preact @tanstack/preact-query
+```
+
+```bash
+bun add @hieco/mirror @hieco/mirror-preact @tanstack/preact-query
 ```
 
 Peer dependencies expected from the host app:
@@ -36,14 +48,19 @@ Peer dependencies expected from the host app:
 ## Quick Start
 
 ```tsx
-import { MirrorNodeProvider, useAccountInfo, useTransactionList } from "@hieco/mirror-preact";
+import { QueryClient, QueryClientProvider } from "@tanstack/preact-query";
+import { MirrorNodeProvider, useAccountInfo, useTransactionsByAccount } from "@hieco/mirror-preact";
+
+const queryClient = new QueryClient();
 
 function AccountPanel() {
-  const account = useAccountInfo("0.0.1001");
-  const transactions = useTransactionList({
+  const account = useAccountInfo({ accountId: "0.0.1001" });
+  const transactions = useTransactionsByAccount({
     accountId: "0.0.1001",
-    limit: 10,
-    order: "desc",
+    params: {
+      limit: 10,
+      order: "desc",
+    },
   });
 
   if (account.isPending || transactions.isPending) {
@@ -57,9 +74,11 @@ function AccountPanel() {
 
 export function App() {
   return (
-    <MirrorNodeProvider config={{ defaultNetwork: "testnet" }}>
-      <AccountPanel />
-    </MirrorNodeProvider>
+    <QueryClientProvider client={queryClient}>
+      <MirrorNodeProvider config={{ defaultNetwork: "testnet" }}>
+        <AccountPanel />
+      </MirrorNodeProvider>
+    </QueryClientProvider>
   );
 }
 ```
@@ -68,7 +87,7 @@ export function App() {
 
 - This package is the Preact wrapper over `@hieco/mirror`.
 - The provider owns the current network and active `MirrorNodeClient`.
-- The public flow matches the React and Solid wrappers so teams can move between frameworks with less friction.
+- The public flow intentionally matches the React wrapper so teams can move between the two with less friction.
 
 ## Related Packages
 

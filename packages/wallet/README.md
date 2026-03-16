@@ -1,18 +1,18 @@
 # @hieco/wallet
 
-`@hieco/wallet` is the headless Hieco wallet runtime for browser apps that want full control over wallet state, QR pairing, extension flows, and session restore.
+`@hieco/wallet` is the headless Hieco wallet runtime for browser apps that want full control over wallet state, QR pairing, extension flows, restore behavior, and signer handoff.
 
-It is the package you reach for when you want to own the wallet experience instead of adopting one for free.
+It is the package to use when you want to own the wallet experience instead of inheriting one.
 
 ## Why This Package Exists
 
 Wallet connection is rarely just a button. Real apps need to manage:
 
-- a current session
-- a pending connection attempt
-- extension and WalletConnect entry points
+- the current session
+- a pending QR or extension connection attempt
+- installed and unavailable wallets
 - reconnect and restore behavior
-- a signer that can move into the rest of the app
+- a signer that can move into the rest of the Hieco stack
 
 `@hieco/wallet` keeps that complexity in one runtime so your UI can stay focused on presentation.
 
@@ -22,12 +22,24 @@ Choose `@hieco/wallet` when you are building:
 
 - a browser app outside React
 - a custom wallet modal, drawer, or inline picker
-- a framework integration that wants direct runtime ownership
-- a product that needs fine-grained control over pairing and restore flows
+- your own framework integration on top of the headless runtime
+- a product that needs direct control over pairing, restore, and disconnect flows
 
 If you want the React wrapper, use [`@hieco/wallet-react`](../wallet-react/README.md).
 
 ## Installation
+
+```bash
+npm install @hieco/wallet
+```
+
+```bash
+pnpm add @hieco/wallet
+```
+
+```bash
+yarn add @hieco/wallet
+```
 
 ```bash
 bun add @hieco/wallet
@@ -63,7 +75,7 @@ One wallet runtime owns:
 - one shared pending connection attempt
 - one wallet catalog
 
-That shared pending attempt is the important detail. `connectQr()` and `connectExtension(walletId)` join the same in-flight connection until it settles or gets cancelled, which makes custom wallet UI much easier to reason about.
+That shared pending attempt is the key behavioral detail. `connectQr()` and `connectExtension(walletId)` join the same in-flight attempt until it settles or gets canceled. That makes custom wallet UI easier to reason about because the runtime, not the component tree, owns the connection lifecycle.
 
 ## Common Workflows
 
@@ -125,6 +137,38 @@ const session = await wallet.connectQr();
 const client = hieco({ network: "testnet" }).as(session.signer);
 ```
 
+## Runtime Boundaries
+
+Runtime creation is safe in shared app code and SSR environments, but connection actions are browser-only:
+
+- `connectQr()`
+- `connectExtension()`
+- `disconnect()`
+- `restore()`
+
+That split is deliberate. You can mount the runtime safely during app setup and defer real wallet work until the browser is available.
+
+## Subpath Exports
+
+The package also ships focused subpaths for apps that want a narrower import surface:
+
+- `@hieco/wallet/chains`
+- `@hieco/wallet/selectors`
+- `@hieco/wallet/state`
+- `@hieco/wallet/wallets`
+
+Those are useful when you want chain definitions, selector helpers, or curated wallet metadata without importing the entire package namespace.
+
+## Packaging And Runtime Support
+
+The wallet package now follows the same packaging rules as the rest of the public workspace:
+
+- browser-targeted ESM build output
+- dependencies kept external for the consuming app or bundler
+- conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`
+
+That keeps the package easier to consume across modern frontend and edge-style runtimes while preserving the browser-only behavior of actual wallet interactions.
+
 ## API At A Glance
 
 Core exports:
@@ -151,12 +195,6 @@ Key runtime methods:
 - `disconnect()`
 - `restore()`
 - `destroy()`
-
-## Notes
-
-- `projectId` is required for real WalletConnect-backed pairing.
-- Runtime creation is safe in shared app code, but connection and restore actions are browser-only.
-- The curated wallet catalog includes HashPack, Kabila, and a generic WalletConnect option.
 
 ## Related Packages
 

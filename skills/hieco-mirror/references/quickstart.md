@@ -13,12 +13,7 @@ Canonical docs:
 import { MirrorNodeClient } from "@hieco/mirror";
 
 const client = new MirrorNodeClient({ network: "testnet" });
-
 const account = await client.account.getInfo("0.0.1001");
-
-if (account.success) {
-  console.log(account.data.account);
-}
 ```
 
 ## `@hieco/mirror-react`
@@ -47,8 +42,20 @@ export function Providers() {
 
 ## `@hieco/mirror-preact`
 
-The provider and hook shape matches the React wrapper. Swap the imports to `@hieco/mirror-preact` and `@tanstack/preact-query`.
+The provider and query-hook shape matches the React wrapper. Swap the imports to `@hieco/mirror-preact` and `@tanstack/preact-query`.
 
 ## `@hieco/mirror-solid`
 
-The provider shape matches the React and Preact wrappers. Query functions use `create*` naming, for example `createAccountInfo(...)` and `createAccounts(...)`.
+The provider shape matches the other wrappers, but Solid uses `create*` helpers:
+
+```tsx
+import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
+import { MirrorNodeProvider, createAccountInfo } from "@hieco/mirror-solid";
+
+const queryClient = new QueryClient();
+
+function AccountCard() {
+  const account = createAccountInfo(() => ({ accountId: "0.0.1001" }));
+  return <pre>{JSON.stringify(account.data, null, 2)}</pre>;
+}
+```

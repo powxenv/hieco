@@ -1,6 +1,6 @@
 # @hieco/mirror-solid
 
-`@hieco/mirror-solid` gives Solid apps a provider and hooks for read-only Hedera data from Mirror Node.
+`@hieco/mirror-solid` gives Solid apps a provider and query helpers for read-only Hedera data from Mirror Node.
 
 It keeps the same Hieco Mirror story intact while fitting Solid’s reactive model.
 
@@ -9,7 +9,7 @@ It keeps the same Hieco Mirror story intact while fitting Solid’s reactive mod
 Solid apps need the same building blocks as other frontend apps:
 
 - a shared client
-- framework-native hooks
+- framework-native data APIs
 - network switching
 - predictable data access across Hedera entities
 
@@ -27,7 +27,19 @@ Choose `@hieco/mirror-solid` when you are building a Solid app that needs:
 ## Installation
 
 ```bash
-bun add @hieco/mirror @hieco/mirror-solid @hieco/utils @tanstack/solid-query
+npm install @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
+```
+
+```bash
+pnpm add @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
+```
+
+```bash
+yarn add @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
+```
+
+```bash
+bun add @hieco/mirror @hieco/mirror-solid @tanstack/solid-query
 ```
 
 Peer dependencies expected from the host app:
@@ -38,35 +50,43 @@ Peer dependencies expected from the host app:
 ## Quick Start
 
 ```tsx
-import { MirrorNodeProvider, useAccountInfo, useTransactionList } from "@hieco/mirror-solid";
+import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
+import { MirrorNodeProvider, createAccountInfo } from "@hieco/mirror-solid";
+
+const queryClient = new QueryClient();
 
 function AccountPanel() {
-  const account = useAccountInfo("0.0.1001");
-  const transactions = useTransactionList(() => ({
-    accountId: "0.0.1001",
-    limit: 10,
-    order: "desc",
-  }));
+  const account = createAccountInfo(() => ({ accountId: "0.0.1001" }));
 
-  return (
-    <pre>{JSON.stringify({ account: account.data, transactions: transactions.data }, null, 2)}</pre>
-  );
+  return <pre>{JSON.stringify(account.data, null, 2)}</pre>;
 }
 
 export function App() {
   return (
-    <MirrorNodeProvider config={{ defaultNetwork: "testnet" }}>
-      <AccountPanel />
-    </MirrorNodeProvider>
+    <QueryClientProvider client={queryClient}>
+      <MirrorNodeProvider config={{ defaultNetwork: "testnet" }}>
+        <AccountPanel />
+      </MirrorNodeProvider>
+    </QueryClientProvider>
   );
 }
 ```
+
+## Solid-Specific Shape
+
+Unlike the React and Preact wrappers, the Solid package exposes `create*` query helpers such as:
+
+- `createAccountInfo`
+- `createTransactionsByAccount`
+- `createContractLogs`
+
+That keeps the API aligned with Solid’s reactive style instead of pretending every framework should look like React.
 
 ## Notes
 
 - This package is read-only and built on `@hieco/mirror`.
 - The provider exposes the active client and network-switching behavior.
-- Its structure intentionally matches the React and Preact wrappers.
+- Its structure intentionally matches the rest of the Mirror family even though the query API style is Solid-native.
 
 ## Related Packages
 

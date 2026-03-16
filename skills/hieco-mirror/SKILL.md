@@ -17,7 +17,7 @@ Start here when the user wants public Hedera data without signer logic or transa
 
 ## Pull In As Needed
 
-- [references/best-practices.md](references/best-practices.md) for pagination, network selection, and result handling guidance
+- [references/best-practices.md](references/best-practices.md) for pagination, network selection, result handling, and framework-specific guidance
 - [references/api-core.md](references/api-core.md) for the plain TypeScript client
 - [references/api-react.md](references/api-react.md) for the React wrapper
 - [references/api-preact.md](references/api-preact.md) for the Preact wrapper

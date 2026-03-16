@@ -1,6 +1,6 @@
 # @hieco/mirror-react
 
-`@hieco/mirror-react` gives React apps a provider and hooks for read-only Hedera data from Mirror Node.
+`@hieco/mirror-react` gives React apps a provider and query hooks for read-only Hedera data from Mirror Node.
 
 It keeps the API close to `@hieco/mirror`, but packages it in a shape that fits React and TanStack Query.
 
@@ -9,9 +9,9 @@ It keeps the API close to `@hieco/mirror`, but packages it in a shape that fits 
 Mirror reads show up everywhere in React apps, but raw client calls quickly become repetitive. This package gives you:
 
 - a shared `MirrorNodeProvider`
-- React-friendly hooks over the Mirror client
+- React-friendly query hooks over the Mirror client
 - network switching inside the provider
-- consistent query behavior across account, token, contract, topic, and transaction reads
+- a domain model that stays aligned with the core `@hieco/mirror` client
 
 ## When To Use It
 
@@ -19,7 +19,7 @@ Choose `@hieco/mirror-react` when you are building:
 
 - read-only React dashboards
 - explorers and activity feeds
-- contract, token, or topic views
+- contract, token, topic, or account views
 - React apps that need Mirror data but not transaction execution
 
 If you need writes too, pair it with [`@hieco/react`](../react/README.md) or [`@hieco/sdk`](../sdk/README.md).
@@ -27,7 +27,19 @@ If you need writes too, pair it with [`@hieco/react`](../react/README.md) or [`@
 ## Installation
 
 ```bash
-bun add @hieco/mirror @hieco/mirror-react @hieco/utils @tanstack/react-query
+npm install @hieco/mirror @hieco/mirror-react @tanstack/react-query
+```
+
+```bash
+pnpm add @hieco/mirror @hieco/mirror-react @tanstack/react-query
+```
+
+```bash
+yarn add @hieco/mirror @hieco/mirror-react @tanstack/react-query
+```
+
+```bash
+bun add @hieco/mirror @hieco/mirror-react @tanstack/react-query
 ```
 
 Peer dependencies expected from the host app:
@@ -39,14 +51,19 @@ Peer dependencies expected from the host app:
 ## Quick Start
 
 ```tsx
-import { MirrorNodeProvider, useAccountInfo, useTransactionList } from "@hieco/mirror-react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MirrorNodeProvider, useAccountInfo, useTransactionsByAccount } from "@hieco/mirror-react";
+
+const queryClient = new QueryClient();
 
 function AccountPanel() {
-  const account = useAccountInfo("0.0.1001");
-  const transactions = useTransactionList({
+  const account = useAccountInfo({ accountId: "0.0.1001" });
+  const transactions = useTransactionsByAccount({
     accountId: "0.0.1001",
-    limit: 10,
-    order: "desc",
+    params: {
+      limit: 10,
+      order: "desc",
+    },
   });
 
   if (account.isPending || transactions.isPending) {
@@ -60,9 +77,11 @@ function AccountPanel() {
 
 export function App() {
   return (
-    <MirrorNodeProvider config={{ defaultNetwork: "testnet" }}>
-      <AccountPanel />
-    </MirrorNodeProvider>
+    <QueryClientProvider client={queryClient}>
+      <MirrorNodeProvider config={{ defaultNetwork: "testnet" }}>
+        <AccountPanel />
+      </MirrorNodeProvider>
+    </QueryClientProvider>
   );
 }
 ```
@@ -76,7 +95,13 @@ export function App() {
 - the resolved Mirror Node URL
 - a `switchNetwork()` function
 
-That lets apps stay simple when they need to move between built-in or custom network targets.
+That makes network changes explicit and keeps the rest of the component tree focused on data consumption.
+
+## Custom Networks
+
+For built-in networks, `config={{ defaultNetwork: "testnet" }}` is enough.
+
+If you want custom names, provide a `networks` map alongside `defaultNetwork`. The provider validates that the selected network can resolve to a Mirror Node URL before switching.
 
 ## API At A Glance
 
@@ -88,12 +113,6 @@ The package exports:
 - boundary and polling helpers
 
 The public shape mirrors the core domains from `@hieco/mirror`, so it stays familiar if you already know the plain TypeScript client.
-
-## Notes
-
-- This package is read-only.
-- It depends on `@hieco/mirror` for the underlying client behavior.
-- If your app is in Preact or Solid, use the matching wrapper package instead.
 
 ## Related Packages
 

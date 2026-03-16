@@ -1,6 +1,6 @@
 # @hieco/wallet-react
 
-`@hieco/wallet-react` brings the Hieco wallet runtime into React with a provider, a headless controller hook, and just enough structure to let your UI stay yours.
+`@hieco/wallet-react` brings the Hieco wallet runtime into React with a provider, a headless controller hook, and a clean separation between wallet state and wallet UI.
 
 It is built for teams who want React-native wallet flows without being boxed into a prebuilt design system.
 
@@ -10,23 +10,35 @@ Most React apps want the same wallet ingredients:
 
 - one runtime shared across the tree
 - one hook for the common connection flow
-- one place to read the session and signer
+- one place to read the current session and signer
 - enough low-level access to build a custom dialog
 
-`@hieco/wallet-react` packages those pieces without taking over your UI.
+`@hieco/wallet-react` packages those pieces without taking over the UI.
 
 ## When To Use It
 
 Choose `@hieco/wallet-react` when you are building:
 
 - a React app with Hedera wallet connection
-- a custom wallet modal or connect button
-- a signer source for `@hieco/react`
+- a custom connect button, modal, or drawer
+- a signer source for [`@hieco/react`](../react/README.md)
 - a React experience that needs QR, extension, reload, and disconnect flows
 
 If you are not in React, use [`@hieco/wallet`](../wallet/README.md).
 
 ## Installation
+
+```bash
+npm install @hieco/wallet @hieco/wallet-react
+```
+
+```bash
+pnpm add @hieco/wallet @hieco/wallet-react
+```
+
+```bash
+yarn add @hieco/wallet @hieco/wallet-react
+```
 
 ```bash
 bun add @hieco/wallet @hieco/wallet-react
@@ -81,14 +93,14 @@ export function Providers({ children }: { children: ReactNode }) {
 
 `WalletProvider` can either:
 
-- create and own a wallet runtime from wallet options
+- create and own a wallet runtime from `CreateWalletOptions`
 - reuse an existing runtime through `wallet={wallet}`
 
-That gives you a smooth default and a deliberate escape hatch for advanced apps.
+When it owns the runtime, it lazily creates it on the client. That means the provider is safe to mount during SSR, while real wallet work still waits for the browser.
 
 ### `useWallet()`
 
-`useWallet()` is the main controller hook. It groups the UI-facing state you usually care about:
+`useWallet()` is the main controller hook. It groups the UI-facing state most apps care about:
 
 - `session`
 - `ready`
@@ -174,25 +186,27 @@ function HiecoRuntime({ children }: { children: React.ReactNode }) {
 }
 ```
 
-## API At A Glance
+## Connection Semantics
 
-Core exports:
+`@hieco/wallet-react` is a controller layer over the headless runtime, so a few details matter:
 
-- `WalletProvider`
-- `useWallet`
-- `useWalletClient`
+- `open()` starts or joins the shared QR flow
+- `reload()` cancels the current attempt and starts a fresh QR flow
+- `close()` only clears controller-level UI state
+- `cancelConnection()` stops the runtime’s pending connection attempt
+- `connectExtension(walletId)` can reuse the same pending attempt started by `open()`
 
-Key ideas:
+That separation is what makes it possible to build custom wallet UIs without duplicating connection state machines in React.
 
-- headless by design
-- built for custom UI
-- signer available through `wallet.session?.signer`
+## Packaging And Runtime Support
 
-## Notes
+The package ships browser-friendly ESM output with conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`.
 
-- `open()` starts or joins the shared QR flow.
-- `reload()` recreates the pending QR flow without forcing a full UI restart.
-- `close()` is controller-level UI state, while `cancelConnection()` stops the runtime’s pending connection attempt.
+In practice:
+
+- mount the provider freely in React apps
+- treat actual wallet actions as browser-only
+- let the package lazy-load the headless runtime on the client when it owns it
 
 ## Related Packages
 

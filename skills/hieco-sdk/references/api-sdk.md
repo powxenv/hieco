@@ -13,45 +13,34 @@ Installed lookup paths:
 
 Use `dist/index.d.ts` as the authoritative source for exact exported signatures and full field-level type definitions.
 
-## Table Of Contents
-
-- Factory exports
-- Fluent handle model
-- Client surface
-- Read namespaces
-- Exported param types
-- Exported result types
-- Error exports
-- Utility exports
-
 ## Factory Exports
 
-| Export                 | Purpose                                                   | Parameters                                   | Returns                       | Notes                                                                |
-| ---------------------- | --------------------------------------------------------- | -------------------------------------------- | ----------------------------- | -------------------------------------------------------------------- |
-| `hieco`                | Create the fluent client.                                 | `config?: ClientConfig`                      | `HiecoClient`                 | Main entry for server code or signer-backed browser code.            |
-| `hieco.fromEnv`        | Create a server-scoped client from environment variables. | `options?: { allowMissingSigner?: boolean }` | `HiecoClient`                 | Intended for server runtimes. Reads `HIERO_*` environment variables. |
-| `hieco.forTestnet`     | Create a testnet client with default network config.      | none                                         | `HiecoClient`                 | Convenience factory.                                                 |
-| `hieco.forMainnet`     | Create a mainnet client with default network config.      | none                                         | `HiecoClient`                 | Convenience factory.                                                 |
-| `hieco.forPreviewnet`  | Create a previewnet client with default network config.   | none                                         | `HiecoClient`                 | Convenience factory.                                                 |
-| `hieco.withSigner`     | Create a signer-scoped client in one call.                | `signer: Signer, config?: ClientConfig`      | `HiecoClient`                 | Browser-friendly when the signer comes from a wallet.                |
-| `hieco.validateConfig` | Validate config without creating a client.                | `config?: ClientConfig`                      | `Result<ClientRuntimeConfig>` | Useful for tooling or setup checks.                                  |
+| Export | Purpose | Parameters | Returns | Notes |
+| --- | --- | --- | --- | --- |
+| `hieco` | Create the fluent client. | `config?: ClientConfig` | `HiecoClient` | Main entry for server code or signer-backed browser code. |
+| `hieco.fromEnv` | Create a server-scoped client from environment variables. | `options?: { allowMissingSigner?: boolean }` | `HiecoClient` | Intended for server runtimes. Reads `HIERO_*` environment variables. |
+| `hieco.forTestnet` | Create a testnet client with default network config. | none | `HiecoClient` | Convenience factory. |
+| `hieco.forMainnet` | Create a mainnet client with default network config. | none | `HiecoClient` | Convenience factory. |
+| `hieco.forPreviewnet` | Create a previewnet client with default network config. | none | `HiecoClient` | Convenience factory. |
+| `hieco.withSigner` | Create a signer-scoped client in one call. | `signer: Signer, config?: ClientConfig` | `HiecoClient` | Browser-friendly when the signer comes from a wallet. |
+| `hieco.validateConfig` | Validate config without creating a client. | `config?: ClientConfig` | `Result<ClientRuntimeConfig>` | Useful for tooling or setup checks. |
 
-### Key factory types
+## Key Factory Types
 
 ```ts
 type HiecoClient = TelepathicClient;
-type Signer = import("@hiero-ledger/sdk").Signer;
+type Signer = import("@hieco/sdk").Signer;
 ```
 
 ## Fluent Handle Model
 
 `@hieco/sdk` uses a telepathic fluent model.
 
-- Read operations return query handles.
-- Transaction-capable operations return action handles.
-- The `do` tree eagerly executes the same operations without the extra `.now()` call.
+- read operations return query handles
+- transaction-capable operations return action handles
+- the `do` tree eagerly executes the same operations without the extra `.now()` call
 
-### Query handle
+### Query Handle
 
 ```ts
 type QueryHandle<TData> = {
@@ -59,7 +48,7 @@ type QueryHandle<TData> = {
 };
 ```
 
-### Action handle
+### Action Handle
 
 ```ts
 type ActionHandle<TData> = QueryHandle<TData> & {
@@ -75,124 +64,31 @@ type ActionHandle<TData> = QueryHandle<TData> & {
 };
 ```
 
-### How to read a fluent call
+## Common Surface Areas
 
-| Pattern                                       | Meaning                                                                       |
-| --------------------------------------------- | ----------------------------------------------------------------------------- |
-| `client.account.info(accountId)`              | Build a handle for an account info query.                                     |
-| `client.account.info(accountId).now()`        | Execute the query immediately and return `Promise<Result<AccountInfoData>>`.  |
-| `client.account.send(params)`                 | Build a transaction-capable handle.                                           |
-| `client.account.send(params).tx()`            | Build a `TransactionDescriptor` without submitting it.                        |
-| `client.account.send(params).queue(options?)` | Create a scheduled transaction and return `Promise<Result<ScheduleReceipt>>`. |
-| `client.do.account.info(accountId)`           | Eager form of the same query.                                                 |
+Important namespaces include:
 
-## Client Surface
+- `account`
+- `token`
+- `topic`
+- `contract`
+- `file`
+- `schedule`
+- `tx`
+- `reads`
+- `net`
+- `batch`
 
-The fluent client exposes namespaces. Each method takes one of the exported param types below and returns a handle shaped by the rules above.
+The package also re-exports:
 
-| Namespace or method  | Purpose                                                                           | Primary members                                                                                                                                                                                                                                                                                                         | Typical input                                       | Typical execution result                                                                                |
-| -------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `tx`                 | Submit or inspect transaction descriptors.                                        | `submit`, `record`, `receipt`                                                                                                                                                                                                                                                                                           | `TransactionDescriptor` or transaction ID string    | `Result<TransactionReceiptData>` or `Result<TransactionRecordData>`                                     |
-| `account`            | HBAR transfers, lifecycle, allowances, and reads.                                 | `send`, `transfer`, `create`, `update`, `delete`, `allow`, `allowances`, `adjustAllowances`, `revokeNftAllowances`, `allowancesDeleteNft`, `allowanceSnapshot`, `ensureAllowances`, `balance`, `info`, `infoFlow`, `records`                                                                                            | account IDs and account param objects               | account result types such as `TransferResult`, `AccountInfoData`, `AccountRecordsData`                  |
-| `token`              | Token creation, transfers, KYC, freeze, pause, airdrops, and reads.               | `create`, `mint`, `burn`, `send`, `transfer`, `sendNft`, `transferNft`, `associate`, `dissociate`, `freeze`, `unfreeze`, `grantKyc`, `revokeKyc`, `pause`, `unpause`, `wipe`, `delete`, `update`, `fees`, `airdrop`, `claimAirdrop`, `cancelAirdrop`, `reject`, `rejectFlow`, `updateNfts`, `info`, `nft`, `allowances` | token IDs, account IDs, token param objects         | token receipts and mirror read data                                                                     |
-| `topic`              | Topic lifecycle, message submission, JSON helpers, watchers, and reads.           | `create`, `update`, `delete`, `send`, `submit`, `sendJson`, `submitJson`, `sendMany`, `batchSubmit`, `watch`, `watchFrom`, `info`, `messages`                                                                                                                                                                           | topic IDs, text or bytes payloads, watch options    | `TopicReceipt`, `MessageReceipt`, `TopicInfoData`, `TopicMessagesData`, or a stop function for watchers |
-| `contract`           | Contract deployment, execution, ABI-aware calls, mirror simulation, and metadata. | `deploy`, `deployArtifact`, `run`, `execute`, `runTyped`, `executeTyped`, `call`, `callTyped`, `preflight`, `withAbi`, `delete`, `update`, `info`, `logs`, `bytecode`, `simulate`, `estimate`, `estimateGas`                                                                                                            | contract IDs, ABI, bytecode, contract param objects | `ContractReceipt`, `ContractCallResult`, `ContractInfoData`, `ContractLogsData`, mirror estimate data   |
-| `file`               | File create, append, update, upload, delete, and content helpers.                 | `create`, `append`, `update`, `delete`, `upload`, `updateLarge`, `info`, `contents`, `text`, `contentsText`, `json`, `contentsJson`                                                                                                                                                                                     | file IDs or file param objects                      | `FileReceipt`, `FileChunkedReceipt`, `FileInfoData`, `FileContentsData`, parsed JSON                    |
-| `schedule`           | Schedule creation, signing, collection, waiting, and idempotent flows.            | `create`, `sign`, `delete`, `info`, `wait`, `createIdempotent`, `collect`, `collectSignatures`, `waitForExecution`                                                                                                                                                                                                      | schedule IDs or schedule param objects              | `ScheduleReceipt`, `ScheduleInfoData`                                                                   |
-| `node`               | Node administration transactions.                                                 | `create`, `update`, `delete`                                                                                                                                                                                                                                                                                            | node param objects                                  | transaction receipts                                                                                    |
-| `system`             | System freeze and entity delete or undelete operations.                           | `freeze`, `deleteEntity`, `undeleteEntity`                                                                                                                                                                                                                                                                              | system param objects                                | transaction receipts                                                                                    |
-| `util`               | Utility transaction helpers.                                                      | `random`                                                                                                                                                                                                                                                                                                                | `PrngParams`                                        | utility receipt data                                                                                    |
-| `batch`              | Batch transaction helpers.                                                        | `atomic`                                                                                                                                                                                                                                                                                                                | `BatchAtomicParams`                                 | batch receipt data                                                                                      |
-| `net`                | Network metadata and network switching.                                           | `version`, `addressBook`, `ping`, `pingAll`, `update`, `setNetwork`, `setMirrorNetwork`                                                                                                                                                                                                                                 | network names, node IDs, or network update params   | version, address book, ping, or updated client state                                                    |
-| `evm`                | Raw Ethereum transaction submission.                                              | `sendRaw`                                                                                                                                                                                                                                                                                                               | `EthereumSendRawParams`                             | transaction receipt data                                                                                |
-| `legacy`             | Legacy live-hash helpers.                                                         | `liveHash.add`, `liveHash.delete`, `liveHash.get`                                                                                                                                                                                                                                                                       | live hash params                                    | `LiveHashData` or receipts                                                                              |
-| `reads`              | Read-only Mirror Node queries.                                                    | `accounts`, `tokens`, `contracts`, `transactions`, `topics`, `schedules`, `network`, `balances`, `blocks`                                                                                                                                                                                                               | mirror-style read params                            | mirror entity data and paginated lists                                                                  |
-| `do`                 | Eager-execution shortcuts for the full client tree.                               | mirrors the client tree                                                                                                                                                                                                                                                                                                 | same as the underlying namespace                    | `Promise<Result<...>>`                                                                                  |
-| `as`                 | Scope the client to a signer.                                                     | `client.as(signer)`                                                                                                                                                                                                                                                                                                     | `signer: Signer`                                    | `HiecoClient`                                                                                           |
-| `with`               | Override signer or operator credentials.                                          | `client.with({ signer, operator, key })`                                                                                                                                                                                                                                                                                | partial credentials                                 | `HiecoClient`                                                                                           |
-| `setOperator`        | Rebind operator credentials.                                                      | `client.setOperator(operator, key)`                                                                                                                                                                                                                                                                                     | `operator: string, key: string`                     | `HiecoClient`                                                                                           |
-| `setMaxAttempts`     | Update retry attempts for the gRPC client.                                        | `client.setMaxAttempts(maxAttempts)`                                                                                                                                                                                                                                                                                    | positive number                                     | `HiecoClient`                                                                                           |
-| `setMaxNodeAttempts` | Update node retry attempts.                                                       | `client.setMaxNodeAttempts(maxNodeAttempts)`                                                                                                                                                                                                                                                                            | positive number                                     | `HiecoClient`                                                                                           |
-| `setRequestTimeout`  | Update request timeout.                                                           | `client.setRequestTimeout(ms)`                                                                                                                                                                                                                                                                                          | positive number                                     | `HiecoClient`                                                                                           |
-| `setGrpcDeadline`    | Update gRPC deadline.                                                             | `client.setGrpcDeadline(ms)`                                                                                                                                                                                                                                                                                            | positive number                                     | `HiecoClient`                                                                                           |
-| `setMinBackoff`      | Update minimum retry backoff.                                                     | `client.setMinBackoff(ms)`                                                                                                                                                                                                                                                                                              | positive number                                     | `HiecoClient`                                                                                           |
-| `setMaxBackoff`      | Update maximum retry backoff.                                                     | `client.setMaxBackoff(ms)`                                                                                                                                                                                                                                                                                              | positive number                                     | `HiecoClient`                                                                                           |
-| `destroy`            | Tear down underlying resources.                                                   | `client.destroy()`                                                                                                                                                                                                                                                                                                      | none                                                | `void`                                                                                                  |
-
-## Read Namespaces
-
-Every `reads.*` method is read-only and resolves to mirror-style entity data.
-
-| Namespace            | Purpose                                                     | Methods                                                                                                                                                                                                 | Typical return                                        |
-| -------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| `reads.accounts`     | Account reads and derived history.                          | `list`, `listPageByUrl`, `info`, `balances`, `tokens`, `nfts`, `rewards`, `allowances.crypto`, `allowances.token`, `allowances.nft`, `airdrops.outstanding`, `airdrops.pending`, `history`, `transfers` | lists, pages, or account entity shapes                |
-| `reads.tokens`       | Token lists, balances, NFTs, relationships, and transfers.  | `list`, `listPageByUrl`, `info`, `balances`, `balancesSnapshot`, `nfts`, `nft`, `nftTransactions`, `relationships`, `transfers`                                                                         | token entity shapes or paginated responses            |
-| `reads.contracts`    | Contract metadata, calls, results, state, logs, and traces. | `list`, `listPageByUrl`, `info`, `call`, `results`, `result`, `state`, `logs`, `resultsAll`, `resultByTransactionIdOrHash`, `resultActions`, `resultOpcodes`, `logsAll`                                 | contract entity shapes, lists, or paginated responses |
-| `reads.transactions` | Transaction lookup and search.                              | `transaction`, `byAccount`, `list`, `listPageByUrl`, `search`                                                                                                                                           | transaction entity data or paginated responses        |
-| `reads.topics`       | Topic and message reads.                                    | `list`, `listPageByUrl`, `info`, `messages`, `message`, `messageByTimestamp`                                                                                                                            | topic entity data or paginated responses              |
-| `reads.schedules`    | Schedule lists and detail.                                  | `list`, `listPageByUrl`, `info`                                                                                                                                                                         | schedule entity data or paginated responses           |
-| `reads.network`      | Exchange rate, fees, nodes, stake, and supply reads.        | `exchangeRate`, `fees`, `nodes`, `nodesPageByUrl`, `stake`, `supply`                                                                                                                                    | network entity data                                   |
-| `reads.balances`     | Balance snapshots and lists.                                | `snapshot`, `list`, `listPageByUrl`                                                                                                                                                                     | balance snapshots or paginated responses              |
-| `reads.blocks`       | Block snapshots, lists, and single-block lookup.            | `snapshot`, `list`, `listPageByUrl`, `block`                                                                                                                                                            | block entity data or paginated responses              |
-
-## Exported Param Types
-
-These types describe the public input contracts for fluent operations. Read the installed `dist/index.d.ts` file for every field and nested union.
-
-| Group                   | Exports                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Client                  | `ClientConfig`, `Amount`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Accounts                | `TransferParams`, `CreateAccountParams`, `UpdateAccountParams`, `DeleteAccountParams`, `HbarAllowanceParams`, `TokenAllowanceParams`, `NftAllowanceParams`, `TokenAllowancesQueryParams`, `ApproveAllowanceParams`, `DeleteHbarAllowanceParams`, `DeleteTokenAllowanceParams`, `DeleteNftAllowanceParams`, `DeleteAllowanceParams`, `DeleteNftAllowancesParams`, `AdjustHbarAllowanceParams`, `AdjustTokenAllowanceParams`, `AdjustNftAllowanceParams`, `AdjustAllowanceParams`                                                                                                                                                                                                                                                                      |
-| Contracts               | `ConstructorParamsConfig`, `FunctionParamsConfig`, `DeployContractParams`, `DeployArtifactParams`, `AccountInfoFlowOptions`, `ExecuteContractParams`, `ExecuteContractParamsTyped`, `CallContractParams`, `DeleteContractParams`, `UpdateContractParams`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Files                   | `CreateFileParams`, `AppendFileParams`, `UpdateFileParams`, `UploadFileParams`, `UpdateLargeFileParams`, `DeleteFileParams`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| Network                 | `NodeServiceEndpointParams`, `NodeCreateParams`, `NodeUpdateParams`, `NodeDeleteParams`, `FreezeIntent`, `FreezeNetworkParams`, `SystemDeleteParams`, `SystemUndeleteParams`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Schedules               | `ScheduleCreateParams`, `ScheduleSignParams`, `ScheduleDeleteParams`, `ScheduleWaitOptions`, `ScheduleIdempotentCreateParams`, `ScheduleCollectSignaturesParams`, `ScheduleWaitExecutionOptions`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Tokens                  | `TokenTypeParam`, `TokenSupplyTypeParam`, `CustomFixedFeeParams`, `CustomFractionalFeeParams`, `CustomRoyaltyFeeParams`, `CustomFeeParams`, `CreateTokenParams`, `MintTokenParams`, `BurnTokenParams`, `TransferTokenParams`, `TransferNftParams`, `AssociateTokenParams`, `DissociateTokenParams`, `FreezeTokenParams`, `UnfreezeTokenParams`, `GrantKycParams`, `RevokeKycParams`, `PauseTokenParams`, `UnpauseTokenParams`, `WipeTokenParams`, `DeleteTokenParams`, `UpdateTokenParams`, `UpdateTokenFeeScheduleParams`, `TokenAirdropTokenTransferParams`, `TokenAirdropNftTransferParams`, `TokenAirdropParams`, `PendingAirdropReference`, `TokenClaimAirdropParams`, `TokenCancelAirdropParams`, `TokenRejectParams`, `TokenUpdateNftsParams` |
-| Topics                  | `CreateTopicParams`, `UpdateTopicParams`, `DeleteTopicParams`, `SubmitMessageParams`, `WatchTopicMessagesOptions`, `WatchTopicMessagesFromOptions`, `SubmitJsonMessageParams`, `BatchSubmitMessagesParams`, `TopicMessageData`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Transactions and legacy | `LiveHashAddParams`, `LiveHashDeleteParams`, `LiveHashQueryParams`, `EthereumSendRawParams`, `PrngParams`, `BatchAtomicParams`, `TransactionDescriptor`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-
-## Exported Result Types
-
-These are the public success payloads wrapped by `Result<T>`.
-
-| Group          | Exports                                                                                                                                                                                                                                            |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Result helpers | `Result`, `Ok`, `Err`, `ok`, `err`                                                                                                                                                                                                                 |
-| Accounts       | `TransferResult`, `CreateAccountResult`, `UpdateAccountResult`, `DeleteAccountResult`, `AccountInfoData`, `AccountRecordsData`                                                                                                                     |
-| Contracts      | `ContractReceipt`, `ContractDeployArtifactResult`, `ContractExecuteReceipt`, `ContractCallResult`, `ContractInfoData`, `ContractLogsData`, `ContractBytecodeData`, `MirrorContractCallData`, `MirrorContractEstimateData`, `ContractPreflightData` |
-| Files          | `FileReceipt`, `FileChunkedReceipt`, `FileInfoData`, `FileContentsData`                                                                                                                                                                            |
-| Network        | `NetworkVersionData`, `AddressBookData`, `PingNodeResult`, `PingAllData`                                                                                                                                                                           |
-| Legacy         | `LiveHashData`                                                                                                                                                                                                                                     |
-| Transactions   | `TransactionReceiptData`, `TransactionRecordData`, `TransactionReceiptQueryData`                                                                                                                                                                   |
-| Schedules      | `ScheduleReceipt`, `ScheduleInfoData`                                                                                                                                                                                                              |
-| Tokens         | `TokenReceipt`, `MintReceipt`, `TokenInfoData`, `TokenNftInfoData`                                                                                                                                                                                 |
-| Topics         | `TopicReceipt`, `MessageReceipt`, `TopicInfoData`, `TopicMessagesData`                                                                                                                                                                             |
-
-## Error Exports
-
-| Export                | Kind     | What it does                                             | Parameters                                      | Returns                                    |
-| --------------------- | -------- | -------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------ |
-| `HieroErrorShape`     | type     | Normalized error payload shape used inside `Result.Err`. | none                                            | type only                                  |
-| `ErrorCode`           | type     | Union of SDK error codes.                                | none                                            | type only                                  |
-| `ErrorDetails`        | type     | Structured details bag attached to an error.             | none                                            | type only                                  |
-| `ErrorKind`           | type     | Higher-level error category.                             | none                                            | type only                                  |
-| `ErrorClassification` | type     | Retry or category classification.                        | none                                            | type only                                  |
-| `createError`         | function | Construct a normalized SDK error.                        | `code`, `message`, `details?`                   | `HieroError`                               |
-| `HieroError`          | class    | Error implementation used by the SDK.                    | constructor args depend on the normalized shape | instance of `Error` with structured fields |
-| `toHieroError`        | function | Convert unknown values into `HieroError`.                | `error: unknown`                                | `HieroError`                               |
-| `unwrap`              | function | Throw on `Err` and return `Ok` values.                   | `result: Result<T>`                             | `T`                                        |
-| `classifyError`       | function | Classify a `HieroError` for retry or reporting.          | `error: HieroError`                             | `ErrorClassification`                      |
-| `formatError`         | function | Render a readable error message.                         | `error: HieroError`                             | `string`                                   |
-
-## Utility Exports
-
-| Export             | Kind     | Definition or contract          | What it does                                            |
-| ------------------ | -------- | ------------------------------- | ------------------------------------------------------- | ------------------------------------------------------- |
-| `NetworkType`      | type     | built-in network name union     | Built-in network names.                                 |
-| `TimestampFilter`  | type     | `string                         | { readonly from?: string; readonly to?: string }`       | Shared timestamp filter shape for mirror-style queries. |
-| `NETWORK_CONFIGS`  | const    | record of built-in network URLs | Default network and mirror endpoint definitions.        |
-| `isDefaultNetwork` | function | `(value: string) => boolean`    | Check whether a string is one of the built-in networks. |
-| `isValidEntityId`  | function | `(value: string) => boolean`    | Validate a Hedera entity ID string such as `0.0.123`.   |
+- `Signer`
+- `PrivateKey`
+- `PublicKey`
+- `Mnemonic`
+- `KeyList`
+- result and error helpers
+- `NETWORK_CONFIGS`, `isDefaultNetwork`, and `isValidEntityId`
+- `NetworkType` and `TimestampFilter`
 
 ## Exact Type Definition Entry Points
 

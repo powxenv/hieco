@@ -27,7 +27,19 @@ If you want the React wrapper, use [`@hieco/realtime-react`](../realtime-react/R
 ## Installation
 
 ```bash
-bun add @hieco/realtime @hieco/utils
+npm install @hieco/realtime
+```
+
+```bash
+pnpm add @hieco/realtime
+```
+
+```bash
+yarn add @hieco/realtime
+```
+
+```bash
+bun add @hieco/realtime
 ```
 
 ## Quick Start
@@ -37,14 +49,24 @@ import { RelayWebSocketClient } from "@hieco/realtime";
 
 const client = new RelayWebSocketClient({
   network: "testnet",
-  endpoint: "wss://testnet.hashio.io/api/v1/ws",
+  endpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
 });
 
-await client.connect();
+const connected = await client.connect();
 
-const unsubscribe = await client.subscribeNewHeads((message) => {
-  console.log(message);
+if (!connected.success) {
+  throw new Error(connected.error.message);
+}
+
+const subscription = await client.subscribe({ type: "newHeads" }, (message) => {
+  console.log(message.result);
 });
+
+if (subscription.success) {
+  await client.unsubscribe(subscription.data);
+}
+
+await client.disconnect();
 ```
 
 ## The Realtime Model
@@ -54,25 +76,27 @@ The package is centered around connection and subscription primitives:
 - connect
 - subscribe
 - react to stream state
+- unsubscribe
 - disconnect cleanly
 
 That keeps it useful in scripts, services, and custom UI integrations where you want low-level control.
 
-## API At A Glance
+## Client Choices
 
-The package exports connection utilities, relay message types, and stream state types, including:
+Inside the package there are two main connection models:
 
-- realtime connection classes
-- stream config and stream state types
-- JSON-RPC request and response shapes
-- subscription result types such as new heads and logs
+- `RelayWebSocketClient` for one connection
+- `ConnectionPool` for multiple coordinated connections
 
-## Notes
+Start with `RelayWebSocketClient`. Reach for `ConnectionPool` only when the app genuinely needs pooled subscriptions or load distribution.
 
-- This package is the low-level realtime layer in the Hieco ecosystem.
-- It pairs well with `@hieco/mirror` when you want initial state plus live updates.
+## Packaging And Runtime Support
+
+The package now ships browser-friendly ESM output with conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`.
+
+That does not change the runtime model of the websocket client itself, but it does make the package easier to consume in modern browser, edge, and server toolchains.
 
 ## Related Packages
 
 - [`@hieco/realtime-react`](../realtime-react/README.md)
-- [`@hieco/mirror`](../mirror/README.md)
+- [`@hieco/mirror`](../mirror/README.md) when you want initial state plus live updates

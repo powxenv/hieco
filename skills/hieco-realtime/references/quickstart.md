@@ -12,48 +12,52 @@ import { RelayWebSocketClient } from "@hieco/realtime";
 
 const client = new RelayWebSocketClient({
   network: "testnet",
-  relayEndpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
+  endpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
 });
 
-await client.connect();
+const connected = await client.connect();
 
-const subscriptionId = await client.subscribe({ type: "newHeads" }, (message) => {
-  console.log(message);
+if (!connected.success) {
+  throw new Error(connected.error.message);
+}
+
+const subscription = await client.subscribe({ type: "newHeads" }, (message) => {
+  console.log(message.result);
 });
 
-await client.unsubscribe(subscriptionId);
+if (subscription.success) {
+  await client.unsubscribe(subscription.data);
+}
+
 await client.disconnect();
 ```
 
 ## `@hieco/realtime-react`
 
 ```tsx
-import { RealtimeProvider, useContractLogs, useStreamState } from "@hieco/realtime-react";
+import { useEffect } from "react";
+import {
+  RealtimeProvider,
+  useContractLogs,
+  useRealtimeContext,
+  useStreamState,
+} from "@hieco/realtime-react";
 
 function ContractLogFeed() {
+  const { connect } = useRealtimeContext();
   const { logs, isConnected, error } = useContractLogs({
     address: "0x0000000000000000000000000000000000001389",
     enabled: true,
   });
   const state = useStreamState();
 
+  useEffect(() => {
+    void connect();
+  }, [connect]);
+
   if (!isConnected) return <div>{state._tag}</div>;
   if (error) return <div>{error.message}</div>;
 
   return <pre>{JSON.stringify(logs, null, 2)}</pre>;
-}
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <RealtimeProvider
-      config={{
-        network: "testnet",
-        relayEndpoint: "wss://testnet.mirrornode.hedera.com/relay/ws",
-      }}
-    >
-      {children}
-      <ContractLogFeed />
-    </RealtimeProvider>
-  );
 }
 ```
