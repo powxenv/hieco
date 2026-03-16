@@ -161,7 +161,7 @@ Those are useful when you want chain definitions, selector helpers, or curated w
 
 ## Packaging And Runtime Support
 
-The wallet package now follows the same packaging rules as the rest of the public workspace:
+The wallet package publishes:
 
 - browser-targeted ESM build output
 - dependencies kept external for the consuming app or bundler

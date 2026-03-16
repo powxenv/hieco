@@ -122,7 +122,7 @@ That same model is what the framework wrappers, CLI, and MCP server build on.
 
 ## Packaging And Runtime Support
 
-`@hieco/mirror` now ships browser-friendly ESM output with explicit conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`.
+`@hieco/mirror` ships browser-friendly ESM output with explicit conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`.
 
 The important effect for consumers is simple: the package is easier to reuse in browser tools, edge-style runtimes, and server code without changing the API.
 

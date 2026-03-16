@@ -45,11 +45,7 @@ function AccountCard() {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <HiecoProvider config={{ network: "testnet" }}>
-      {children}
-    </HiecoProvider>
-  );
+  return <HiecoProvider config={{ network: "testnet" }}>{children}</HiecoProvider>;
 }
 ```
 

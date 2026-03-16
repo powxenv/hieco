@@ -1,4 +1,4 @@
-# Legacy `@hieco/react/appkit` API Reference
+# `@hieco/react/appkit` API Reference
 
 Canonical docs:
 
@@ -12,7 +12,7 @@ Installed lookup paths:
 
 ## Overview
 
-`@hieco/react/appkit` is the optional legacy Reown AppKit bridge exported by `@hieco/react`.
+`@hieco/react/appkit` is the optional Reown AppKit bridge exported by `@hieco/react`.
 
 Use it only when:
 
@@ -20,7 +20,7 @@ Use it only when:
 - the wallet connection should drive `HiecoProvider` automatically
 - moving to `@hieco/wallet-react` is not yet practical
 
-Prefer the Hieco wallet family for new work.
+Use the Hieco wallet family when the app does not need Reown AppKit.
 
 ## Exports
 

@@ -145,7 +145,7 @@ const publicKey = PublicKey.fromString("302a300506032b6570032100...");
 
 ## Packaging Notes
 
-The package now ships browser-friendly ESM output with explicit conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`.
+The package ships browser-friendly ESM output with explicit conditional exports for `browser`, `worker`, `workerd`, `node`, and `default`.
 
 For most users, the important takeaway is simple: the SDK is easier to consume in modern browser and edge-style environments without changing how you use it.
 

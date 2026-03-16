@@ -23,7 +23,7 @@ Use these references only when the task calls for them:
 - [references/best-practices.md](references/best-practices.md) for runtime, signer, and transaction guidance
 - [references/api-sdk.md](references/api-sdk.md) for the core fluent client
 - [references/api-react.md](references/api-react.md) for the React provider and hooks
-- [references/api-appkit.md](references/api-appkit.md) for the legacy AppKit bridge
+- [references/api-appkit.md](references/api-appkit.md) for the optional AppKit bridge
 - [references/sources.md](references/sources.md) for repository, npm, installed-package, and runtime lookup paths
 
 ## Route To A Different Skill When Needed

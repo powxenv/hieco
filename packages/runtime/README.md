@@ -6,7 +6,7 @@ It exists so Hieco packages can depend on one stable import path while package r
 
 ## Why This Package Exists
 
-Before the runtime split, higher-level packages had to import SDK types and classes directly from `@hiero-ledger/sdk`. The current architecture moves that dependency behind one Hieco-owned boundary:
+Hieco packages use this package as the shared boundary around the underlying Hiero SDK:
 
 - `@hieco/sdk` re-exports core SDK types from `@hieco/runtime`
 - `@hieco/wallet` uses it for signer and transaction interop
@@ -67,7 +67,7 @@ The root export also declares `browser`, `worker`, `workerd`, `node`, and `defau
 
 ## What It Exports
 
-Today the package re-exports the underlying Hiero SDK surface. That means the familiar SDK classes and types are available here, including:
+The package re-exports the underlying Hiero SDK surface. That means the familiar SDK classes and types are available here, including:
 
 - `Client`
 - `Signer`
@@ -76,11 +76,9 @@ Today the package re-exports the underlying Hiero SDK surface. That means the fa
 - `Mnemonic`
 - transaction, query, and receipt types
 
-The goal is not to rename the SDK. The goal is to give the Hieco workspace a single runtime boundary.
-
 ## Build And Publish Behavior
 
-`@hieco/runtime` is the only public package in the workspace that currently ships separate browser and node build outputs:
+`@hieco/runtime` is the public package in the workspace that ships separate browser and node build outputs:
 
 - `dist/browser.js`
 - `dist/node.js`

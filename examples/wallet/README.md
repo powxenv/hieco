@@ -1,8 +1,8 @@
 # Hieco Wallet Example
 
-This example demonstrates the current wallet architecture in a small React app.
+This example demonstrates the Hieco wallet flow in a small React app.
 
-It focuses on the behavior introduced by the rewritten wallet runtime:
+It focuses on:
 
 - one shared runtime connection attempt
 - one QR surface that starts and reloads predictably
