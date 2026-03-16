@@ -63,6 +63,7 @@ The web app depends on workspace packages, so its build script first builds the 
 - `@hieco/utils`
 - `@hieco/mirror`
 - `@hieco/realtime`
+- `@hieco/runtime`
 - `@hieco/sdk`
 - `@hieco/wallet`
 - `@hieco/wallet-react`
