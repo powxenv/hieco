@@ -9,7 +9,6 @@
     "dev": "vite dev --port 5878",
     "build": "cd ../.. && bun run build:utils && bun run build:mirror-js && bun run build:realtime && bun run build:runtime && bun run build:sdk && bun run build:wallet && bun run build:wallet-react && cd apps/web && vite build",
     "preview": "vite preview",
-    "preview:testsprite": "vite preview --host 0.0.0.0 --port 5878",
     "deploy": "bun run build && wrangler deploy",
     "cf-typegen": "wrangler types",
     "convex:gen": "CONVEX_AGENT_MODE=anonymous convex codegen",

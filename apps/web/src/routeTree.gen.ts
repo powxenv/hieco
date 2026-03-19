@@ -8,144 +8,115 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestspriteLabRouteImport } from './routes/testsprite-lab'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as ShowcaseIndexRouteImport } from './routes/showcase.index'
-import { Route as EcosystemIndexRouteImport } from './routes/ecosystem.index'
-import { Route as ShowcaseSlugRouteImport } from './routes/showcase.$slug'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as IndexRouteImport } from "./routes/index";
+import { Route as ShowcaseIndexRouteImport } from "./routes/showcase.index";
+import { Route as EcosystemIndexRouteImport } from "./routes/ecosystem.index";
+import { Route as ShowcaseSlugRouteImport } from "./routes/showcase.$slug";
 
-const TestspriteLabRoute = TestspriteLabRouteImport.update({
-  id: '/testsprite-lab',
-  path: '/testsprite-lab',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ShowcaseIndexRoute = ShowcaseIndexRouteImport.update({
-  id: '/showcase/',
-  path: '/showcase/',
+  id: "/showcase/",
+  path: "/showcase/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const EcosystemIndexRoute = EcosystemIndexRouteImport.update({
-  id: '/ecosystem/',
-  path: '/ecosystem/',
+  id: "/ecosystem/",
+  path: "/ecosystem/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ShowcaseSlugRoute = ShowcaseSlugRouteImport.update({
-  id: '/showcase/$slug',
-  path: '/showcase/$slug',
+  id: "/showcase/$slug",
+  path: "/showcase/$slug",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/testsprite-lab': typeof TestspriteLabRoute
-  '/showcase/$slug': typeof ShowcaseSlugRoute
-  '/ecosystem/': typeof EcosystemIndexRoute
-  '/showcase/': typeof ShowcaseIndexRoute
+  "/": typeof IndexRoute;
+  "/showcase/$slug": typeof ShowcaseSlugRoute;
+  "/ecosystem/": typeof EcosystemIndexRoute;
+  "/showcase/": typeof ShowcaseIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/testsprite-lab': typeof TestspriteLabRoute
-  '/showcase/$slug': typeof ShowcaseSlugRoute
-  '/ecosystem': typeof EcosystemIndexRoute
-  '/showcase': typeof ShowcaseIndexRoute
+  "/": typeof IndexRoute;
+  "/showcase/$slug": typeof ShowcaseSlugRoute;
+  "/ecosystem": typeof EcosystemIndexRoute;
+  "/showcase": typeof ShowcaseIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/testsprite-lab': typeof TestspriteLabRoute
-  '/showcase/$slug': typeof ShowcaseSlugRoute
-  '/ecosystem/': typeof EcosystemIndexRoute
-  '/showcase/': typeof ShowcaseIndexRoute
+  __root__: typeof rootRouteImport;
+  "/": typeof IndexRoute;
+  "/showcase/$slug": typeof ShowcaseSlugRoute;
+  "/ecosystem/": typeof EcosystemIndexRoute;
+  "/showcase/": typeof ShowcaseIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/testsprite-lab'
-    | '/showcase/$slug'
-    | '/ecosystem/'
-    | '/showcase/'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/testsprite-lab' | '/showcase/$slug' | '/ecosystem' | '/showcase'
-  id:
-    | '__root__'
-    | '/'
-    | '/testsprite-lab'
-    | '/showcase/$slug'
-    | '/ecosystem/'
-    | '/showcase/'
-  fileRoutesById: FileRoutesById
+  fileRoutesByFullPath: FileRoutesByFullPath;
+  fullPaths: "/" | "/showcase/$slug" | "/ecosystem/" | "/showcase/";
+  fileRoutesByTo: FileRoutesByTo;
+  to: "/" | "/showcase/$slug" | "/ecosystem" | "/showcase";
+  id: "__root__" | "/" | "/showcase/$slug" | "/ecosystem/" | "/showcase/";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  TestspriteLabRoute: typeof TestspriteLabRoute
-  ShowcaseSlugRoute: typeof ShowcaseSlugRoute
-  EcosystemIndexRoute: typeof EcosystemIndexRoute
-  ShowcaseIndexRoute: typeof ShowcaseIndexRoute
+  IndexRoute: typeof IndexRoute;
+  ShowcaseSlugRoute: typeof ShowcaseSlugRoute;
+  EcosystemIndexRoute: typeof EcosystemIndexRoute;
+  ShowcaseIndexRoute: typeof ShowcaseIndexRoute;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/testsprite-lab': {
-      id: '/testsprite-lab'
-      path: '/testsprite-lab'
-      fullPath: '/testsprite-lab'
-      preLoaderRoute: typeof TestspriteLabRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/showcase/': {
-      id: '/showcase/'
-      path: '/showcase'
-      fullPath: '/showcase/'
-      preLoaderRoute: typeof ShowcaseIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ecosystem/': {
-      id: '/ecosystem/'
-      path: '/ecosystem'
-      fullPath: '/ecosystem/'
-      preLoaderRoute: typeof EcosystemIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/showcase/$slug': {
-      id: '/showcase/$slug'
-      path: '/showcase/$slug'
-      fullPath: '/showcase/$slug'
-      preLoaderRoute: typeof ShowcaseSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/showcase/": {
+      id: "/showcase/";
+      path: "/showcase";
+      fullPath: "/showcase/";
+      preLoaderRoute: typeof ShowcaseIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/ecosystem/": {
+      id: "/ecosystem/";
+      path: "/ecosystem";
+      fullPath: "/ecosystem/";
+      preLoaderRoute: typeof EcosystemIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/showcase/$slug": {
+      id: "/showcase/$slug";
+      path: "/showcase/$slug";
+      fullPath: "/showcase/$slug";
+      preLoaderRoute: typeof ShowcaseSlugRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  TestspriteLabRoute: TestspriteLabRoute,
   ShowcaseSlugRoute: ShowcaseSlugRoute,
   EcosystemIndexRoute: EcosystemIndexRoute,
   ShowcaseIndexRoute: ShowcaseIndexRoute,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
+import type { getRouter } from "./router.tsx";
+import type { createStart } from "@tanstack/react-start";
+declare module "@tanstack/react-start" {
   interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
+    ssr: true;
+    router: Awaited<ReturnType<typeof getRouter>>;
   }
 }

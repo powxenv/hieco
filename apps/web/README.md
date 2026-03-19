@@ -1,6 +1,6 @@
 # Hieco Web
 
-This app is the main Hieco website and playground. It combines the marketing site, ecosystem explanation pages, showcase submission flow, and a small internal QA surface for exercising public package APIs.
+This app is the main Hieco website and playground. It combines the marketing site, ecosystem explanation pages, and showcase submission flow.
 
 ## What Lives Here
 
@@ -10,7 +10,6 @@ The app currently covers:
 - the ecosystem explainer pages
 - the project showcase index and detail pages
 - wallet-connected showcase submission and edit flows
-- the `/testsprite-lab` route used for focused QA scenarios
 
 ## Local Development
 
@@ -76,7 +75,6 @@ That keeps the site aligned with the latest workspace artifacts instead of relyi
 - `/ecosystem` explains how Hieco fits with Hedera, Hiero, Mirror Nodes, and wallets
 - `/showcase` lists submitted projects
 - `/showcase/$slug` shows one showcase entry
-- `/testsprite-lab` is the internal QA harness
 
 ## Notes
 
