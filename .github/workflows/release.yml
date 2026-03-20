@@ -36,7 +36,7 @@ jobs:
           EOF
           npm config get registry
           npm whoami
-          npm access ls-packages @hieco --json || true
+          npm access list packages @hieco --json || true
         env:
           NPM_TOKEN: "${{ secrets.NPM_TOKEN }}"
       - uses: changesets/action@v1
