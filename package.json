@@ -25,7 +25,9 @@
     }
   },
   "scripts": {
+    "changeset": "changeset",
     "fmt": "oxfmt && bun --filter '*' fmt",
+    "fmt:check": "oxfmt --check && bun --filter '*' fmt:check",
     "fmt:mirror-js": "bun --filter '@hieco/mirror' fmt",
     "fmt:mirror-cli": "bun --filter '@hieco/mirror-cli' fmt",
     "fmt:mirror-mcp": "bun --filter '@hieco/mirror-mcp' fmt",
@@ -89,9 +91,14 @@
     "build:sdk": "bun --filter '@hieco/sdk' build",
     "build:wallet": "bun --filter '@hieco/wallet' build",
     "build:wallet-react": "bun --filter '@hieco/wallet-react' build",
-    "dev:web": "bun --filter '@hieco/web' dev"
+    "dev:web": "bun --filter '@hieco/web' dev",
+    "release:status": "changeset status",
+    "release:version": "changeset version",
+    "release:verify": "bun --filter '@hieco/*' lint && bun --filter '@hieco/*' typecheck && bun --filter '@hieco/*' fmt:check && bun --filter '@hieco/*' build",
+    "release": "bun run release:verify && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.7",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:"

@@ -56,11 +56,11 @@ Choose the package family that matches the job you are doing.
 | [`@hieco/mirror-cli`](./packages/mirror-cli/README.md) | Read-only Mirror CLI       |
 | [`@hieco/mirror-mcp`](./packages/mirror-mcp/README.md) | MCP server for Mirror data |
 
-### Shared internals
+### Shared utilities
 
-| Package                                      | Purpose                                                                      |
-| -------------------------------------------- | ---------------------------------------------------------------------------- |
-| [`@hieco/utils`](./packages/utils/README.md) | Shared internal types, network helpers, query keys, and validation utilities |
+| Package                                      | Purpose                                                             |
+| -------------------------------------------- | ------------------------------------------------------------------- |
+| [`@hieco/utils`](./packages/utils/README.md) | Shared types, network helpers, query keys, and validation utilities |
 
 ## How The Pieces Fit Together
 
@@ -198,6 +198,36 @@ Quality check before shipping changes:
 ```bash
 bun run lint && bun run typecheck && bun run fmt
 ```
+
+## Release Workflow
+
+Release management is handled with Changesets.
+
+Create a release note for package changes:
+
+```bash
+bun run changeset
+```
+
+Apply queued version bumps and changelog updates:
+
+```bash
+bun run release:version
+```
+
+Run the release verification pipeline:
+
+```bash
+bun run release:verify
+```
+
+Publish changed packages to npm:
+
+```bash
+bun run release
+```
+
+The GitHub Actions release workflow creates the version PR on `main` and publishes to npm after the version commit is merged.
 
 ## Repository Map
 

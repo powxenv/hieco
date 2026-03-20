@@ -1,8 +1,8 @@
 # @hieco/utils
 
-`@hieco/utils` is the shared internal toolbox behind the Hieco package family.
+`@hieco/utils` is the shared toolbox behind the Hieco package family.
 
-It is not a standalone product package and should not be installed directly in external apps. It is where shared types, network helpers, validation utilities, query keys, and error helpers live so the public packages stay aligned.
+It is the low-level package where shared types, network helpers, validation utilities, query keys, and error helpers live so the rest of the package family stays aligned.
 
 ## Why This Package Exists
 
@@ -17,9 +17,9 @@ Good ecosystems feel consistent because the small rules are shared. This package
 
 ## Who Should Use It
 
-This package is for Hieco maintainers and sibling workspace packages.
+Most Hieco consumers will want one of the higher-level packages instead.
 
-If you are consuming Hieco from outside the monorepo, you usually want one of the public packages instead.
+This package exists mainly for maintainers, framework wrappers, and advanced consumers that want the low-level shared primitives directly.
 
 ## What Lives Here
 
@@ -32,13 +32,13 @@ Shared exports include:
 
 ## Packaging Notes
 
-Even though the package is private to the workspace, it follows the same packaging rules as the public packages:
+This package follows the same packaging rules as the rest of the public package family:
 
 - build output lives in `dist`
 - the package exports browser-friendly ESM
 - package manifests declare explicit runtime conditions
 
-That keeps internal behavior consistent across SDK, wallet, Mirror, and realtime packages.
+That keeps behavior consistent across SDK, wallet, Mirror, and realtime packages.
 
 ## Related Packages
 

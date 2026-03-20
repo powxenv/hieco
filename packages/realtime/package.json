@@ -56,7 +56,7 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/utils": "workspace:*"
+    "@hieco/utils": "^0.0.1"
   },
   "devDependencies": {
     "@typescript/native-preview": "catalog:",
@@ -67,7 +67,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@hieco/utils": "workspace:*"
+    "@hieco/utils": "^0.0.1"
   },
   "engines": {
     "node": ">=18.0.0"

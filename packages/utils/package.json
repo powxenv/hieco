@@ -1,17 +1,28 @@
 {
   "name": "@hieco/utils",
   "version": "0.0.1",
-  "private": true,
-  "description": "Shared internal utilities and types for hieco packages",
+  "description": "Shared utilities and types for Hieco packages",
   "keywords": [
     "hedera",
     "types",
     "typescript",
     "utils"
   ],
+  "homepage": "https://github.com/powxenv/hieco/tree/main/packages/utils",
+  "bugs": {
+    "url": "https://github.com/powxenv/hieco/issues"
+  },
   "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hieco",
+    "directory": "packages/utils"
+  },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
   "sideEffects": false,
@@ -46,6 +57,9 @@
       "node": "./dist/exports/network.js",
       "default": "./dist/exports/network.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "bun run ./build.ts && tsc -p tsconfig.build.json",

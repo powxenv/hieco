@@ -56,8 +56,8 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/mirror": "workspace:*",
-    "@hieco/realtime": "workspace:*"
+    "@hieco/mirror": "^0.0.1",
+    "@hieco/realtime": "^0.0.1"
   },
   "devDependencies": {
     "@types/react": "catalog:react",
@@ -72,8 +72,8 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@hieco/mirror": "workspace:*",
-    "@hieco/realtime": "workspace:*",
+    "@hieco/mirror": "^0.0.1",
+    "@hieco/realtime": "^0.0.1",
     "react": ">=18",
     "react-dom": ">=18"
   },

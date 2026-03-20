@@ -2,6 +2,24 @@
   "name": "@hieco/mirror-mcp",
   "version": "0.0.1",
   "description": "MCP server for Hedera Mirror Node REST API",
+  "keywords": [
+    "agents",
+    "hedera",
+    "mcp",
+    "mirror-node",
+    "tools"
+  ],
+  "homepage": "https://github.com/powxenv/hieco/tree/main/packages/mirror-mcp",
+  "bugs": {
+    "url": "https://github.com/powxenv/hieco/issues"
+  },
+  "license": "MIT",
+  "author": "pow <https://github.com/powxenv>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powxenv/hieco",
+    "directory": "packages/mirror-mcp"
+  },
   "bin": {
     "mirror-mcp": "./dist/index.js"
   },
@@ -11,6 +29,7 @@
     "LICENSE"
   ],
   "type": "module",
+  "sideEffects": false,
   "publishConfig": {
     "access": "public"
   },
@@ -20,11 +39,12 @@
     "typecheck": "tsgo --noEmit --project tsconfig.typecheck.json",
     "lint": "oxlint --type-aware",
     "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
     "inspect": "bunx @modelcontextprotocol/inspector node dist/index.js"
   },
   "dependencies": {
-    "@hieco/mirror": "workspace:*",
-    "@hieco/utils": "workspace:*",
+    "@hieco/mirror": "^0.0.1",
+    "@hieco/utils": "^0.0.1",
     "@mastra/core": "^1.0.0",
     "@mastra/mcp": "^1.0.0",
     "zod": "4.3.6"

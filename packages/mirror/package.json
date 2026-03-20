@@ -55,7 +55,7 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/utils": "workspace:*",
+    "@hieco/utils": "^0.0.1",
     "ky": "^1.14.3",
     "p-limit": "^7.3.0"
   },

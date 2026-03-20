@@ -55,7 +55,7 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/wallet": "workspace:*"
+    "@hieco/wallet": "^0.0.1"
   },
   "devDependencies": {
     "@hiero-ledger/sdk": "^2.80.0",
@@ -71,7 +71,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@hieco/wallet": "workspace:*",
+    "@hieco/wallet": "^0.0.1",
     "react": ">=18",
     "react-dom": ">=18"
   },

@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "oxlint --type-aware",
     "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
     "preview": "vite preview",
     "typecheck": "./node_modules/.bin/tsgo --noEmit --project tsconfig.app.json"
   },

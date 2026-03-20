@@ -43,8 +43,8 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/mirror": "workspace:*",
-    "@hieco/utils": "workspace:*",
+    "@hieco/mirror": "^0.0.1",
+    "@hieco/utils": "^0.0.1",
     "chalk": "^5.4.1",
     "cli-table3": "^0.6.5",
     "commander": "^13.1.0"

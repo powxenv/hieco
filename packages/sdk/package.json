@@ -74,9 +74,9 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/mirror": "workspace:*",
-    "@hieco/runtime": "workspace:*",
-    "@hieco/utils": "workspace:*",
+    "@hieco/mirror": "^0.0.1",
+    "@hieco/runtime": "^0.0.1",
+    "@hieco/utils": "^0.0.1",
     "bignumber.js": "9.1.1"
   },
   "devDependencies": {
