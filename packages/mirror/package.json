@@ -1,6 +1,6 @@
 {
   "name": "@hieco/mirror",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Hedera Mirror Node REST API client for JavaScript/TypeScript",
   "keywords": [
     "api-client",
@@ -55,7 +55,7 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/utils": "^0.0.1",
+    "@hieco/utils": "^1.0.0",
     "ky": "^1.14.3",
     "p-limit": "^7.3.0"
   },

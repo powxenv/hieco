@@ -1,6 +1,6 @@
 {
   "name": "@hieco/mirror-mcp",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "MCP server for Hedera Mirror Node REST API",
   "keywords": [
     "agents",
@@ -43,8 +43,8 @@
     "inspect": "bunx @modelcontextprotocol/inspector node dist/index.js"
   },
   "dependencies": {
-    "@hieco/mirror": "^0.0.1",
-    "@hieco/utils": "^0.0.1",
+    "@hieco/mirror": "^1.0.0",
+    "@hieco/utils": "^1.0.0",
     "@mastra/core": "^1.0.0",
     "@mastra/mcp": "^1.0.0",
     "zod": "4.3.6"

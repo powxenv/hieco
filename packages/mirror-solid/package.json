@@ -1,6 +1,6 @@
 {
   "name": "@hieco/mirror-solid",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Type-safe SolidJS hooks for Hedera Mirror Node with TanStack Query",
   "keywords": [
     "hedera",
@@ -55,8 +55,8 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/mirror": "^0.0.1",
-    "@hieco/utils": "^0.0.1"
+    "@hieco/mirror": "^1.0.0",
+    "@hieco/utils": "^1.0.0"
   },
   "devDependencies": {
     "@typescript/native-preview": "catalog:",
@@ -67,8 +67,8 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@hieco/mirror": "^0.0.1",
-    "@hieco/utils": "^0.0.1",
+    "@hieco/mirror": "^1.0.0",
+    "@hieco/utils": "^1.0.0",
     "@tanstack/solid-query": "^5.0.0",
     "solid-js": ">=1.8"
   },

@@ -1,6 +1,6 @@
 {
   "name": "@hieco/mirror-react",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Type-safe React hooks for Hedera Mirror Node with TanStack Query",
   "keywords": [
     "hedera",
@@ -55,8 +55,8 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/mirror": "^0.0.1",
-    "@hieco/utils": "^0.0.1"
+    "@hieco/mirror": "^1.0.0",
+    "@hieco/utils": "^1.0.0"
   },
   "devDependencies": {
     "@types/react": "catalog:react",
@@ -71,8 +71,8 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@hieco/mirror": "^0.0.1",
-    "@hieco/utils": "^0.0.1",
+    "@hieco/mirror": "^1.0.0",
+    "@hieco/utils": "^1.0.0",
     "@tanstack/react-query": "^5.0.0",
     "react": ">=18",
     "react-dom": ">=18"
