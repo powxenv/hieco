@@ -94,7 +94,7 @@
     "dev:web": "bun --filter '@hieco/web' dev",
     "release:status": "changeset status",
     "release:version": "changeset version",
-    "release:verify": "bun --filter '@hieco/*' lint && bun --filter '@hieco/*' typecheck && bun --filter '@hieco/*' fmt:check && bun --filter '@hieco/*' build",
+    "release:verify": "bun --filter '@hieco/*' build && bun --filter '@hieco/*' fmt && bun --filter '@hieco/*' lint && bun --filter '@hieco/*' typecheck && bun --filter '@hieco/*' fmt:check",
     "release": "bun run release:verify && changeset publish"
   },
   "devDependencies": {
