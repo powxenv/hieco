@@ -23,6 +23,8 @@ jobs:
           node-version: 22
           registry-url: "https://registry.npmjs.org"
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: ".bun-version"
       - run: bun install --frozen-lockfile
       - uses: changesets/action@v1
         with:
