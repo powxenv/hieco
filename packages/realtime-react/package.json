@@ -1,6 +1,6 @@
 {
   "name": "@hieco/realtime-react",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "React hooks for @hieco/realtime with automatic subscription management",
   "keywords": [
     "hedera",
@@ -56,8 +56,8 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/mirror": "^0.0.1",
-    "@hieco/realtime": "^0.0.1"
+    "@hieco/mirror": "^1.0.0",
+    "@hieco/realtime": "^1.0.0"
   },
   "devDependencies": {
     "@types/react": "catalog:react",
@@ -72,8 +72,8 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@hieco/mirror": "^0.0.1",
-    "@hieco/realtime": "^0.0.1",
+    "@hieco/mirror": "^1.0.0",
+    "@hieco/realtime": "^1.0.0",
     "react": ">=18",
     "react-dom": ">=18"
   },

@@ -1,6 +1,6 @@
 {
   "name": "@hieco/utils",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Shared utilities and types for Hieco packages",
   "keywords": [
     "hedera",

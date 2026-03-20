@@ -1,6 +1,6 @@
 {
   "name": "@hieco/realtime",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Real-time streaming client for Hedera Mirror Node via HIP-694 JSON-RPC Relay",
   "keywords": [
     "hedera",
@@ -56,7 +56,7 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/utils": "^0.0.1"
+    "@hieco/utils": "^1.0.0"
   },
   "devDependencies": {
     "@typescript/native-preview": "catalog:",
@@ -67,7 +67,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@hieco/utils": "^0.0.1"
+    "@hieco/utils": "^1.0.0"
   },
   "engines": {
     "node": ">=18.0.0"

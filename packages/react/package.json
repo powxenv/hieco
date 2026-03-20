@@ -1,6 +1,6 @@
 {
   "name": "@hieco/react",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "React hooks for @hieco/sdk with TanStack Query",
   "keywords": [
     "hedera",
@@ -65,8 +65,8 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/sdk": "^0.0.1",
-    "@hieco/utils": "^0.0.1"
+    "@hieco/sdk": "^1.0.0",
+    "@hieco/utils": "^1.0.0"
   },
   "devDependencies": {
     "@hashgraph/hedera-wallet-connect": "2.0.6",
@@ -85,7 +85,7 @@
   },
   "peerDependencies": {
     "@hashgraph/hedera-wallet-connect": "^2.0.6",
-    "@hieco/sdk": "^0.0.1",
+    "@hieco/sdk": "^1.0.0",
     "@reown/appkit": "^1.8.19",
     "@tanstack/react-query": "^5.0.0",
     "react": ">=18",

@@ -1,6 +1,6 @@
 {
   "name": "@hieco/wallet-react",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "React bindings for @hieco/wallet",
   "keywords": [
     "hedera",
@@ -55,7 +55,7 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/wallet": "^0.0.1"
+    "@hieco/wallet": "^1.0.0"
   },
   "devDependencies": {
     "@hiero-ledger/sdk": "^2.80.0",
@@ -71,7 +71,7 @@
     "typescript": "catalog:"
   },
   "peerDependencies": {
-    "@hieco/wallet": "^0.0.1",
+    "@hieco/wallet": "^1.0.0",
     "react": ">=18",
     "react-dom": ">=18"
   },

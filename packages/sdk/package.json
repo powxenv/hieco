@@ -1,6 +1,6 @@
 {
   "name": "@hieco/sdk",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Ergonomic, type-safe SDK for Hiero blockchain transactions and queries",
   "keywords": [
     "blockchain",
@@ -74,9 +74,9 @@
     "fmt:check": "oxfmt --check"
   },
   "dependencies": {
-    "@hieco/mirror": "^0.0.1",
-    "@hieco/runtime": "^0.0.1",
-    "@hieco/utils": "^0.0.1",
+    "@hieco/mirror": "^1.0.0",
+    "@hieco/runtime": "^1.0.0",
+    "@hieco/utils": "^1.0.0",
     "bignumber.js": "9.1.1"
   },
   "devDependencies": {

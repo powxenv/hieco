@@ -1,6 +1,6 @@
 {
   "name": "@hieco/runtime",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Runtime-aware Hiero SDK adapter for browser, workers, and Node.js",
   "keywords": [
     "hedera",
