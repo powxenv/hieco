@@ -9,6 +9,7 @@ import typescriptLogo from "../assets/tech-icons/ts.svg";
 import heroImg from "../assets/hero.jpeg";
 import SolarArrowRightLineDuotone from "~icons/solar/arrow-right-line-duotone";
 import { createSeo } from "#/lib/seo";
+import { githubReadmeUrl } from "#/lib/links";
 
 export const Route = createFileRoute("/")({
   head: () =>
@@ -58,7 +59,11 @@ function App(): ReactElement {
               .
             </p>
             <div className="flex gap-4">
-              <Button size="lg">
+              <Button
+                nativeButton={false}
+                render={<a href={githubReadmeUrl} rel="noreferrer" target="_blank" />}
+                size="lg"
+              >
                 Start building
                 <SolarArrowRightLineDuotone />
               </Button>

@@ -3,6 +3,7 @@ import ConnectDialog from "../components/connect-dialog";
 import { useWallet } from "@hieco/wallet-react";
 import DisconnectDialog from "#/components/disconnect-dialog";
 import { Link } from "@tanstack/react-router";
+import { githubReadmeUrl } from "#/lib/links";
 
 const Header = () => {
   const { session } = useWallet();
@@ -19,7 +20,7 @@ const Header = () => {
             target="_blank"
             rel="noopener noreferrer"
             className="text-zinc-200 whitespace-nowrap hover:underline decoration-wavy hover:text-white transition-all"
-            href="https://github.com/powxenv/hieco?tab=readme-ov-file#hieco"
+            href={githubReadmeUrl}
           >
             Docs
           </a>
